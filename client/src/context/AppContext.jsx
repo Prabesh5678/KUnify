@@ -9,9 +9,11 @@ export const AppContextProvider = ({ children }) => {
   const [student, setstudent] = useState(null);
   const [isTeacher, setIsTeacher] = useState(null);
   const [isAdmin, setIsAdmin] = useState(null);
-  const[showUserLogin,setShowUserLogin]=useState(null);
+  const [showUserLogin, setShowUserLogin] = useState(false);
+const [showSignupPanel, setShowSignupPanel] = useState(false);
 
-  const value = { user,setIsUser,navigate, student, setstudent, isTeacher, setIsTeacher, isAdmin, setIsAdmin, showUserLogin,setShowUserLogin};
+  const value = { user,setIsUser,navigate, student, setstudent, isTeacher, setIsTeacher, isAdmin, setIsAdmin, showUserLogin,setShowUserLogin,showSignupPanel,setShowSignupPanel,
+  };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

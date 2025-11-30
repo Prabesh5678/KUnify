@@ -3,7 +3,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Contact from "./pages/Contact";
 import Footer from "./components/Footer";
-
+import LoginPanel from "./components/LoginPanel";
 
 const App = () => {
   const { pathname } = useLocation();
@@ -13,7 +13,7 @@ const App = () => {
   const isAdminPath = pathname.includes("admin");
   const isHomePath = pathname === "/";
 
- 
+
   const hideNavbar = isAdminPath;
 
   const contentClass =
@@ -23,10 +23,12 @@ const App = () => {
     <>
       {!hideNavbar && <Navbar />}
 
+      <LoginPanel />
       <div className={contentClass}>
         <Routes>
           <Route path="/" element={<Home />} />
-           <Route path="/contact" element={<Contact />} />
+          <Route path="/contact" element={<Contact />} />
+          
           {/* example:
           <Route path="/about" element={<About />} />
           <Route path="/student" element={<StudentDashboard />} />
@@ -35,7 +37,7 @@ const App = () => {
           */}
         </Routes>
       </div>
-      <Footer/>
+      <Footer />
     </>
   );
 };
