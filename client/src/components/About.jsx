@@ -6,9 +6,9 @@ const About= () => {
       <div className="max-w-6xl mx-auto px-6 md:px-12 grid gap-10 md:grid-cols-2 items-center">
         {/*left ko image */}
         <div className="flex justify-center">
-          <div className="rounded-3xl overflow-hidden border-4 border-accent/60 shadow-lg">
+          <div className="rounded-3xl overflow-hidden border-4 border-primary/30 shadow-lg">
             <img
-              src={assets.potential_bg1}
+              src={assets.potential_bg3}
               alt="Students collaborating"
               className="w-full h-72 md:h-80 object-cover"
             />

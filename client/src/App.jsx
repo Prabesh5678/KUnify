@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import Contact from "./pages/Contact";
 import Footer from "./components/Footer";
 import LoginPanel from "./components/LoginPanel";
-
+import AboutKUnify from "./pages/AboutKUnify";
 const App = () => {
   const { pathname } = useLocation();
 
@@ -28,6 +28,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/about-kunify" element={<AboutKUnify />} />
           
           {/* example:
           <Route path="/about" element={<About />} />

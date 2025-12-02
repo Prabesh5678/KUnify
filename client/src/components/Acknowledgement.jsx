@@ -1,16 +1,27 @@
+import { useAppContext } from "../context/AppContext";
+
 const AcknowledgementSection = () => {
+  const { setShowUserLogin, setShowSignupPanel } = useAppContext();
+
   return (
     <section className="w-full bg-secondary text-primary py-16">
       <div className="max-w-6xl mx-auto px-6 md:px-12 grid gap-10 md:grid-cols-[1fr_1.5fr] items-center">
-      
+
         <div className="space-y-6">
           <h2 className="text-2xl md:text-3xl font-semibold">
-           project name will be here
+            logo halne yeta KUnify
           </h2>
 
-          <button className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 text-base font-medium text-secondary hover:bg-accent/90 cursor-pointer">
+          <button
+            onClick={() => {
+              setShowUserLogin(true);     // open panel
+              setShowSignupPanel(true);   // open in signup mode
+            }}
+            className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 text-base font-medium text-secondary hover:bg-accent/90 cursor-pointer"
+          >
             Sign me up
           </button>
+
         </div>
 
         {/* Right: rounded card with text */}

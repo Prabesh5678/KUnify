@@ -46,7 +46,7 @@ const Navbar = () => {
               </span>
             )}
           </NavLink>
-          <NavLink to="/about">About</NavLink>
+          <NavLink to="/about-kunify">About</NavLink>
           <NavLink to="/contact">Contact</NavLink>
 
           {/* Login / Logout button */}
@@ -56,14 +56,14 @@ const Navbar = () => {
                 setOpen(false);
                 setShowUserLogin(true);
               }}
-              className="cursor-pointer after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[3px] after:bg-secondary"
+              className="cursor-pointer"
             >
               Login
             </button>
           ) : (
             <button
               onClick={logout}
-              className="cursor-after:absolute after:left-0 after:right-0 after:-bottom-1 after:h-[3px] after:bg-secondary"
+              className="cursor-pointer"
             >
               Logout
             </button>
@@ -99,7 +99,7 @@ const Navbar = () => {
         <NavLink to="/" onClick={() => setOpen(false)} className="py-1">
           Home
         </NavLink>
-        <NavLink to="/about" onClick={() => setOpen(false)} className="py-1">
+        <NavLink to="/about-kunify" onClick={() => setOpen(false)} className="py-1">
           About
         </NavLink>
         <NavLink to="/contact" onClick={() => setOpen(false)} className="py-1">

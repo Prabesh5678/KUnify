@@ -105,23 +105,25 @@ const LoginPanel = () => {
                     />
                   </div>
                 </div>
-
-                {/* Role & Phone */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
                     <label className="block text-lg font-medium text-gray-300 mb-4">Role*</label>
-                    <input
-                      type="text"
+                    <select
                       name="role"
                       value={form.role}
                       onChange={handleChange}
                       required
-                      placeholder="e.g. Student"
                       className="block w-full pb-3 bg-transparent border-b-2 border-gray-600 
-                                 text-white text-xl placeholder:text-gray-500 
-                                 focus:border-white outline-none transition-colors"
-                    />
+             text-white text-xl placeholder:text-gray-500 
+             focus:border-white outline-none transition-colors"
+                    >
+                      <option value="" className="text-black">-- Select --</option>
+                      <option value="student" className="text-black">Student</option>
+                      <option value="teacher" className="text-black">Teacher</option>
+                    </select>
+
                   </div>
+
                   <div>
                     <label className="block text-lg font-medium text-gray-300 mb-4">Phone number*</label>
                     <input
@@ -132,11 +134,12 @@ const LoginPanel = () => {
                       required
                       placeholder="98XXXXXXXX"
                       className="block w-full pb-3 bg-transparent border-b-2 border-gray-600 
-                                 text-white text-xl placeholder:text-gray-500 
-                                 focus:border-white outline-none transition-colors"
+                 text-white text-xl placeholder:text-gray-500 
+                 focus:border-white outline-none transition-colors"
                     />
                   </div>
                 </div>
+
               </>
             )}
 
