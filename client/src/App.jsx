@@ -4,7 +4,9 @@ import Home from "./pages/Home";
 import Contact from "./pages/Contact";
 import Footer from "./components/Footer";
 import LoginPanel from "./components/LoginPanel";
-import AboutKUnify from "./pages/AboutKUnify";
+import AboutSPMP from "./pages/AboutSPMP";
+import ProfileSetup from "./pages/Student/ProfileSetup";
+import InstructionsPage from "./pages/Student/Instructionpage";
 const App = () => {
   const { pathname } = useLocation();
 
@@ -28,7 +30,10 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/about-kunify" element={<AboutKUnify />} />
+          <Route path="/about-SPMP" element={<AboutSPMP />} />
+          <Route path="/ProfileSetup" element={<ProfileSetup />} />
+           <Route path="/Instructionspage" element={<InstructionsPage />} />
+          
           
           {/* example:
           <Route path="/about" element={<About />} />

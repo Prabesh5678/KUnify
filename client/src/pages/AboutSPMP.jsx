@@ -1,5 +1,5 @@
 
-const AboutKUnify = () => {
+const AboutSPMP = () => {
   return (
     <div className="px-6 md:px-16 py-12 bg-gray-100 min-h-screen">
       <div className="about-us border rounded-lg p-8 bg-white shadow-md max-w-4xl mx-auto space-y-6">
@@ -8,7 +8,7 @@ const AboutKUnify = () => {
         <div className="section p-4 bg-gray-50 rounded-md">
           <h3 className="text-xl font-medium mb-2">Our Platform</h3>
           <p>
-            KUnify is designed to help students manage project proposals, form groups, and
+            Student Project Management Platform is designed to help students manage project proposals, form groups, and
             collaborate with teachers for supervision and feedback.
           </p>
         </div>
@@ -43,7 +43,7 @@ const AboutKUnify = () => {
         <div className="section p-4 bg-gray-50 rounded-md">
           <h3 className="text-xl font-medium mb-2">Our Team</h3>
           <p>
-            Developed by the KUnify Team to support academic innovation and student success.
+            Developed by the SPMP Team to support academic innovation and student success.
           </p>
         </div>
       </div>
@@ -51,4 +51,4 @@ const AboutKUnify = () => {
   );
 };
 
-export default AboutKUnify;
+export default AboutSPMP;

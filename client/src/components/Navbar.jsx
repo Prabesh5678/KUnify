@@ -46,7 +46,7 @@ const Navbar = () => {
               </span>
             )}
           </NavLink>
-          <NavLink to="/about-kunify">About</NavLink>
+          <NavLink to="/about-spmp">About</NavLink>
           <NavLink to="/contact">Contact</NavLink>
 
           {/* Login / Logout button */}
@@ -99,7 +99,7 @@ const Navbar = () => {
         <NavLink to="/" onClick={() => setOpen(false)} className="py-1">
           Home
         </NavLink>
-        <NavLink to="/about-kunify" onClick={() => setOpen(false)} className="py-1">
+        <NavLink to="/about-spmp" onClick={() => setOpen(false)} className="py-1">
           About
         </NavLink>
         <NavLink to="/contact" onClick={() => setOpen(false)} className="py-1">

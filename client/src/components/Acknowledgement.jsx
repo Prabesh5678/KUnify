@@ -9,7 +9,7 @@ const AcknowledgementSection = () => {
 
         <div className="space-y-6">
           <h2 className="text-2xl md:text-3xl font-semibold">
-            logo halne yeta KUnify
+           Student Project Management Platform
           </h2>
 
           <button

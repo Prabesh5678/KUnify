@@ -21,7 +21,7 @@ const Contact = () => {
             <p>
               <span className="font-medium">Admin Office:</span>{" "}
               <a href="mailto:saugat.singh@ku.edu.np" className="text-primary hover:underline">
-                Sugat Singh (saugat.singh@ku.edu.np)
+                Saugat Singh (saugat.singh@ku.edu.np)
               </a>
             </p>
             <p>
