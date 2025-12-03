@@ -8,8 +8,7 @@ const LoginPanel = () => {
   const [isSignup, setIsSignup] = useState(false);
 
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     role: "",
     phone: "",
     email: "",
@@ -74,31 +73,17 @@ const LoginPanel = () => {
 
             {isSignup && (
               <>
-                {/* First & Last Name */}
+                {/* Name */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <label className="block text-lg font-medium text-gray-300 mb-4">First name*</label>
+                    <label className="block text-lg font-medium text-gray-300 mb-4">Full name*</label>
                     <input
                       type="text"
-                      name="firstName"
-                      value={form.firstName}
+                      name="name"
+                      value={form.name}
                       onChange={handleChange}
                       required
-                      placeholder="Enter first name"
-                      className="block w-full pb-3 bg-transparent border-b-2 border-gray-600 
-                                 text-white text-xl placeholder:text-gray-500 
-                                 focus:border-white outline-none transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-lg font-medium text-gray-300 mb-4">Last name*</label>
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={form.lastName}
-                      onChange={handleChange}
-                      required
-                      placeholder="Enter last name"
+                      placeholder="Enter your full name"
                       className="block w-full pb-3 bg-transparent border-b-2 border-gray-600 
                                  text-white text-xl placeholder:text-gray-500 
                                  focus:border-white outline-none transition-colors"
