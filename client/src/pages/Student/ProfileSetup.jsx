@@ -1,86 +1,101 @@
 // components/SetupProfile.jsx
 import { useAppContext } from "../../context/AppContext";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const SetupProfile = () => {
+const ProfileSetup = () => {
   const { isUser, setIsUser } = useAppContext();
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
+    name: isUser?.name || "",
+    email: isUser?.email || "",
     department: "",
     semester: "",
     rollNumber: "",
+    subjectCode: "",
   });
 
-  const userName = isUser?.name || "";
-  const userEmail = isUser?.email || "";
-  const userPhone = isUser?.phone || "";
-
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const { name, email, department, semester, rollNumber, subjectCode } = form;
+
+    if (!name || !email || !department || !semester || !rollNumber || !subjectCode) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    // 1️⃣ Update global context with completed profile
     setIsUser({
       ...isUser,
-      department: form.department,
-      semester: form.semester,
-      rollNumber: form.rollNumber,
+      name,
+      email,
+      profileCompleted: true,
+      profile: {
+        department,
+        semester,
+        rollNumber,
+        subjectCode,
+      },
+      department,
+      semester,
+      rollNumber,
+      subjectCode,
     });
+
+    // 2️⃣ Save to localStorage (for persistence)
+    localStorage.setItem("profileCompleted", "true");
+    localStorage.setItem(
+      "profileData",
+      JSON.stringify({ name, email, department, semester, rollNumber, subjectCode })
+    );
+
+    // 3️⃣ Redirect to student dashboard
+    navigate("/student/dashboard");
   };
 
   return (
     <div className="w-full min-h-screen bg-white py-16 px-4">
-
       <div className="max-w-3xl mx-auto bg-white border-2 border-primary rounded-2xl shadow-md p-10">
-
         <h2 className="text-3xl font-bold text-center text-primary mb-10">
           Complete Your Profile
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-10">
-
           {/* User Info Section */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-
             {/* Name */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4">
               <label className="text-[#0f172a] font-medium">Full Name</label>
               <input
                 type="text"
-                value={userName}
-                disabled
-                className="w-full bg-gray-100 text-black p-3 rounded-md border border-gray-300"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                className="w-full bg-white text-black p-3 rounded-md border border-gray-800"
               />
             </div>
 
             {/* Email */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4">
               <label className="text-[#0f172a] font-medium">Email</label>
               <input
                 type="email"
-                value={userEmail}
-                disabled
-                className="w-full bg-gray-100 text-black p-3 rounded-md border border-gray-300"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                className="w-full bg-white text-black p-3 rounded-md border border-gray-800"
               />
             </div>
-
-            {/* Phone */}
-            <div className="flex flex-col gap-2">
-              <label className="text-[#0f172a] font-medium">Phone Number</label>
-              <input
-                type="text"
-                value={userPhone}
-                disabled
-                className="w-full bg-gray-100 text-black p-3 rounded-md border border-gray-300"
-              />
-            </div>
-
           </div>
 
           {/* Academic Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-
             {/* Department */}
             <div className="flex flex-col gap-2">
               <label className="text-[#0f172a] font-medium">Department</label>
@@ -134,20 +149,33 @@ const SetupProfile = () => {
               />
             </div>
 
+            {/* Subject Code */}
+            <div className="flex flex-col gap-2">
+              <label className="text-[#0f172a] font-medium">Subject Code</label>
+              <input
+                type="text"
+                name="subjectCode"
+                value={form.subjectCode}
+                onChange={handleChange}
+                required
+                placeholder="e.g. COMP 201"
+                className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a]"
+              />
+            </div>
           </div>
 
-          {/* Submit button */}
+          {/* Submit Button */}
           <button
             type="submit"
             className="w-full py-3 bg-primary text-white font-semibold rounded-md hover:opacity-90 transition"
           >
             Save Profile
           </button>
-
         </form>
       </div>
     </div>
   );
 };
 
-export default SetupProfile;
+export default ProfileSetup;
+

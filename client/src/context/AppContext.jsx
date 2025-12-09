@@ -5,14 +5,18 @@ export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
-  const[user,setIsUser]=useState(null);
+  const [user, setIsUser] = useState(null);
   const [student, setstudent] = useState(null);
   const [isTeacher, setIsTeacher] = useState(null);
   const [isAdmin, setIsAdmin] = useState(null);
   const [showUserLogin, setShowUserLogin] = useState(false);
-const [showSignupPanel, setShowSignupPanel] = useState(false);
+  const [showSignupPanel, setShowSignupPanel] = useState(false);
+  const [profileSetupDone, setProfileSetupDone] = useState(false);
 
-  const value = { user,setIsUser,navigate, student, setstudent, isTeacher, setIsTeacher, isAdmin, setIsAdmin, showUserLogin,setShowUserLogin,showSignupPanel,setShowSignupPanel,
+  const value = {
+    user, setIsUser, navigate, student, setstudent, isTeacher, setIsTeacher, isAdmin, setIsAdmin, showUserLogin, setShowUserLogin, showSignupPanel, setShowSignupPanel,
+  profileSetupDone,
+    setProfileSetupDone,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
