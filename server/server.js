@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import connectDB from "./configs/db.config.js";
+import cookieParser from "cookie-parser";
+import studentRouter from "./routes/student.route.js";
 
 const app=express();
 const port = 3000;
@@ -27,9 +29,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser());
 
 
 app.get("/", (_, res) => res.send("API is working"));
+
+app.use('/api/student',studentRouter);
+
 
 // ✅ Start server
 app.listen(port, () => {
