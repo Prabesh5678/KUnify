@@ -9,6 +9,8 @@ import ProfileSetup from "./pages/Student/ProfileSetup";
 import InstructionsPage from "./pages/Student/Instructionpage";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import ProfileGuard from "./components/ProfileGuard";
+import { Toaster } from "react-hot-toast";
+
 const App = () => {
   const { pathname } = useLocation();
 
@@ -25,6 +27,7 @@ const App = () => {
 
   return (
     <>
+    <Toaster position="top-right" />
       {!hideNavbar && <Navbar />}
 
       <LoginPanel />
