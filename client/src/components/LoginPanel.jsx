@@ -71,7 +71,7 @@ const LoginPanel = () => {
 };
 
 export default LoginPanel;
-*/
+*/// src/components/LoginPanel.jsx
 import { useAppContext } from "../context/AppContext";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
@@ -80,7 +80,8 @@ import toast from "react-hot-toast";
 import axios from "axios";
 
 const LoginPanel = () => {
-  const { setIsUser, showUserLogin, setShowUserLogin } = useAppContext();
+  const { setIsUser, showUserLogin, setShowUserLogin, setProfileSetupDone } =
+    useAppContext();
   const navigate = useNavigate();
 
   if (!showUserLogin) return null;
@@ -90,10 +91,8 @@ const LoginPanel = () => {
       const decoded = jwtDecode(credentialResponse.credential);
       const email = decoded.email;
 
-
-
-      if(!email){
-        toast.error('Email not provided by google.');
+      if (!email) {
+        toast.error("Email not provided by Google.");
         return;
       }
 
@@ -105,30 +104,49 @@ const LoginPanel = () => {
         return;
       }
 
-      const newUser = {
+      const baseUser = {
         name: decoded.name,
         email: decoded.email,
-        googleId:decoded.sub,
-        picture:decoded.picture,
-        profileCompleted: false,
+        googleId: decoded.sub,
+        picture: decoded.picture,
       };
-      // const { data } = await axios.post("/api/student/google-signin", {
-      //   credential: credentialResponse.credential,
-      // });
+
       const { data } = await axios.post("/api/student/google-signin", {
-        credential:newUser
+        credential: baseUser,
       });
-      
-       if (data.success) {
-        setIsUser(newUser);
-        setShowUserLogin(false);
-        navigate("/setup-profile");
-        toast.success("Login successful!");
-        
-      } else {
-        toast.error(data.message);
-        console.error(data);
+      console.log("google-signin response:", data);
+
+      if (!data.success) {
+        toast.error(data.message || "Login failed.");
+        return;
       }
+
+      const fullUser = {
+        ...baseUser,
+        profileCompleted: data.profileCompleted || false,
+        profile: data.profile || null,
+      };
+
+      setIsUser(fullUser);
+      localStorage.setItem("user", JSON.stringify(fullUser));
+
+      setShowUserLogin(false);
+
+      if (fullUser.profileCompleted) {
+        setProfileSetupDone(true);
+        localStorage.setItem("profileCompleted", "true");
+        if (fullUser.profile) {
+          localStorage.setItem("profileData", JSON.stringify(fullUser.profile));
+        }
+        navigate("/student/dashboard");
+      } else {
+        setProfileSetupDone(false);
+        localStorage.removeItem("profileCompleted");
+        localStorage.removeItem("profileData");
+        navigate("/setup-profile");
+      }
+
+      toast.success("Login successful!");
     } catch (error) {
       console.error("Login Error:", error);
       toast.error("Something went wrong during login.");
@@ -136,7 +154,7 @@ const LoginPanel = () => {
   };
 
   const handleError = (error) => {
-    console.error(error.response?.data?.message||'error');
+    console.error(error?.response?.data?.message || "error");
     toast.error("Google Login Failed");
   };
 
@@ -147,13 +165,12 @@ const LoginPanel = () => {
           Continue with
         </h1>
 
-        {/* Custom-looking Google button */}
         <div className="flex justify-center mb-8">
           <GoogleLogin
             onSuccess={handleSuccess}
             onError={handleError}
             useOneTap={false}
-            text="Continue_with"      // keep Google icon, override label via CSS if needed
+            text="Continue_with"
             shape="rectangular"
             width="260"
           />
@@ -161,14 +178,14 @@ const LoginPanel = () => {
 
         <p className="text-sm text-center text-gray-300 mb-2">
           Kathmandu University students can log in using their official KU
-          email (e.g., <span className="text-gray-100">username@student.ku.edu.np</span>).
+          email (e.g.,{" "}
+          <span className="text-gray-100">username@student.ku.edu.np</span>).
         </p>
         <p className="text-sm text-center text-gray-300 mb-8">
           Click <span className="font-semibold">“Login with KU Email”</span> to
           enter the Student Project Management Platform.
         </p>
 
-        {/* Close button top-right */}
         <button
           onClick={() => setShowUserLogin(false)}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-lg"

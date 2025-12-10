@@ -1,10 +1,9 @@
-// components/SetupProfile.jsx
 import { useAppContext } from "../../context/AppContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const ProfileSetup = () => {
-  const { isUser, setIsUser } = useAppContext();
+  const { user, setIsUser, setProfileSetupDone } = useAppContext();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -20,36 +19,25 @@ const ProfileSetup = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const {department, semester, rollNumber, subjectCode } = form;
+    const { department, semester, rollNumber, subjectCode } = form;
 
     if (!department || !semester || !rollNumber || !subjectCode) {
       alert("Please fill all fields");
       return;
     }
 
-    // Update global context with completed profile
-    setIsUser({
-      ...isUser,
+    // mark profile as completed
+    const updatedUser = {
+      ...user,
       profileCompleted: true,
-      profile: {
-        department,
-        semester,
-        rollNumber,
-        subjectCode,
-      },
-      department,
-      semester,
-      rollNumber,
-      subjectCode,
-    });
+      profile: { department, semester, rollNumber, subjectCode },
+    };
 
-    // Save to localStorage (for persistence)
+    setIsUser(updatedUser);
+    setProfileSetupDone(true);
     localStorage.setItem("profileCompleted", "true");
-    localStorage.setItem(
-      "profileData",
-      JSON.stringify({department, semester, rollNumber, subjectCode })
-    );
+    localStorage.setItem("profileData", JSON.stringify(updatedUser.profile));
+
 
     // Redirect to student dashboard
     navigate("/student/dashboard");
