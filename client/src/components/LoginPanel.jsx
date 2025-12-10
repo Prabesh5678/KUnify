@@ -1,4 +1,4 @@
-{/*
+/*
 import { useAppContext } from "../context/AppContext";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
@@ -71,7 +71,7 @@ const LoginPanel = () => {
 };
 
 export default LoginPanel;
-*/ }
+*/
 import { useAppContext } from "../context/AppContext";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
@@ -127,6 +127,7 @@ const LoginPanel = () => {
         
       } else {
         toast.error(data.message);
+        console.error(data);
       }
     } catch (error) {
       console.error("Login Error:", error);

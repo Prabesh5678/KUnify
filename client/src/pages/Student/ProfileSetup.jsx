@@ -8,8 +8,6 @@ const ProfileSetup = () => {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    name: isUser?.name || "",
-    email: isUser?.email || "",
     department: "",
     semester: "",
     rollNumber: "",
@@ -23,9 +21,9 @@ const ProfileSetup = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const { name, email, department, semester, rollNumber, subjectCode } = form;
+    const {department, semester, rollNumber, subjectCode } = form;
 
-    if (!name || !email || !department || !semester || !rollNumber || !subjectCode) {
+    if (!department || !semester || !rollNumber || !subjectCode) {
       alert("Please fill all fields");
       return;
     }
@@ -33,8 +31,6 @@ const ProfileSetup = () => {
     // Update global context with completed profile
     setIsUser({
       ...isUser,
-      name,
-      email,
       profileCompleted: true,
       profile: {
         department,
@@ -52,7 +48,7 @@ const ProfileSetup = () => {
     localStorage.setItem("profileCompleted", "true");
     localStorage.setItem(
       "profileData",
-      JSON.stringify({ name, email, department, semester, rollNumber, subjectCode })
+      JSON.stringify({department, semester, rollNumber, subjectCode })
     );
 
     // Redirect to student dashboard
@@ -67,33 +63,6 @@ const ProfileSetup = () => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-10">
-          {/* User Info Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            {/* Name */}
-            <div className="flex flex-col gap-4">
-              <label className="text-[#0f172a] font-medium">Full Name</label>
-              <input
-                type="text"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                className="w-full bg-white text-black p-3 rounded-md border border-gray-800"
-              />
-            </div>
-
-            {/* Email */}
-            <div className="flex flex-col gap-4">
-              <label className="text-[#0f172a] font-medium">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                className="w-full bg-white text-black p-3 rounded-md border border-gray-800"
-              />
-            </div>
-          </div>
-
           {/* Academic Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             {/* Department */}

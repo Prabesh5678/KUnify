@@ -72,7 +72,7 @@ const StudentDashboard = () => {
             <div className="space-y-4">
 
               <button
-                onClick={() => navigate("/student/team")} // Change to your actual route
+                onClick={() => navigate("/student/team")} 
                 className="w-full bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition flex items-center justify-between border border-gray-100"
               >
                 <div className="flex items-center gap-4">
@@ -88,7 +88,7 @@ const StudentDashboard = () => {
               </button>
 
               <button
-                onClick={() => navigate("/student/request-supervisor")}
+                onClick={() => navigate("/student/requestsupervisor")}
                 className="w-full bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition flex items-center justify-between border border-gray-100"
               >
                 <div className="flex items-center gap-4">
