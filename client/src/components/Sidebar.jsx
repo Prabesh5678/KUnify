@@ -1,0 +1,58 @@
+import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  Home,
+  Info,
+  NotebookPen,
+  Sheet,
+  Settings,
+} from "lucide-react";
+
+const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const menuItems = [
+    { icon: Home, path: "/student/dashboard", label: "Dashboard" },
+    { icon: NotebookPen, path: "/student/requestsupervisor", label: "Request Supervisor" },
+    { icon: Info, path: "/student/guidelines", label: "Guidelines" },
+    { icon: Sheet, path: "/student/logsheet", label: "Log Sheet" },
+    { icon: Settings, path: "/student/settings", label: "Settings" },
+  ];
+
+  return (
+    <div
+      className={`fixed top-15 left-0 h-screen bg-primary text-secondary
+        transition-all duration-500 py-4 z-40 flex flex-col
+        ${isSidebarOpen ? "w-56" : "w-20"}`}
+    >
+      <div className="flex flex-col gap-4 mt-4">
+        {menuItems.map((item, index) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path;
+
+          return (
+            <button
+              key={index}
+              onClick={() => {
+                navigate(item.path);
+                setIsSidebarOpen(false); //Auto-close sidebar
+              }}
+              className={`
+                flex items-center gap-4 px-4 py-3 rounded-lg transition
+                ${isActive ? "bg-blue-100 text-blue-700" : "hover:bg-gray-300"}
+              `}
+            >
+              <Icon size={22} strokeWidth={2.5} />
+              {isSidebarOpen && (
+                <span className="text-sm font-medium">{item.label}</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;

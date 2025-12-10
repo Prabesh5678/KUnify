@@ -1,76 +1,182 @@
 import React from "react";
+import { Users, FileText, Clock, Plus, Calendar, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
 
-  const goToSubjectCode = () => navigate("/subject-code");
-  const goToTeam = () => navigate("/team");
-  const goToLogs = () => navigate("/logs");
-  const goToSupervisor = () => navigate("/request-supervisor");
-
   return (
-    <div className="w-full min-h-screen bg-[#f4f8ff] flex flex-col items-center p-8">
-      {/* Title */}
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">
-        Student Dashboard
-      </h1>
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
 
-      {/* Card Container */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-3xl w-full">
+        {/* Page Title */}
+        <h1 className="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
 
-        {/* SUBJECT CODE */}
-        <div
-          onClick={goToSubjectCode}
-          className="bg-white shadow-md p-6 rounded-xl cursor-pointer hover:shadow-lg transition"
-        >
-          <h2 className="text-xl font-semibold text-gray-700 mb-2">
-            Enter Subject Code
-          </h2>
-          <p className="text-gray-500 text-sm">
-            Add the subject code to begin your project workflow.
-          </p>
+        {/* Top Status Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+          <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-green-100 rounded-xl">
+                <Users className="text-green-600" size={28} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Team Status</p>
+                <p className="text-lg font-bold text-gray-800">Not Joined</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-purple-100 rounded-xl">
+                <FileText className="text-purple-600" size={28} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Supervisor</p>
+                <p className="text-lg font-bold text-orange-600">Pending</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-100 rounded-xl">
+                <Clock className="text-blue-600" size={28} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Hours Logged</p>
+                <p className="text-lg font-bold text-gray-800">6 hours</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-orange-100 rounded-xl">
+                <Calendar className="text-orange-600" size={28} />
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Log Entries</p>
+                <p className="text-lg font-bold text-gray-800">2 entries</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* TEAM MANAGEMENT */}
-        <div
-          onClick={goToTeam}
-          className="bg-white shadow-md p-6 rounded-xl cursor-pointer hover:shadow-lg transition"
-        >
-          <h2 className="text-xl font-semibold text-gray-700 mb-2">
-            Create / Join Team
-          </h2>
-          <p className="text-gray-500 text-sm">
-            Form your team or join an existing one using a team code.
-          </p>
-        </div>
+        {/* Bottom Section: Quick Actions + Upcoming Deadlines */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        {/* REQUEST SUPERVISOR */}
-        <div
-          onClick={goToSupervisor}
-          className="bg-white shadow-md p-6 rounded-xl cursor-pointer hover:shadow-lg transition"
-        >
-          <h2 className="text-xl font-semibold text-gray-700 mb-2">
-            Submit your proposal
-          </h2>
-          <p className="text-gray-500 text-sm">
-           Submit your proposal for supervisor assignment.
-          </p>
-        </div>
+          {/* Quick Actions */}
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 mb-5">Quick Actions</h2>
+            <div className="space-y-4">
 
-        {/* LOG SHEETS */}
-        <div
-          onClick={goToLogs}
-          className="bg-white shadow-md p-6 rounded-xl cursor-pointer hover:shadow-lg transition"
-        >
-          <h2 className="text-xl font-semibold text-gray-700 mb-2">
-            Logsheets & Submissions
-          </h2>
-          <p className="text-gray-500 text-sm">
-            Upload logsheets, view submissions, and track your progress.
-          </p>
-        </div>
+              <button
+                onClick={() => navigate("/student/team")} // Change to your actual route
+                className="w-full bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition flex items-center justify-between border border-gray-100"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-green-100 rounded-xl">
+                    <Users className="text-green-600" size={26} />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-gray-800">Create or Join Team</p>
+                    <p className="text-sm text-gray-500">Form your project team</p>
+                  </div>
+                </div>
+                <span className="text-gray-400">→</span>
+              </button>
 
+              <button
+                onClick={() => navigate("/student/request-supervisor")}
+                className="w-full bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition flex items-center justify-between border border-gray-100"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-purple-100 rounded-xl">
+                    <FileText className="text-purple-600" size={26} />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-gray-800">Request Supervisor</p>
+                    <p className="text-sm text-gray-500">Submit supervisor request</p>
+                  </div>
+                </div>
+                <span className="text-gray-400">→</span>
+              </button>
+
+              <button
+                onClick={() => navigate("/student/logsheet")}
+                className="w-full bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition flex items-center justify-between border border-gray-100"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-blue-100 rounded-xl">
+                    <Plus className="text-blue-600" size={26} />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-gray-800">Add Log Entry</p>
+                    <p className="text-sm text-gray-500">Update your logsheet</p>
+                  </div>
+                </div>
+                <span className="text-gray-400">→</span>
+              </button>
+
+            </div>
+          </div>
+
+          {/* Upcoming Deadlines */}
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 mb-5">Upcoming Deadlines</h2>
+            <div className="space-y-4">
+
+              <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-orange-200 rounded-lg">
+                    <AlertCircle className="text-orange-600" size={22} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800">Team Formation</p>
+                    <p className="text-sm text-gray-600">Week 2</p>
+                  </div>
+                </div>
+                <span className="bg-orange-200 text-orange-700 text-xs font-bold px-3 py-1 rounded-full">
+                  Action Required
+                </span>
+              </div>
+
+              <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-orange-200 rounded-lg">
+                    <AlertCircle className="text-orange-600" size={22} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-800">Supervisor Request</p>
+                    <p className="text-sm text-gray-600">Week 3</p>
+                  </div>
+                </div>
+                <span className="bg-orange-200 text-orange-700 text-xs font-bold px-3 py-1 rounded-full">
+                  Action Required
+                </span>
+              </div>
+
+              <div className="bg-white rounded-2xl p-5 flex items-center gap-4 border border-gray-100">
+                <Calendar className="text-gray-500" size={22} />
+                <div>
+                  <p className="font-medium text-gray-700">First Progress Report</p>
+                  <p className="text-sm text-gray-500">Week 7</p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-5 flex items-center gap-4 border border-gray-100">
+                <Calendar className="text-gray-500" size={22} />
+                <div>
+                  <p className="font-medium text-gray-700">Final Submission</p>
+                  <p className="text-sm text-gray-500">Week 14</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   );

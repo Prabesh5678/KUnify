@@ -30,7 +30,7 @@ const ProfileSetup = () => {
       return;
     }
 
-    // 1️⃣ Update global context with completed profile
+    // Update global context with completed profile
     setIsUser({
       ...isUser,
       name,
@@ -48,14 +48,14 @@ const ProfileSetup = () => {
       subjectCode,
     });
 
-    // 2️⃣ Save to localStorage (for persistence)
+    // Save to localStorage (for persistence)
     localStorage.setItem("profileCompleted", "true");
     localStorage.setItem(
       "profileData",
       JSON.stringify({ name, email, department, semester, rollNumber, subjectCode })
     );
 
-    // 3️⃣ Redirect to student dashboard
+    // Redirect to student dashboard
     navigate("/student/dashboard");
   };
 

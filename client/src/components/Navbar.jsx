@@ -5,8 +5,7 @@ import { useAppContext } from "../context/AppContext";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-
- 
+  
   const {
     user,
     setIsUser,
