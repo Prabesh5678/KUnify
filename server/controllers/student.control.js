@@ -1,43 +1,44 @@
 import Student from '../models/student.model.js'
 import jwt from "jsonwebtoken";
-import { OAuth2Client } from "google-auth-library";
+// import { OAuth2Client } from "google-auth-library";
 
 
 // Google Sign-In Controller: /api/student/google-signin
 export const googleSignIn = async (req, res) => {
   try {
-    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-    const { credential } = req.body;
-
+    // const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    // console.log(req.body)
+    const  credential  = req.body.credential; //or {credential}
+// console.log(credential)
     if (!credential) {
       return res.json({ success: false, message: "No credential provided" });
     }
 
-    // Verify the Google userToken
-    const ticket = await client.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
+    // // Verify the Google userToken
+    // const ticket = await client.verifyIdToken({
+    //   idToken: credential,
+    //   audience: process.env.GOOGLE_CLIENT_ID,
+    // });
 
-    const payload = ticket.getPayload();
-    const { sub: googleId, email, name, picture } = payload;
+    // const payload = ticket.getPayload();
+    // const { sub: googleId, email, name, picture } = payload;
 
-    if (!email) {
-      return res.json({
-        success: false,
-        message: "Email not provided by Google",
-      });
-    }
+    // if (!email) {
+    //   return res.json({
+    //     success: false,
+    //     message: "Email not provided by Google",
+    //   });
+    // }
 
     // Check if student already exists
-    let student = await Student.findOne({ email });
+    let student = await Student.findOne({ email:credential.email });
 
     if (!student) {
        student = new Student({
-         name: name || "KU Student",
-         email,
-         googleId,
-         avatar: picture,
+         name: credential.name || "KU Student",
+         email:credential.email,
+         googleId:credential.googleId,
+         avatar: credential.picture,
        });
        await student.save();
     }
@@ -61,11 +62,6 @@ export const googleSignIn = async (req, res) => {
     return res.json({
       success: true,
       message: "Google sign-in successful",
-      student: {
-        name: student.name,
-        email: student.email,
-        avatar: student.avatar,
-      },
     });
   } catch (error) {
     return res.json({

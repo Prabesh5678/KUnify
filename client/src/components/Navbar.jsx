@@ -2,6 +2,8 @@ import { NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { useState } from "react";
 import { useAppContext } from "../context/AppContext";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -11,14 +13,23 @@ const Navbar = () => {
     setIsUser,
     navigate,        
     showUserLogin,
-    setShowUserLogin,
+    setShowUserLogin
   } = useAppContext();
 
-  const logout = async () => {
-    setIsUser(null);
-    navigate("/");
-  };
-
+ const logout = async () => {
+   try {
+     const { data } = await axios.get("/api/student/logout");
+     if (data.success) {
+       toast.success(data.message);
+       setIsUser(null);
+       navigate("/");
+     } else {
+       toast.error(data.message);
+     }
+   } catch (error) {
+     toast.error(error.message);
+   }
+ };
   return (
     <nav className="border-y-2 border-accent bg-primary text-secondary">
       <div className="flex items-center justify-between px-6 md:px-16 py-3">

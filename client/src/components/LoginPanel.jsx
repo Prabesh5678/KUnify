@@ -77,6 +77,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 const LoginPanel = () => {
   const { setIsUser, showUserLogin, setShowUserLogin } = useAppContext();
@@ -84,12 +85,22 @@ const LoginPanel = () => {
 
   if (!showUserLogin) return null;
 
-  const handleSuccess = (credentialResponse) => {
+  const handleSuccess = async (credentialResponse) => {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
       const email = decoded.email;
 
-      if (!email.endsWith("@student.ku.edu.np")) {
+
+
+      if(!email){
+        toast.error('Email not provided by google.');
+        return;
+      }
+
+      if (
+        !email.endsWith("@student.ku.edu.np") ||
+        decoded.hd !== "student.ku.edu.np"
+      ) {
         toast.error("Only KU student emails are allowed.");
         return;
       }
@@ -97,20 +108,34 @@ const LoginPanel = () => {
       const newUser = {
         name: decoded.name,
         email: decoded.email,
+        googleId:decoded.sub,
+        picture:decoded.picture,
         profileCompleted: false,
       };
-
-      setIsUser(newUser);
-      setShowUserLogin(false);
-      navigate("/setup-profile");
-      toast.success("Login successful!");
+      // const { data } = await axios.post("/api/student/google-signin", {
+      //   credential: credentialResponse.credential,
+      // });
+      const { data } = await axios.post("/api/student/google-signin", {
+        credential:newUser
+      });
+      
+       if (data.success) {
+        setIsUser(newUser);
+        setShowUserLogin(false);
+        navigate("/setup-profile");
+        toast.success("Login successful!");
+        
+      } else {
+        toast.error(data.message);
+      }
     } catch (error) {
       console.error("Login Error:", error);
       toast.error("Something went wrong during login.");
     }
   };
 
-  const handleError = () => {
+  const handleError = (error) => {
+    console.error(error.response?.data?.message||'error');
     toast.error("Google Login Failed");
   };
 
@@ -127,7 +152,7 @@ const LoginPanel = () => {
             onSuccess={handleSuccess}
             onError={handleError}
             useOneTap={false}
-            text="signin_with"      // keep Google icon, override label via CSS if needed
+            text="Continue_with"      // keep Google icon, override label via CSS if needed
             shape="rectangular"
             width="260"
           />

@@ -1,5 +1,9 @@
 import { createContext, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
 export const AppContext = createContext();
 
