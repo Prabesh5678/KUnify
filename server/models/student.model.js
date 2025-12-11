@@ -13,9 +13,10 @@ const studentSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    department: { type: String },
-    semester: { type: Number },
-    rollNumber: { type: Number },
+    department: { type: String,  default: null },
+    semester: { type: String,  default: null },
+    rollNumber: { type: String,  default: null },
+    subjectCode: { type: String,  default: null },
   },
   { timestamps: true }
 );

@@ -1,15 +1,15 @@
-import Student from '../models/student.model.js'
+import mongoose from "mongoose";
+import Student from "../models/student.model.js";
 import jwt from "jsonwebtoken";
 // import { OAuth2Client } from "google-auth-library";
-
 
 // Google Sign-In Controller: /api/student/google-signin
 export const googleSignIn = async (req, res) => {
   try {
     // const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
     // console.log(req.body)
-    const  credential  = req.body.credential; //or {credential}
-// console.log(credential)
+    const credential = req.body.credential; //or {credential}
+    // console.log(credential)
     if (!credential) {
       return res.json({ success: false, message: "No credential provided" });
     }
@@ -31,25 +31,23 @@ export const googleSignIn = async (req, res) => {
     // }
 
     // Check if student already exists
-    let student = await Student.findOne({ email:credential.email });
+    let student = await Student.findOne({ email: credential.email });
 
     if (!student) {
-       student = new Student({
-         name: credential.name || "KU Student",
-         email:credential.email,
-         googleId:credential.googleId,
-         avatar: credential.picture,
-       });
-       await student.save();
+      student = new Student({
+        name: credential.name || "KU Student",
+        email: credential.email,
+        googleId: credential.googleId,
+        avatar: credential.picture,
+      });
+      await student.save();
     }
 
     // // Generate JWT studentToken
 
-    const studentToken = jwt.sign(
-      { id: student._id }, 
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const studentToken = jwt.sign({ id: student._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
 
     // // Set cookie (adjust options based on your setup)
     res.cookie("studentToken", studentToken, {
@@ -61,7 +59,7 @@ export const googleSignIn = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Google sign-in successful",
+      message: "Google sign-in successful"
     });
   } catch (error) {
     return res.json({
@@ -76,9 +74,8 @@ export const isAuth = async (req, res) => {
   try {
     // Get studentId from req object (set by middleware), not req.body
     const studentId = req.studentId;
-    const student = await Student.findById(studentId).select("-password");
-    return res.json({ success: true, student});
-
+    const student = await Student.findById(studentId);
+    return res.json({ success: true, student });
   } catch (error) {
     console.log(error.message);
     res.json({ success: false, message: error.message });
@@ -98,4 +95,32 @@ export const logout = async (_, res) => {
     console.log(error.message);
     res.json({ success: false, message: error.message });
   }
+};
+// /api/student/setup-profile
+export const profileCompletion = async (req, res) => {
+  try {
+    const studentId = req.studentId;
+    const form = req.body.form;
+    if (
+      !form.department ||
+      !form.semester ||
+      !form.rollNumber ||
+      !form.subjectCode
+    ) {
+      return res.json({ success: false, message: "Provide all the details!" });
+    } else {
+      const student =await Student.findByIdAndUpdate(
+        studentId,
+        {
+          department: form.department,
+          semester: form.semester,
+          rollNumber: form.rollNumber,
+          subjectCode: form.subjectCode,
+        },
+        { runValidators: true, new: true }
+      );
+      return res.json({success:true, message:'Profile completed successfully',student});
+    }
+  } catch (error) {}
+  return res.json({success:false, message:'Couldnot complete the profile.'});
 };

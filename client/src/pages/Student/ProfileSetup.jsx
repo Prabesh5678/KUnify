@@ -1,6 +1,8 @@
+import axios from "axios";
 import { useAppContext } from "../../context/AppContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const ProfileSetup = () => {
   const { user, setIsUser, setProfileSetupDone } = useAppContext();
@@ -17,30 +19,40 @@ const ProfileSetup = () => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const { department, semester, rollNumber, subjectCode } = form;
+  const handleSubmit = async (e) => {
+    try{
 
-    if (!department || !semester || !rollNumber || !subjectCode) {
-      alert("Please fill all fields");
-      return;
+      e.preventDefault();
+      const { department, semester, rollNumber, subjectCode } = form;
+  
+      if (!department || !semester || !rollNumber || !subjectCode) {
+        toast.error("Please fill all fields");
+        return;
+      }
+      const {data} = await axios.put("/api/student/setup-profile", {form});
+      // mark profile as completed
+      if (data.success) {
+        const updatedUser = {
+          ...user,
+          profileCompleted: true,
+          profile: { department, semester, rollNumber, subjectCode },
+        };
+  
+        setIsUser(updatedUser);
+        setProfileSetupDone(true);
+        localStorage.setItem("profileCompleted", "true");
+        localStorage.setItem("profileData", JSON.stringify(updatedUser.profile));
+  
+        // Redirect to student dashboard
+        navigate("/student/dashboard");
+      } else {
+        toast.error(data.message || "Profile setup failed");
+      }
+    }catch(error)
+    {
+      toast.error("Profile setup failed");
+      console.error(error.stack)
     }
-
-    // mark profile as completed
-    const updatedUser = {
-      ...user,
-      profileCompleted: true,
-      profile: { department, semester, rollNumber, subjectCode },
-    };
-
-    setIsUser(updatedUser);
-    setProfileSetupDone(true);
-    localStorage.setItem("profileCompleted", "true");
-    localStorage.setItem("profileData", JSON.stringify(updatedUser.profile));
-
-
-    // Redirect to student dashboard
-    navigate("/student/dashboard");
   };
 
   return (
@@ -135,4 +147,3 @@ const ProfileSetup = () => {
 };
 
 export default ProfileSetup;
-

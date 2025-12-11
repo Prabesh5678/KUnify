@@ -9,7 +9,6 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const plusButtonRef = useRef(null);
-
   // Close plus menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
