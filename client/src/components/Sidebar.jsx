@@ -1,19 +1,14 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  Home,
-  Info,
-  NotebookPen,
-  Sheet,
-  Settings,
-  LogOut,          
-} from "lucide-react";
-import { useAppContext } from "../context/AppContext"; 
+import { Home, Info, NotebookPen, Sheet, Settings, LogOut } from "lucide-react";
+import { useAppContext } from "../context/AppContext";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { setUser, setProfileSetupDone } = useAppContext(); 
+  const { setUser, setProfileSetupDone } = useAppContext();
 
   const menuItems = [
     { icon: Home, path: "/student/dashboard", label: "Dashboard" },
@@ -26,7 +21,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     { icon: Sheet, path: "/student/logsheet", label: "Log Sheet" },
     { icon: Settings, path: "/student/settings", label: "Settings" },
   ];
-{/*
+  {
+    /*
   const handleLogout = () => {
     // clear context
     setUser(null);
@@ -41,22 +37,34 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     navigate("/", { replace: true });
     setIsSidebarOpen(false);
   };
-  */ }
-  const handleLogout = () => {
-  // clear session in context
-  setUser(null);
-  setProfileSetupDone(false);
-
-  // clear only user session object
-  localStorage.removeItem("user");
-  // OPTIONAL: keep or clear profile flags; doesn't matter if backend is source of truth.
-  // localStorage.removeItem("profileCompleted");
-  // localStorage.removeItem("profileData");
-
-  // navigate to home and stay there as a logged-out user
-  navigate("/", { replace: true });
-  setIsSidebarOpen(false);
-};
+  */
+  }
+  const handleLogout = async () => {
+    // clear session in context
+    try {
+      
+      const { data } = await axios.get("/api/student/logout");
+      if (data.success) {
+        setUser(null);
+        setProfileSetupDone(false);
+  
+        // clear only user session object
+        localStorage.removeItem("user");
+        // OPTIONAL: keep or clear profile flags; doesn't matter if backend is source of truth.
+        // localStorage.removeItem("profileCompleted");
+        // localStorage.removeItem("profileData");
+  
+        // navigate to home and stay there as a logged-out user
+        navigate("/", { replace: true });
+        setIsSidebarOpen(false);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message||'Failed to logout');
+      console.error(error.stack);
+    }
+  };
 
   return (
     <div
@@ -97,9 +105,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           className="flex items-center gap-4 w-full px-4 py-3 rounded-lg hover:bg-gray-300 transition"
         >
           <LogOut size={22} strokeWidth={2.5} />
-          {isSidebarOpen && (
-            <span className="text-sm font-medium">Logout</span>
-          )}
+          {isSidebarOpen && <span className="text-sm font-medium">Logout</span>}
         </button>
       </div>
     </div>
