@@ -5,7 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";  // ✅ add this
 
 const LoginPanel = () => {
-  const { setIsUser, showUserLogin, setShowUserLogin } = useAppContext();
+  const { setUser, showUserLogin, setShowUserLogin } = useAppContext();
   const navigate = useNavigate(); // ✅ create navigate function
 
   if (!showUserLogin) return null;
@@ -27,7 +27,7 @@ const LoginPanel = () => {
         profileCompleted: false,
       };
 
-      setIsUser(newUser);
+      setUser(newUser);
       setShowUserLogin(false);
 
       // ✅ navigate to one-time setup page right after login
@@ -80,7 +80,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 
 const LoginPanel = () => {
-  const { setIsUser, showUserLogin, setShowUserLogin, setProfileSetupDone } =
+  const { setUser, showUserLogin, setShowUserLogin, setProfileSetupDone } =
     useAppContext();
   const navigate = useNavigate();
 
@@ -127,7 +127,7 @@ const LoginPanel = () => {
         profile: data.profile || null,
       };
 
-      setIsUser(fullUser);
+      setUser(fullUser);
       localStorage.setItem("user", JSON.stringify(fullUser));
 
       setShowUserLogin(false);

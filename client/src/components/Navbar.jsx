@@ -10,7 +10,7 @@ const Navbar = () => {
   
   const {
     user,
-    setIsUser,
+    setUser,
     navigate,        
     showUserLogin,
     setShowUserLogin
@@ -21,7 +21,7 @@ const Navbar = () => {
      const { data } = await axios.get("/api/student/logout");
      if (data.success) {
        toast.success(data.message);
-       setIsUser(null);
+       setUser(null);
        navigate("/");
      } else {
        toast.error(data.message);

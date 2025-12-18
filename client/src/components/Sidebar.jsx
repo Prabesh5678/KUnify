@@ -13,7 +13,7 @@ import { useAppContext } from "../context/AppContext";
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { setIsUser, setProfileSetupDone } = useAppContext(); 
+  const { setUser, setProfileSetupDone } = useAppContext(); 
 
   const menuItems = [
     { icon: Home, path: "/student/dashboard", label: "Dashboard" },
@@ -29,7 +29,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 {/*
   const handleLogout = () => {
     // clear context
-    setIsUser(null);
+    setUser(null);
     setProfileSetupDone(false);
 
     // clear localStorage
@@ -44,7 +44,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   */ }
   const handleLogout = () => {
   // clear session in context
-  setIsUser(null);
+  setUser(null);
   setProfileSetupDone(false);
 
   // clear only user session object

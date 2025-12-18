@@ -4,20 +4,68 @@ import { Menu, Plus } from "lucide-react";
 import JoinTeamModal from "./JoinTeamModal";
 import CreateTeamModal from "./CreateTeamModal";
 
+
+// import axios from "axios"; 
+// import { useNavigate } from "react-router-dom";
+
+
 const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [isPlusMenuOpen, setIsPlusMenuOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+
+  // SUBJECT (from backend later)
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const subjects = [
+    "COMP 201",
+    "COMP 202",
+    "COMP 203",
+    "COMP 204",
+    "COMP 301",
+    "COMP 302",
+    "COMP 303",
+    "COMP 401",
+  ];
+
   const plusButtonRef = useRef(null);
+  // const navigate = useNavigate(); // ← enable when routing is needed
+
   // Close plus menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (plusButtonRef.current && !plusButtonRef.current.contains(event.target)) {
+      if (
+        plusButtonRef.current &&
+        !plusButtonRef.current.contains(event.target)
+      ) {
         setIsPlusMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // FETCH SUBJECT FROM BACKEND (apply later)
+  useEffect(() => {
+    /*
+    // Example backend response:
+    // {
+    //   success: true,
+    //   student: {
+    //     subjectCode: "COMP 201"
+    //   }
+    // }
+
+    axios.get("/api/student/profile")
+      .then((res) => {
+        if (res.data?.student?.subjectCode) {
+          setSelectedSubject(res.data.student.subjectCode);
+        }
+      })
+      .catch((err) => console.error(err));
+    */
   }, []);
 
   return (
@@ -26,9 +74,8 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         <div className="w-full px-0 lg:px-4 sm:px-4">
           <div className="flex justify-between items-center h-14 sm:h-16 md:h-20">
 
-            {/* Left Section */}
+            {/* LEFT SECTION */}
             <div className="flex items-center gap-3 pl-0 ml-0">
-
               {/* Hamburger */}
               <button
                 className="p-2 pl-0 hover:bg-blue-100 rounded-lg hover:text-blue-700 transition"
@@ -37,21 +84,40 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 <Menu size={26} strokeWidth={2.5} />
               </button>
 
+              {/* KU LOGO */}
               <div className="px-4 md:px-6">
-                <img src={assets.ku_logo} alt="ku_logo" className="h-12" />
+                <img
+                  src={assets.ku_logo}
+                  alt="ku_logo"
+                  className="h-12"
+                />
               </div>
 
+              {/* TITLE */}
               <div className="leading-tight">
-                <div className="text-lg font-semibold">Kathmandu University</div>
-                <div className="text-sm">Student Project Management Platform</div>
+                <div className="text-lg font-semibold">
+                  Kathmandu University
+                </div>
+                <div className="text-sm">
+                  Student Project Management Platform
+                </div>
               </div>
             </div>
 
-            {/* Right Section */}
-            <div className="flex items-center space-x-6 lg:space-x-8">
-              <div className="text-sm font-bold">Comp 201</div>
+            {/* RIGHT SECTION */}
+            <div className="flex items-right space-x-4 lg:space-x-8">
 
-              {/* Plus button with dropdown */}
+              {/* SUBJECT CODE */}
+              <button
+                onClick={() => setIsSubjectModalOpen(true)}
+                className="text-sm font-bold cursor-pointer"
+              >
+                {selectedSubject || "Select Subject"}
+              </button>
+
+
+
+              {/* PLUS BUTTON */}
               <div className="relative" ref={plusButtonRef}>
                 <button
                   onClick={() => setIsPlusMenuOpen(!isPlusMenuOpen)}
@@ -71,9 +137,10 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                     >
                       Create Team
                     </button>
+
                     <button
                       onClick={() => {
-                        setIsJoinModalOpen(true); // open modal
+                        setIsJoinModalOpen(true);
                         setIsPlusMenuOpen(false);
                       }}
                       className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-500 transition border-t border-gray-300"
@@ -83,16 +150,35 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   </div>
                 )}
               </div>
+            </div>
 
-              <div className="px-1 md:px-3">
-                <img src={assets.avatar} alt="Avatar" className="h-10 md:h-12 rounded-full" />
-              </div>
+            {/* PROFILE */}
+            <div className="relative group px-1 md:px-3">
+              <img
+                src={assets.avatar}
+                alt="Avatar"
+                className="h-10 md:h-12 rounded-full cursor-pointer"
+              />
+
+              <ul
+                className="absolute right-3 mt-2 w-35 bg-primary shadow-lg rounded-md
+                  opacity-0 invisible group-hover:opacity-100 group-hover:visible
+                  transition-all duration-200"
+              >
+                <li
+                  onClick={() => navigate("student/profile")}
+                  className="p-1.5 pl-3 hover:bg-primary cursor-pointer"
+                >
+                  My Profile
+                </li>
+              </ul>
             </div>
 
           </div>
         </div>
       </nav>
 
+      {/* MODALS */}
       <JoinTeamModal
         isOpen={isJoinModalOpen}
         onClose={() => setIsJoinModalOpen(false)}
@@ -100,7 +186,58 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       <CreateTeamModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
+        selectedSubject={selectedSubject}
       />
+
+      {isSubjectModalOpen && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+
+          <div className="bg-white w-[90%] max-w-md rounded-lg p-4 shadow-lg">
+
+            {/* Header */}
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="font-semibold text-lg">Select Subject</h2>
+              <button
+                onClick={() => setIsSubjectModalOpen(false)}
+                className="text-xl"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Search */}
+            <input
+              type="text"
+              placeholder="Search subject code..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none"
+            />
+
+            {/* Subject List */}
+            <ul className="max-h-60 overflow-y-auto">
+              {subjects
+                .filter((sub) =>
+                  sub.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((sub, index) => (
+                  <li
+                    key={index}
+                    onClick={() => {
+                      setSelectedSubject(sub);
+                      setIsSubjectModalOpen(false);
+                      setSearchTerm("");
+                    }}
+                    className="p-2 cursor-pointer rounded hover:bg-primary/10"
+                  >
+                    {sub}
+                  </li>
+                ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
     </>
   );
 };

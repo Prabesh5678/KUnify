@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const ProfileSetup = () => {
-  const { user, setIsUser, setProfileSetupDone } = useAppContext();
+  const { fetchUser, setProfileSetupDone } = useAppContext(); // Make sure these are provided by your context
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -16,42 +16,27 @@ const ProfileSetup = () => {
   });
 
   const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
-    try{
+    e.preventDefault();
+    try {
+      const res = await axios.put("/api/student/setup-profile", form, { withCredentials: true });
+      console.log("Profile updated:", res.data);
 
-      e.preventDefault();
-      const { department, semester, rollNumber, subjectCode } = form;
-  
-      if (!department || !semester || !rollNumber || !subjectCode) {
-        toast.error("Please fill all fields");
-        return;
-      }
-      const {data} = await axios.put("/api/student/setup-profile", {form});
-      // mark profile as completed
-      if (data.success) {
-        const updatedUser = {
-          ...user,
-          profileCompleted: true,
-          profile: { department, semester, rollNumber, subjectCode },
-        };
-  
-        setIsUser(updatedUser);
-        setProfileSetupDone(true);
-        localStorage.setItem("profileCompleted", "true");
-        localStorage.setItem("profileData", JSON.stringify(updatedUser.profile));
-  
-        // Redirect to student dashboard
-        navigate("/student/dashboard");
-      } else {
-        toast.error(data.message || "Profile setup failed");
-      }
-    }catch(error)
-    {
+      // Refresh user in context
+      await fetchUser();
+
+      // Mark profile as done
+      setProfileSetupDone(true);
+
+      // Redirect to dashboard
+      navigate("/student/dashboard");
+      toast.success("Profile completed successfully!");
+    } catch (err) {
+      console.error("Failed to complete profile:", err);
       toast.error("Profile setup failed");
-      console.error(error.stack)
     }
   };
 
@@ -63,9 +48,8 @@ const ProfileSetup = () => {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-10">
-          {/* Academic Info */}
+          {/* Department */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            {/* Department */}
             <div className="flex flex-col gap-2">
               <label className="text-[#0f172a] font-medium">Department</label>
               <select
@@ -133,7 +117,6 @@ const ProfileSetup = () => {
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full py-3 bg-primary text-white font-semibold rounded-md hover:opacity-90 transition"
