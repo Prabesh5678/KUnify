@@ -59,7 +59,7 @@ export const googleSignIn = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Google sign-in successful"
+      message: "Google sign-in successful",student
     });
   } catch (error) {
     return res.json({
@@ -99,8 +99,10 @@ export const logout = async (_, res) => {
 // /api/student/setup-profile
 export const profileCompletion = async (req, res) => {
   try {
+    console.log('hi')
     const studentId = req.studentId;
-    const form = req.body.form;
+    const form = req.body;
+    console.log(form)
     if (
       !form.department ||
       !form.semester ||

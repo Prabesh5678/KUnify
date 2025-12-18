@@ -45,21 +45,29 @@ const App = () => {
   const contentClass = isStudentPath
     ? "ml-20 px-6 md:px-16 lg:px-24 xl:px-32 pt-24"
     : !isHomePath && !isAdminPath
-      ? "px-6 md:px-16 lg:px-24 xl:px-32"
-      : "";
+    ? "px-6 md:px-16 lg:px-24 xl:px-32"
+    : "";
 
   // Redirect logic
-  useEffect(() => {
-    if (!user) return;
+ useEffect(() => {
+   if (!user) return;
 
-    if (!user.profileCompleted) {
-      if (pathname !== "/setup-profile") {
-        navigate("/setup-profile", { replace: true });
-      }
-    } else if (pathname === "/") {
-      navigate("/student/dashboard", { replace: true });
-    }
-  }, [user, navigate, pathname]);
+   const profileDone = !!(
+     user.department &&
+     user.semester &&
+     user.rollNumber &&
+     user.subjectCode
+   );
+
+   if (!profileDone && pathname !== "/setup-profile") {
+     navigate("/setup-profile", { replace: true });
+   }
+
+   if (profileDone && (pathname === "/setup-profile" || pathname === "/")) {
+     navigate("/student/dashboard", { replace: true });
+   }
+ }, [user, pathname, navigate]);
+
 
   return (
     <>
@@ -105,6 +113,6 @@ const App = () => {
       {!isStudentPath && <Footer />}
     </>
   );
-}
+};
 
 export default App;
