@@ -6,7 +6,7 @@ import CreateTeamModal from "./CreateTeamModal";
 
 
 // import axios from "axios"; 
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
@@ -15,7 +15,8 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
+  
+  const navigate = useNavigate();
 
   // SUBJECT (from backend later)
   const [selectedSubject, setSelectedSubject] = useState(null);
