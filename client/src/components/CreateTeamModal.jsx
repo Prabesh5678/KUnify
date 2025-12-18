@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-const CreateTeamModal = ({ isOpen, onClose }) => {
+const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
   const [teamName, setTeamName] = useState("");
   const [section, setSection] = useState("");
-  const [subject, setSubject] = useState("");
   const [room, setRoom] = useState("");
   const [showModal, setShowModal] = useState(false);
 
@@ -12,7 +11,7 @@ const CreateTeamModal = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen) setShowModal(true);
     else {
-      const timer = setTimeout(() => setShowModal(false), 200); // match transition duration
+      const timer = setTimeout(() => setShowModal(false), 200);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -21,14 +20,27 @@ const CreateTeamModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const newTeam = {
       name: teamName,
       section: section || "N/A",
-      subject: subject || "N/A",
+      subject: selectedSubject, // auto-filled subject
       room: room || "N/A",
       code: Math.random().toString(36).substring(2, 8).toUpperCase(),
     };
+
     console.log("Team Created:", newTeam);
+
+    /*
+      WHEN BACKEND IS READY:
+      axios.post("/api/team/create", {
+        name: teamName,
+        subject: selectedSubject,
+        section,
+        room
+      })
+    */
+
     onClose();
   };
 
@@ -53,7 +65,9 @@ const CreateTeamModal = ({ isOpen, onClose }) => {
           {/* Header */}
           <div className="px-8 py-6 border-b border-gray-200">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-800">Create Team</h2>
+              <h2 className="text-2xl font-bold text-gray-800">
+                Create Team
+              </h2>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-lg transition"
@@ -75,26 +89,26 @@ const CreateTeamModal = ({ isOpen, onClose }) => {
                 required
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
-                placeholder="e.g. KUnify"
-                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition text-gray-800"
+                placeholder="e.g. SPMP"
+                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition"
               />
-              <p className="text-xs text-gray-500 mt-2">* Required</p>
             </div>
 
-            {/* Section */}
+            {/* Subject (Auto-filled) */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Subject <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                required
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder="e.g. Comp 201"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition"
+                value={selectedSubject || ""}
+                disabled
+                placeholder="Select subject first"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
               />
-              <p className="text-xs text-gray-500 mt-2">* Required</p>
+              <p className="text-xs text-gray-500 mt-2">
+                Subject is auto-filled based on your selection
+              </p>
             </div>
 
             {/* Buttons */}
@@ -102,13 +116,14 @@ const CreateTeamModal = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 text-blue-600 hover:bg-blue-50 rounded-lg font-medium transition"
+                className="px-6 py-3 text-primary-600 hover:bg-blue-50 rounded-lg font-medium transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow transition"
+                disabled={!selectedSubject}
+                className="px-8 py-3 bg-primary hover:bg-primary/80 text-white font-medium rounded-lg shadow transition disabled:opacity-50"
               >
                 Create
               </button>

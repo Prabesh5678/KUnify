@@ -4,6 +4,8 @@ import { useAppContext } from "../context/AppContext";
 const Hero = () => {
   
  const { setShowUserLogin, setShowSignupPanel } = useAppContext();
+
+
   return (
     <section className="w-screen h-screen bg-primary text-secondary">
       <div className="mx-auto h-full max-w-6xl flex flex-col md:flex-row items-center justify-center gap-10 px-6 md:px-12 py-16">

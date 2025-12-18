@@ -1,20 +1,21 @@
-// ProfileGuard.jsx
+import React from "react";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
-import { Navigate } from "react-router-dom";
 
-export default function ProfileGuard({ children }) {
-  const { user, profileSetupDone, loadingUser } = useAppContext();
+const ProfileGuard = () => {
+  const { user, profileSetupDone } = useAppContext();
 
-  if (loadingUser) return null; // or a loader
-
-  // if you truly never have "student but logged out", you can just use user check
+  // Only allow logged-in students who have completed profile
   if (!user) {
-    return null; // or maybe show login; but do NOT redirect to home
+    return <Navigate to="/" replace />;
   }
 
-  if (!profileSetupDone && !user.profileCompleted) {
+  if (!user.profileCompleted && !profileSetupDone) {
     return <Navigate to="/setup-profile" replace />;
   }
 
-  return children;
-}
+  // Everything is fine, render the nested route
+  return <Outlet />;
+};
+
+export default ProfileGuard;

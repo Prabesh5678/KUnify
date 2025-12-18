@@ -15,7 +15,7 @@ import toast from "react-hot-toast";
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { setIsUser, setProfileSetupDone } = useAppContext(); 
+  const { setUser, setProfileSetupDone } = useAppContext(); 
 
   const menuItems = [
     { icon: Home, path: "/student/dashboard", label: "Dashboard" },
@@ -31,7 +31,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 {/*
   const handleLogout = () => {
     // clear context
-    setIsUser(null);
+    setUser(null);
     setProfileSetupDone(false);
 
     // clear localStorage
@@ -44,10 +44,17 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     setIsSidebarOpen(false);
   };
   */ }
+<<<<<<< HEAD
   const handleLogout = async() => {try {
     
     const { data } = await axios.get("/api/student/logout");
     if(data.success){
+=======
+  const handleLogout = () => {
+  // clear session in context
+  setUser(null);
+  setProfileSetupDone(false);
+>>>>>>> 7b1c1dbce4b3e9117d8575f5d1fa475d625ed112
 
       // clear session in context
       setIsUser(null);

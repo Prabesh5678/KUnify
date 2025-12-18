@@ -43,7 +43,7 @@ const JoinTeamModal = ({ isOpen, onClose }) => {
                 Team Code
               </label>
               <p className="text-gray-600 mb-4">
-                Ask your leader for the team code, then enter it here.
+                Ask your member for the team code, then enter it here.
               </p>
               <input
                 type="text"
@@ -61,9 +61,7 @@ const JoinTeamModal = ({ isOpen, onClose }) => {
               <ul className="space-y-2 text-gray-600 text-sm">
                 <li>• Code must be 5–8 letters or numbers (no spaces/symbols)</li>
               </ul>
-              <p className="text-sm text-blue-600 hover:underline cursor-pointer pt-2">
-                Having trouble? Go to Help Center
-              </p>
+             
             </div>
 
             {/* Buttons */}
