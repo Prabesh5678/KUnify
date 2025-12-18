@@ -9,6 +9,8 @@ import {
   LogOut,          
 } from "lucide-react";
 import { useAppContext } from "../context/AppContext"; 
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const location = useLocation();
@@ -42,20 +44,30 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     setIsSidebarOpen(false);
   };
   */ }
-  const handleLogout = () => {
-  // clear session in context
-  setIsUser(null);
-  setProfileSetupDone(false);
+  const handleLogout = async() => {try {
+    
+    const { data } = await axios.get("/api/student/logout");
+    if(data.success){
 
-  // clear only user session object
-  localStorage.removeItem("user");
-  // OPTIONAL: keep or clear profile flags; doesn't matter if backend is source of truth.
-  // localStorage.removeItem("profileCompleted");
-  // localStorage.removeItem("profileData");
-
-  // navigate to home and stay there as a logged-out user
-  navigate("/", { replace: true });
-  setIsSidebarOpen(false);
+      // clear session in context
+      setIsUser(null);
+      setProfileSetupDone(false);
+    
+      // clear only user session object
+      localStorage.removeItem("user");
+      // OPTIONAL: keep or clear profile flags; doesn't matter if backend is source of truth.
+      // localStorage.removeItem("profileCompleted");
+      // localStorage.removeItem("profileData");
+    
+      // navigate to home and stay there as a logged-out user
+      navigate("/", { replace: true });
+      setIsSidebarOpen(false);
+    }else
+      toast.error('Error while logging out');
+  } catch (error) {
+    console.error(error.stack);
+    toast.error(error.message);
+  }
 };
 
   return (
