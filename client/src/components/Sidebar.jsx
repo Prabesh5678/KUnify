@@ -37,6 +37,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     navigate("/", { replace: true });
     setIsSidebarOpen(false);
   };
+<<<<<<< Updated upstream
 <<<<<<< HEAD
   */ }
 
