@@ -17,7 +17,18 @@ const studentSchema = new mongoose.Schema(
     semester: { type: String,  default: null },
     rollNumber: { type: String,  default: null },
     subjectCode: { type: String,  default: null },
+
+    teamId: { 
+  type: mongoose.Schema.Types.ObjectId, 
+  ref: 'Team', 
+  default: null 
+},
+isTeamLeader: { 
+  type: Boolean, 
+  default: false 
+},
   },
+
   { timestamps: true }
 );
 
