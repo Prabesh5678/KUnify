@@ -75,7 +75,7 @@ const JoinTeamModal = ({ isOpen, onClose }) => {
               </button>
               <button
                 type="submit"
-                className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow transition"
+                className="px-8 py-3 bg-primary hover:bg-primary/80 text-white font-medium rounded-lg shadow transition"
               >
                 Join
               </button>

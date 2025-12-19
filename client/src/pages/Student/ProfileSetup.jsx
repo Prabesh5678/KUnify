@@ -90,35 +90,26 @@ const ProfileSetup = () => {
 
             {/* Roll Number */}
             <div className="flex flex-col gap-2">
-              <label className="text-[#0f172a] font-medium">Roll Number</label>
+              <label className="text-[#0f172a] font-medium">Registration Number</label>
               <input
                 type="text"
                 name="rollNumber"
                 value={form.rollNumber}
                 onChange={handleChange}
                 required
-                placeholder="Your Roll Number"
+                placeholder="Registration Number"
                 className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a]"
               />
             </div>
 
-            {/* Subject Code */}
-            <div className="flex flex-col gap-2">
-              <label className="text-[#0f172a] font-medium">Subject Code</label>
-              <input
-                type="text"
-                name="subjectCode"
-                value={form.subjectCode}
-                onChange={handleChange}
-                required
-                placeholder="e.g. COMP 201"
-                className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a]"
-              />
-            </div>
           </div>
 
           <button
             type="submit"
+            disabled={
+              !form.rollNumber || !form.department || !form.semester || !form.name
+            }
+
             className="w-full py-3 bg-primary text-white font-semibold rounded-md hover:opacity-90 transition"
           >
             Save Profile

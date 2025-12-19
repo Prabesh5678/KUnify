@@ -1,78 +1,3 @@
-
-// context/AppContext.jsx
-{/*}
-import { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-
-axios.defaults.withCredentials = true;
-axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
-
-export const AppContext = createContext();
-
-export const AppContextProvider = ({ children }) => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [student, setstudent] = useState(null);
-  const [isTeacher, setIsTeacher] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(null);
-  const [showUserLogin, setShowUserLogin] = useState(false);
-  const [showSignupPanel, setShowSignupPanel] = useState(false);
-  const [profileSetupDone, setProfileSetupDone] = useState(false);
-  const [loadingUser, setLoadingUser] = useState(true);
-
-  // hydrate from localStorage once
-  useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      const profileCompleted =
-        localStorage.getItem("profileCompleted") === "true";
-      const profileData = localStorage.getItem("profileData");
-
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser({
-          ...parsedUser,
-          profileCompleted:
-            parsedUser.profileCompleted || profileCompleted || false,
-          profile: parsedUser.profile || (profileData && JSON.parse(profileData)) || null,
-        });
-        setProfileSetupDone(
-          parsedUser.profileCompleted || profileCompleted || false
-        );
-      }
-    } catch (err) {
-      console.error("Error hydrating user from localStorage", err);
-    } finally {
-      setLoadingUser(false);
-    }
-  }, []);
-
-  const value = {
-    user,
-    setUser,
-    student,
-    setstudent,
-    isTeacher,
-    setIsTeacher,
-    isAdmin,
-    setIsAdmin,
-    showUserLogin,
-    setShowUserLogin,
-    showSignupPanel,
-    setShowSignupPanel,
-    profileSetupDone,
-    setProfileSetupDone,
-    loadingUser,
-    navigate,
-  };
-
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
-};
-
-export const useAppContext = () => useContext(AppContext);
-*/}
-
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -98,6 +23,9 @@ export const AppContextProvider = ({ children }) => {
   // UI states
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [showSignupPanel, setShowSignupPanel] = useState(false);
+
+  // ✅ Selected subject
+  const [selectedSubject, setSelectedSubject] = useState(null);
 
   // 3️⃣ Fetch logged-in user
   const fetchUser = async () => {
@@ -126,7 +54,10 @@ export const AppContextProvider = ({ children }) => {
           subjectCode: userData.subjectCode
         });
 
-        // Roles (currently only student)
+        // Set selected subject immediately from backend
+        setSelectedSubject(userData.subjectCode || null);
+
+        // Roles
         setIsTeacher(false);
         setIsAdmin(false);
       } else {
@@ -145,7 +76,7 @@ export const AppContextProvider = ({ children }) => {
     await fetchUser();
   };
 
-  // 5️⃣ Complete profile helper (can be used in ProfileSetup.jsx)
+  // 5️⃣ Complete profile helper
   const completeProfile = async (formData) => {
     try {
       const res = await axios.put("/api/student/setup-profile", formData, {
@@ -157,21 +88,39 @@ export const AppContextProvider = ({ children }) => {
       await fetchUser();
     } catch (err) {
       console.error("Failed to complete profile:", err);
-      throw err; // allow the calling component to handle toast/errors
+      throw err;
     }
   };
 
-  // 6️⃣ Fetch user on mount
+  // 6️⃣ Save selected subject helper (instant + backend)
+  const saveSelectedSubject = async (subject) => {
+    try {
+      setSelectedSubject(subject); // update context immediately
+      setStudentProfile(prev => ({ ...prev, subjectCode: subject })); // keep profile consistent
+
+      // 🔹 Save to backend immediately
+      await axios.put("/api/student/setup-profile", { subjectCode: subject }, {
+        withCredentials: true,
+      });
+
+    } catch (err) {
+      console.error("Failed to save selected subject:", err);
+    }
+  };
+
+  // 7️⃣ Fetch user on mount
   useEffect(() => {
     fetchUser();
   }, []);
 
-  // 7️⃣ Context value
+  // 8️⃣ Context value
   const value = {
     user,
     setUser,
     studentProfile,
     setStudentProfile,
+    selectedSubject,
+    saveSelectedSubject,
     isTeacher,
     setIsTeacher,
     isAdmin,
@@ -192,5 +141,5 @@ export const AppContextProvider = ({ children }) => {
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
-// 3️⃣ Custom hook
+// 9️⃣ Custom hook
 export const useAppContext = () => useContext(AppContext);

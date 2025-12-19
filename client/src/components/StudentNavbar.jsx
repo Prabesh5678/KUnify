@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { assets } from "../assets/assets";
 import { Menu, Plus } from "lucide-react";
-import JoinTeamModal from "./JoinTeamModal";
-import CreateTeamModal from "./CreateTeamModal";
-
-
-// import axios from "axios"; 
 import { useNavigate } from "react-router-dom";
-
+import { useAppContext } from "../context/AppContext";
+import CreateTeamModal from "./CreateTeamModal";
+import JoinTeamModal from "./JoinTeamModal";
+import { assets } from "../assets/assets";
 
 const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [isPlusMenuOpen, setIsPlusMenuOpen] = useState(false);
@@ -15,11 +12,12 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  
+
+  const plusButtonRef = useRef(null);
   const navigate = useNavigate();
 
-  // SUBJECT (from backend later)
-  const [selectedSubject, setSelectedSubject] = useState(null);
+  const { selectedSubject, saveSelectedSubject } = useAppContext();
+
   const subjects = [
     "COMP 201",
     "COMP 202",
@@ -31,42 +29,15 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     "COMP 401",
   ];
 
-  const plusButtonRef = useRef(null);
-  // const navigate = useNavigate(); // ← enable when routing is needed
-
   // Close plus menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        plusButtonRef.current &&
-        !plusButtonRef.current.contains(event.target)
-      ) {
+      if (plusButtonRef.current && !plusButtonRef.current.contains(event.target)) {
         setIsPlusMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // FETCH SUBJECT FROM BACKEND (apply later)
-  useEffect(() => {
-    /*
-    // Example backend response:
-    // {
-    //   success: true,
-    //   student: {
-    //     subjectCode: "COMP 201"
-    //   }
-    // }
-
-    axios.get("/api/student/profile")
-      .then((res) => {
-        if (res.data?.student?.subjectCode) {
-          setSelectedSubject(res.data.student.subjectCode);
-        }
-      })
-      .catch((err) => console.error(err));
-    */
   }, []);
 
   return (
@@ -77,7 +48,6 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
             {/* LEFT SECTION */}
             <div className="flex items-center gap-3 pl-0 ml-0">
-              {/* Hamburger */}
               <button
                 className="p-2 pl-0 hover:bg-blue-100 rounded-lg hover:text-blue-700 transition"
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -85,30 +55,18 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 <Menu size={26} strokeWidth={2.5} />
               </button>
 
-              {/* KU LOGO */}
               <div className="px-4 md:px-6">
-                <img
-                  src={assets.ku_logo}
-                  alt="ku_logo"
-                  className="h-12"
-                />
+                <img src={assets.ku_logo} alt="ku_logo" className="h-12" />
               </div>
 
-              {/* TITLE */}
               <div className="leading-tight">
-                <div className="text-lg font-semibold">
-                  Kathmandu University
-                </div>
-                <div className="text-sm">
-                  Student Project Management Platform
-                </div>
+                <div className="text-lg font-semibold">Kathmandu University</div>
+                <div className="text-sm">Student Project Management Platform</div>
               </div>
             </div>
 
             {/* RIGHT SECTION */}
             <div className="flex items-right space-x-4 lg:space-x-8">
-
-              {/* SUBJECT CODE */}
               <button
                 onClick={() => setIsSubjectModalOpen(true)}
                 className="text-sm font-bold cursor-pointer"
@@ -116,9 +74,6 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 {selectedSubject || "Select Subject"}
               </button>
 
-
-
-              {/* PLUS BUTTON */}
               <div className="relative" ref={plusButtonRef}>
                 <button
                   onClick={() => setIsPlusMenuOpen(!isPlusMenuOpen)}
@@ -155,11 +110,15 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
             {/* PROFILE */}
             <div className="relative group px-1 md:px-3">
-              <img
-                src={assets.avatar}
-                alt="Avatar"
-                className="h-10 md:h-12 rounded-full cursor-pointer"
-              />
+              <div className="relative group px-1 md:px-3">
+                <div className="bg-white rounded-full p-1"> {/* White background and round */}
+                  <img
+                    src="/avatar.png"
+                    alt="User Avatar"
+                    className="h-10 md:h-12 rounded-full cursor-pointer object-cover"
+                  />
+                </div>
+              </div>
 
               <ul
                 className="absolute right-3 mt-2 w-35 bg-primary shadow-lg rounded-md
@@ -192,18 +151,12 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
       {isSubjectModalOpen && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-
           <div className="bg-white w-[90%] max-w-md rounded-lg p-4 shadow-lg">
 
             {/* Header */}
             <div className="flex justify-between items-center mb-3">
               <h2 className="font-semibold text-lg">Select Subject</h2>
-              <button
-                onClick={() => setIsSubjectModalOpen(false)}
-                className="text-xl"
-              >
-                ×
-              </button>
+              <button onClick={() => setIsSubjectModalOpen(false)} className="text-xl">×</button>
             </div>
 
             {/* Search */}
@@ -225,7 +178,7 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   <li
                     key={index}
                     onClick={() => {
-                      setSelectedSubject(sub);
+                      saveSelectedSubject(sub); // ✅ context + backend
                       setIsSubjectModalOpen(false);
                       setSearchTerm("");
                     }}
@@ -235,10 +188,10 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   </li>
                 ))}
             </ul>
+
           </div>
         </div>
       )}
-
     </>
   );
 };
