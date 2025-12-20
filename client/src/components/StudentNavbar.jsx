@@ -45,7 +45,6 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       <nav className="fixed top-0 w-full z-50 transition-all duration-300 bg-primary text-secondary backdrop-blur-sm">
         <div className="w-full px-0 lg:px-4 sm:px-4">
           <div className="flex justify-between items-center h-14 sm:h-16 md:h-20">
-
             {/* LEFT SECTION */}
             <div className="flex items-center gap-3 pl-0 ml-0">
               <button
@@ -60,8 +59,12 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
               </div>
 
               <div className="leading-tight">
-                <div className="text-lg font-semibold">Kathmandu University</div>
-                <div className="text-sm">Student Project Management Platform</div>
+                <div className="text-lg font-semibold">
+                  Kathmandu University
+                </div>
+                <div className="text-sm">
+                  Student Project Management Platform
+                </div>
               </div>
             </div>
 
@@ -111,7 +114,9 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
             {/* PROFILE */}
             <div className="relative group px-1 md:px-3">
               <div className="relative group px-1 md:px-3">
-                <div className="bg-white rounded-full p-1"> {/* White background and round */}
+                <div className="bg-white rounded-full p-1">
+                  {" "}
+                  {/* White background and round */}
                   <img
                     src="/avatar.png"
                     alt="User Avatar"
@@ -133,7 +138,6 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 </li>
               </ul>
             </div>
-
           </div>
         </div>
       </nav>
@@ -152,11 +156,15 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       {isSubjectModalOpen && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
           <div className="bg-white w-[90%] max-w-md rounded-lg p-4 shadow-lg">
-
             {/* Header */}
             <div className="flex justify-between items-center mb-3">
               <h2 className="font-semibold text-lg">Select Subject</h2>
-              <button onClick={() => setIsSubjectModalOpen(false)} className="text-xl">×</button>
+              <button
+                onClick={() => setIsSubjectModalOpen(false)}
+                className="text-xl"
+              >
+                ×
+              </button>
             </div>
 
             {/* Search */}
@@ -188,7 +196,6 @@ const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   </li>
                 ))}
             </ul>
-
           </div>
         </div>
       )}

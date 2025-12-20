@@ -4,6 +4,7 @@ import { useAppContext } from "../../context/AppContext";
 import avatar from "../../assets/avatar.png";
 
 import axios from "axios";
+import toast from "react-hot-toast";
 
 
 const MyProfile = () => {
@@ -46,7 +47,7 @@ const MyProfile = () => {
   const handleSave = async () => {
     setLoading(true);
     try {
-      const res = await axios.put("/api/student/setup-profile", {
+      const res = await axios.put("/api/student/profile-update", {
         name: form.name,
         email: form.email,
         department: form.department,
@@ -55,13 +56,13 @@ const MyProfile = () => {
       }, { withCredentials: true });
 
       if (res.data.success) {
-        alert("Profile updated successfully!");
+        toast.success("Profile updated successfully!");
         setEditing(false);
         refreshUser(); // fetch updated user from backend
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to update profile. Try again.");
+      toast.error("Failed to update profile. Try again.");
     } finally {
       setLoading(false);
     }

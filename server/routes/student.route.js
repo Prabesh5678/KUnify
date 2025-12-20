@@ -1,5 +1,5 @@
 import express from 'express';
-import { isAuth,googleSignIn,logout, profileCompletion } from '../controllers/student.control.js';
+import { isAuth,googleSignIn,logout, profileCompletion, profileUpdate } from '../controllers/student.control.js';
 import authStudent from '../middlewares/student.middleware.js';
 import { createTeam, joinTeam, getTeam } from '../controllers/team.control.js';
 
@@ -12,6 +12,6 @@ studentRouter.put("/setup-profile", authStudent, profileCompletion);
 
 studentRouter.post("/team/create", authStudent, createTeam);
 studentRouter.post("/team/join", authStudent, joinTeam);
-studentRouter.get("/team", authStudent, getTeam);
+studentRouter.put("/profile-update", authStudent, profileUpdate);
 
 export default studentRouter;

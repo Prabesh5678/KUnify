@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import axios from "axios"; // ADD THIS
+import toast from "react-hot-toast";
 
 const JoinTeamModal = ({ isOpen, onClose }) => {
   const [code, setCode] = useState("");
@@ -12,7 +13,7 @@ const JoinTeamModal = ({ isOpen, onClose }) => {
     e.preventDefault();
 
     if (!code.trim()) {
-      alert("Please enter a team code");
+      toast.error("Please enter a team code");
       return;
     }
 
@@ -30,16 +31,16 @@ const JoinTeamModal = ({ isOpen, onClose }) => {
       );
 
       if (res.data?.success) {
-        alert("Successfully joined team!");
+        toast.success("Successfully joined team!");
         onClose();
         // Refresh to update dashboard
         window.location.reload();
       } else {
-        alert(res.data.message || "Failed to join team");
+        toast.error(res.data.message || "Failed to join team");
       }
     } catch (err) {
       console.error("Join team error:", err);
-      alert("Failed to join team. Please try again.");
+      toast.error("Failed to join team. Please try again.");
     } finally {
       setIsLoading(false);
     }
