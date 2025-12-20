@@ -2,7 +2,7 @@ import Team from "../models/team.model.js";
 import Student from "../models/student.model.js";
 import mongoose from "mongoose";
 
-// Generate 5-character team code (like Google Classroom)
+// Generate 5-character team code 
 const generateTeamCode = () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = '';
