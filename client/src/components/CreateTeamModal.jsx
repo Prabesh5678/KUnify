@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import axios from "axios"; // ADD THIS
 import TeamCodePopup from "./TeamCodePopup";
+import toast from "react-hot-toast";
 
 const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
   const [teamName, setTeamName] = useState("");
@@ -29,12 +30,12 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
     e.preventDefault();
 
     if (!selectedSubject) {
-      alert("Please select a subject first");
+      toast.error("Please select a subject first");
       return;
     }
 
     if (!teamName.trim()) {
-      alert("Please enter a team name");
+      toast.error("Please enter a team name");
       return;
     }
 
@@ -59,11 +60,11 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
         // Close modal after showing code
         onClose();
       } else {
-        alert(res.data.message || "Failed to create team");
+        toast.error(res.data.message || "Failed to create team");
       }
     } catch (err) {
       console.error("Create team error:", err);
-      alert("Failed to create team. Please try again.");
+      toast.error("Failed to create team. Please try again.");
     } finally {
       setIsLoading(false);
     }

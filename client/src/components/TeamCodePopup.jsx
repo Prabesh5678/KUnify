@@ -98,7 +98,7 @@ const TeamCodePopup = ({ isOpen, onClose, teamCode }) => {
           <button
             onClick={() => {
               handleCopy();
-              alert("Code copied! Share it with your team.");
+              toast.success("Code copied! Share it with your team.");
             }}
             className="flex-1 px-4 py-3 bg-white border border-primary text-primary hover:bg-blue-50 font-medium rounded-lg transition"
           >

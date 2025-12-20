@@ -59,7 +59,8 @@ export const googleSignIn = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Google sign-in successful",student
+      message: "Google sign-in successful",
+      student,
     });
   } catch (error) {
     return res.json({
@@ -99,10 +100,11 @@ export const logout = async (_, res) => {
 // /api/student/setup-profile
 export const profileCompletion = async (req, res) => {
   try {
-    console.log('hi')
+    console.log("hi");
     const studentId = req.studentId;
+    console.log(req.body);
     const form = req.body;
-    console.log(form)
+    console.log(form);
     if (
       !form.department ||
       !form.semester ||
@@ -111,7 +113,7 @@ export const profileCompletion = async (req, res) => {
     ) {
       return res.json({ success: false, message: "Provide all the details!" });
     } else {
-      const student =await Student.findByIdAndUpdate(
+      const student = await Student.findByIdAndUpdate(
         studentId,
         {
           department: form.department,
@@ -121,8 +123,38 @@ export const profileCompletion = async (req, res) => {
         },
         { runValidators: true, new: true }
       );
-      return res.json({success:true, message:'Profile completed successfully',student});
+      console.log(student);
+      return res.json({
+        success: true,
+        message: "Profile completed successfully",
+        student,
+      });
     }
   } catch (error) {}
-  return res.json({success:false, message:'Couldnot complete the profile.'});
+  return res.json({
+    success: false,
+    message: "Couldnot complete the profile.",
+  });
+};
+// /api/profile-update
+export const profileUpdate = async (req, res) => {
+  try {
+    const data = req.body;
+    const studentId = req.studentId;
+     const student = await Student.findByIdAndUpdate(
+       studentId,
+       {
+         department: data.department,
+         semester: data.semester,
+         name: data.name,
+         subjectCode: data.subjectCode,
+       },
+       { runValidators: true, new: true }
+     );
+     return res.json({success:true,message:"Profile updated successfully!",student})
+    } catch (error) {
+      console.error(error.stack);
+      return res.json({success:false,message:"Can't update profile!"})
+
+  }
 };

@@ -99,7 +99,7 @@ export const AppContextProvider = ({ children }) => {
       setStudentProfile(prev => ({ ...prev, subjectCode: subject })); // keep profile consistent
 
       // 🔹 Save to backend immediately
-      await axios.put("/api/student/setup-profile", { subjectCode: subject }, {
+      await axios.put("/api/student/profile-update", { subjectCode: subject }, {
         withCredentials: true,
       });
 
