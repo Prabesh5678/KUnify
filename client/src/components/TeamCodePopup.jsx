@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { X, Copy, Check } from "lucide-react";
+import toast from "react-hot-toast";
+
 
 const TeamCodePopup = ({ isOpen, onClose, teamCode }) => {
   const [copied, setCopied] = useState(false);
@@ -127,13 +129,7 @@ const TeamCodePopup = ({ isOpen, onClose, teamCode }) => {
           <button
             onClick={() => {
               handleCopy();
-<<<<<<< HEAD
-              setTimeout(() => {
-                alert(`Team code "${teamCode}" copied! Share it with your team members.`);
-              }, 100);
-=======
               toast.success("Code copied! Share it with your team.");
->>>>>>> d7e5045f1d9313d1137f0c28bce2f80c3994f19a
             }}
             className="flex-1 px-6 py-4 bg-white border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-bold rounded-xl transition text-lg"
           >
