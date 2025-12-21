@@ -59,6 +59,8 @@ const MyProfile = () => {
         toast.success("Profile updated successfully!");
         setEditing(false);
         refreshUser(); // fetch updated user from backend
+      }else{
+        toast.error(res.data.message||'Failed to update profile.')
       }
     } catch (err) {
       console.error(err);
@@ -163,7 +165,9 @@ const MyProfile = () => {
 
             {/* Registration Number (Read-only) */}
             <div className="flex flex-col">
-              <label className="font-semibold text-primary">Registration Number</label>
+              <label className="font-semibold text-primary">
+                Registration Number
+              </label>
               <input
                 type="text"
                 name="rollNumber"

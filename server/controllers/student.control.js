@@ -141,20 +141,27 @@ export const profileUpdate = async (req, res) => {
   try {
     const data = req.body;
     const studentId = req.studentId;
-     const student = await Student.findByIdAndUpdate(
-       studentId,
-       {
-         department: data.department,
-         semester: data.semester,
-         name: data.name,
-         subjectCode: data.subjectCode,
-       },
-       { runValidators: true, new: true }
-     );
-     return res.json({success:true,message:"Profile updated successfully!",student})
-    } catch (error) {
-      console.error(error.stack);
-      return res.json({success:false,message:"Can't update profile!"})
-
+    if (!data.department || !data.semester || !data.name || !data.subjectCode) {
+      return res.json({ success: false, message: "Please provide all feilds" });
+    } else {
+      const student = await Student.findByIdAndUpdate(
+        studentId,
+        {
+          department: data.department,
+          semester: data.semester,
+          name: data.name,
+          subjectCode: data.subjectCode,
+        },
+        { runValidators: true, new: true }
+      );
+      return res.json({
+        success: true,
+        message: "Profile updated successfully!",
+        student,
+      });
+    }
+  } catch (error) {
+    console.error(error.stack);
+    return res.json({ success: false, message: "Can't update profile!" });
   }
 };
