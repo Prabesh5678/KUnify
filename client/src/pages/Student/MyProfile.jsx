@@ -59,6 +59,8 @@ const MyProfile = () => {
         toast.success("Profile updated successfully!");
         setEditing(false);
         refreshUser(); // fetch updated user from backend
+      }else{
+        toast.error(res.data.message||'Failed to update profile.')
       }
     } catch (err) {
       console.error(err);
@@ -77,9 +79,9 @@ const MyProfile = () => {
 
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           {/* Avatar */}
-         <img src="/avatar.png" alt="User Avatar" 
-
-         
+          <img
+            src="/avatar.png"
+            alt="User Avatar"
             className="w-32 h-32 rounded-full border-2 border-primary object-cover"
           />
 
@@ -92,11 +94,8 @@ const MyProfile = () => {
                 type="text"
                 name="name"
                 value={form.name}
-                onChange={handleChange}
-                disabled={!editing}
-                className={`w-full p-3 rounded-md border ${
-                  editing ? "border-primary bg-white" : "border-gray-300 bg-gray-100"
-                }`}
+                disabled
+                className="w-full p-3 rounded-md border border-gray-300 bg-gray-100 cursor-not-allowed"
               />
             </div>
 
@@ -107,11 +106,8 @@ const MyProfile = () => {
                 type="email"
                 name="email"
                 value={form.email}
-                onChange={handleChange}
-                disabled={!editing}
-                className={`w-full p-3 rounded-md border ${
-                  editing ? "border-primary bg-white" : "border-gray-300 bg-gray-100"
-                }`}
+                disabled
+                className="w-full p-3 rounded-md border border-gray-300 bg-gray-100 cursor-not-allowed"
               />
             </div>
 
@@ -125,7 +121,9 @@ const MyProfile = () => {
                 onChange={handleChange}
                 disabled={!editing}
                 className={`w-full p-3 rounded-md border ${
-                  editing ? "border-primary bg-white" : "border-gray-300 bg-gray-100"
+                  editing
+                    ? "border-primary bg-white"
+                    : "border-gray-300 bg-gray-100"
                 }`}
               />
             </div>
@@ -140,14 +138,18 @@ const MyProfile = () => {
                 onChange={handleChange}
                 disabled={!editing}
                 className={`w-full p-3 rounded-md border ${
-                  editing ? "border-primary bg-white" : "border-gray-300 bg-gray-100"
+                  editing
+                    ? "border-primary bg-white"
+                    : "border-gray-300 bg-gray-100"
                 }`}
               />
             </div>
 
             {/* Registration Number (Read-only) */}
             <div className="flex flex-col">
-              <label className="font-semibold text-primary">Registration Number</label>
+              <label className="font-semibold text-primary">
+                Registration Number
+              </label>
               <input
                 type="text"
                 name="rollNumber"
@@ -168,7 +170,9 @@ const MyProfile = () => {
                 onChange={handleChange}
                 disabled={!editing}
                 className={`w-full p-3 rounded-md border ${
-                  editing ? "border-primary bg-white" : "border-gray-300 bg-gray-100"
+                  editing
+                    ? "border-primary bg-white"
+                    : "border-gray-300 bg-gray-100"
                 }`}
               />
             </div>
