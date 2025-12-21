@@ -59,7 +59,7 @@ const LoginPanel = () => {
         data.student.subjectCode
       );
 
-      navigate(profileCompleted ? "/student/dashboard" : "/setup-profile", {
+      navigate(profileCompleted ? "/student/home" : "/setup-profile", {
         replace: true,
       });
 

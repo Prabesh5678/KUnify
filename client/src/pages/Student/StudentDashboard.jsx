@@ -10,15 +10,17 @@ import {
   XCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // ADD THIS
+import axios from "axios";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const [teamStatus, setTeamStatus] = useState("Not Joined");
   const [teamName, setTeamName] = useState("");
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [teamId, setTeamId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch team status on page load
+  // Fetch team status and members
   useEffect(() => {
     const fetchTeamStatus = async () => {
       try {
@@ -30,9 +32,13 @@ const StudentDashboard = () => {
           if (res.data.hasTeam) {
             setTeamStatus("Joined");
             setTeamName(res.data.team.name);
+            setTeamId(res.data.team._id);
+            setTeamMembers(res.data.team.members || []);
           } else {
             setTeamStatus("Not Joined");
             setTeamName("");
+            setTeamId(null);
+            setTeamMembers([]);
           }
         }
       } catch (err) {
@@ -94,9 +100,7 @@ const StudentDashboard = () => {
                   <div className="h-6 w-24 bg-gray-200 rounded animate-pulse"></div>
                 ) : (
                   <div>
-                    <p
-                      className={`text-lg font-bold ${teamInfo.textColor} mb-1`}
-                    >
+                    <p className={`text-lg font-bold ${teamInfo.textColor} mb-1`}>
                       {teamInfo.statusText}
                     </p>
                     {teamName && (
@@ -123,18 +127,47 @@ const StudentDashboard = () => {
             </div>
           </div>
 
-          {/* Hours Logged Card */}
-          <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center gap-4">
+          {/* Members Card */}
+          {/* Members Card */}
+          {teamId ? (
+            <button
+              onClick={() => navigate(`/student/member/${teamId}`)}
+              className="w-full bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition flex items-center gap-4"
+              disabled={teamMembers?.length >= 5} // disable if full
+            >
               <div className="p-3 bg-blue-100 rounded-xl">
-                <Clock className="text-blue-600" size={28} />
+                <Users className="text-blue-600" size={28} />
               </div>
-              <div>
-                <p className="text-sm text-gray-600">Hours Logged</p>
-                <p className="text-lg font-bold text-gray-800">6 hours</p>
+              <div className="text-left">
+                <p className="text-sm text-gray-600">Team Members</p>
+                {isLoading ? (
+                  <div className="h-6 w-24 bg-gray-200 rounded animate-pulse"></div>
+                ) : (
+                  <p className="text-lg font-bold text-gray-800">
+                    {teamMembers?.length || 0} / 5 members
+                  </p>
+                )}
+                {teamMembers?.length >= 5 && (
+                  <p className="text-xs text-red-500 mt-1">
+                    Team full! Cannot add more members.
+                  </p>
+                )}
+              </div>
+              <span className="ml-auto text-gray-400">→</span>
+            </button>
+          ) : (
+            <div className="w-full bg-white rounded-2xl shadow-sm p-6 border border-gray-100 flex items-center gap-4">
+              <div className="p-3 bg-blue-100 rounded-xl">
+                <Users className="text-blue-600" size={28} />
+              </div>
+              <div className="text-left">
+                <p className="text-sm text-gray-600">Team Members</p>
+                <p className="text-lg font-bold text-gray-800">0 members</p>
               </div>
             </div>
-          </div>
+          )}
+
+
 
           {/* Log Entries Card */}
           <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
@@ -154,11 +187,8 @@ const StudentDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Quick Actions */}
           <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-5">
-              Quick Actions
-            </h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-5">Quick Actions</h2>
             <div className="space-y-4">
-              {/* Note: We removed the team button from here since team is managed via + button */}
               <button
                 onClick={() => navigate("/student/requestsupervisor")}
                 className="w-full bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition flex items-center justify-between border border-gray-100"
@@ -168,12 +198,8 @@ const StudentDashboard = () => {
                     <FileText className="text-purple-600" size={26} />
                   </div>
                   <div className="text-left">
-                    <p className="font-semibold text-gray-800">
-                      Request Supervisor
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Submit supervisor request
-                    </p>
+                    <p className="font-semibold text-gray-800">Request Supervisor</p>
+                    <p className="text-sm text-gray-500">Submit supervisor request</p>
                   </div>
                 </div>
                 <span className="text-gray-400">→</span>
@@ -199,9 +225,7 @@ const StudentDashboard = () => {
 
           {/* Upcoming Deadlines */}
           <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-5">
-              Upcoming Deadlines
-            </h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-5">Upcoming Deadlines</h2>
             <div className="space-y-4">
               <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -209,9 +233,7 @@ const StudentDashboard = () => {
                     <AlertCircle className="text-orange-600" size={22} />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-800">
-                      Team Formation
-                    </p>
+                    <p className="font-semibold text-gray-800">Team Formation</p>
                     <p className="text-sm text-gray-600">Week 2</p>
                   </div>
                 </div>
@@ -226,9 +248,7 @@ const StudentDashboard = () => {
                     <AlertCircle className="text-orange-600" size={22} />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-800">
-                      Supervisor Request
-                    </p>
+                    <p className="font-semibold text-gray-800">Supervisor Request</p>
                     <p className="text-sm text-gray-600">Week 3</p>
                   </div>
                 </div>
@@ -240,9 +260,7 @@ const StudentDashboard = () => {
               <div className="bg-white rounded-2xl p-5 flex items-center gap-4 border border-gray-100">
                 <Calendar className="text-gray-500" size={22} />
                 <div>
-                  <p className="font-medium text-gray-700">
-                    First Progress Report
-                  </p>
+                  <p className="font-medium text-gray-700">First Progress Report</p>
                   <p className="text-sm text-gray-500">Week 7</p>
                 </div>
               </div>
