@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -9,19 +9,15 @@ import CreateTeamModal from "./CreateTeamModal";
 import JoinTeamModal from "./JoinTeamModal";
 import { assets } from "../assets/assets";
 
-// 🔕 Sidebar props commented
-// const StudentNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 const StudentNavbar = () => {
   const [isPlusMenuOpen, setIsPlusMenuOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
 
   const plusButtonRef = useRef(null);
   const navigate = useNavigate();
 
-  const { selectedSubject, saveSelectedSubject, setUser } = useAppContext();
+  const { selectedSubject, setUser } = useAppContext();
 
   // ✅ Logout logic
   const logout = async () => {
@@ -41,31 +37,15 @@ const StudentNavbar = () => {
     }
   };
 
-  const subjects = [
-    "COMP 201",
-    "COMP 202",
-    "COMP 203",
-    "COMP 204",
-    "COMP 301",
-    "COMP 302",
-    "COMP 303",
-    "COMP 401",
-  ];
-
   // Close plus menu when clicking outside
-  useEffect(() => {
+  React.useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        plusButtonRef.current &&
-        !plusButtonRef.current.contains(event.target)
-      ) {
+      if (plusButtonRef.current && !plusButtonRef.current.contains(event.target)) {
         setIsPlusMenuOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -76,39 +56,24 @@ const StudentNavbar = () => {
 
             {/* LEFT SECTION */}
             <div className="flex items-center gap-3">
-              {/* 🔕 SIDEBAR BUTTON COMMENTED */}
-              {/*
-              <button
-                className="p-2 hover:bg-blue-100 rounded-lg hover:text-blue-700 transition"
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              >
-                <Menu size={26} strokeWidth={2.5} />
-              </button>
-              */}
-
               <div className="px-4 md:px-6">
                 <img src={assets.ku_logo} alt="ku_logo" className="h-12" />
               </div>
 
               <div className="leading-tight">
-                <div className="text-lg font-semibold">
-                  Kathmandu University
-                </div>
-                <div className="text-sm">
-                  Student Project Management Platform
-                </div>
+                <div className="text-lg font-semibold">Kathmandu University</div>
+                <div className="text-sm">Student Project Management Platform</div>
               </div>
             </div>
 
             {/* RIGHT SECTION */}
             <div className="flex items-center space-x-4 lg:space-x-8">
-              <button
-                onClick={() => setIsSubjectModalOpen(true)}
-                className="text-sm font-bold cursor-pointer"
-              >
-                {selectedSubject || "Select Subject"}
-              </button>
+              {/* Show selected subject only */}
+              <span className="text-sm font-bold cursor-default">
+                {selectedSubject || "No Subject Selected"}
+              </span>
 
+              {/* Plus menu */}
               <div className="relative" ref={plusButtonRef}>
                 <button
                   onClick={() => setIsPlusMenuOpen(!isPlusMenuOpen)}
@@ -189,51 +154,6 @@ const StudentNavbar = () => {
         onClose={() => setIsCreateModalOpen(false)}
         selectedSubject={selectedSubject}
       />
-
-      {/* SUBJECT MODAL */}
-      {isSubjectModalOpen && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="bg-white w-[90%] max-w-md rounded-lg p-4 shadow-lg">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="font-semibold text-lg">Select Subject</h2>
-              <button
-                onClick={() => setIsSubjectModalOpen(false)}
-                className="text-xl"
-              >
-                ×
-              </button>
-            </div>
-
-            <input
-              type="text"
-              placeholder="Search subject code..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none"
-            />
-
-            <ul className="max-h-60 overflow-y-auto">
-              {subjects
-                .filter((sub) =>
-                  sub.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((sub, index) => (
-                  <li
-                    key={index}
-                    onClick={() => {
-                      saveSelectedSubject(sub);
-                      setIsSubjectModalOpen(false);
-                      setSearchTerm("");
-                    }}
-                    className="p-2 cursor-pointer rounded hover:bg-primary/10"
-                  >
-                    {sub}
-                  </li>
-                ))}
-            </ul>
-          </div>
-        </div>
-      )}
     </>
   );
 };

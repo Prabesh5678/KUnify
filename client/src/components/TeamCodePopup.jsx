@@ -9,7 +9,7 @@ const TeamCodePopup = ({ isOpen, onClose, teamCode }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(teamCode);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 10000);
   };
 
   return (
@@ -44,7 +44,7 @@ const TeamCodePopup = ({ isOpen, onClose, teamCode }) => {
 
         {/* Title */}
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          Team Created Successfully! 🎉
+          Team Created Successfully! 
         </h2>
 
         {/* Description */}

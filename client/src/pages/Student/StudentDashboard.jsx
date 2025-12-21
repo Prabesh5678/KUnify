@@ -133,7 +133,6 @@ const StudentDashboard = () => {
             <button
               onClick={() => navigate(`/student/member/${teamId}`)}
               className="w-full bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition flex items-center gap-4"
-              disabled={teamMembers?.length >= 5} // disable if full
             >
               <div className="p-3 bg-blue-100 rounded-xl">
                 <Users className="text-blue-600" size={28} />
@@ -144,12 +143,7 @@ const StudentDashboard = () => {
                   <div className="h-6 w-24 bg-gray-200 rounded animate-pulse"></div>
                 ) : (
                   <p className="text-lg font-bold text-gray-800">
-                    {teamMembers?.length || 0} / 5 members
-                  </p>
-                )}
-                {teamMembers?.length >= 5 && (
-                  <p className="text-xs text-red-500 mt-1">
-                    Team full! Cannot add more members.
+                    {teamMembers?.length || 0} members
                   </p>
                 )}
               </div>
@@ -166,7 +160,6 @@ const StudentDashboard = () => {
               </div>
             </div>
           )}
-
 
 
           {/* Log Entries Card */}
