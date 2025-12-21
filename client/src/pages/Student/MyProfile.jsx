@@ -79,9 +79,9 @@ const MyProfile = () => {
 
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           {/* Avatar */}
-          <img
-            src="/avatar.png"
-            alt="User Avatar"
+          <img src="/avatar.png" alt="User Avatar"
+
+
             className="w-32 h-32 rounded-full border-2 border-primary object-cover"
           />
 
@@ -94,8 +94,9 @@ const MyProfile = () => {
                 type="text"
                 name="name"
                 value={form.name}
+                onChange={handleChange}
                 disabled
-                className="w-full p-3 rounded-md border border-gray-300 bg-gray-100 cursor-not-allowed"
+                className="w-full p-3 rounded-md border cursor-not-allowed"
               />
             </div>
 
@@ -106,8 +107,9 @@ const MyProfile = () => {
                 type="email"
                 name="email"
                 value={form.email}
+                onChange={handleChange}
                 disabled
-                className="w-full p-3 rounded-md border border-gray-300 bg-gray-100 cursor-not-allowed"
+                className="w-full p-3 rounded-md border cursor-not-allowed"
               />
             </div>
 
@@ -119,31 +121,47 @@ const MyProfile = () => {
                 name="department"
                 value={form.department}
                 onChange={handleChange}
-                disabled={!editing}
-                className={`w-full p-3 rounded-md border ${
-                  editing
-                    ? "border-primary bg-white"
-                    : "border-gray-300 bg-gray-100"
-                }`}
+                disabled
+                className="w-full p-3 rounded-md border  cursor-not-allowed"
               />
             </div>
 
             {/* Semester */}
             <div className="flex flex-col">
               <label className="font-semibold text-primary">Semester</label>
-              <input
-                type="text"
-                name="semester"
-                value={form.semester}
-                onChange={handleChange}
-                disabled={!editing}
-                className={`w-full p-3 rounded-md border ${
-                  editing
-                    ? "border-primary bg-white"
-                    : "border-gray-300 bg-gray-100"
-                }`}
-              />
+
+              {editing ? (
+                <select
+                  name="semester"
+                  value={form.semester}
+                  onChange={handleChange}
+                  className="w-full p-3 rounded-md border border-primary bg-white"
+                >
+                  {[
+                    "1st",
+                    "2nd",
+                    "3rd",
+                    "4th",
+                    "5th",
+                    "6th",
+                    "7th",
+                    "8th",
+                  ].map((semester) => (
+                    <option key={semester} value={semester}>
+                      {semester}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={form.semester || "—"}
+                  disabled
+                  className="w-full p-3 rounded-md border border-gray-300 bg-gray-100 cursor-not-allowed"
+                />
+              )}
             </div>
+
 
             {/* Registration Number (Read-only) */}
             <div className="flex flex-col">
@@ -162,20 +180,39 @@ const MyProfile = () => {
 
             {/* Subject Code */}
             <div className="flex flex-col">
-              <label className="font-semibold text-primary">Subject Code</label>
-              <input
-                type="text"
-                name="subjectCode"
-                value={form.subjectCode}
-                onChange={handleChange}
-                disabled={!editing}
-                className={`w-full p-3 rounded-md border ${
-                  editing
-                    ? "border-primary bg-white"
-                    : "border-gray-300 bg-gray-100"
-                }`}
-              />
-            </div>
+  <label className="font-semibold text-primary">Subject code</label>
+
+  {editing ? (
+    <select
+      name="subjectCode"
+      value={form.subjectCode}
+      onChange={handleChange}
+      className="w-full p-3 rounded-md border border-primary bg-white"
+    >
+      {[
+        "COMP 201",
+    "COMP 202",
+    "COMP 203",
+    "COMP 204",
+    "COMP 301",
+    "COMP 302",
+    "COMP 303",
+    "COMP 401",
+      ].map((subjectCode) => (
+        <option key={subjectCode} value={subjectCode}>
+          {subjectCode}
+        </option>
+      ))}
+    </select>
+  ) : (
+    <input
+      type="text"
+      value={form.subjectCode || "—"}
+      disabled
+      className="w-full p-3 rounded-md border border-gray-300 bg-gray-100 cursor-not-allowed"
+    />
+  )}
+</div>
 
             {/* Buttons */}
             <div className="flex gap-4 pt-6">
@@ -210,7 +247,7 @@ const MyProfile = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
