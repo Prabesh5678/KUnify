@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import axios from "axios"; // ADD THIS
+import axios from "axios";
 import TeamCodePopup from "./TeamCodePopup";
 import toast from "react-hot-toast";
 
 const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
   const [teamName, setTeamName] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // ADD THIS
+  const [isLoading, setIsLoading] = useState(false);
 
   // Team code popup state
   const [showCodePopup, setShowCodePopup] = useState(false);
@@ -18,6 +18,7 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
     if (isOpen) {
       setShowModal(true);
       setTeamName("");
+      setShowCodePopup(false); // Reset popup
     } else {
       const timer = setTimeout(() => setShowModal(false), 200);
       return () => clearTimeout(timer);
@@ -55,10 +56,12 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
 
       if (res.data?.success) {
         setTeamCode(res.data.team.code);
-        setShowCodePopup(true);
-
-        // Close modal after showing code
-        onClose();
+        onClose(); // Close the create team modal first
+        
+        // Show popup after a small delay (ensures modal is closed)
+        setTimeout(() => {
+          setShowCodePopup(true);
+        }, 100);
       } else {
         toast.error(res.data.message || "Failed to create team");
       }
@@ -68,6 +71,11 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePopupClose = () => {
+    setShowCodePopup(false);
+    window.location.reload(); // Refresh to update team status
   };
 
   return (
@@ -123,7 +131,7 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
             {/* Subject */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                Subject <span className="text-red-500">*</span>
+                Subject <span className="text-red500">*</span>
               </label>
               <input
                 type="text"
@@ -166,12 +174,14 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
         </div>
       </div>
 
-      {/* Team Code Popup */}
-      <TeamCodePopup
-        isOpen={showCodePopup}
-        onClose={() => setShowCodePopup(false)}
-        teamCode={teamCode}
-      />
+      {/* Team Code Popup - RENDERED SEPARATELY */}
+      {showCodePopup && (
+        <TeamCodePopup
+          isOpen={showCodePopup}
+          onClose={handlePopupClose}
+          teamCode={teamCode}
+        />
+      )}
     </>
   );
 };

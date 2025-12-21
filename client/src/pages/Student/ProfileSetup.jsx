@@ -49,7 +49,7 @@ const ProfileSetup = () => {
         if (setProfileSetupDone) setProfileSetupDone(true);
         
         // Redirect to dashboard
-        navigate("/student/dashboard");
+        navigate("/student/home");
         toast.success("Profile completed successfully!");
       } else {
         toast.error(res.data.message || "Profile setup failed");

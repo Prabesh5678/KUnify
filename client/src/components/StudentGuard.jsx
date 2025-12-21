@@ -54,7 +54,7 @@ const StudentGuard = () => {
   }
   // If profile is complete, prevent access to /setup-profile
   if (location.pathname === "/setup-profile" && profileCompleted) {
-    return <Navigate to="/student/dashboard" replace />;
+    return <Navigate to="/student/home" replace />;
   }
   // Block student routes if profile incomplete
   if (!profileCompleted && location.pathname.startsWith("/student")) {
