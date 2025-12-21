@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
- 
+
 const studentSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -20,7 +20,7 @@ const studentSchema = new mongoose.Schema(
 
     teamId: { 
   type: mongoose.Schema.Types.ObjectId, 
-  ref: 'Team', 
+  ref: 'team', 
   default: null 
 },
 isTeamLeader: { 
