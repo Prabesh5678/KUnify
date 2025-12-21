@@ -16,7 +16,7 @@ const TeamCodePopup = ({ isOpen, onClose, teamCode }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(teamCode);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 10000);
   };
 
   const handleClose = () => {
@@ -59,7 +59,7 @@ const TeamCodePopup = ({ isOpen, onClose, teamCode }) => {
 
         {/* Title */}
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          Team Created Successfully! 🎉
+          Team Created Successfully! 
         </h2>
 
         {/* Description */}
@@ -127,9 +127,13 @@ const TeamCodePopup = ({ isOpen, onClose, teamCode }) => {
           <button
             onClick={() => {
               handleCopy();
+<<<<<<< HEAD
               setTimeout(() => {
                 alert(`Team code "${teamCode}" copied! Share it with your team members.`);
               }, 100);
+=======
+              toast.success("Code copied! Share it with your team.");
+>>>>>>> d7e5045f1d9313d1137f0c28bce2f80c3994f19a
             }}
             className="flex-1 px-6 py-4 bg-white border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-bold rounded-xl transition text-lg"
           >

@@ -21,26 +21,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     { icon: Sheet, path: "/student/logsheet", label: "Log Sheet" },
     { icon: Settings, path: "/student/settings", label: "Settings" },
   ];
-  {
-    /*
-  const handleLogout = () => {
-    // clear context
-    setUser(null);
-    setProfileSetupDone(false);
-
-    // clear localStorage
-    localStorage.removeItem("user");
-    localStorage.removeItem("profileCompleted");
-    localStorage.removeItem("profileData");
-
-    // navigate to home
-    navigate("/", { replace: true });
-    setIsSidebarOpen(false);
-  };
-<<<<<<< Updated upstream
-<<<<<<< HEAD
-  */ }
-
   const handleLogout = async () => {
     // clear session in context
     try {
@@ -48,19 +28,12 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       const { data } = await axios.get("/api/student/logout");
       if (data.success) {
         setUser(null);
-        setProfileSetupDone(false);
-  
-        // clear only user session object
-        localStorage.removeItem("user");
-        // OPTIONAL: keep or clear profile flags; doesn't matter if backend is source of truth.
-        // localStorage.removeItem("profileCompleted");
-        // localStorage.removeItem("profileData");
-  
-        // navigate to home and stay there as a logged-out user
+        
         navigate("/", { replace: true });
         setIsSidebarOpen(false);
+        toast.success('Logged out')
       } else {
-        toast.error(data.message);
+        toast.error(data.message||'Logout failed!');
       }
     } catch (error) {
       toast.error(error.message||'Failed to logout');

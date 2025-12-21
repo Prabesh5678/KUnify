@@ -99,7 +99,7 @@ export const AppContextProvider = ({ children }) => {
       setStudentProfile(prev => ({ ...prev, subjectCode: subject })); // keep profile consistent
 
       // 🔹 Save to backend immediately
-      await axios.put("/api/student/setup-profile", { subjectCode: subject }, {
+      await axios.put("/api/student/profile-update", { subjectCode: subject }, {
         withCredentials: true,
       });
 
@@ -112,6 +112,31 @@ export const AppContextProvider = ({ children }) => {
   useEffect(() => {
     fetchUser();
   }, []);
+
+  // 10️⃣ Add leaveTeam helper
+const leaveTeam = async (teamId) => {
+  try {
+    const { data } = await axios.post(
+      `/api/team/${teamId}/leave`,
+      {},
+      { withCredentials: true }
+    );
+
+    if (data.success) {
+      toast.success("You left the team successfully!");
+      // Refresh user to update team info
+      await fetchUser();
+      return true;
+    } else {
+      toast.error(data.message || "Failed to leave the team");
+      return false;
+    }
+  } catch (err) {
+    console.error("Error leaving team:", err);
+    toast.error("Something went wrong while leaving the team");
+    return false;
+  }
+};
 
   // 8️⃣ Context value
   const value = {
@@ -136,6 +161,7 @@ export const AppContextProvider = ({ children }) => {
     showSignupPanel,
     setShowSignupPanel,
     navigate,
+    leaveTeam,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
