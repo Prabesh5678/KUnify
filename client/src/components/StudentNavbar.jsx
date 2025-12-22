@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -17,12 +17,17 @@ const StudentNavbar = () => {
   const plusButtonRef = useRef(null);
   const navigate = useNavigate();
 
+  // ✅ ONLY consume context (single source of truth)
   const { selectedSubject, setUser } = useAppContext();
 
-  // ✅ Logout logic
+  /* =========================
+     LOGOUT
+  ========================= */
   const logout = async () => {
     try {
-      const { data } = await axios.get("/api/student/logout");
+      const { data } = await axios.get("/api/student/logout", {
+        withCredentials: true,
+      });
 
       if (data.success) {
         setUser(null);
@@ -37,43 +42,54 @@ const StudentNavbar = () => {
     }
   };
 
-  // Close plus menu when clicking outside
-  React.useEffect(() => {
+  /* =========================
+     CLOSE PLUS MENU ON OUTSIDE CLICK
+  ========================= */
+  useEffect(() => {
     const handleClickOutside = (event) => {
-      if (plusButtonRef.current && !plusButtonRef.current.contains(event.target)) {
+      if (
+        plusButtonRef.current &&
+        !plusButtonRef.current.contains(event.target)
+      ) {
         setIsPlusMenuOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 transition-all duration-300 bg-primary text-secondary backdrop-blur-sm">
+      <nav className="fixed top-0 w-full z-50 bg-primary text-secondary backdrop-blur-sm">
         <div className="w-full px-0 lg:px-4 sm:px-4">
           <div className="flex justify-between items-center h-14 sm:h-16 md:h-20">
 
-            {/* LEFT SECTION */}
+            {/* LEFT */}
             <div className="flex items-center gap-3">
               <div className="px-4 md:px-6">
                 <img src={assets.ku_logo} alt="ku_logo" className="h-12" />
               </div>
-
-              <div className="leading-tight">
-                <div className="text-lg font-semibold">Kathmandu University</div>
-                <div className="text-sm">Student Project Management Platform</div>
+              <div>
+                <div className="text-lg font-semibold">
+                  Kathmandu University
+                </div>
+                <div className="text-sm">
+                  Student Project Management Platform
+                </div>
               </div>
             </div>
 
-            {/* RIGHT SECTION */}
+            {/* RIGHT */}
             <div className="flex items-center space-x-4 lg:space-x-8">
-              {/* Show selected subject only */}
+
+              {/* ✅ ALWAYS UP-TO-DATE SUBJECT */}
               <span className="text-sm font-bold cursor-default">
                 {selectedSubject || "No Subject Selected"}
               </span>
 
-              {/* Plus menu */}
+              {/* PLUS MENU */}
               <div className="relative" ref={plusButtonRef}>
                 <button
                   onClick={() => setIsPlusMenuOpen(!isPlusMenuOpen)}

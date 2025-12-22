@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+
 import { X, Copy, Check } from "lucide-react";
 import toast from "react-hot-toast";
+import React, { useState, useEffect } from "react";
+
 
 
 const TeamCodePopup = ({ isOpen, onClose, teamCode }) => {
@@ -15,19 +17,26 @@ const TeamCodePopup = ({ isOpen, onClose, teamCode }) => {
     );
   }
 
+  useEffect(() => {
+  if (!isOpen) return;
+
+  // ⏱ Auto close after 2 minutes
+  const timer = setTimeout(() => {
+    if (onClose) onClose();
+  }, 120000); // 2 minutes
+
+  return () => clearTimeout(timer);
+}, [isOpen, onClose]);
+
   const handleCopy = () => {
     navigator.clipboard.writeText(teamCode);
     setCopied(true);
     setTimeout(() => setCopied(false), 10000);
   };
 
-  const handleClose = () => {
-    console.log("Closing popup, will refresh page");
-    if (onClose) onClose(); // Call parent's onClose
-    setTimeout(() => {
-      window.location.reload(); // Refresh after popup closes
-    }, 100);
-  };
+ const handleClose = () => {
+  if (onClose) onClose();
+};
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm">

@@ -11,8 +11,8 @@ const Request = () => {
           <div className="px-8 py-6 flex items-center gap-4">
             <NotebookPen className="text-blue-600" size={32} />
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Supervisor Request Form</h1>
-              <p className="text-gray-600 mt-1">Complete the form below to request a supervisor</p>
+              <h1 className="text-3xl font-bold text-gray-800">Initial Form</h1>
+              <p className="text-gray-600 mt-1">Complete the form below to submit your proposal</p>
             </div>
           </div>
         </div>
@@ -45,7 +45,7 @@ const Request = () => {
                 required
                 rows={2}
                 placeholder="Abstract of your project in 200-250 words."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none transition"
+                className="w-full px-4 py-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none transition"
                 onInput={(e) => {
                   const words = e.target.value.split(/\s+/);
                   if (words.length > 250) {
@@ -101,6 +101,40 @@ const Request = () => {
                 </select>
                 <p className="text-xs text-gray-500 mt-2">Final assignment subject to availability</p>
               </div>
+            </div>
+            {/* Proposal PDF Upload */}
+            {/* Proposal PDF Upload */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Upload Proposal (PDF only, max 2MB) <span className="text-red-500">*</span>
+              </label>
+
+              <label className="w-full flex items-center justify-center px-4 py-3 bg-gray-100 text-gray-700 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-200 transition">
+                Choose File
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  required
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      if (file.type !== "application/pdf") {
+                        toast.error("Only PDF files are allowed!");
+                        e.target.value = null;
+                      } else if (file.size > 2 * 1024 * 1024) {
+                        toast.error("File size cannot exceed 2MB!");
+                        e.target.value = null;
+                      } else {
+                        toast.success("PDF file selected successfully!");
+                      }
+                    }
+                  }}
+                  className="hidden" // hide default file input
+                />
+              </label>
+              <p className="text-xs text-gray-500 mt-2">
+                Only PDF files under 2MB are allowed.
+              </p>
             </div>
 
             {/* Submit Button */}

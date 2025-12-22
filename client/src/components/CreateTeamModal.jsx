@@ -3,8 +3,11 @@ import { X } from "lucide-react";
 import axios from "axios";
 import TeamCodePopup from "./TeamCodePopup";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
+  const navigate = useNavigate(); // ✅ HOOK INSIDE COMPONENT
+
   const [teamName, setTeamName] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +21,7 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
     if (isOpen) {
       setShowModal(true);
       setTeamName("");
-      setShowCodePopup(false); // Reset popup
+      setShowCodePopup(false);
     } else {
       const timer = setTimeout(() => setShowModal(false), 200);
       return () => clearTimeout(timer);
@@ -49,16 +52,14 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
           name: teamName.trim(),
           subject: selectedSubject,
         },
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       if (res.data.success) {
         setTeamCode(res.data.team.code);
-        onClose(); // Close the create team modal first
-        
-        // Show popup after a small delay (ensures modal is closed)
+        onClose();
+
+        // Show popup after modal closes
         setTimeout(() => {
           setShowCodePopup(true);
         }, 100);
@@ -73,9 +74,10 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
     }
   };
 
+  // ✅ Redirect AFTER popup close
   const handlePopupClose = () => {
     setShowCodePopup(false);
-    window.location.reload(); // Refresh to update team status
+    navigate("/student/requestsupervisor");
   };
 
   return (
@@ -119,7 +121,6 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
               </label>
               <input
                 type="text"
-                required
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
                 placeholder="e.g. SPMP"
@@ -131,13 +132,12 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
             {/* Subject */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                Subject <span className="text-red500">*</span>
+                Subject <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={selectedSubject || ""}
                 disabled
-                placeholder="Select subject first"
                 className="w-full px-4 py-3 border rounded-lg bg-gray-100 cursor-not-allowed"
               />
               <p className="text-xs text-gray-500 mt-2">
@@ -160,21 +160,14 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
                 disabled={!selectedSubject || isLoading}
                 className="px-8 py-3 bg-primary text-white rounded-lg disabled:opacity-50 flex items-center gap-2"
               >
-                {isLoading ? (
-                  <>
-                    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Creating...
-                  </>
-                ) : (
-                  "Create"
-                )}
+                {isLoading ? "Creating..." : "Create"}
               </button>
             </div>
           </form>
         </div>
       </div>
 
-      {/* Team Code Popup - RENDERED SEPARATELY */}
+      {/* Team Code Popup */}
       {showCodePopup && (
         <TeamCodePopup
           isOpen={showCodePopup}

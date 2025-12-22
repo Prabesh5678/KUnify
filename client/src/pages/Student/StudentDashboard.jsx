@@ -129,38 +129,66 @@ const StudentDashboard = () => {
 
           {/* Members Card */}
           {/* Members Card */}
-          {teamId ? (
-            <button
-              onClick={() => navigate(`/student/member/${teamId}`)}
-              className="w-full bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition flex items-center gap-4"
-            >
-              <div className="p-3 bg-blue-100 rounded-xl">
-                <Users className="text-blue-600" size={28} />
-              </div>
-              <div className="text-left">
-                <p className="text-sm text-gray-600">Team Members</p>
-                {isLoading ? (
-                  <div className="h-6 w-24 bg-gray-200 rounded animate-pulse"></div>
-                ) : (
-                  <p className="text-lg font-bold text-gray-800">
-                    {teamMembers?.length || 0} members
-                  </p>
-                )}
-              </div>
-              <span className="ml-auto text-gray-400">→</span>
-            </button>
-          ) : (
-            <div className="w-full bg-white rounded-2xl shadow-sm p-6 border border-gray-100 flex items-center gap-4">
-              <div className="p-3 bg-blue-100 rounded-xl">
-                <Users className="text-blue-600" size={28} />
-              </div>
-              <div className="text-left">
-                <p className="text-sm text-gray-600">Team Members</p>
-                <p className="text-lg font-bold text-gray-800">0 members</p>
-              </div>
+          {/* Team Members Card */} {/*
+          <button
+            onClick={() => {
+              if (teamId) {
+                navigate(`/student/member/${teamId}`);
+              }
+            }}
+            disabled={!teamId}
+            className={`w-full bg-white rounded-2xl shadow-sm p-6 border border-gray-100 flex items-center gap-4 transition
+    ${teamId ? "hover:shadow-md cursor-pointer" : "cursor-not-allowed opacity-70"}
+  `}
+          >
+            <div className="p-3 bg-blue-100 rounded-xl">
+              <Users className="text-blue-600" size={28} />
             </div>
-          )}
 
+            <div className="text-left">
+              <p className="text-sm text-gray-600">Team Members</p>
+
+              {isLoading ? (
+                <div className="h-6 w-24 bg-gray-200 rounded animate-pulse"></div>
+              ) : (
+                <p className="text-lg font-bold text-gray-800">
+                  {teamMembers?.length || 0} member{teamMembers?.length === 1 ? "" : "s"}
+                </p>
+              )}
+            </div>
+
+            {teamId && <span className="ml-auto text-gray-400">→</span>}
+          </button>
+
+*/ }
+
+          {/* Team Members Card */}
+          <button
+            onClick={() => {
+              if (teamId) {
+                navigate(`/student/member/${teamId}`);
+              } else {
+                navigate("/student/member"); // page already handles "no team"
+              }
+            }}
+            className="w-full bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition flex items-center gap-4 cursor-pointer"
+          >
+            <div className="p-3 bg-blue-100 rounded-xl">
+              <Users className="text-blue-600" size={28} />
+            </div>
+
+            <div className="text-left">
+              <p className="text-sm text-gray-600">Team Members</p>
+
+              {isLoading ? (
+                <div className="h-6 w-24 bg-gray-200 rounded animate-pulse"></div>
+              ) : (
+                <p className="text-lg font-bold text-gray-800">
+                  {teamMembers?.length || 0} member{teamMembers?.length === 1 ? "" : "s"}
+                </p>
+              )}
+            </div>
+          </button>
 
           {/* Log Entries Card */}
           <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
@@ -191,8 +219,8 @@ const StudentDashboard = () => {
                     <FileText className="text-purple-600" size={26} />
                   </div>
                   <div className="text-left">
-                    <p className="font-semibold text-gray-800">Request Supervisor</p>
-                    <p className="text-sm text-gray-500">Submit supervisor request</p>
+                    <p className="font-semibold text-gray-800">Submit Proposal</p>
+                    <p className="text-sm text-gray-500">Submit your proposal after your team is formed</p>
                   </div>
                 </div>
                 <span className="text-gray-400">→</span>

@@ -1,161 +1,135 @@
-// src/pages/Student/Logsheet.jsx
-import React, { useState } from "react";
-import { Calendar, Clock, Plus, Trash2, Activity, FileText, Server, PenTool } from "lucide-react";
 import AddLogEntryModal from "../../components/AddLogEntryModal";
+import React, { useState } from "react";
+import { Calendar } from "lucide-react";
+import { Toaster, toast } from "react-hot-toast";
 
-const initialEntries = [
-  {
-    id: 1,
-    date: "Dec 1, 2025",
-    hours: 4,
-    activity: "Initial project research and literature review",
-    outcome: "Identified 5 relevant research papers and documented key findings",
-    color: "bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200",
-    iconBg: "bg-blue-100",
-    iconColor: "text-blue-600",
-    icon: <FileText className="text-blue-600" size={20} />,
-  },
-  {
-    id: 2,
-    date: "Dec 5, 2025",
-    hours: 2,
-    activity: "Team meeting to discuss project scope and requirements",
-    outcome: "Finalized project objectives and created initial timeline",
-    color: "bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200",
-    iconBg: "bg-purple-100",
-    iconColor: "text-purple-600",
-    icon: <Activity className="text-purple-600" size={20} />,
-  },
-  {
-    id: 3,
-    date: "Dec 8, 2025",
-    hours: 3,
-    activity: "UI/UX design and wireframing",
-    outcome: "Created high-fidelity mockups using Figma",
-    color: "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200",
-    iconBg: "bg-green-100",
-    iconColor: "text-green-600",
-    icon: <PenTool className="text-green-600" size={20} />,
-  },
-  {
-    id: 4,
-    date: "Dec 10, 2025",
-    hours: 5,
-    activity: "Backend setup and database design",
-    outcome: "Designed ER diagram and implemented initial models",
-    color: "bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200",
-    iconBg: "bg-orange-100",
-    iconColor: "text-orange-600",
-    icon: <Server className="text-orange-600" size={20} />,
-  },
+
+const memberColors = [
+  { bg: "bg-blue-50", border: "border-blue-200", badge: "bg-blue-400" },
+  { bg: "bg-purple-50", border: "border-purple-200", badge: "bg-purple-400" },
+  { bg: "bg-green-50", border: "border-green-200", badge: "bg-green-400" },
+  { bg: "bg-orange-50", border: "border-orange-200", badge: "bg-orange-400" },
+  { bg: "bg-pink-50", border: "border-pink-200", badge: "bg-pink-400" },
 ];
 
-const Logsheet = () => {
-  const [entries, setEntries] = useState(initialEntries);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const LogsList = ({ logs }) => {
+  const [expandedLog, setExpandedLog] = useState(null);
 
-  const totalHours = entries.reduce((sum, e) => sum + e.hours, 0);
-
-  // Handler to delete an entry
-  const handleDelete = (id) => {
-    setEntries(entries.filter((entry) => entry.id !== id));
-  };
-
-  // Handler to add a new entry from modal
-  const handleAddEntry = (newEntry) => {
-    setEntries([...entries, { id: Date.now(), ...newEntry }]);
-  };
+  const reversedLogs = [...logs].reverse();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-
-        {/* Header */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
-                <Calendar className="text-blue-600" size={26} />
-                Project Logsheet
-              </h1>
-              <p className="text-base text-gray-600 mt-1.5">
-                <span className="font-medium">Total Hours: {totalHours} hours</span>
-              </p>
-            </div>
-
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-md transition text-sm"
-            >
-              <Plus size={18} />
-              Add Entry
-            </button>
+    <div className="max-w-4xl mx-auto py-8 space-y-6">
+      {reversedLogs.map((log, index) => (
+        <div
+          key={index}
+          className="border rounded-2xl shadow-sm p-4 hover:shadow-md transition cursor-pointer"
+          onClick={() =>
+            setExpandedLog(expandedLog === index ? null : index)
+          }
+        >
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-bold text-gray-800 text-lg">
+              {log.logName}
+            </h3>
+            <p className="text-gray-500 text-sm flex items-center gap-1">
+              <Calendar size={16} /> {log.date}
+            </p>
           </div>
-        </div>
 
-        {/* Entry Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {entries.map((entry) => (
-            <div
-              key={entry.id}
-              className={`rounded-2xl shadow-sm border ${entry.color} p-5 hover:shadow-lg transition-all duration-300`}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2.5 rounded-xl ${entry.iconBg}`}>
-                    {entry.icon}
+          {expandedLog === index && (
+            <div className="mt-4 space-y-4">
+              {log.teamEntries.map((member, idx) => {
+                const color = memberColors[idx % memberColors.length];
+                return (
+                  <div
+                    key={idx}
+                    className={`${color.bg} ${color.border} border rounded-2xl p-4`}
+                  >
+                    <div className="flex items-center gap-4 mb-3">
+                      <div
+                        className={`w-10 h-10 ${color.badge} text-white rounded-full flex items-center justify-center font-bold`}
+                      >
+                        {idx + 1}
+                      </div>
+                      <p className="font-medium">{member.name}</p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase text-gray-500">
+                          Activity
+                        </p>
+                        <p>{member.activity}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase text-gray-500">
+                          Outcome
+                        </p>
+                        <p>{member.outcome}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-800">{entry.date}</p>
-                    <p className="text-sm text-gray-600 flex items-center gap-1">
-                      <Clock size={15} />
-                      {entry.hours}h
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleDelete(entry.id)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Activity</p>
-                  <p className="text-gray-800 text-base mt-1 leading-relaxed">{entry.activity}</p>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Outcome</p>
-                  <p className="text-gray-800 text-base mt-1 leading-relaxed">{entry.outcome}</p>
-                </div>
-              </div>
+                );
+              })}
             </div>
-          ))}
+          )}
         </div>
-
-        {/* Empty State */}
-        {entries.length === 0 && (
-          <div className="text-center py-20">
-            <div className="bg-gray-100 rounded-full w-28 h-28 mx-auto mb-6 flex items-center justify-center">
-              <Calendar className="text-gray-400" size={56} />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-700">No log entries yet</h3>
-            <p className="text-gray-500 mt-2">Click "Add Entry" to start tracking!</p>
-          </div>
-        )}
-
-        {/* Modal */}
-        <AddLogEntryModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onAdd={handleAddEntry}
-        />
-
-      </div>
+      ))}
     </div>
   );
 };
 
-export default Logsheet;
+const TeamLogPage = () => {
+  const [logs, setLogs] = useState([
+    {
+      logName: "LOG-1",
+      date: "2025-12-20",
+      teamEntries: [
+        { name: "Alice", activity: "Set up backend", outcome: "API working" },
+        { name: "Bob", activity: "Designed UI", outcome: "Homepage ready" },
+      ],
+    },
+  ]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAddLog = (newLog) => {
+    setLogs((prev) => [...prev, newLog]);
+    toast.success(`${newLog.logName} added successfully`);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <Toaster position="top-right" />
+
+      {/* Header */}
+      <div className="max-w-4xl mx-auto flex justify-between items-center mb-6 px-4">
+        <h1 className="text-3xl font-bold">Team Logs</h1>
+
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="bg-primary hover:bg-primary-80 text-white px-5 py-2.5 rounded-xl font-semibold shadow"
+        >
+          + Add New Log
+        </button>
+      </div>
+
+      <LogsList logs={logs} />
+
+      {/* MODAL */}
+      <AddLogEntryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onAdd={handleAddLog}
+        existingLogs={logs}
+        teamMembers={[
+          { name: "Alice" },
+          { name: "Bob" },
+          { name: "Charlie" },
+        ]}
+      />
+    </div>
+  );
+};
+
+export default TeamLogPage;
