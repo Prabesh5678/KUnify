@@ -53,7 +53,6 @@ const teamSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-    uppercase: true,
       minlength: 6,  
       maxlength: 6
     },
@@ -72,7 +71,7 @@ const teamSchema = new mongoose.Schema(
     }],
     maxMembers: {
       type: Number,
-      default: 4
+      default: 5
     }
   },
   { timestamps: true }

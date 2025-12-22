@@ -21,9 +21,9 @@ const JoinTeamModal = ({ isOpen, onClose }) => {
 
     try {
       const res = await axios.post(
-        "/api/student/team/join",
+        "/api/team/join",
         {
-          code: code.toUpperCase().trim(),
+          code: code.trim(),
         },
         {
           withCredentials: true,

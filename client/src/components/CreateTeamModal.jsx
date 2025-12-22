@@ -44,7 +44,7 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
 
     try {
       const res = await axios.post(
-        "/api/student/team/create",
+        "/api/team/create",
         {
           name: teamName.trim(),
           subject: selectedSubject,
@@ -54,7 +54,7 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
         }
       );
 
-      if (res.data?.success) {
+      if (res.data.success) {
         setTeamCode(res.data.team.code);
         onClose(); // Close the create team modal first
         
