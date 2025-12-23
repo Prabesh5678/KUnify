@@ -571,15 +571,17 @@ export const createTeam = async (req, res) => {
     // if(leader.isTeamLeader && leader.teamId)
     //   return res.json({success:false,message:"Already in a team!"})
     const code = generateTeamCode();
-    console.log({ name, subject, code,leaderId:leader._id,studentId });
+    console.log({ name, subject, code, leaderId: leader._id, studentId });
     const team = await Team.create(
-     [ {
-        name,
-        subject,
-        code,
-        leaderId: studentId,
-        members: [studentId],
-      }],
+      [
+        {
+          name,
+          subject,
+          code,
+          leaderId: studentId,
+          members: [studentId],
+        },
+      ],
       { session }
     );
     const student = await Student.updateOne(
@@ -619,8 +621,8 @@ export const joinTeam = async (req, res) => {
     session = await mongoose.startSession();
     session.startTransaction();
     const { code } = req.body;
-    if(!code)
-      return res.json({success:false, message:"Please provide code!"});
+    if (!code)
+      return res.json({ success: false, message: "Please provide code!" });
     const studentId = req.studentId;
     const student = await Student.findById(studentId);
     if (student.isTeamLeader && student.teamId)
@@ -679,7 +681,7 @@ export const leaveTeam = async (req, res) => {
     const team = student.teamId;
     team.members.pull(student._id);
     student.teamId = null;
-    student.isTeamLeader=false;
+    student.isTeamLeader = false;
     await Promise.all([student.save({ session }), team.save({ session })]);
 
     await session.commitTransaction();
@@ -701,24 +703,62 @@ export const leaveTeam = async (req, res) => {
   }
 };
 // /api/team/{params}
-export const teamInfo=async (req,res) => {
+export const teamInfo = async (req, res) => {
   try {
     const { teamId } = req.params;
-    if(!teamId) return res.json({success:false,message:"Failed to get Team Id!"})
-const team = await Team.findById(teamId)
-  .populate({
-    path: "members", 
-    select: "name email",
-  })
-  .populate({
-    path: "leaderId",
-    select: "name email",
-  });
-      if (!team && !team.members && !team.leaderId)
-        return res.json({ success: false, message: "Failed to get Team" });
-      return res.json({success:true,team})
+    if (!teamId)
+      return res.json({ success: false, message: "Failed to get Team Id!" });
+    const team = await Team.findById(teamId)
+      .populate({
+        path: "members",
+        select: "name email",
+      })
+      .populate({
+        path: "leaderId",
+        select: "name email",
+      });
+    if (!team && !team.members && !team.leaderId)
+      return res.json({ success: false, message: "Failed to get Team" });
+    return res.json({ success: true, team });
   } catch (error) {
-    console.error(error.stack)
-    return res.json({success:false,message:error.message})
+    console.error(error.stack);
+    return res.json({ success: false, message: error.message });
   }
-}
+};
+
+// api/team/approve/:params
+export const memberApprove = async (req, res) => {
+  try {
+    const studentId = req.userId;
+    const { teamId } = req.params;
+    const { memberId, action } = req.body;
+    const team = await Team.findById(teamId);
+    if (!team || !team.leaderId)
+      return res.json({ success: false, message: "Unable to find team." });
+    if (team.leaderId !== studentId)
+      return res.json({
+        success: false,
+        message: "Only leader is able to approve or decline!",
+      });
+    const member = await Student.findById(memberId);
+    if (!member || member.teamId)
+      return res.json({
+        success: false,
+        message: "Member not found or already in a team!",
+      });
+    if (action === "approve") {
+      member.isApproved = true;
+      await member.save();
+      return res.json({ success: true, message: "Member approved!" });
+    } else if (action === "decline") {
+      member.isApproved = false;
+      await member.save();
+      return res.json({ success: true, message: "Member declined!" });
+    } else {
+      return res.json({ success: false, message: "Invalid action!" });
+    }
+  } catch (error) {
+    console.error(error.stack);
+    return res.json({ success: false, message: "Some error occured!" });
+  }
+};

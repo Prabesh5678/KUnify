@@ -196,7 +196,7 @@ const StudentTeamMembers = () => {
           members: data.team.members.map((member) => ({
             _id: member._id,
             student: member, // Full student object (or just name/email, etc. depending on how it's populated)
-            status: member.status || "approved", // Set default status if not provided
+            status: member.isApproved?"approved":"not approved", // Set default status if not provided
           })),
         });
       } catch (err) {
@@ -230,7 +230,7 @@ const StudentTeamMembers = () => {
   const handleMemberAction = async (memberId, action) => {
     try {
       const { data } = await axios.post(
-        `/api/team/${team._id}/approve`,
+        `/api/team/approve/${team._id}`,
         { memberId, action },
         { withCredentials: true }
       );
