@@ -13,11 +13,10 @@ const StudentNavbar = () => {
   const [isPlusMenuOpen, setIsPlusMenuOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false); // ✅ logout modal state
 
   const plusButtonRef = useRef(null);
   const navigate = useNavigate();
-
-  // ✅ ONLY consume context (single source of truth)
   const { selectedSubject, setUser } = useAppContext();
 
   /* =========================
@@ -65,26 +64,19 @@ const StudentNavbar = () => {
       <nav className="fixed top-0 w-full z-50 bg-primary text-secondary backdrop-blur-sm">
         <div className="w-full px-0 lg:px-4 sm:px-4">
           <div className="flex justify-between items-center h-14 sm:h-16 md:h-20">
-
             {/* LEFT */}
             <div className="flex items-center gap-3">
               <div className="px-4 md:px-6">
                 <img src={assets.ku_logo} alt="ku_logo" className="h-12" />
               </div>
               <div>
-                <div className="text-lg font-semibold">
-                  Kathmandu University
-                </div>
-                <div className="text-sm">
-                  Student Project Management Platform
-                </div>
+                <div className="text-lg font-semibold">Kathmandu University</div>
+                <div className="text-sm">Student Project Management Platform</div>
               </div>
             </div>
 
             {/* RIGHT */}
             <div className="flex items-center space-x-4 lg:space-x-8">
-
-              {/* ✅ ALWAYS UP-TO-DATE SUBJECT */}
               <span className="text-sm font-bold cursor-default">
                 {selectedSubject || "No Subject Selected"}
               </span>
@@ -147,14 +139,13 @@ const StudentNavbar = () => {
                 </li>
 
                 <li
-                  onMouseDown={logout}
+                  onClick={() => setShowLogoutModal(true)} // ✅ open modal instead of immediate logout
                   className="p-1.5 pl-3 hover:bg-primary cursor-pointer"
                 >
                   Logout
                 </li>
               </ul>
             </div>
-
           </div>
         </div>
       </nav>
@@ -164,12 +155,36 @@ const StudentNavbar = () => {
         isOpen={isJoinModalOpen}
         onClose={() => setIsJoinModalOpen(false)}
       />
-
       <CreateTeamModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         selectedSubject={selectedSubject}
       />
+
+      {/* LOGOUT CONFIRMATION MODAL */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-96 text-center shadow-lg">
+            <h3 className="text-xl font-semibold mb-4">
+              Are you sure you want to logout?
+            </h3>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={logout}
+                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-semibold"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 rounded-lg font-semibold"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

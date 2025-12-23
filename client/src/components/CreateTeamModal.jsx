@@ -1,27 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import axios from "axios";
-import TeamCodePopup from "./TeamCodePopup";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-
+import { useAppContext } from "../context/AppContext";
 const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
-  const navigate = useNavigate(); // ✅ HOOK INSIDE COMPONENT
+  const navigate = useNavigate();
+  const { setTeamCode } = useAppContext();
 
   const [teamName, setTeamName] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Team code popup state
-  const [showCodePopup, setShowCodePopup] = useState(false);
-  const [teamCode, setTeamCode] = useState("");
-
-  // Smooth fade-in / fade-out + reset form
+  // Smooth open / close animation + reset form
   useEffect(() => {
     if (isOpen) {
       setShowModal(true);
       setTeamName("");
-      setShowCodePopup(false);
     } else {
       const timer = setTimeout(() => setShowModal(false), 200);
       return () => clearTimeout(timer);
@@ -56,13 +51,12 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
       );
 
       if (res.data.success) {
+        // 🌍 Store team code globally
         setTeamCode(res.data.team.code);
-        onClose();
 
-        // Show popup after modal closes
-        setTimeout(() => {
-          setShowCodePopup(true);
-        }, 100);
+        toast.success("Team created successfully!");
+        onClose();
+        navigate("/student/dashboard");
       } else {
         toast.error(res.data.message || "Failed to create team");
       }
@@ -72,12 +66,6 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // ✅ Redirect AFTER popup close
-  const handlePopupClose = () => {
-    setShowCodePopup(false);
-    navigate("/student/requestsupervisor");
   };
 
   return (
@@ -166,15 +154,6 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
           </form>
         </div>
       </div>
-
-      {/* Team Code Popup */}
-      {showCodePopup && (
-        <TeamCodePopup
-          isOpen={showCodePopup}
-          onClose={handlePopupClose}
-          teamCode={teamCode}
-        />
-      )}
     </>
   );
 };

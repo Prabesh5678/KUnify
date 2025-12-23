@@ -133,10 +133,10 @@ const ProfileSetup = () => {
               />
             </div>
 
-            {/* Subject Code - Optional */}
+            {/* Subject Code */}
             <div className="flex flex-col gap-2">
               <label className="text-[#0f172a] font-medium">
-                Subject Code (Optional)
+                Subject Code <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -155,7 +155,8 @@ const ProfileSetup = () => {
             disabled={
               !form.rollNumber || 
               !form.department || 
-              !form.semester || 
+              !form.semester ||
+              !form.subjectCode ||
               isLoading
             }
             className="w-full py-3 bg-primary text-white font-semibold rounded-md hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"

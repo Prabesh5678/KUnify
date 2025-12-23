@@ -26,6 +26,8 @@ export const AppContextProvider = ({ children }) => {
 
   // ✅ Selected subject
   const [selectedSubject, setSelectedSubject] = useState(null);
+  //team code
+   const [teamCode, setTeamCode] = useState(null);
 
   // 3️⃣ Fetch logged-in user
   const fetchUser = async () => {
@@ -162,6 +164,8 @@ const leaveTeam = async (teamId) => {
     setShowSignupPanel,
     navigate,
     leaveTeam,
+    teamCode, 
+    setTeamCode 
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
