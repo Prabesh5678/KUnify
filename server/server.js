@@ -5,6 +5,7 @@ import connectDB from "./configs/db.config.js";
 import cookieParser from "cookie-parser";
 import studentRouter from "./routes/student.route.js";
 import teamRouter from "./routes/team.route.js";
+import logRouter from "./routes/log.route.js";
 
 const app=express();
 const port = 3000;
@@ -37,6 +38,7 @@ app.get("/", (_, res) => res.send("API is working"));
 
 app.use('/api/student',studentRouter);
 app.use('/api/team',teamRouter);
+app.use("/api/log", logRouter);
 
 
 // ✅ Start server
