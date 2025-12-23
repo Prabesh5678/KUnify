@@ -6,11 +6,14 @@ import cookieParser from "cookie-parser";
 import studentRouter from "./routes/student.route.js";
 import teamRouter from "./routes/team.route.js";
 import logRouter from "./routes/log.route.js";
+// import connectCloudinary from './configs/cloudinary.config.js';
 
 const app=express();
 const port = 3000;
 
 await connectDB();
+// await connectCloudinary();
+
 
 const allowedOrigins = [
   "http://localhost:5173",
