@@ -11,4 +11,10 @@ studentRouter.get("/logout", authStudent, logout);
 studentRouter.put("/setup-profile", authStudent, profileCompletion);
 studentRouter.put("/profile-update", authStudent, profileUpdate);
 
+studentRouter.get("/profile", authStudent, (req, res) => {
+  return res.json({
+    success: true,
+    student: req.student, // injected by authStudent middleware
+  });
+});
 export default studentRouter;

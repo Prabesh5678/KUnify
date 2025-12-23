@@ -124,7 +124,7 @@ const TeamMembers = () => {
                   {m.name}
                   {team.leaderId?._id === m._id && (
                     <span className="ml-2 text-xs bg-indigo-600 text-white px-2 py-0.5 rounded-full">
-                      Leader
+                      Team Creator
                     </span>
                   )}
                 </p>
@@ -181,7 +181,7 @@ const TeamMembers = () => {
       {/* Pending message for non-leader */}
       {!isLeader && !user?.isApproved && (
         <p className="text-yellow-600 bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-          ⏳ Your join request is pending leader approval
+          Your join request is pending leader approval
         </p>
       )}
 

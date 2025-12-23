@@ -1,289 +1,213 @@
-
+import mongoose from "mongoose";
 import Team from "../models/team.model.js";
 import Student from "../models/student.model.js";
-import mongoose from "mongoose";
 
+/* -------------------- Utils -------------------- */
 const generateTeamCode = () => {
-  // Include ALL characters as you wanted: 0-9, A-Z, a-z
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let code = "";
-
-  // Generate 6 random characters
   for (let i = 0; i < 6; i++) {
-    const randomIndex = Math.floor(Math.random() * chars.length);
-    code += chars.charAt(randomIndex);
+    code += chars[Math.floor(Math.random() * chars.length)];
   }
-
   return code;
 };
 
-// /api/team/create
+/* -------------------- CREATE TEAM -------------------- */
+// POST /api/team/create
 export const createTeam = async (req, res) => {
   let session;
   try {
     session = await mongoose.startSession();
     session.startTransaction();
+
     const { name, subject } = req.body;
     const studentId = req.studentId;
+
     if (!name || !subject) {
-      return res.json({ success: false, message: "Please provide all feild!" });
+      return res.json({ success: false, message: "All fields required!" });
     }
+
     const leader = await Student.findById(studentId);
-    if(leader.isTeamLeader && leader.teamId)
-    return res.json({success:false,message:"Already in a team!"})
-    const code = generateTeamCode();
-    console.log({ name, subject, code, leaderId: leader._id, studentId });
+    if (leader.teamId) {
+      return res.json({ success: false, message: "Already in a team!" });
+    }
+
     const team = await Team.create(
       [
         {
           name,
           subject,
-          code,
+          code: generateTeamCode(),
           leaderId: studentId,
           members: [studentId],
         },
       ],
       { session }
     );
-    const student = await Student.updateOne(
-      { _id: studentId },
-      { $set: { isTeamLeader: true, teamId: team[0]._id } },
-      { session }
-    );
-    if (!student.modifiedCount)
-      return res.json({
-        success: false,
-        message: "Failed to update student as team leader",
-      });
 
+    leader.teamId = team[0]._id;
+    leader.isTeamLeader = true;
+    leader.isApproved = true;
+    leader.lastTeamId = null;
+
+    await leader.save({ session });
     await session.commitTransaction();
 
     return res.json({
       success: true,
-      message: "Successfully created team",
-      team,
+      message: "Team created successfully",
+      team: team[0],
     });
-  } catch (error) {
-    await session.abortTransaction();
-    console.error(error.stack);
-    return res.json({
-      success: false,
-      message: "Unable to create team",
-    });
+  } catch (err) {
+    if (session) await session.abortTransaction();
+    console.error(err);
+    return res.json({ success: false, message: "Failed to create team" });
   } finally {
-    session.endSession();
+    if (session) session.endSession();
   }
 };
 
-// /api/team/join
+/* -------------------- JOIN TEAM -------------------- */
+// POST /api/team/join
 export const joinTeam = async (req, res) => {
   let session;
   try {
     session = await mongoose.startSession();
     session.startTransaction();
+
     const { code } = req.body;
-    if (!code)
-      return res.json({ success: false, message: "Please provide code!" });
     const studentId = req.studentId;
+
+    if (!code) {
+      return res.json({ success: false, message: "Team code required!" });
+    }
+
     const student = await Student.findById(studentId);
-    if (student.isTeamLeader && student.teamId)
+    if (student.teamId) {
       return res.json({ success: false, message: "Already in a team!" });
+    }
 
-    const team = await Team.findOneAndUpdate(
-      { code },
-      { $addToSet: { members: studentId } },
-      { new: true, session }
-    );
-    if (!team)
-      return res.json({ success: false, message: "Better Luck Next time 😉" });
-    const updatedStudent = await Student.updateOne(
-      { _id: studentId },
-      { $set: { teamId: team._id } },
-      { session }
-    );
-    if (!updatedStudent.modifiedCount)
-      return res.json({
-        success: false,
-        message: "Failed to update!",
-      });
+    const team = await Team.findOne({ code });
+    if (!team) {
+      return res.json({ success: false, message: "Invalid team code!" });
+    }
 
+    // 🔥 REJOIN CHECK
+    const needsApproval =
+      student.lastTeamId &&
+      student.lastTeamId.toString() === team._id.toString();
+
+    team.members.addToSet(studentId);
+    await team.save({ session });
+
+    student.teamId = team._id;
+    student.isApproved = needsApproval ? false : true;
+    student.isTeamLeader = false;
+
+    await student.save({ session });
     await session.commitTransaction();
 
     return res.json({
       success: true,
-      message: "Successfully joined team",
-      team,
+      message: needsApproval
+        ? "Joined team. Waiting for leader approval."
+        : "Joined team successfully",
+      requiresApproval: needsApproval,
     });
-  } catch (error) {
-    await session.abortTransaction();
-    console.error(error.stack);
-    return res.json({
-      success: false,
-      message: "Unable to join team",
-    });
+  } catch (err) {
+    if (session) await session.abortTransaction();
+    console.error(err);
+    return res.json({ success: false, message: "Unable to join team" });
   } finally {
-    session.endSession();
+    if (session) session.endSession();
   }
 };
 
-// /api/team/leave
+/* -------------------- LEAVE TEAM -------------------- */
+// POST /api/team/leave
 export const leaveTeam = async (req, res) => {
   let session;
   try {
     session = await mongoose.startSession();
     session.startTransaction();
+
     const studentId = req.studentId;
-    const student = await Student.findById(studentId).populate("teamId");
-    if (!student || !student.teamId)
-      return res.json({
-        success: false,
-        message: "Student doesnot belong to this team.",
-      });
-    const team = student.teamId;
-    team.members.pull(student._id);
+    const student = await Student.findById(studentId);
+
+    if (!student || !student.teamId) {
+      return res.json({ success: false, message: "Not in any team!" });
+    }
+
+    const team = await Team.findById(student.teamId);
+
+    team.members.pull(studentId);
+
+    student.lastTeamId = student.teamId;
     student.teamId = null;
     student.isTeamLeader = false;
-    await Promise.all([student.save({ session }), team.save({ session })]);
+    student.isApproved = false;
+
+    await Promise.all([
+      team.save({ session }),
+      student.save({ session }),
+    ]);
 
     await session.commitTransaction();
-
-    return res.json({
-      success: true,
-      message: "Team leaved successfully",
-      team,
-    });
-  } catch (error) {
-    await session.abortTransaction();
-    console.error(error.stack);
-    return res.json({
-      success: false,
-      message: "Unable to leave team",
-    });
+    return res.json({ success: true, message: "Left team successfully" });
+  } catch (err) {
+    if (session) await session.abortTransaction();
+    console.error(err);
+    return res.json({ success: false, message: "Unable to leave team" });
   } finally {
-    session.endSession();
+    if (session) session.endSession();
   }
 };
-// /api/team/{params}
-{/*
+
+/* -------------------- TEAM INFO -------------------- */
+// GET /api/team/:teamId
 export const teamInfo = async (req, res) => {
   try {
     const { teamId } = req.params;
-    if (!teamId)
-      return res.json({ success: false, message: "Failed to get Team Id!" });
-    const team = await Team.findById(teamId)
-      .populate({
-        path: "members",
-        select: "name email",
-      })
-      .populate({
-        path: "leaderId",
-        select: "name email",
-      });
-    if (!team && !team.members && !team.leaderId)
-      return res.json({ success: false, message: "Failed to get Team" });
-    return res.json({ success: true, team });
-  } catch (error) {
-    console.error(error.stack);
-    return res.json({ success: false, message: error.message });
-  }
-};
-*/ }
-export const teamInfo = async (req, res) => {
-  try {
-    const { teamId } = req.params;
-    if (!teamId)
-      return res.json({ success: false, message: "Team Id required!" });
 
     const team = await Team.findById(teamId)
-      .populate({
-        path: "members",
-        select: "name email isApproved",
-      })
-      .populate({
-        path: "leaderId",
-        select: "name email",
-      });
+      .populate("leaderId", "name email")
+      .populate("members", "name email isApproved");
 
-    if (!team)
+    if (!team) {
       return res.json({ success: false, message: "Team not found!" });
+    }
 
     return res.json({ success: true, team });
-  } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: error.message });
+  } catch (err) {
+    console.error(err);
+    return res.json({ success: false, message: "Failed to fetch team info" });
   }
 };
 
-
-// api/team/approve/:params
-{/*}
+/* -------------------- APPROVE / DECLINE MEMBER -------------------- */
+// POST /api/team/approve/:teamId
 export const memberApprove = async (req, res) => {
   try {
-    const studentId = req.userId;
+    const leaderId = req.studentId;
     const { teamId } = req.params;
     const { memberId, action } = req.body;
+
     const team = await Team.findById(teamId);
-    if (!team || !team.leaderId)
-      return res.json({ success: false, message: "Unable to find team." });
-    if (team.leaderId._id.toString() !== studentId.toString())
-      return res.json({
-        success: false,
-        message: "Only leader is able to approve or decline!",
-      });
-    const member = await Student.findById(memberId);
-    if (!member )
-      return res.json({
-        success: false,
-        message: "Member not found or already in a team!",
-      });
-    if (action === "approve") {
-      member.isApproved = true;
-      await member.save();
-      return res.json({ success: true, message: "Member approved!" });
-    } else if (action === "decline") {
-      member.isApproved = false;
-      await member.save();
-      return res.json({ success: true, message: "Member declined!" });
-    } else {
-      return res.json({ success: false, message: "Invalid action!" });
-    }
-  } catch (error) {
-    console.error(error.stack);
-    return res.json({ success: false, message: "Some error occured!" });
-  }
-};
-*/ }
-export const memberApprove = async (req, res) => {
-  try {
-    const leaderId = req.studentId; // ✅ FIXED
-    const { teamId } = req.params;
-    const { memberId, action } = req.body;
-
-    const team = await Team.findById(teamId).populate("leaderId");
-    if (!team || !team.leaderId) {
+    if (!team) {
       return res.json({ success: false, message: "Team not found!" });
     }
 
-    // ✅ Leader check
-    if (team.leaderId._id.toString() !== leaderId.toString()) {
+    if (team.leaderId.toString() !== leaderId.toString()) {
       return res.json({
         success: false,
-        message: "Only leader can approve or decline members!",
+        message: "Only leader can approve members!",
       });
     }
 
     const member = await Student.findById(memberId);
-    if (!member) {
-      return res.json({ success: false, message: "Member not found!" });
-    }
-
-    // ✅ Ensure member belongs to THIS team
-    if (!member.teamId || member.teamId.toString() !== teamId) {
-      return res.json({
-        success: false,
-        message: "Member does not belong to this team!",
-      });
+    if (!member || member.teamId?.toString() !== teamId) {
+      return res.json({ success: false, message: "Invalid member!" });
     }
 
     if (action === "approve") {
@@ -293,19 +217,18 @@ export const memberApprove = async (req, res) => {
     }
 
     if (action === "decline") {
+      team.members.pull(memberId);
       member.teamId = null;
       member.isApproved = false;
+      member.lastTeamId = teamId;
 
-      team.members.pull(member._id);
-
-      await Promise.all([member.save(), team.save()]);
-
+      await Promise.all([team.save(), member.save()]);
       return res.json({ success: true, message: "Member declined!" });
     }
 
     return res.json({ success: false, message: "Invalid action!" });
-  } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: "Server error!" });
+  } catch (err) {
+    console.error(err);
+    return res.json({ success: false, message: "Approval failed" });
   }
 };
