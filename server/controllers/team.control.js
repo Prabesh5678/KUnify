@@ -558,8 +558,9 @@ const generateTeamCode = () => {
 
 // /api/team/create
 export const createTeam = async (req, res) => {
+  let session;
   try {
-    const session = await mongoose.startSession();
+    session = await mongoose.startSession();
     session.startTransaction();
     const { name, subject } = req.body;
     const studentId = req.studentId;
@@ -567,28 +568,23 @@ export const createTeam = async (req, res) => {
       return res.json({ success: false, message: "Please provide all feild!" });
     }
     const leader = await Student.findById(studentId);
-    if(leader.isTeamLeader && student.teamId)
-      return res.json({success:false,message:"Already in a team!"})
+    // if(leader.isTeamLeader && leader.teamId)
+    //   return res.json({success:false,message:"Already in a team!"})
     const code = generateTeamCode();
+    console.log({ name, subject, code,leaderId:leader._id,studentId });
     const team = await Team.create(
-      {
+     [ {
         name,
         subject,
         code,
         leaderId: studentId,
-        members: [studentId]
-      },
+        members: [studentId],
+      }],
       { session }
     );
-    if (!team) {
-      return res.json({
-        success: false,
-        message: "Team creation unsuccessful!",
-      });
-    }
     const student = await Student.updateOne(
       { _id: studentId },
-      { $set: { isTeamLeader: true, teamId: team._id } },
+      { $set: { isTeamLeader: true, teamId: team[0]._id } },
       { session }
     );
     if (!student.modifiedCount)
@@ -618,10 +614,13 @@ export const createTeam = async (req, res) => {
 
 // /api/team/join
 export const joinTeam = async (req, res) => {
+  let session;
   try {
-    const session = await mongoose.startSession();
+    session = await mongoose.startSession();
     session.startTransaction();
     const { code } = req.body;
+    if(!code)
+      return res.json({success:false, message:"Please provide code!"});
     const studentId = req.studentId;
     const student = await Student.findById(studentId);
     if (student.isTeamLeader && student.teamId)
@@ -666,8 +665,9 @@ export const joinTeam = async (req, res) => {
 
 // /api/team/leave
 export const leaveTeam = async (req, res) => {
+  let session;
   try {
-    const session = await mongoose.startSession();
+    session = await mongoose.startSession();
     session.startTransaction();
     const studentId = req.studentId;
     const student = await Student.findById(studentId).populate("teamId");
@@ -679,6 +679,7 @@ export const leaveTeam = async (req, res) => {
     const team = student.teamId;
     team.members.pull(student._id);
     student.teamId = null;
+    student.isTeamLeader=false;
     await Promise.all([student.save({ session }), team.save({ session })]);
 
     await session.commitTransaction();
@@ -699,3 +700,25 @@ export const leaveTeam = async (req, res) => {
     session.endSession();
   }
 };
+// /api/team/{params}
+export const teamInfo=async (req,res) => {
+  try {
+    const { teamId } = req.params;
+    if(!teamId) return res.json({success:false,message:"Failed to get Team Id!"})
+const team = await Team.findById(teamId)
+  .populate({
+    path: "members", 
+    select: "name email",
+  })
+  .populate({
+    path: "leaderId",
+    select: "name email",
+  });
+      if (!team && !team.members && !team.leaderId)
+        return res.json({ success: false, message: "Failed to get Team" });
+      return res.json({success:true,team})
+  } catch (error) {
+    console.error(error.stack)
+    return res.json({success:false,message:error.message})
+  }
+}

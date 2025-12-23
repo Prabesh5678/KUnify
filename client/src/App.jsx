@@ -85,14 +85,13 @@ const App = () => {
 
           <Route element={<StudentGuard />}>
             <Route path="/student/home" element={<StudentHome />} />
-             <Route path="/student/home" element={<StudentTeamMembers />} />
+            <Route path="/student/home" element={<StudentTeamMembers />} />
             <Route path="/student/dashboard" element={<StudentDashboard />} />
             <Route path="/student/guidelines" element={<GuidelinesPage />} />
             <Route path="/student/requestsupervisor" element={<Request />} />
             <Route path="/student/logsheet" element={<Logsheet />} />
             <Route path="/student/profile" element={<MyProfile />} />
-            <Route path="/student/member" element={<TeamMember />} />
-
+            <Route path="/student/member/:teamId" element={<TeamMember />} />
           </Route>
         </Routes>
       </div>

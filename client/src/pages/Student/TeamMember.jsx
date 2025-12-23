@@ -173,9 +173,7 @@ const StudentTeamMembers = () => {
   const { teamId } = useParams();
   const navigate = useNavigate();
   const { user } = useAppContext();
-
   const [team, setTeam] = useState({
-    _id: teamId,
     teamName: "Team Name Placeholder",
     createdBy: user?._id,
     supervisor: null, // fetched supervisor
@@ -191,7 +189,16 @@ const StudentTeamMembers = () => {
     const fetchTeam = async () => {
       try {
         const { data } = await axios.get(`/api/team/${teamId}`, { withCredentials: true });
-        if (data.success) setTeam(data.team);
+        console.log(data.team.members)
+        if (data.success) setTeam({
+          teamName: data.team.name,
+          createdBy: data.team.leaderId.name,
+          members: data.team.members.map((member) => ({
+            _id: member._id,
+            student: member, // Full student object (or just name/email, etc. depending on how it's populated)
+            status: member.status || "approved", // Set default status if not provided
+          })),
+        });
       } catch (err) {
         console.error("Error fetching team:", err);
         toast.error("Failed to load team data");
@@ -205,7 +212,6 @@ const StudentTeamMembers = () => {
     try {
       const { data } = await axios.post(
         "/api/team/leave",
-        { teamId: team._id },
         { withCredentials: true }
       );
       if (data.success) {

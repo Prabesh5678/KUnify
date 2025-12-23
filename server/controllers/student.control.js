@@ -75,7 +75,12 @@ export const isAuth = async (req, res) => {
   try {
     // Get studentId from req object (set by middleware), not req.body
     const studentId = req.studentId;
-    const student = await Student.findById(studentId);
+    let student;
+    if (req.query.populateTeam === "true") {
+      student = await Student.findById(studentId).populate("teamId");
+    } else {
+      student = await Student.findById(studentId);
+    }
     return res.json({ success: true, student });
   } catch (error) {
     console.log(error.message);

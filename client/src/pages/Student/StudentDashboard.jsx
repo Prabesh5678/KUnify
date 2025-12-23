@@ -24,16 +24,16 @@ const StudentDashboard = () => {
   useEffect(() => {
     const fetchTeamStatus = async () => {
       try {
-        const res = await axios.get("/api/student/team", {
+        const res = await axios.get("/api/student/is-auth?populateTeam=true", {
           withCredentials: true,
         });
-
+        console.log(res.data.student)
         if (res.data?.success) {
-          if (res.data.hasTeam) {
+          if (res.data.student.teamId) {
             setTeamStatus("Joined");
-            setTeamName(res.data.team.name);
-            setTeamId(res.data.team._id);
-            setTeamMembers(res.data.team.members || []);
+            setTeamName(res.data.student.teamId.name);
+            setTeamId(res.data.student.teamId._id);
+            setTeamMembers(res.data.student.teamId.members || []);
           } else {
             setTeamStatus("Not Joined");
             setTeamName("");
@@ -164,12 +164,9 @@ const StudentDashboard = () => {
 
           {/* Team Members Card */}
           <button
+          disabled={!teamId}
             onClick={() => {
-              if (teamId) {
                 navigate(`/student/member/${teamId}`);
-              } else {
-                navigate("/student/member"); // page already handles "no team"
-              }
             }}
             className="w-full bg-white rounded-2xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition flex items-center gap-4 cursor-pointer"
           >
