@@ -568,8 +568,8 @@ export const createTeam = async (req, res) => {
       return res.json({ success: false, message: "Please provide all feild!" });
     }
     const leader = await Student.findById(studentId);
-    // if(leader.isTeamLeader && leader.teamId)
-    //   return res.json({success:false,message:"Already in a team!"})
+    if(leader.isTeamLeader && leader.teamId)
+      return res.json({success:false,message:"Already in a team!"})
     const code = generateTeamCode();
     console.log({ name, subject, code, leaderId: leader._id, studentId });
     const team = await Team.create(

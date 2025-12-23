@@ -19,10 +19,8 @@ export const googleSignIn = async (req, res) => {
     //   idToken: credential,
     //   audience: process.env.GOOGLE_CLIENT_ID,
     // });
-
     // const payload = ticket.getPayload();
     // const { sub: googleId, email, name, picture } = payload;
-
     // if (!email) {
     //   return res.json({
     //     success: false,

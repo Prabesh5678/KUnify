@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 
 const borderColors = [
-  "border-blue-500",
-  "border-indigo-500",
-  "border-emerald-500",
-  "border-violet-500",
-  "border-amber-500",
+  "border-purple-400",
+  "border-pink-400",
+  "border-emerald-400",
+  "border-orange-400",
+  "border-indigo-400",
 ];
 
 const StudentHome = () => {
@@ -26,7 +26,7 @@ const StudentHome = () => {
       {/* HEADER */}
       <div className="max-w-5xl mx-auto mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-         Welcome
+          Welcome
         </h1>
         <p className="text-gray-600 mt-1">
           Your project workspace overview
@@ -35,12 +35,14 @@ const StudentHome = () => {
 
       {/* CURRENT PROJECT */}
       <div className="max-w-5xl mx-auto mb-12">
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <div className="bg-green-50 rounded-2xl shadow-md p-6 border border-green-200">
+
+
+
 
           {latestTeam ? (
             <>
-              {/* Project Name = Team Name */}
-              <h2 className="text-2xl font-bold text-primary mb-1">
+              <h2 className="text-2xl font-bold text-gray-800 mb-1">
                 {latestTeam.teamName}
               </h2>
 
@@ -50,11 +52,13 @@ const StudentHome = () => {
 
               <button
                 onClick={() => navigate("/student/dashboard")}
-                className="bg-primary hover:bg-primary/90
-                text-white px-6 py-2 rounded-lg font-medium transition"
+                className="bg-gradient-to-r from-green-600 to-green-400
+             hover:opacity-90 text-white px-6 py-2 rounded-xl
+             font-medium transition"
               >
                 Go to Dashboard
               </button>
+
             </>
           ) : (
             <>
@@ -62,17 +66,19 @@ const StudentHome = () => {
                 Team not formed
               </h2>
 
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-sm text-gray-600 mb-4">
                 Subject Code: {selectedSubject || "Not selected"}
               </p>
 
               <button
                 onClick={() => navigate("/student/dashboard")}
-                className="bg-primary hover:bg-primary/90
-                text-white px-6 py-2 rounded-lg font-medium transition"
+                className="bg-primary
+             hover:opacity-90 text-white px-6 py-2 rounded-xl
+             font-medium transition"
               >
                 Go to Dashboard
               </button>
+
             </>
           )}
         </div>
@@ -93,8 +99,9 @@ const StudentHome = () => {
               return (
                 <div
                   key={team._id}
-                  className={`bg-white rounded-lg p-5 shadow-sm
-                  hover:shadow-md transition border-l-4 ${borderColor}`}
+                  className={`bg-white rounded-xl p-5 shadow-sm
+                              hover:shadow-md transition
+                              border-l-4 ${borderColor}`}
                 >
                   <h4 className="text-lg font-semibold text-gray-800">
                     {team.teamName}
@@ -106,7 +113,7 @@ const StudentHome = () => {
 
                   <button
                     onClick={() => navigate("/student/dashboard")}
-                    className="text-primary font-medium text-sm hover:underline"
+                    className="text-purple-700 font-medium text-sm hover:underline"
                   >
                     Open Dashboard →
                   </button>
