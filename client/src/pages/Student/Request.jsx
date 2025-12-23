@@ -1,8 +1,53 @@
-import React from 'react';
-import { NotebookPen } from 'lucide-react';
-import { Toaster, toast } from 'react-hot-toast';
+import React, { useState } from "react";
+import { NotebookPen } from "lucide-react";
+import { Toaster, toast } from "react-hot-toast";
 
 const Request = () => {
+  const [title, setTitle] = useState("");
+  const [abstract, setAbstract] = useState("");
+  const [keywords, setKeywords] = useState("");
+  const [pdfFile, setPdfFile] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState("idle");
+
+  // Form validation
+  const isFormInvalid =
+    !title.trim() ||
+    !abstract.trim() ||
+    !keywords.trim() ||
+    !pdfFile ||
+    uploadStatus === "uploading";
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (isFormInvalid) {
+      toast.error("Please complete all required fields before submitting");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("abstract", abstract);
+    formData.append("keywords", keywords);
+    formData.append("proposal", pdfFile);
+
+    try {
+      setUploadStatus("uploading");
+
+      await fetch("http://localhost:5000/api/proposal/upload", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+
+      setUploadStatus("uploaded");
+      toast.success("Proposal submitted successfully!");
+    } catch (error) {
+      setUploadStatus("failed");
+      toast.error("Upload failed. Please try again.");
+    }
+  };
+
   return (
     <div className="min-h-screen py-9 px-4">
       <div className="max-w-4xl mx-auto">
@@ -12,28 +57,28 @@ const Request = () => {
             <NotebookPen className="text-blue-600" size={32} />
             <div>
               <h1 className="text-3xl font-bold text-gray-800">Initial Form</h1>
-              <p className="text-gray-600 mt-1">Complete the form below to submit your proposal</p>
+              <p className="text-gray-600 mt-1">
+                Complete the form below to submit your proposal
+              </p>
             </div>
           </div>
         </div>
 
         {/* Form Card */}
         <div className="bg-white rounded-b-2xl shadow-xl p-8 md:p-10 -mt-1">
-          <form className="space-y-8">
-
+          <form className="space-y-8" onSubmit={handleSubmit}>
             {/* Project Title */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Project Title <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Your project title"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Project Title <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Your project title"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              />
             </div>
 
             {/* Abstract */}
@@ -42,71 +87,36 @@ const Request = () => {
                 Project Abstract <span className="text-red-500">*</span>
               </label>
               <textarea
-                required
-                rows={2}
-                placeholder="Abstract of your project in 200-250 words."
-                className="w-full px-4 py-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none transition"
-                onInput={(e) => {
+                value={abstract}
+                onChange={(e) => {
                   const words = e.target.value.split(/\s+/);
-                  if (words.length > 250) {
-                    e.target.value = words.slice(0, 250).join(" ");
-                  }
+                  if (words.length <= 250) setAbstract(e.target.value);
                 }}
+                rows={3}
+                placeholder="Abstract of your project in 200-250 words."
+                className="w-full px-4 py-6 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
               />
             </div>
 
-            {/* Keywords & Supervisor */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Keywords */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Keywords <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. React, Machine Learning, IoT, Blockchain"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-                />
-                <p className="text-xs text-gray-500 mt-2">Separate keywords with commas</p>
-              </div>
-
-              {/* Preferred Supervisor */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Preferred Supervisor
-                </label>
-                <select
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-                  defaultValue="Any available supervisor"
-                  onChange={(e) => {
-                    if (e.target.value !== "Any available supervisor") {
-                      toast(`You selected ${e.target.value} as your supervisor. Please note that ${e.target.value} is not your confirmed supervisor.`, {
-                        position: 'top-center', // <-- show toast in the center
-                        duration: 5000,         // optional: duration in ms
-                        style: {
-                          maxWidth: '600px',
-                          textAlign: 'center',
-                        },
-                      });
-                    }
-                  }
-                  }
-                >
-                  <option>Dr. Amita Sharma</option>
-                  <option>Prof. Rajesh KC</option>
-                  <option>Dr. Suman Shrestha</option>
-                  <option>Dr. Priya Thapa</option>
-                  <option>Any available supervisor</option>
-                </select>
-                <p className="text-xs text-gray-500 mt-2">Final assignment subject to availability</p>
-              </div>
-            </div>
-            {/* Proposal PDF Upload */}
-            {/* Proposal PDF Upload */}
+            {/* Keywords */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Upload Proposal (PDF only, max 2MB) <span className="text-red-500">*</span>
+                Keywords <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={keywords}
+                onChange={(e) => setKeywords(e.target.value)}
+                placeholder="e.g. React, ML, IoT"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
+
+            {/* PDF Upload */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Upload Proposal (PDF only, max 2MB){" "}
+                <span className="text-red-500">*</span>
               </label>
 
               <label className="w-full flex items-center justify-center px-4 py-3 bg-gray-100 text-gray-700 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-200 transition">
@@ -114,44 +124,65 @@ const Request = () => {
                 <input
                   type="file"
                   accept="application/pdf"
-                  required
+                  className="hidden"
                   onChange={(e) => {
                     const file = e.target.files[0];
-                    if (file) {
-                      if (file.type !== "application/pdf") {
-                        toast.error("Only PDF files are allowed!");
-                        e.target.value = null;
-                      } else if (file.size > 2 * 1024 * 1024) {
-                        toast.error("File size cannot exceed 2MB!");
-                        e.target.value = null;
-                      } else {
-                        toast.success("PDF file selected successfully!");
-                      }
+                    if (!file) return;
+
+                    if (file.type !== "application/pdf") {
+                      toast.error("Only PDF files are allowed");
+                      e.target.value = null;
+                      return;
                     }
+
+                    if (file.size > 2 * 1024 * 1024) {
+                      toast.error("File size must be under 2MB");
+                      e.target.value = null;
+                      return;
+                    }
+
+                    setPdfFile(file);
+                    setUploadStatus("selected");
+                    toast.success("PDF selected successfully");
                   }}
-                  className="hidden" // hide default file input
                 />
               </label>
-              <p className="text-xs text-gray-500 mt-2">
-                Only PDF files under 2MB are allowed.
-              </p>
+
+              {pdfFile && (
+                <div className="mt-4 flex items-center gap-3 bg-gray-50 border rounded-lg p-3">
+                  <img src="/pdf_image.png" alt="PDF" className="w-8 h-8" />
+                  <div>
+                    <p className="text-sm font-semibold">{pdfFile.name}</p>
+                    {uploadStatus !== "idle" && (
+                      <p className="text-xs text-gray-500">
+                        Status: {uploadStatus}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Submit Button */}
             <div className="flex justify-center pt-10">
               <button
                 type="submit"
-                className="bg-primary hover:bg-primary/70 text-white hover:text-white-700 font-bold py-3.5 px-12 rounded-xl shadow-lg transition transform hover:scale-105 text-base"
+                disabled={isFormInvalid}
+                className={`bg-primary text-white font-bold py-3.5 px-12 rounded-xl shadow-lg transition transform text-base
+                  ${
+                    isFormInvalid
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-primary/70 hover:scale-105"
+                  }`}
               >
-                Submit Request
+                {uploadStatus === "uploading"
+                  ? "Uploading..."
+                  : "Submit Request"}
               </button>
             </div>
-
           </form>
 
-          {/* Hot Toast */}
-          <Toaster position="top-right" reverseOrder={false} />
-
+          <Toaster position="top-right" />
         </div>
       </div>
     </div>

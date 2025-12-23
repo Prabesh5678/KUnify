@@ -1,177 +1,142 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useAppContext } from "../../context/AppContext";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useAppContext } from "../../context/AppContext";
 
-const StudentTeamMembers = () => {
+const TeamMembers = () => {
   const { teamId } = useParams();
-  const navigate = useNavigate();
   const { user } = useAppContext();
 
-  const [team, setTeam] = useState({
-    teamName: "Team Name",
-    createdBy: "",
-    supervisor: null,
-    members: [],
-  });
+  const [team, setTeam] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [approvingId, setApprovingId] = useState(null);
 
-  const [showLeaveModal, setShowLeaveModal] = useState(false);
-
-  const isCreator = team.createdBy === user?._id;
-
-  /* ================= FETCH TEAM ================= */
-  useEffect(() => {
-    const fetchTeam = async () => {
-      try {
-        const { data } = await axios.get(`/api/team/${teamId}`, {
-          withCredentials: true,
-        });
-
-        if (data.success) {
-          setTeam({
-            teamName: data.team.name,
-            createdBy: data.team.leaderId?._id,
-            supervisor: data.team.supervisor || null,
-            members: data.team.members.map((member) => ({
-              _id: member._id,
-              student: member,
-              status: member.status || "approved",
-            })),
-          });
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to load team data");
-      }
-    };
-
-    fetchTeam();
-  }, [teamId]);
-
-  /* ================= LEAVE TEAM ================= */
-  const handleLeaveTeam = async () => {
+  // 🔹 Fetch team details
+  const fetchTeam = async () => {
     try {
-      const { data } = await axios.post(
-        "/api/team/leave",
-        {},
-        { withCredentials: true }
-      );
-
-      if (data.success) {
-        toast.success("You left the team");
-        navigate("/student/home");
+      setLoading(true);
+      const res = await axios.get(`/api/team/${teamId}`, {
+        withCredentials: true,
+      });
+      if (res.data.success) {
+        setTeam(res.data.team);
       } else {
-        toast.error(data.message || "Failed to leave team");
+        toast.error(res.data.message || "Failed to fetch team");
       }
     } catch (err) {
+      toast.error("Failed to load team");
       console.error(err);
-      toast.error("Error leaving team");
+    } finally {
+      setLoading(false);
     }
   };
 
-  /* ================= MEMBER ACTION ================= */
-  const handleMemberAction = async (memberId, action) => {
+  useEffect(() => {
+    fetchTeam();
+  }, []);
+
+  //  Approve member (Leader only)
+  const handleApprove = async (studentId) => {
     try {
-      const { data } = await axios.post(
-        `/api/team/${teamId}/approve`,
-        { memberId, action },
-        { withCredentials: true }
-      );
-
-      if (data.success) {
-        toast.success(data.message);
-        setTeam((prev) => ({
-          ...prev,
-          members: prev.members.map((m) =>
-            m._id === memberId
-              ? { ...m, status: action === "approve" ? "approved" : "declined" }
-              : m
-          ),
-        }));
+      setApprovingId(studentId);
+      const res = await axios.post(`/api/team/approve/${teamId}`, {
+        studentId,
+      });
+      if (res.data.success) {
+        toast.success("Member approved");
+        fetchTeam(); // refresh data
+      } else {
+        toast.error(res.data.message || "Approval failed");
       }
     } catch (err) {
+      toast.error("Approval failed");
       console.error(err);
-      toast.error("Failed to update member");
+    } finally {
+      setApprovingId(null);
     }
   };
+
+  if (loading) return <p className="p-4">Loading team...</p>;
+  if (!team) return <p className="p-4 text-red-500">Team not found</p>;
+
+  //  Split members by status
+  const approvedMembers =
+    team.members?.filter((m) => m.status === "approved") || [];
+  const pendingMembers =
+    team.members?.filter((m) => m.status === "pending") || [];
+
+  //  Check if current user is the leader
+  const isLeader = team?.leader?._id === user?._id;
+
+  //  Current user's membership
+  const myMembership = team.members?.find(
+    (m) => m.student?._id === user?._id
+  );
+  const myStatus = myMembership?.status;
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-6">
-        {/* TEAM HEADER */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">{team.teamName}</h1>
-          <p className="text-gray-600 text-lg mt-1">
-            Supervisor: {team.supervisor ? team.supervisor.name : "Not assigned yet"}
-          </p>
-        </div>
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded mt-6">
+      <h2 className="text-2xl font-bold mb-4">{team?.name || "Team"}</h2>
 
-        {/* APPROVED MEMBERS */}
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-3">Approved Members</h2>
-          {team.members
-            .filter((m) => m.status === "approved")
-            .map((member, index) => (
-              <div
-                key={member._id}
-                className="flex justify-between items-center rounded-xl px-4 py-3 mb-3
-                           bg-gradient-to-r from-orange-50 to-amber-100 shadow-sm"
-              >
-                <div>
-                  <p className="font-semibold text-gray-800">
-                    {index + 1}. {member.student.name}
-                  </p>
-                  <p className="text-sm text-gray-600">{member.student.email}</p>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    member._id === team.createdBy
-                      ? "bg-purple-200 text-purple-800"
-                      : "bg-green-200 text-green-800"
-                  }`}
-                >
-                  {member._id === team.createdBy ? "Leader" : "Approved"}
-                </span>
-              </div>
-            ))}
-        </div>
+      {/* My status (pending member) */}
+      {myStatus === "pending" && !isLeader && (
+        <p className="mb-4 text-yellow-600 font-medium">
+           Your join request is pending leader approval
+        </p>
+      )}
 
-        {/* LEAVE TEAM */}
-        <div className="mt-8 border-t pt-8 flex justify-end">
-          <button
-            onClick={() => setShowLeaveModal(true)}
-            className="w-40 bg-red-600 hover:bg-red-700 text-white py-2 rounded-xl font-semibold transition"
+      {/*  Approved Members */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold mb-2">
+          Approved Members ({approvedMembers.length})
+        </h3>
+        {approvedMembers.map((m, i) => (
+          <div
+            key={m.student?._id || i}
+            className="flex justify-between items-center border p-2 rounded mb-2"
           >
-            Leave Team
-          </button>
-        </div>
+            <span>{m.student?.name || "Unknown"}</span>
+            <span className="text-green-600 font-medium">Approved</span>
+          </div>
+        ))}
+        {approvedMembers.length === 0 && (
+          <p className="text-gray-500">No approved members yet.</p>
+        )}
       </div>
 
-      {/* CONFIRMATION MODAL */}
-      {showLeaveModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-96 text-center shadow-lg">
-            <h3 className="text-xl font-semibold mb-4">Are you sure you want to leave the team?</h3>
-            <div className="flex justify-center gap-4">
+      {/* Pending Requests (Leader Only) */}
+      {isLeader && pendingMembers.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-2">
+            Pending Requests ({pendingMembers.length})
+          </h3>
+          {pendingMembers.map((m) => (
+            <div
+              key={m.student?._id || Math.random()}
+              className="flex justify-between items-center border p-2 rounded mb-2"
+            >
+              <span>{m.student?.name || "Unknown"}</span>
               <button
-                onClick={handleLeaveTeam}
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-4 rounded-lg font-semibold"
+                onClick={() => handleApprove(m.student?._id)}
+                disabled={approvingId === m.student?._id}
+                className="bg-blue-600 text-white px-3 py-1 rounded disabled:opacity-50"
               >
-                Yes
-              </button>
-              <button
-                onClick={() => setShowLeaveModal(false)}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-4 rounded-lg font-semibold"
-              >
-                No
+                {approvingId === m.student?._id ? "Approving..." : "Approve"}
               </button>
             </div>
-          </div>
+          ))}
         </div>
+      )}
+
+      {/*  Message for members still pending */}
+      {!isLeader && myStatus === "pending" && (
+        <p className="text-sm text-gray-500 mt-4">
+          You will be added to the team after leader approval.
+        </p>
       )}
     </div>
   );
 };
 
-export default StudentTeamMembers;
+export default TeamMembers;
