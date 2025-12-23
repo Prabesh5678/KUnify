@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
-import axios from "axios"; // ADD THIS
+import axios from "axios"; 
 import toast from "react-hot-toast";
 
 const JoinTeamModal = ({ isOpen, onClose }) => {
   const [code, setCode] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // ADD THIS
+  const [isLoading, setIsLoading] = useState(false); 
 
   if (!isOpen) return null;
 
@@ -84,7 +84,7 @@ const JoinTeamModal = ({ isOpen, onClose }) => {
                 type="text"
                 required
                 value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                onChange={(e) => setCode(e.target.value)}
                 placeholder="e.g. ABC123"
                 className="w-full px-5 py-4 text-lg border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition"
                 maxLength={8}
