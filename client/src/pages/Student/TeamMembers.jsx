@@ -42,6 +42,15 @@ const TeamMembers = () => {
   if (!team) return <p className="p-6 text-center">No team data found.</p>;
 
   const isLeader = team.leaderId?._id === user?._id;
+  
+  // Check if current user is a member of this team
+  const currentUserMember = team.members?.find(member => member._id === user?._id);
+  
+  // Check if current user is approved in this team (not globally)
+  const isCurrentUserApproved = currentUserMember?.isApproved === true;
+  
+  // Check if current user is pending in this team
+  const isCurrentUserPending = currentUserMember?.isApproved === false;
 
   const approvedMembers =
     team.members?.filter((m) => m.isApproved === true) || [];
@@ -178,15 +187,26 @@ const TeamMembers = () => {
         </div>
       )}
 
-      {/* Pending message for non-leader */}
-      {!isLeader && !user?.isApproved && (
-        <p className="text-yellow-600 bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-          Your join request is pending leader approval
-        </p>
+      {/* Pending message for non-leader who is pending in this team */}
+      {!isLeader && isCurrentUserPending && (
+        <div className="mb-6">
+          <p className="text-yellow-600 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            Your join request is pending leader approval
+          </p>
+          {/* Show "Cancel Request" instead of "Leave Group" when pending */}
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={() => setShowLeaveModal(true)}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium"
+            >
+              Cancel Request
+            </button>
+          </div>
+        </div>
       )}
 
-      {/* Leave Team */}
-      {!isLeader && (
+      {/* Leave Team (only for approved non-leaders) */}
+      {!isLeader && isCurrentUserApproved && (
         <div className="flex justify-end">
           <button
             onClick={() => setShowLeaveModal(true)}
@@ -202,13 +222,19 @@ const TeamMembers = () => {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-[360px] shadow-lg">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
-              Are you sure you want to leave the group?
+              {isCurrentUserPending 
+                ? "Are you sure you want to cancel your join request?" 
+                : "Are you sure you want to leave the group?"}
             </h3>
 
             <div className="flex justify-center gap-4">
               <button
                 onClick={handleLeaveTeam}
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg"
+                className={`${
+                  isCurrentUserPending 
+                    ? "bg-gray-600 hover:bg-gray-700" 
+                    : "bg-red-600 hover:bg-red-700"
+                } text-white px-6 py-2 rounded-lg`}
               >
                 Yes
               </button>
