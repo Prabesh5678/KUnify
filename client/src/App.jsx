@@ -20,8 +20,8 @@ import Logsheet from "./pages/Student/Logsheet";
 import MyProfile from "./pages/Student/MyProfile";
 import StudentGuard from "./components/StudentGuard";
 import StudentHome from "./pages/Student/StudentHome";
-import TeamMember from "./pages/Student/TeamMember";
-import StudentTeamMembers from "./pages/Student/TeamMember";
+import TeamMembers from "./pages/Student/TeamMembers";
+import StudentTeamMembers from "./pages/Student/TeamMembers";
 
 const App = () => {
   const { pathname } = useLocation();
@@ -91,7 +91,7 @@ const App = () => {
             <Route path="/student/requestsupervisor" element={<Request />} />
             <Route path="/student/logsheet" element={<Logsheet />} />
             <Route path="/student/profile" element={<MyProfile />} />
-            <Route path="/student/member/:teamId" element={<TeamMember />} />
+            <Route path="/student/member/:teamId" element={<TeamMembers />} />
           </Route>
         </Routes>
       </div>
