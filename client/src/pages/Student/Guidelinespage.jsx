@@ -69,38 +69,7 @@ const GuidelinesPage = () => {
             </ul>
           </div>
 
-          {/* Deadlines Table */}
-          <h3 className="text-xl font-bold text-gray-800 mb-5">
-            Important Deadlines
-          </h3>
-          <div className="overflow-x-auto border border-gray-300 rounded-lg shadow-sm">
-            <table className="w-full text-left">
-              <thead className="bg-gray-100 border-b">
-                <tr>
-                  <th className="px-6 py-4 font-semibold text-gray-700">Milestone</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700 text-center">Week</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                <tr className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4">Team Formation</td>
-                  <td className="px-6 py-4 text-center font-medium">Week 2</td>
-                </tr>
-                <tr className="bg-gray-50 hover:bg-gray-100 transition">
-                  <td className="px-6 py-4">Supervisor Request</td>
-                  <td className="px-6 py-4 text-center font-medium">Week 3</td>
-                </tr>
-                <tr className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4">First Progress Report</td>
-                  <td className="px-6 py-4 text-center font-medium">Week 7</td>
-                </tr>
-                <tr className="bg-gray-50 hover:bg-gray-100 transition">
-                  <td className="px-6 py-4">Final Submission</td>
-                  <td className="px-6 py-4 text-center font-bold text-red-600">Week 14</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+         
 
         </div>
       </div>

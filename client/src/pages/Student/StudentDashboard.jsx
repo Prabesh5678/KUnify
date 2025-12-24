@@ -195,7 +195,24 @@ const StudentDashboard = () => {
       {/* Quick Actions */}
 <div>
   <h2 className="text-xl font-bold mb-5">Quick Actions</h2>
-
+<button
+      onClick={() => navigate("/student/guidelines")}
+      className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center
+                 bg-gradient-to-r from-orange-50 to-amber-100"
+    >
+      <div className="flex gap-4">
+        <div className="p-3 bg-orange-200 rounded-xl">
+          <Plus className="text-orange-700" size={26} />
+        </div>
+        <div className="text-left">
+          <p className="font-semibold text-gray-800">See the Instructions</p>
+          <p className="text-sm text-gray-600">
+            Read the instructions carefully.
+          </p>
+        </div>
+      </div>
+      <span className="text-xl text-orange-700">→</span>
+    </button>
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
     {/* Submit Proposal */}
     <button

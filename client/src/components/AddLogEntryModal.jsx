@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { X, Calendar, Users } from "lucide-react";
 
 const memberColors = [
@@ -13,6 +14,8 @@ const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers, existingLogs })
   const [date, setDate] = useState("");
   const [members, setMembers] = useState([]);
   const [logNumber, setLogNumber] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     // Initialize members from backend or sample data
@@ -33,7 +36,16 @@ const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers, existingLogs })
 
     // Auto-increment log number based on existing logs
     setLogNumber(existingLogs ? existingLogs.length + 1 : 1);
-  }, [teamMembers, existingLogs]);
+    
+    // Reset error when modal opens
+    setError("");
+    
+    // Set default date to today
+    if (isOpen && !date) {
+      const today = new Date().toISOString().split('T')[0];
+      setDate(today);
+    }
+  }, [teamMembers, existingLogs, isOpen, date]);
 
   if (!isOpen) return null;
 
@@ -43,38 +55,78 @@ const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers, existingLogs })
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    
+    // Validate date
+    if (!date) {
+      setError("Please select a date");
+      return;
+    }
 
     // Check if all members filled activity and outcome
     for (const m of members) {
       if (!m.activity.trim() || !m.outcome.trim()) {
-        alert(`All members must fill their activity and outcome. Please complete for ${m.name}`);
+        setError(`All members must fill their activity and outcome. Please complete for ${m.name}`);
         return;
       }
     }
 
-    const filledMembers = members.map((m, idx) => ({
-      ...m,
-      color: memberColors[idx % memberColors.length],
-    }));
+    setIsSubmitting(true);
 
-    const logEntry = {
-      logName: `LOG-${logNumber}`,
-      date,
-      teamEntries: filledMembers,
-    };
+    try {
+      // Prepare the log entry data for API
+      const logEntry = {
+        logNumber: logNumber,
+        date: date,
+        teamEntries: members.map((m, idx) => ({
+          memberId: m.id,
+          memberName: m.name,
+          activity: m.activity,
+          outcome: m.outcome,
+          color: memberColors[idx % memberColors.length]
+        }))
+      };
 
-    console.log("Submitted log entry:", logEntry);
+      // Make API call to save log
+      const response = await axios.post('/api/log', logEntry);
+      
+      console.log("Log saved successfully:", response.data);
+      
+      // If the parent component provided an onAdd callback, call it
+      if (onAdd) {
+        onAdd({
+          ...logEntry,
+          logName: `LOG-${logNumber}`,
+          _id: response.data._id || response.data.id,
+          createdAt: response.data.createdAt || new Date().toISOString()
+        });
+      }
+      
+      // Reset form and close modal
+      setMembers(members.map(m => ({ ...m, activity: "", outcome: "" })));
+      setDate("");
+      onClose();
+      
+    } catch (err) {
+      console.error("Error saving log:", err);
+      setError(err.response?.data?.message || err.message || "Failed to save log. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-    // TODO: Replace console.log with backend API call
-    if (onAdd) onAdd(logEntry);
+  const handleCancel = () => {
+    setError("");
+    setMembers(members.map(m => ({ ...m, activity: "", outcome: "" })));
+    setDate("");
     onClose();
   };
 
   return (
     <>
-      <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-40" onClick={onClose} />
+      <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-40" onClick={handleCancel} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
         <div className="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-gray-100">
 
@@ -85,13 +137,24 @@ const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers, existingLogs })
                 <Users className="text-blue-600" size={30} />
                 Add Team Log Entry - LOG-{logNumber}
               </h2>
-              <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-xl">
+              <button onClick={handleCancel} className="p-2 hover:bg-gray-100 rounded-xl">
                 <X size={26} className="text-gray-500" />
               </button>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="p-8 space-y-8">
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-medium">{error}</span>
+                </div>
+              </div>
+            )}
 
             {/* Date */}
             <div className="sticky top-0 bg-white z-10 -mx-8 px-8 py-6 border-b border-gray-200">
@@ -105,6 +168,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers, existingLogs })
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                  max={new Date().toISOString().split('T')[0]}
                 />
                 <Calendar className="absolute right-4 top-4 text-gray-400" size={20} />
               </div>
@@ -150,6 +214,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers, existingLogs })
                             value={member.activity}
                             onChange={(e) => updateMember(member.id, "activity", e.target.value)}
                             className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                            disabled={isSubmitting}
                           />
                         </div>
                         <div>
@@ -163,6 +228,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers, existingLogs })
                             value={member.outcome}
                             onChange={(e) => updateMember(member.id, "outcome", e.target.value)}
                             className="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                            disabled={isSubmitting}
                           />
                         </div>
                       </div>
@@ -176,16 +242,28 @@ const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers, existingLogs })
             <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
               <button
                 type="button"
-                onClick={onClose}
-                className="px-8 py-3.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium"
+                onClick={handleCancel}
+                className="px-8 py-3.5 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-10 py-3.5 bg-primary hover:bg-primary-80 text-white font-bold rounded-xl shadow-lg transition hover:scale-105"
+                className="px-10 py-3.5 bg-primary hover:bg-primary-80 text-white font-bold rounded-xl shadow-lg transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                disabled={isSubmitting}
               >
-                Save Entry
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </div>
+                ) : (
+                  "Save Entry"
+                )}
               </button>
             </div>
 
@@ -197,4 +275,3 @@ const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers, existingLogs })
 };
 
 export default AddLogEntryModal;
-

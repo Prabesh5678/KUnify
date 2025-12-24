@@ -14,7 +14,7 @@ import Contact from "./pages/Contact";
 import AboutSPMP from "./pages/AboutSPMP";
 import ProfileSetup from "./pages/Student/ProfileSetup";
 import StudentDashboard from "./pages/Student/StudentDashboard";
-import GuidelinesPage from "./pages/Student/GuidelinesPage";
+import GuidelinesPage from "./pages/Student/Guidelinespage";
 import Request from "./pages/Student/Request";
 import Logsheet from "./pages/Student/Logsheet";
 import MyProfile from "./pages/Student/MyProfile";
