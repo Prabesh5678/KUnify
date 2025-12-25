@@ -67,11 +67,20 @@ const StudentNavbar = () => {
             {/* LEFT */}
             <div className="flex items-center gap-3">
               <div className="px-4 md:px-6">
-                <img src={assets.ku_logo} alt="ku_logo" className="h-12" />
+                <img
+                  onClick={() => navigate("/")}
+                  src={assets.ku_logo}
+                  alt="ku_logo"
+                  className="h-12"
+                />
               </div>
               <div>
-                <div className="text-lg font-semibold">Kathmandu University</div>
-                <div className="text-sm">Student Project Management Platform</div>
+                <div className="text-lg font-semibold">
+                  Kathmandu University
+                </div>
+                <div className="text-sm">
+                  Student Project Management Platform
+                </div>
               </div>
             </div>
 
@@ -154,6 +163,7 @@ const StudentNavbar = () => {
       <JoinTeamModal
         isOpen={isJoinModalOpen}
         onClose={() => setIsJoinModalOpen(false)}
+        selectedSubject={selectedSubject}
       />
       <CreateTeamModal
         isOpen={isCreateModalOpen}

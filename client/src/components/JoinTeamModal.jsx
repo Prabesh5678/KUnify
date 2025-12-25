@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import axios from "axios"; 
 import toast from "react-hot-toast";
 
-const JoinTeamModal = ({ isOpen, onClose }) => {
+const JoinTeamModal = ({ isOpen, onClose,selectedSubject }) => {
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false); 
 
@@ -24,6 +24,7 @@ const JoinTeamModal = ({ isOpen, onClose }) => {
         "/api/team/join",
         {
           code: code.trim(),
+          subject: selectedSubject,
         },
         {
           withCredentials: true,
