@@ -1,13 +1,20 @@
-// AddTeacherModal.jsx
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import axios from "axios";
+import { FaRegCopy } from "react-icons/fa";
 
 const AddTeacherModal = ({ isOpen, onClose, onAddTeacher }) => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleCopyPassword = () => {
+    navigator.clipboard.writeText(form.password);
+    toast.success("Password copied to clipboard");
   };
 
   const handleSubmit = async (e) => {
@@ -16,21 +23,17 @@ const AddTeacherModal = ({ isOpen, onClose, onAddTeacher }) => {
       toast.error("All fields are required");
       return;
     }
-    if (form.email.endsWith("@ku.edu.np")) {
-      toast.error("Visiting faculty email cannot end with @ku.edu.np");
-      return;
-    }
 
     setIsLoading(true);
     try {
-      console.log("Adding teacher:", form);
-      onAddTeacher(form);
-      toast.success("Teacher added successfully!");
+      const res = await axios.post("/api/teachers", form);
+      onAddTeacher(res.data);
+      toast.success("Visiting faculty added successfully!");
       setForm({ name: "", email: "", password: "" });
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to add teacher");
+      toast.error(err.response?.data?.message || "Failed to add teacher");
     } finally {
       setIsLoading(false);
     }
@@ -39,10 +42,13 @@ const AddTeacherModal = ({ isOpen, onClose, onAddTeacher }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-primary z-50">
-      <div className="bg-white rounded-xl p-6 w-96 shadow-lg">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">Add Visiting Faculty</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+      <div className="bg-white rounded-xl p-6 w-96 shadow-lg relative">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">
+          Add Visiting Faculty
+        </h2>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input
             type="text"
             name="name"
@@ -51,6 +57,7 @@ const AddTeacherModal = ({ isOpen, onClose, onAddTeacher }) => {
             placeholder="Full Name"
             className="p-2 rounded border border-gray-300 focus:ring-indigo-300 focus:border-indigo-300 outline-none"
           />
+
           <input
             type="email"
             name="email"
@@ -59,14 +66,35 @@ const AddTeacherModal = ({ isOpen, onClose, onAddTeacher }) => {
             placeholder="Email"
             className="p-2 rounded border border-gray-300 focus:ring-indigo-300 focus:border-indigo-300 outline-none"
           />
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder="Password"
-            className="p-2 rounded border border-gray-300 focus:ring-indigo-300 focus:border-indigo-300 outline-none"
-          />
+
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="Password"
+              className="p-2 rounded border border-gray-300 focus:ring-indigo-300 focus:border-indigo-300 outline-none w-full"
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-10 top-1/2 -translate-y-1/2 text-gray-500"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCopyPassword}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              title="Copy password"
+            >
+              <FaRegCopy size={16} />
+            </button>
+          </div>
+
           <div className="flex justify-end gap-2 mt-2">
             <button
               type="button"
@@ -75,6 +103,7 @@ const AddTeacherModal = ({ isOpen, onClose, onAddTeacher }) => {
             >
               Cancel
             </button>
+
             <button
               type="submit"
               disabled={isLoading}
@@ -84,6 +113,13 @@ const AddTeacherModal = ({ isOpen, onClose, onAddTeacher }) => {
             </button>
           </div>
         </form>
+
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 font-bold"
+        >
+          ✕
+        </button>
       </div>
     </div>
   );

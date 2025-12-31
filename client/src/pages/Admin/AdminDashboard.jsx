@@ -1,24 +1,45 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaChalkboardTeacher, FaProjectDiagram, FaUsers, FaTasks } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 import AdminSidebar from "../../components/Admin/AdminSideBar";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import StatsCard from "../../components/Admin/StatsCard";
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState({
-    totalStudents: 120,
-    totalTeachers: 10,
-    totalProjects: 35,
-    activeProjects: 20,
-  });
-
   const navigate = useNavigate();
 
+  // Dashboard stats state
+  const [stats, setStats] = useState({
+    totalStudents: 0,
+    totalTeachers: 0,
+    totalProjects: 0,
+    activeProjects: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  // Fetch dashboard statistics
+  const fetchDashboardStats = async () => {
+    try {
+      const res = await axios.get("/admin/dashboard-stats");
+      setStats(res.data);
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Initial fetch + auto refresh every 5 seconds
   useEffect(() => {
+    fetchDashboardStats();
+
     const interval = setInterval(() => {
-      setStats((prev) => ({ ...prev }));
-    }, 10000);
+      fetchDashboardStats();
+    }, 5000); // auto refresh
+
     return () => clearInterval(interval);
   }, []);
 
@@ -27,19 +48,39 @@ const AdminDashboard = () => {
       <AdminSidebar />
 
       <div className="flex-1 p-8">
-        <AdminHeader adminName="Admin!" />
+        <AdminHeader adminName="Admin" />
 
         {/* Stats Section */}
         <div className="bg-blue-50/40 rounded-2xl p-6 mb-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatsCard title="Total Students" value={stats.totalStudents} icon={<FaUsers />} color="blue" />
-            <StatsCard title="Total Teachers" value={stats.totalTeachers} icon={<FaChalkboardTeacher />} color="purple" />
-            <StatsCard title="Total Projects" value={stats.totalProjects} icon={<FaProjectDiagram />} color="green" />
-            <StatsCard title="Active Projects" value={stats.activeProjects} icon={<FaTasks />} color="orange" />
+            <StatsCard
+              title="Total Students"
+              value={loading ? "..." : stats.totalStudents}
+              icon={<FaUsers />}
+              color="blue"
+            />
+            <StatsCard
+              title="Total Teachers"
+              value={loading ? "..." : stats.totalTeachers}
+              icon={<FaChalkboardTeacher />}
+              color="purple"
+            />
+            <StatsCard
+              title="Total Projects"
+              value={loading ? "..." : stats.totalProjects}
+              icon={<FaProjectDiagram />}
+              color="green"
+            />
+            <StatsCard
+              title="Active Projects"
+              value={loading ? "..." : stats.activeProjects}
+              icon={<FaTasks />}
+              color="orange"
+            />
           </div>
         </div>
 
-        {/* Teachers & Projects Management Cards */}
+        {/* Management Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Teachers Management */}
           <button
@@ -53,7 +94,9 @@ const AdminDashboard = () => {
               </div>
               <div className="text-left">
                 <p className="font-semibold text-gray-800">Teachers Management</p>
-                <p className="text-sm text-gray-600">View all teachers and toggle status</p>
+                <p className="text-sm text-gray-600">
+                  View all teachers and toggle status
+                </p>
               </div>
             </div>
             <span className="text-xl text-purple-700">→</span>
@@ -71,7 +114,9 @@ const AdminDashboard = () => {
               </div>
               <div className="text-left">
                 <p className="font-semibold text-gray-800">Projects Management</p>
-                <p className="text-sm text-gray-600">View all projects and update status</p>
+                <p className="text-sm text-gray-600">
+                  View all projects and update status
+                </p>
               </div>
             </div>
             <span className="text-xl text-green-700">→</span>

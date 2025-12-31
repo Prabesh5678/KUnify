@@ -1,11 +1,11 @@
-// TeachersManagement.jsx
 import React, { useState, useEffect } from "react";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import AdminSidebar from "../../components/Admin/AdminSideBar";
 import AddTeacherModal from "../../components/Admin/AddTeacherModal";
 import { FaToggleOn, FaToggleOff } from "react-icons/fa";
+import axios from "axios";
+import toast from "react-hot-toast";
 
-// Soft pastel colors for rows (cycled)
 const pastelColors = [
   { bg: "bg-blue-50", border: "border-blue-200" },
   { bg: "bg-green-50", border: "border-green-200" },
@@ -18,40 +18,50 @@ const TeachersManagement = () => {
   const [teachers, setTeachers] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
 
+  // Fetch teachers periodically for auto-refresh
+  const fetchTeachers = async () => {
+    try {
+      const res = await axios.get("/api/teachers");
+      setTeachers(res.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch teachers");
+    }
+  };
+
   useEffect(() => {
-    const fetchTeachers = async () => {
-      const data = [
-        { id: 1, name: "Alice", email: "alice@gmail.com", active: true },
-        { id: 2, name: "Bob", email: "bob@gmail.com", active: false },
-      ];
-      setTeachers(data);
-    };
     fetchTeachers();
+    const interval = setInterval(fetchTeachers, 10000); // refresh every 10s
+    return () => clearInterval(interval);
   }, []);
 
-  const handleToggle = (id) => {
-    setTeachers((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, active: !t.active } : t))
-    );
+  const handleToggle = async (id) => {
+    try {
+      const teacher = teachers.find((t) => t.id === id);
+      const res = await axios.patch(`/api/teachers/${id}/toggle`, {
+        active: !teacher.active,
+      });
+      setTeachers((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, active: res.data.active } : t))
+      );
+      toast.success(`${teacher.name} is now ${res.data.active ? "Active" : "Inactive"}`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update status");
+    }
   };
 
   const handleAddTeacher = (teacher) => {
-    setTeachers((prev) => [
-      ...prev,
-      { id: Date.now(), active: true, ...teacher },
-    ]);
+    setTeachers((prev) => [...prev, teacher]);
   };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
       <AdminSidebar />
 
-      {/* Main Content */}
       <div className="flex-1 p-8">
         <AdminHeader adminName="Deekshya Badal" />
 
-        {/* Page Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Teachers Management</h2>
           <button
@@ -62,7 +72,6 @@ const TeachersManagement = () => {
           </button>
         </div>
 
-        {/* Teachers Table */}
         <div className="overflow-x-auto bg-white rounded-xl shadow p-4">
           <table className="min-w-full text-left">
             <thead>
@@ -80,7 +89,7 @@ const TeachersManagement = () => {
                     key={t.id}
                     className={`${color.bg} ${color.border} border-b hover:shadow-md`}
                   >
-                    <td className="p-3">{t.name}</td>
+                    <td className="p-3">{t.name} {t.isVisiting && <span className="text-xs text-purple-700 font-semibold">Visiting</span>}</td>
                     <td className="p-3">{t.email}</td>
                     <td className="p-3">
                       <button onClick={() => handleToggle(t.id)}>
@@ -98,7 +107,6 @@ const TeachersManagement = () => {
           </table>
         </div>
 
-        {/* Add Teacher Modal */}
         <AddTeacherModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
