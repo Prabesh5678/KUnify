@@ -3,7 +3,7 @@ import { Users, FileText, Calendar } from "lucide-react";
 
 const GuidelinesPage = () => {
   return (
-    <div className="min-h-screen py-4 ">
+    <div className="min-h-screen py-4">
       <div className="max-w-8xl mx-auto">
 
         {/* Header */}
@@ -20,7 +20,7 @@ const GuidelinesPage = () => {
             Project Guidelines & Instructions
           </h2>
           <p className="text-gray-600 mb-10">
-           Please read through all the instructions carefully before proceeding with your project work.
+            Please read through all the instructions carefully before proceeding with your project work.
           </p>
 
           {/* Two-column responsive grid for desktop */}
@@ -46,7 +46,7 @@ const GuidelinesPage = () => {
                 Supervisor Request
               </h3>
               <ul className="space-y-2 text-gray-700 list-disc list-inside ml-6">
-                <li>Fill up the form </li>
+                <li>Fill up the form</li>
                 <li>Include title, objectives, and keywords</li>
                 <li>Requests reviewed within <strong>5 working days</strong></li>
                 <li>You may request a preferred supervisor</li>
@@ -56,7 +56,6 @@ const GuidelinesPage = () => {
 
           {/* Logsheet */}
           <div className="max-w-lg mx-auto bg-gray-50 rounded-xl p-5 mb-10 border border-gray-200">
-
             <h3 className="text-xl font-semibold mb-4 flex items-center gap-3 text-gray-800">
               <Calendar className="text-orange-600" size={28} />
               Logsheet Maintenance
@@ -68,12 +67,7 @@ const GuidelinesPage = () => {
               <li>Supervisor reviews during meetings</li>
             </ul>
           </div>
-<<<<<<< HEAD
-=======
 
-         
-
->>>>>>> 4800063bbc0a2682191c72d7d7687669d15af049
         </div>
       </div>
     </div>
