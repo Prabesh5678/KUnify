@@ -20,7 +20,7 @@ const GuidelinesPage = () => {
             Project Guidelines & Instructions
           </h2>
           <p className="text-gray-600 mb-10">
-            Welcome to CS101! Please read through all the instructions carefully before proceeding with your project work.
+           Please read through all the instructions carefully before proceeding with your project work.
           </p>
 
           {/* Two-column responsive grid for desktop */}
@@ -33,7 +33,7 @@ const GuidelinesPage = () => {
                 Team Formation
               </h3>
               <ul className="space-y-2 text-gray-700 list-disc list-inside ml-6">
-                <li>Teams must consist of <strong>5 members</strong></li>
+                <li>Teams must consist of <strong>at most 5 members</strong></li>
                 <li>Create or join a team for project</li>
                 <li>Team leader coordinates all activities</li>
               </ul>
@@ -68,40 +68,6 @@ const GuidelinesPage = () => {
               <li>Supervisor reviews during meetings</li>
             </ul>
           </div>
-
-          {/* Deadlines Table */}
-          <h3 className="text-xl font-bold text-gray-800 mb-5">
-            Important Deadlines
-          </h3>
-          <div className="overflow-x-auto border border-gray-300 rounded-lg shadow-sm">
-            <table className="w-full text-left">
-              <thead className="bg-gray-100 border-b">
-                <tr>
-                  <th className="px-6 py-4 font-semibold text-gray-700">Milestone</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700 text-center">Week</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                <tr className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4">Team Formation</td>
-                  <td className="px-6 py-4 text-center font-medium">Week 2</td>
-                </tr>
-                <tr className="bg-gray-50 hover:bg-gray-100 transition">
-                  <td className="px-6 py-4">Supervisor Request</td>
-                  <td className="px-6 py-4 text-center font-medium">Week 3</td>
-                </tr>
-                <tr className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4">First Progress Report</td>
-                  <td className="px-6 py-4 text-center font-medium">Week 7</td>
-                </tr>
-                <tr className="bg-gray-50 hover:bg-gray-100 transition">
-                  <td className="px-6 py-4">Final Submission</td>
-                  <td className="px-6 py-4 text-center font-bold text-red-600">Week 14</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
         </div>
       </div>
     </div>

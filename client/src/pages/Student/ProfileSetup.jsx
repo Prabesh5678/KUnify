@@ -16,6 +16,17 @@ const ProfileSetup = () => {
   });
 
   const [isLoading, setIsLoading] = useState(false); // Add loading state
+  const { user } = useAppContext();
+
+
+useEffect(() => {
+  if (!user) return;
+  if (user.role !== "student") {
+    // Admin or visiting faculty should never see this page
+    navigate("/admin/dashboard", { replace: true });
+  }
+}, [user, navigate]);
+
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
