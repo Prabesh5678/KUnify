@@ -76,11 +76,11 @@ export const joinTeam = async (req, res) => {
     session = await mongoose.startSession();
     session.startTransaction();
 
-    const { code } = req.body;
+    const { code,subject } = req.body;
     const studentId = req.studentId;
 
-    if (!code) {
-      return res.json({ success: false, message: "Team code required!" });
+    if (!code||!subject) {
+      return res.json({ success: false, message: "Something is missing" });
     }
 
     const student = await Student.findById(studentId);
@@ -88,9 +88,9 @@ export const joinTeam = async (req, res) => {
       return res.json({ success: false, message: "Already in a team!" });
     }
 
-    const team = await Team.findOne({ code });
+    const team = await Team.findOne({ code,subject });
     if (!team) {
-      return res.json({ success: false, message: "Invalid team code!" });
+      return res.json({ success: false, message: "Invalid team code or select the valid subject!" });
     }
 
     // 🔥 REJOIN CHECK

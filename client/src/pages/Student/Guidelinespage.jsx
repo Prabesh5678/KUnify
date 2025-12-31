@@ -68,6 +68,12 @@ const GuidelinesPage = () => {
               <li>Supervisor reviews during meetings</li>
             </ul>
           </div>
+<<<<<<< HEAD
+=======
+
+         
+
+>>>>>>> 4800063bbc0a2682191c72d7d7687669d15af049
         </div>
       </div>
     </div>
