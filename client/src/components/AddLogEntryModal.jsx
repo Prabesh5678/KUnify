@@ -10,8 +10,10 @@ const memberColors = [
   { bg: "bg-pink-50", border: "border-pink-200", badge: "bg-pink-400" },
 ];
 
-const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers, existingLogs }) => {
-  const [date, setDate] = useState("");
+const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers }) => {
+  const today = new Date().toISOString().split("T")[0];
+
+  const [date, setDate] = useState(today);
   const [members, setMembers] = useState([]);
   const [logNumber, setLogNumber] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -157,20 +159,19 @@ const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers, existingLogs })
             )}
 
             {/* Date */}
-            <div className="sticky top-0 bg-white z-10 -mx-8 px-8 py-6 border-b border-gray-200">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <div>
+              <label className="font-semibold block mb-2">
                 Date <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
                   type="date"
-                  required
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   className="w-full px-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
                   max={new Date().toISOString().split('T')[0]}
                 />
-                <Calendar className="absolute right-4 top-4 text-gray-400" size={20} />
+                <Calendar className="absolute right-4 top-4 text-gray-400" />
               </div>
             </div>
 

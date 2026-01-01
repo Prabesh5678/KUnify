@@ -1,11 +1,10 @@
 import React, { useEffect } from "react";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 import { useAppContext } from "./context/AppContext";
 import StudentNavbar from "./components/StudentNavbar";
 import Navbar from "./components/Navbar";
-// import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
 import LoginPanel from "./components/LoginPanel";
 
@@ -22,6 +21,11 @@ import StudentGuard from "./components/StudentGuard";
 import StudentHome from "./pages/Student/StudentHome";
 import TeamMembers from "./pages/Student/TeamMembers";
 import StudentTeamMembers from "./pages/Student/TeamMembers";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import TeachersManagement from "./pages/Admin/TeacherManagement";
+import AddTeacherModal from "./components/Admin/AddTeacherModal";
+import AdminGuard from "./components/AdminGuard";
+import ProjectsManagement from "./pages/Admin/ProjectsManagement";
 
 const App = () => {
   const { pathname } = useLocation();
@@ -32,7 +36,7 @@ const App = () => {
   const isAdminPath = pathname.includes("admin");
   const isHomePath = pathname === "/";
 
-  // ✅ Navbar logic restored (NO sidebar dependency)
+  // Decide Navbar
   const NavbarToShow = isStudentPath ? (
     <StudentNavbar />
   ) : !isAdminPath ? (
@@ -42,28 +46,34 @@ const App = () => {
   const contentClass = isStudentPath
     ? "px-6 md:px-16 lg:px-24 xl:px-32 pt-24"
     : !isHomePath && !isAdminPath
-    ? "px-6 md:px-16 lg:px-24 xl:px-32"
-    : "";
+      ? "px-6 md:px-16 lg:px-24 xl:px-32"
+      : "";
 
+  // ✅ Global redirect logic
   useEffect(() => {
     if (!user) return;
 
-    const profileDone = !!(
-      user.department &&
-      user.semester &&
-      user.rollNumber &&
-      user.subjectCode
-    );
+    // Admin bypass
+    if (user.role === "admin") return;
 
-    if (!profileDone && pathname !== "/setup-profile") {
-      navigate("/setup-profile", { replace: true });
-    }
+    // Student profile check
+    if (user.role === "student") {
+      const profileDone = !!(
+        user.department &&
+        user.semester &&
+        user.rollNumber &&
+        user.subjectCode
+      );
 
-    if (profileDone && (pathname === "/setup-profile" || pathname === "/")) {
-      navigate("/student/home", { replace: true });
+      if (!profileDone && pathname !== "/setup-profile") {
+        navigate("/setup-profile", { replace: true });
+      }
+
+      if (profileDone && (pathname === "/setup-profile" || pathname === "/")) {
+        navigate("/student/home", { replace: true });
+      }
     }
   }, [user, pathname, navigate]);
-  
 
   return (
     <>
@@ -77,15 +87,29 @@ const App = () => {
 
       <div className={contentClass}>
         <Routes>
+          {/* Public Pages */}
           <Route path="/" element={<Home />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about-SPMP" element={<AboutSPMP />} />
 
-          <Route path="/setup-profile" element={<ProfileSetup />} />
+          {/* Profile Setup (only for students) */}
+          <Route
+            path="/setup-profile"
+            element={
+              user?.role === "student" ? (
+                <ProfileSetup />
+              ) : user?.role === "admin" ? (
+                <Navigate to="/admin/dashboard" replace />
+              ) : (
+                <Navigate to="/" replace />
+              )
+            }
+          />
 
+          {/* Student Routes */}
           <Route element={<StudentGuard />}>
             <Route path="/student/home" element={<StudentHome />} />
-            <Route path="/student/home" element={<StudentTeamMembers />} />
+            <Route path="/student/team-members" element={<StudentTeamMembers />} />
             <Route path="/student/dashboard" element={<StudentDashboard />} />
             <Route path="/student/guidelines" element={<GuidelinesPage />} />
             <Route path="/student/requestsupervisor" element={<Request />} />
@@ -93,10 +117,23 @@ const App = () => {
             <Route path="/student/profile" element={<MyProfile />} />
             <Route path="/student/member/:teamId" element={<TeamMembers />} />
           </Route>
+
+
+          {/* Admin Routes */}
+          <Route element={<AdminGuard />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/teachers" element={<TeachersManagement />} />
+           <Route path="/admin/projects" element={<ProjectsManagement />} />
+            {/* Add more admin routes here */}
+          </Route>
+
+
+          {/* Fallback: Not Found */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
 
-      {!isStudentPath && <Footer />}
+      {!isStudentPath && !isAdminPath && <Footer />}
     </>
   );
 };

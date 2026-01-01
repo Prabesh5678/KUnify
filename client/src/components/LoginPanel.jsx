@@ -1,10 +1,11 @@
-
 import { useAppContext } from "../context/AppContext";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
+
+const ADMIN_EMAIL = "deekshyabadal@gmail.com";
 
 const LoginPanel = () => {
   const { setUser, showUserLogin, setShowUserLogin } = useAppContext();
@@ -22,6 +23,49 @@ const LoginPanel = () => {
         return;
       }
 
+      /* ===================== ADMIN LOGIN ===================== */
+      //THIS IS TO BE ACTUALLY INPLEMENTED SINCE NO BACKEND TEI BHAYERA THIS IS TEMPORRATY YEI HO DONOT DELETE THIS 
+     
+     /* if (email === ADMIN_EMAIL) {
+        const { data } = await axios.post("/api/admin/google-login", {
+          name: decoded.name,
+          email: decoded.email,
+          googleId: decoded.sub,
+          picture: decoded.picture,
+        });
+
+        if (!data?.success || !data?.admin) {
+          toast.error("Admin login failed.");
+          return;
+        }
+
+        setUser(data.admin);
+        setShowUserLogin(false);
+
+        navigate("/admin/dashboard", { replace: true });
+        toast.success("Admin login successful!");
+        return;
+      }
+        */
+  if (email === ADMIN_EMAIL) {
+  const adminUser = {
+    name: decoded.name,
+    email: decoded.email,
+    picture: decoded.picture,
+    role: "admin",
+  };
+
+  setUser(adminUser);
+  setShowUserLogin(false);
+
+  navigate("/admin/dashboard", { replace: true });
+  toast.success("Admin login successful!");
+  return;
+}
+
+
+
+      /* ===================== STUDENT LOGIN ===================== */
       if (
         !email.endsWith("@student.ku.edu.np") ||
         decoded.hd !== "student.ku.edu.np"
@@ -46,12 +90,9 @@ const LoginPanel = () => {
         return;
       }
 
-      // 🔥 IMPORTANT: user === student
       setUser(data.student);
-
       setShowUserLogin(false);
 
-      // 🔥 Navigate based on REAL backend data
       const profileCompleted = !!(
         data.student.department &&
         data.student.semester &&
@@ -59,9 +100,10 @@ const LoginPanel = () => {
         data.student.subjectCode
       );
 
-      navigate(profileCompleted ? "/student/home" : "/setup-profile", {
-        replace: true,
-      });
+      navigate(
+        profileCompleted ? "/student/home" : "/setup-profile",
+        { replace: true }
+      );
 
       toast.success("Login successful!");
     } catch (error) {
@@ -95,7 +137,9 @@ const LoginPanel = () => {
         <p className="text-sm text-center text-gray-300 mb-2">
           Kathmandu University students can log in using their official KU email
           (e.g.,{" "}
-          <span className="text-gray-100">username@student.ku.edu.np</span>
+          <span className="text-gray-100">
+            username@student.ku.edu.np
+          </span>
           ).
         </p>
 
