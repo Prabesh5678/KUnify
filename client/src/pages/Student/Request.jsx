@@ -42,7 +42,7 @@ const Request = () => {
 
       setUploadStatus("uploaded");
       toast.success("Proposal submitted successfully!");
-    } catch (error) {
+    } catch (err) {
       setUploadStatus("failed");
       toast.error("Upload failed. Please try again.");
     }

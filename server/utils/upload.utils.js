@@ -19,7 +19,7 @@ const logUpload = multer({
   limits: {
     fileSize: 2 * 1024 * 1024, // 10MB limit
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (req, f4ile, cb) => {
     cb(null, true);
   },
 });
