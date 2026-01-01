@@ -1,3 +1,4 @@
+
 import jwt from "jsonwebtoken";
 
 const authStudent = async (req, res, next) => {
@@ -9,7 +10,6 @@ const authStudent = async (req, res, next) => {
     console.log("\x1b[32m%s\x1b[0m", "Reached student middleware");
     const tokenDecode = jwt.verify(studentToken, process.env.JWT_SECRET);
     if (tokenDecode.id) {
-      // Set userId on req object, not req.body
       req.studentId = tokenDecode.id;
     } else {
       return res.json({ success: false, message: "not authorized" });

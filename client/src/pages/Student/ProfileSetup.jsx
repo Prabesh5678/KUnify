@@ -12,7 +12,7 @@ const ProfileSetup = () => {
     department: "",
     semester: "",
     rollNumber: "",
-    subjectCode: "", // This field exists but not shown in form
+    subjectCode: "", 
   });
 
   const [isLoading, setIsLoading] = useState(false); // Add loading state

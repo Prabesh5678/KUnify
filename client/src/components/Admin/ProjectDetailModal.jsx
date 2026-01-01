@@ -48,7 +48,8 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
       toast.success("Teacher assigned successfully!");
       setSelectedTeacher("");
       onClose();
-    } catch (err) {
+    } catch (error) {
+      console.error(error.stack)
       toast.error("Assignment failed");
     }
   };

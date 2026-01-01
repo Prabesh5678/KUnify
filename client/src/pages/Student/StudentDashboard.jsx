@@ -25,7 +25,7 @@ const StudentDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  // 🔁 Fetch team + code (refresh-safe)
+  // Fetch team + code (refresh-safe)
   useEffect(() => {
     const fetchTeamStatus = async () => {
       try {
@@ -42,7 +42,7 @@ const StudentDashboard = () => {
             setTeamName(team.name);
             setTeamId(team._id);
             setTeamMembers(team.members || []);
-            setTeamCode(team.code); // ✅ SET TEAM CODE
+            setTeamCode(team.code); //  SET TEAM CODE
           } else {
             setTeamStatus("Not Joined");
             setTeamName("");
@@ -62,7 +62,7 @@ const StudentDashboard = () => {
     fetchTeamStatus();
   }, []);
 
-  // 📋 Copy team code
+  //  Copy team code
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(teamCode);
