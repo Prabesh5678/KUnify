@@ -37,8 +37,10 @@ export const AppContextProvider = ({ children }) => {
       const { data } = await axios.get("/api/student/is-auth", { withCredentials: true });
 
       if (data?.student) {
-        const userData = data.student;
-        setUser(userData);
+const userData = {
+  ...data.student,
+  role: "student",
+};        setUser(userData);
 
         // Compute profile setup
         const profileDone = !!(

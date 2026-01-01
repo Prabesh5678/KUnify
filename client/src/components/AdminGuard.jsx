@@ -4,7 +4,7 @@ import { useAppContext } from "../context/AppContext";
 
 const AdminGuard = () => {
   const { user } = useAppContext();
-
+console.log(user)
   if (!user || user.role !== "admin") {
     return <Navigate to="/" replace />;
   }

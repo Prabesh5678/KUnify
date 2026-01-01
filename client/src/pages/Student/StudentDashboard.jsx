@@ -13,9 +13,11 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-
+import { useAppContext } from "../../context/AppContext";
 const StudentDashboard = () => {
   const navigate = useNavigate();
+  const { selectedSubject,user } = useAppContext();
+  console.log(user,selectedSubject)
 
   const [teamStatus, setTeamStatus] = useState("Not Joined");
   const [teamName, setTeamName] = useState("");
@@ -34,7 +36,7 @@ const StudentDashboard = () => {
           { withCredentials: true }
         );
 
-        if (res.data?.success) {
+        if (res.data.success) {
           const team = res.data.student.teamId;
 
           if (team) {
@@ -42,6 +44,7 @@ const StudentDashboard = () => {
             setTeamName(team.name);
             setTeamId(team._id);
             setTeamMembers(team.members || []);
+            setTeamCode(team.code); // ✅   SET TEAM CODE
             setTeamCode(team.code); //  SET TEAM CODE
           } else {
             setTeamStatus("Not Joined");
@@ -60,7 +63,7 @@ const StudentDashboard = () => {
     };
 
     fetchTeamStatus();
-  }, []);
+  }, [teamId]);
 
   //  Copy team code
   const handleCopy = async () => {

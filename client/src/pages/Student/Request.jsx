@@ -34,7 +34,7 @@ const Request = () => {
     try {
       setUploadStatus("uploading");
 
-      await fetch("http://localhost:3000/api/proposal/upload", {
+      await fetch("/api/proposal/upload", {
         method: "POST",
         body: formData,
         credentials: "include",

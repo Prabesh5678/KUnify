@@ -17,7 +17,7 @@ const logStorage = new CloudinaryStorage({
 const logUpload = multer({
   storage: logStorage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 2 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
     cb(null, true);

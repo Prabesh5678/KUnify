@@ -48,12 +48,12 @@ import { useAppContext } from "../context/AppContext";
 
 const StudentGuard = () => {
   const { user, loadingUser } = useAppContext();
+  console.log(user)
   const location = useLocation();
 
   if (loadingUser) return null;
-
   // 🔒 Not logged in
-  if (!user) {
+  if (!user && location.pathname !== "/setup-profile") {
     return <Navigate to="/" replace />;
   }
 
