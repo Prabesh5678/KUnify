@@ -15,7 +15,7 @@ const Navbar = () => {
     showUserLogin,
     setShowUserLogin
   } = useAppContext();
-
+  
  const logout = async () => {
    try {
      const { data } = await axios.get("/api/student/logout");
