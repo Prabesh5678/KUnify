@@ -49,7 +49,7 @@ export const createTeam = async (req, res) => {
     leader.teamId = team[0]._id;
     leader.isTeamLeader = true;
     leader.isApproved = true;
-    leader.lastTeamId = null;
+    // leader.lastTeamId = null;
 
     await leader.save({ session });
     await session.commitTransaction();
@@ -84,7 +84,7 @@ export const joinTeam = async (req, res) => {
     }
 
     const student = await Student.findById(studentId);
-    if (student.teamId) {
+    if (student.teamId||student.isTeamLeader) {
       return res.json({ success: false, message: "Already in a team!" });
     }
 
@@ -93,16 +93,16 @@ export const joinTeam = async (req, res) => {
       return res.json({ success: false, message: "Invalid team code or select the valid subject!" });
     }
 
-    // 🔥 REJOIN CHECK
-    const needsApproval =
-      student.lastTeamId &&
-      student.lastTeamId.toString() === team._id.toString();
+    // // 🔥 REJOIN CHECK
+    // const needsApproval =
+    //   student.lastTeamId &&
+    //   student.lastTeamId.toString() === team._id.toString();
 
     team.members.addToSet(studentId);
     await team.save({ session });
 
     student.teamId = team._id;
-    student.isApproved = needsApproval ? false : true;
+    student.isApproved = false;
     student.isTeamLeader = false;
 
     await student.save({ session });
@@ -110,10 +110,7 @@ export const joinTeam = async (req, res) => {
 
     return res.json({
       success: true,
-      message: needsApproval
-        ? "Joined team. Waiting for leader approval."
-        : "Joined team successfully",
-      requiresApproval: needsApproval,
+      message: "Joined team. Waiting for leader approval.",
     });
   } catch (err) {
     if (session) await session.abortTransaction();
@@ -143,7 +140,7 @@ export const leaveTeam = async (req, res) => {
 
     team.members.pull(studentId);
 
-    student.lastTeamId = student.teamId;
+    // student.lastTeamId = student.teamId;
     student.teamId = null;
     student.isTeamLeader = false;
     student.isApproved = false;
@@ -220,7 +217,7 @@ export const memberApprove = async (req, res) => {
       team.members.pull(memberId);
       member.teamId = null;
       member.isApproved = false;
-      member.lastTeamId = teamId;
+      // member.lastTeamId = teamId;
 
       await Promise.all([team.save(), member.save()]);
       return res.json({ success: true, message: "Member declined!" });
@@ -230,5 +227,48 @@ export const memberApprove = async (req, res) => {
   } catch (err) {
     console.error(err);
     return res.json({ success: false, message: "Approval failed" });
+  }
+};
+
+// POST /api/team/delete
+export const deleteTeam = async (req, res) => {
+  let session;
+  try {
+    session = await mongoose.startSession();
+    session.startTransaction();
+
+    const studentId = req.studentId;
+    const student = await Student.findById(studentId);
+
+    if (!student || !student.teamId|| !student.isTeamLeader) {
+      return res.json({ success: false, message: "Not in any team or isn't a teamleader!" });
+    }
+
+    const team = await Team.findById(student.teamId);
+    const count=team.members.length;
+    if(count>1 && team.leaderId.toString()!==studentId){
+      return res.json({success:false,message:"Not a leader or more team members!"});
+    }
+
+    team.members.pull(studentId);
+
+    // student.lastTeamId = student.teamId;
+    student.teamId = null;
+    student.isTeamLeader = false;
+    student.isApproved = false;
+
+    await Promise.all([
+      team.deleteOne({ session }),
+      student.save({ session }),
+    ]);
+
+    await session.commitTransaction();
+    return res.json({ success: true, message: "Deleted team successfully" });
+  } catch (err) {
+    if (session) await session.abortTransaction();
+    console.error(err);
+    return res.json({ success: false, message: "Unable to delete team" });
+  } finally {
+    if (session) session.endSession();
   }
 };

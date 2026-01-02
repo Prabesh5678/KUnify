@@ -75,13 +75,13 @@ const StudentDashboard = () => {
     setLeaving(true);
 
     const res = await axios.post(
-      "/api/student/leave-team",
+      "/api/team/delete",
       {},
       { withCredentials: true }
     );
 
     if (res.data.success) {
-      toast.success("You left the team");
+      toast.success("You deleted the team");
 
       setTeamStatus("Not Joined");
       setTeamName("");
@@ -151,7 +151,7 @@ const StudentDashboard = () => {
                          hover:bg-red-100 transition font-medium flex items-center gap-2"
             >
               <AlertCircle size={18} />
-              Leave Team
+              Delete Team
             </button>
           </div>
         )}
