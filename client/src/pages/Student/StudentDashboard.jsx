@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Users,
-  FileText,
-  Plus,
-  Calendar,
-  AlertCircle,
-  CheckCircle,
-  XCircle,
-  Copy,
-  Check,
-} from "lucide-react";
+import {Users,FileText,Plus,Calendar,AlertCircle,CheckCircle,XCircle,Copy,Check} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -26,6 +16,8 @@ const StudentDashboard = () => {
   const [teamCode, setTeamCode] = useState(null); // 👈 TEAM CODE
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [leaving, setLeaving] = useState(false);
 
   // Fetch team + code (refresh-safe)
   useEffect(() => {
@@ -78,6 +70,34 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleLeaveTeam = async () => {
+  try {
+    setLeaving(true);
+
+    const res = await axios.post(
+      "/api/student/leave-team",
+      {},
+      { withCredentials: true }
+    );
+
+    if (res.data.success) {
+      toast.success("You left the team");
+
+      setTeamStatus("Not Joined");
+      setTeamName("");
+      setTeamMembers([]);
+      setTeamId(null);
+      setTeamCode(null);
+      setShowLeaveModal(false);
+    }
+  } catch (err) {
+    toast.error("Failed to leave team");
+    console.error(err);
+  } finally {
+    setLeaving(false);
+  }
+};
+
   // Team status UI
   const getTeamStatusInfo = () => {
     if (teamStatus === "Joined") {
@@ -121,6 +141,21 @@ const StudentDashboard = () => {
         <h1 className="text-3xl font-bold text-gray-800 mb-8">
           Dashboard
         </h1>
+
+      {/* Leave Team (ONLY single member) */}
+        {teamStatus === "Joined" && teamMembers.length === 1 && (
+          <div className="mb-6">
+            <button
+              onClick={() => setShowLeaveModal(true)}
+              className="bg-red-50 text-red-600 border border-red-200 px-5 py-3 rounded-xl
+                         hover:bg-red-100 transition font-medium flex items-center gap-2"
+            >
+              <AlertCircle size={18} />
+              Leave Team
+            </button>
+          </div>
+        )}
+
 
         {/* Top Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
@@ -259,6 +294,45 @@ const StudentDashboard = () => {
   </div>
 </div>
   
+{showLeaveModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-red-100 rounded-full">
+                  <AlertCircle className="text-red-600" size={22} />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Leave Team?
+                </h3>
+              </div>
+
+              <p className="text-sm text-gray-600 mb-6">
+                You are the only member in this team.
+                Leaving will permanently remove the team.
+                This action cannot be undone.
+              </p>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowLeaveModal(false)}
+                  disabled={leaving}
+                  className="px-4 py-2 rounded-xl border text-gray-600 hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={handleLeaveTeam}
+                  disabled={leaving}
+                  className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700
+                             disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {leaving ? "Leaving..." : "Leave Team"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div >
     </div >
   );

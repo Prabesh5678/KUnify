@@ -10,7 +10,7 @@ const memberColors = [
   { bg: "bg-pink-50", border: "border-pink-200", badge: "bg-pink-400" },
 ];
 
-const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers }) => {
+const AddLogEntryModal = ({ isOpen, onClose, onAdd, teamMembers, existingLogs }) => {
   const today = new Date().toISOString().split("T")[0];
 
   const [date, setDate] = useState(today);
