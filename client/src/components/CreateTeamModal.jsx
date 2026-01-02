@@ -51,7 +51,7 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
       );
 
       if (res.data.success) {
-        // 🌍 Store team code globally
+     
         setTeamCode(res.data.team.code);
 
         toast.success("Team created successfully!");

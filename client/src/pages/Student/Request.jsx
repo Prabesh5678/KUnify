@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { NotebookPen } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
+import axios from "axios";
 
 const Request = () => {
   const [title, setTitle] = useState("");
@@ -34,15 +35,20 @@ const Request = () => {
     try {
       setUploadStatus("uploading");
 
-      await fetch("/api/proposal/upload", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
+      await axios.post(
+        "/api/proposal/upload", // Relative URL (works with proxy)
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       setUploadStatus("uploaded");
       toast.success("Proposal submitted successfully!");
-    } catch (err) {
+    } catch (error) {
       setUploadStatus("failed");
       toast.error("Upload failed. Please try again.");
     }
@@ -190,3 +196,4 @@ const Request = () => {
 };
 
 export default Request;
+
