@@ -62,7 +62,7 @@ const WaitingPage = () => {
     setCancelLoading(true);
     try {
       const res = await axios.post(
-        "/api/student/cancel-join-request",
+        "/api/team/leave",
         {},
         { withCredentials: true }
       );

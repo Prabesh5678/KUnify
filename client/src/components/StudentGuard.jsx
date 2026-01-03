@@ -48,7 +48,6 @@ import { useAppContext } from "../context/AppContext";
 
 const StudentGuard = () => {
   const { user, loadingUser } = useAppContext();
-  console.log(user)
   const location = useLocation();
 
   if (loadingUser) return null;
@@ -83,6 +82,10 @@ const StudentGuard = () => {
   // ❌ Block student routes if profile incomplete
   if (!profileCompleted && location.pathname.startsWith("/student")) {
     return <Navigate to="/setup-profile" replace />;
+  }
+
+  if (!user.isApproved) {
+    return <Navigate to="/student/waiting" replace />;
   }
 
   return <Outlet />;
