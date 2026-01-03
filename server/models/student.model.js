@@ -52,11 +52,11 @@ const studentSchema = new mongoose.Schema(
       default: null,
     },
 
-    lastTeamId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "team",
-      default: null,
-    },
+    // lastTeamId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "team",
+    //   default: null,
+    // },
 
     isTeamLeader: {
       type: Boolean,

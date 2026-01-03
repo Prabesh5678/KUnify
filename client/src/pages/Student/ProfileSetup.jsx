@@ -149,16 +149,26 @@ useEffect(() => {
               <label className="text-[#0f172a] font-medium">
                 Subject Code <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
+              <select
                 name="subjectCode"
                 value={form.subjectCode}
                 onChange={handleChange}
-                placeholder="e.g. COMP201"
+                required
                 className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a]"
                 disabled={isLoading}
-              />
+              >
+                <option value="">-- Select --</option>
+                <option value="COMP 201">COMP 201</option>
+                <option value="COMP 202">COMP 202</option>
+                <option value="COMP 203">COMP 203</option>
+                <option value="COMP 204">COMP 204</option>
+                <option value="COMP 301">COMP 301</option>
+                <option value="COMP 302">COMP 302</option>
+                <option value="COMP 303">COMP 303</option>
+                <option value="COMP 401">COMP 401</option>
+              </select>
             </div>
+            
           </div>
 
           <button
