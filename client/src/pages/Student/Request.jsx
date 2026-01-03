@@ -3,10 +3,12 @@ import { NotebookPen } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { useAppContext } from "../../context/AppContext";
 
 const Request = () => {
-  const { teamId } = useParams();
-
+  const {user}=useAppContext()
+  const {teamId} = useParams();
+  console.log(teamId)
   // Form fields
   const [title, setTitle] = useState("");
   const [abstract, setAbstract] = useState("");
@@ -28,30 +30,38 @@ const Request = () => {
     const fetchTeamProposal = async () => {
       try {
         if (!teamId) return;
-
         // -------------------------------
         // 🔹 TESTING: dummy data for now
         // Replace this with real API call later
-        // const res = await axios.get(`/api/team/${teamId}/proposal`, { withCredentials: true });
-        const res = {
-          data: {
-            isProposalSubmitted: Math.random() > 0.5, // simulate submission randomly
-            proposal: {
-              title: "Existing Project Title",
-              abstract: "This is the existing abstract of the proposal.",
-              keywords: "React, Node.js, MongoDB",
-              pdfUrl: "/pdf_image.png",
-            },
-          },
-        };
+        console.log(teamId)
+        const {data} = await axios.get(`/api/proposal/${teamId}`, { withCredentials: true });
+        console.log(data)
+        if(!data) return;
+        // const res = {
+        //   data: {
+        //     isProposalSubmitted: Math.random() > 0.5, // simulate submission randomly
+        //     proposal: {
+        //       title: "Existing Project Title",
+        //       abstract: "This is the existing abstract of the proposal.",
+        //       keywords: "React, Node.js, MongoDB",
+        //       pdfUrl: "/pdf_image.png",
+        //     },
+        //   },
+        // };
         // -------------------------------
-
-        if (res.data.isProposalSubmitted && res.data.proposal) {
-          const p = res.data.proposal;
-          setTitle(p.title);
+        if (data.team.proposal) {
+          const p = data.team.proposal;
+          setTitle(p.projectTitle);
           setAbstract(p.abstract);
-          setKeywords(p.keywords);
+          setKeywords(p.projectKeyword);
+         if (p.proposalFile && p.proposalFile.url) {
+           setPdfPreviewUrl(p.proposalFile.url);
+           console.log("PDF URL set:", p.proposalFile.url); // This will log the URL
+         } else {
+           console.log("No PDF URL found in proposal");
+         }
           setExistingProposal(p);
+          if (!pdfPreviewUrl) console.log('nothing');
           setIsProposalSubmitted(true);
           toast("Proposal has already been submitted by your team");
         }
@@ -121,27 +131,31 @@ const Request = () => {
       // -------------------------------
       // 🔹 TESTING: dummy delay for now
       // Replace this with real API POST later
-      // await axios.post(`/api/team/${teamId}/proposal`, formData, {
-      //   withCredentials: true,
-      //   headers: { "Content-Type": "multipart/form-data" },
-      // });
+    const {data}=  await axios.post(`/api/proposal/upload/${teamId}`, formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       await new Promise((resolve) => setTimeout(resolve, 1500));
       // -------------------------------
-
+if(data.success){
       // Update proposal so other team members can see immediately
       const newProposal = {
         title,
         abstract,
         keywords,
-        pdfUrl: pdfPreviewUrl || "/pdf_image.png", // replace with backend URL after real API
+        pdfUrl: data.proposal.proposalFile.url|| "/pdf_image.png", // replace with backend URL after real API
       };
       setExistingProposal(newProposal);
 
       setIsProposalSubmitted(true);
       setUploadStatus("uploaded");
-      toast.success("Proposal submitted successfully!");
+      toast.success("Proposal submitted successfully!");}
+      else{
+        toast.error(data.message)
+      }
     } catch (error) {
       setUploadStatus("failed");
+      console.error(error.stack)
       toast.error("Upload failed. Please try again.");
     }
   };
@@ -312,3 +326,4 @@ const Request = () => {
 };
 
 export default Request;
+

@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 import studentRouter from "./routes/student.route.js";
 import teamRouter from "./routes/team.route.js";
 import logRouter from "./routes/log.route.js";
-import proposalRoutes from './routes/proposal.route.js';
+import proposalRouter from './routes/proposal.route.js';
 
 // import connectCloudinary from './configs/cloudinary.config.js';
 
@@ -44,7 +44,7 @@ app.get("/", (_, res) => res.send("API is working"));
 app.use('/api/student',studentRouter);
 app.use('/api/team',teamRouter);
 app.use("/api/log", logRouter);
-app.use('/api/proposal', proposalRoutes);
+app.use('/api/proposal', proposalRouter);
 
 
 // ✅ Start server

@@ -114,7 +114,7 @@ const App = () => {
             <Route path="/student/team-members" element={<StudentTeamMembers />} />
             <Route path="/student/dashboard" element={<StudentDashboard />} />
             <Route path="/student/guidelines" element={<GuidelinesPage />} />
-            <Route path="/student/requestsupervisor" element={<Request />} />
+            <Route path="/student/requestsupervisor/:teamId" element={<Request />} />
 
             <Route path="/student/logsheet" element={<Logsheet />} />
             <Route path="/student/profile" element={<MyProfile />} />

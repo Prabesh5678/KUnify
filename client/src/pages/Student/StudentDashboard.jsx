@@ -218,7 +218,7 @@ const StudentDashboard = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
-                onClick={() => navigate("/student/requestsupervisor")}
+                onClick={() => navigate(`/student/requestsupervisor/${teamId}`)}
                 className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center
                            bg-gradient-to-r from-purple-50 to-lavender-100"
               >

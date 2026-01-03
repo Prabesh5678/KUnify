@@ -18,11 +18,11 @@ const proposalSchema = new mongoose.Schema(
       url: String,
       publicId: String,
     },
-    submittedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "student",
-      required: true,
-    },
+    // submittedBy: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "student",
+    //   required: true,
+    // },
     team: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "team",

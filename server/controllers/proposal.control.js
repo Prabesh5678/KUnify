@@ -5,36 +5,32 @@ import cloudinary from "../configs/cloudinary.config.js";
 export const uploadProposal = async (req, res) => {
   try {
     const { title, abstract, keywords } = req.body;
-
+    const {teamId}=req.params
+    if(!teamId) return res.status(400).json({success:false, message: "An error occured!" });
     if (!title || !abstract || !keywords) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({success:false, message: "All fields are required" });
     }
 
     if (!req.file) {
-      return res.status(400).json({ message: "PDF file is required" });
+      return res.status(400).json({success:false, message: "PDF file is required" });
     }
 
-   
-    const studentId = req.studentId;
-
-    const team = await Team.findOne({
-      $or: [{ leaderId: studentId }, { members: studentId }],
-    });
+    const team = await Team.findById(teamId)
 
     if (!team) {
-      return res.status(403).json({
+      return res.status(403).json({success:false,
         message: "You are not part of any team",
       });
     }
 
-    if (team.leaderId.toString() !== studentId.toString()) {
-      return res.status(403).json({
-        message: "Only team leader can submit proposal",
-      });
-    }
+    // if (team.leaderId.toString() !== studentId.toString()) {
+    //   return res.status(403).json({
+    //     message: "Only team leader can submit proposal",
+    //   });
+    // }
 
     if (team.proposal) {
-      return res.status(400).json({
+      return res.json({success:false,
         message: "Proposal already submitted by your team",
       });
     }
@@ -42,13 +38,14 @@ export const uploadProposal = async (req, res) => {
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: "kunify/proposals",
       resource_type: "raw",
+      format:'pdf'
     });
 
     const proposal = await Proposal.create({
       projectTitle: title,
       abstract,
       projectKeyword: keywords,
-      submittedBy: studentId,
+      // submittedBy: studentId,
       team: team._id,
       proposalFile: {
         url: result.secure_url,
@@ -65,7 +62,24 @@ export const uploadProposal = async (req, res) => {
       proposal,
     });
   } catch (error) {
-    console.error("Upload Proposal Error:", error);
+    console.error(error.stack);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+// get /api/proposal/:teamId
+export const getProposal =async (req,res) => {
+  try {
+    const {teamId}=req.params;
+    if(!teamId) return res.json({success:false,message:"Couldnot get Team Id!"})
+
+      const team= await Team.findById(teamId).populate('proposal');
+      console.log(team)
+      if(!team) return res.json({ success: false, message: "Couldnot find team!" });
+
+      return res.json({success:true , team});
+  } catch (error) {
+    console.error(error.stack)
+    return res.json({ success: false, message: "Couldnot get proposal!" });
+  }
+}
