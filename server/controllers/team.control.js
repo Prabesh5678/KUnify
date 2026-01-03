@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import Team from "../models/team.model.js";
 import Student from "../models/student.model.js";
 
-/* -------------------- Utils -------------------- */
 const generateTeamCode = () => {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -12,8 +11,6 @@ const generateTeamCode = () => {
   }
   return code;
 };
-
-/* -------------------- CREATE TEAM -------------------- */
 // POST /api/team/create
 export const createTeam = async (req, res) => {
   let session;
@@ -68,7 +65,6 @@ export const createTeam = async (req, res) => {
   }
 };
 
-/* -------------------- JOIN TEAM -------------------- */
 // POST /api/team/join
 export const joinTeam = async (req, res) => {
   let session;
@@ -97,6 +93,10 @@ export const joinTeam = async (req, res) => {
     // const needsApproval =
     //   student.lastTeamId &&
     //   student.lastTeamId.toString() === team._id.toString();
+  
+    const needsApproval =
+      student.lastTeamId &&
+      student.lastTeamId.toString() === team._id.toString();
 
     team.members.addToSet(studentId);
     await team.save({ session });
@@ -120,8 +120,6 @@ export const joinTeam = async (req, res) => {
     if (session) session.endSession();
   }
 };
-
-/* -------------------- LEAVE TEAM -------------------- */
 // POST /api/team/leave
 export const leaveTeam = async (req, res) => {
   let session;
@@ -161,7 +159,6 @@ export const leaveTeam = async (req, res) => {
   }
 };
 
-/* -------------------- TEAM INFO -------------------- */
 // GET /api/team/:teamId
 export const teamInfo = async (req, res) => {
   try {
@@ -182,7 +179,6 @@ export const teamInfo = async (req, res) => {
   }
 };
 
-/* -------------------- APPROVE / DECLINE MEMBER -------------------- */
 // POST /api/team/approve/:teamId
 export const memberApprove = async (req, res) => {
   try {

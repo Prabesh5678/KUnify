@@ -1,16 +1,14 @@
 import express from "express";
 import authStudent from "../middlewares/student.middleware.js";
-import { uploadProposal } from "../controllers/proposal.control.js";
 import { upload } from "../configs/multer.config.js";
+import { uploadProposal } from "../controllers/proposal.control.js";
 
-const proposalRouter = express.Router();
-proposalRouter.post(
+const router = express.Router();
+router.post(
   "/upload",
   authStudent,
   upload.single("proposal"),
   uploadProposal
 );
 
-
-
-export default proposalRouter;
+export default router;

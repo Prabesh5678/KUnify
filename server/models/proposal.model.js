@@ -18,13 +18,18 @@ const proposalSchema = new mongoose.Schema(
       url: String,
       publicId: String,
     },
-    student: {
+    submittedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
+      ref: "student",
+      required: true,
+    },
+    team: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "team",
       required: true,
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.model("Proposal", proposalSchema);
+export default mongoose.model("proposal", proposalSchema);
