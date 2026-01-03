@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {toast } from "react-hot-toast";
 import AddLogEntryModal from "../../components/AddLogEntryModal";
+import { useAppContext } from "../../context/AppContext";
+
 
 const Logsheet = () => {
   const [myLogs, setMyLogs] = useState([]);
   const [teamLogs, setTeamLogs] = useState([]);
   const [open, setOpen] = useState(false);
+  const { user } = useAppContext();
   const [activeTab, setActiveTab] = useState("my"); // my | team
 
   useEffect(() => {

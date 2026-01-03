@@ -23,7 +23,6 @@ const TeamMembers = () => {
       const res = await axios.get(`/api/team/${teamId}`, {
         withCredentials: true,
       });
-
       if (res.data.success) {
         setTeam(res.data.team);
       } else {
