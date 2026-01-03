@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
+import { AlertCircle } from "lucide-react";
 
 const TeamMembers = () => {
   const { teamId } = useParams();
@@ -13,6 +14,9 @@ const TeamMembers = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
   const fetchTeam = async () => {
     try {
       setLoading(true);
@@ -40,14 +44,12 @@ const TeamMembers = () => {
   if (!team) return <p className="p-6 text-center">No team data found.</p>;
 
   const isLeader = team.leaderId?._id === user?._id;
-  
-  // Check if current user is a member of this team
-  const currentUserMember = team.members?.find(member => member._id === user?._id);
-  
-  // Check if current user is approved in this team (not globally)
+
+  const currentUserMember = team.members?.find(
+    (member) => member._id === user?._id
+  );
+
   const isCurrentUserApproved = currentUserMember?.isApproved === true;
-  
-  // Check if current user is pending in this team
   const isCurrentUserPending = currentUserMember?.isApproved === false;
 
   const approvedMembers =
@@ -101,6 +103,28 @@ const TeamMembers = () => {
     }
   };
 
+  const handleDeleteTeam = async () => {
+    try {
+      setDeleting(true);
+      const res = await axios.post(
+        "/api/team/delete",
+        {},
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        toast.success("Team deleted successfully");
+        navigate("/student/dashboard");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete team");
+    } finally {
+      setDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-sm">
       {/* Header */}
@@ -113,6 +137,20 @@ const TeamMembers = () => {
           </span>
         </p>
       </div>
+
+      {/* DELETE TEAM — ONLY CREATOR & ONLY SINGLE MEMBER */}
+      {isLeader && team.members.length === 1 && (
+        <div className="mb-6 flex justify-end">
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="bg-red-50 text-red-600 border border-red-200 px-5 py-3 rounded-xl
+                       hover:bg-red-100 transition font-medium flex items-center gap-2"
+          >
+            <AlertCircle size={18} />
+            Delete Team
+          </button>
+        </div>
+      )}
 
       {/* Approved Members */}
       <div className="mb-8">
@@ -137,7 +175,6 @@ const TeamMembers = () => {
                 </p>
                 <p className="text-sm text-gray-600">{m.email}</p>
               </div>
-
               <span className="text-emerald-600 font-semibold">Approved</span>
             </div>
           ))
@@ -146,7 +183,7 @@ const TeamMembers = () => {
         )}
       </div>
 
-      {/* Pending Members */}
+      {/* Pending Members (Leader only) */}
       {isLeader && pendingMembers.length > 0 && (
         <div className="mb-8">
           <h3 className="text-xl font-semibold mb-4 text-yellow-700">
@@ -185,13 +222,12 @@ const TeamMembers = () => {
         </div>
       )}
 
-      {/* Pending message for non-leader who is pending in this team */}
+      {/* Pending message for non-leader */}
       {!isLeader && isCurrentUserPending && (
         <div className="mb-6">
           <p className="text-yellow-600 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             Your join request is pending leader approval
           </p>
-          {/* Show "Cancel Request" instead of "Leave Group" when pending */}
           <div className="flex justify-end mt-4">
             <button
               onClick={() => setShowLeaveModal(true)}
@@ -203,7 +239,7 @@ const TeamMembers = () => {
         </div>
       )}
 
-      {/* Leave Team (only for approved non-leaders) */}
+      {/* Leave Team (approved non-leader) */}
       {!isLeader && isCurrentUserApproved && (
         <div className="flex justify-end">
           <button
@@ -215,13 +251,54 @@ const TeamMembers = () => {
         </div>
       )}
 
-      {/* Leave Confirmation Modal */}
+      {/* DELETE TEAM MODAL */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-red-100 rounded-full">
+                <AlertCircle className="text-red-600" size={22} />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800">
+                Delete Team?
+              </h3>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-6">
+              You are the only member in this team.
+              Deleting will permanently remove the team.
+              This action cannot be undone.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+                className="px-4 py-2 rounded-xl border text-gray-600 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleDeleteTeam}
+                disabled={deleting}
+                className="px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700
+                           disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {deleting ? "Deleting..." : "Delete Team"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* LEAVE TEAM MODAL */}
       {showLeaveModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-[360px] shadow-lg">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
-              {isCurrentUserPending 
-                ? "Are you sure you want to cancel your join request?" 
+              {isCurrentUserPending
+                ? "Are you sure you want to cancel your join request?"
                 : "Are you sure you want to leave the group?"}
             </h3>
 
@@ -229,8 +306,8 @@ const TeamMembers = () => {
               <button
                 onClick={handleLeaveTeam}
                 className={`${
-                  isCurrentUserPending 
-                    ? "bg-gray-600 hover:bg-gray-700" 
+                  isCurrentUserPending
+                    ? "bg-gray-600 hover:bg-gray-700"
                     : "bg-red-600 hover:bg-red-700"
                 } text-white px-6 py-2 rounded-lg`}
               >

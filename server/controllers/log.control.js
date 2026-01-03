@@ -90,9 +90,10 @@ export const createLog = async (req, res) => {
 /*  GET TEAM LOGS  */
 export const getTeamLogs = async (req, res) => {
   try {
-    const { teamId } = req.params;
+    //const { teamId } = req.params;
+    const teamId = req.student.team; 
     const student = await getStudent(req.studentId);
-    
+
     await checkTeamAccess(student, teamId);
     
     const logs = await LogEntry.find({ teamId })
