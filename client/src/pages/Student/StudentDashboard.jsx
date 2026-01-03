@@ -74,6 +74,12 @@ const StudentDashboard = () => {
       toast.error("Failed to copy team code");
     }
   };
+  useEffect(() => {
+    if (user?.teamId && user?.isApproved === false) {
+      navigate("/student/waiting");
+    }
+  }, [user, navigate]);
+
 
   const getTeamStatusInfo = () => {
     if (teamStatus === "Joined") {
