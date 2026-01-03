@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Toaster, toast } from "react-hot-toast";
 import AddLogEntryModal from "../../components/AddLogEntryModal";
+import { useAppContext } from "../../context/AppContext";
+
 
 const LogsList = ({ logs }) => {
   const [expandedLog, setExpandedLog] = useState(null);
@@ -42,7 +44,7 @@ const TeamLogPage = () => {
   const [logs, setLogs] = useState([]);
   const [members, setMembers] = useState([]);
   const [open, setOpen] = useState(false);
-
+  const { user } = useAppContext();
   useEffect(() => {
     fetchLogs();
     fetchTeamMembers();
@@ -54,8 +56,11 @@ const TeamLogPage = () => {
   };
 
   const fetchTeamMembers = async () => {
-    const res = await axios.get("/student/team/members");
-    if (res.data.success) setMembers(res.data.members);
+ const res = await axios.get(`/api/team/${user.teamId}`, {
+   withCredentials: true,
+ });
+ console.log(res.data.team.members)
+     if (res.data.success) setMembers(res.data.team.members);
   };
 
   const handleAddLog = async (payload) => {

@@ -13,14 +13,12 @@ const TeamMembers = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
-
   const fetchTeam = async () => {
     try {
       setLoading(true);
       const res = await axios.get(`/api/team/${teamId}`, {
         withCredentials: true,
       });
-
       if (res.data.success) {
         setTeam(res.data.team);
       } else {

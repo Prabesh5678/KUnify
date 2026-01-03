@@ -7,7 +7,6 @@ import { useAppContext } from "../../context/AppContext";
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { selectedSubject,user } = useAppContext();
-  console.log(user,selectedSubject)
 
   const [teamStatus, setTeamStatus] = useState("Not Joined");
   const [teamName, setTeamName] = useState("");

@@ -48,7 +48,6 @@ import { useAppContext } from "../context/AppContext";
 
 const StudentGuard = () => {
   const { user, loadingUser } = useAppContext();
-  console.log(user)
   const location = useLocation();
 
   if (loadingUser) return null;
