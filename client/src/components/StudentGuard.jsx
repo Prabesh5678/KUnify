@@ -84,6 +84,10 @@ const StudentGuard = () => {
     return <Navigate to="/setup-profile" replace />;
   }
 
+  if (!user.isApproved) {
+    return <Navigate to="/student/waiting" replace />;
+  }
+
   return <Outlet />;
 };
 

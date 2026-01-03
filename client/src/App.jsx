@@ -27,6 +27,7 @@ import AddTeacherModal from "./components/Admin/AddTeacherModal";
 import AdminGuard from "./components/AdminGuard";
 import ProjectsManagement from "./pages/Admin/ProjectsManagement";
 import WaitingPage from "./pages/Student/WaitingPage";
+
 const App = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -107,6 +108,7 @@ const App = () => {
           />
 
           {/* Student Routes */}
+          <Route path="/student/waiting" element={<WaitingPage />} />
           <Route element={<StudentGuard />}>
             <Route path="/student/home" element={<StudentHome />} />
             <Route path="/student/team-members" element={<StudentTeamMembers />} />
@@ -116,7 +118,7 @@ const App = () => {
             <Route path="/student/logsheet" element={<Logsheet />} />
             <Route path="/student/profile" element={<MyProfile />} />
             <Route path="/student/member/:teamId" element={<TeamMembers />} />
-            <Route path="/student/waiting" element={<WaitingPage />} />
+      
           </Route>
 
 
