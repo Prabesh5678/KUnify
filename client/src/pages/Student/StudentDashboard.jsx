@@ -224,7 +224,7 @@ const StudentDashboard = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Log Entries</p>
-                <p className="text-lg font-bold">2 entries</p>
+                {/*<p className="text-lg font-bold">2 entries</p>*/}
               </div>
             </div>
           </div>

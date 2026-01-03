@@ -21,7 +21,8 @@ logRouter.post(
 );
 
 // Get all logs for a team
-logRouter.get("/team/:teamId", authStudent, getTeamLogs);
+//logRouter.get("/team/:teamId", authStudent, getTeamLogs);
+logRouter.get("/team", authStudent, getTeamLogs);
 
 // Get single log
 logRouter.get("/:logId", authStudent, getSingleLog);
