@@ -4,6 +4,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
+
 const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
   const navigate = useNavigate();
   const { setTeamCode } = useAppContext();
@@ -12,7 +13,6 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Smooth open / close animation + reset form
   useEffect(() => {
     if (isOpen) {
       setShowModal(true);
@@ -51,12 +51,11 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
       );
 
       if (res.data.success) {
-     
         setTeamCode(res.data.team.code);
-
         toast.success("Team created successfully!");
         onClose();
-        navigate("/student/dashboard");
+
+        navigate(0); 
       } else {
         toast.error(res.data.message || "Failed to create team");
       }
@@ -102,7 +101,6 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
-            {/* Team Name */}
             <div>
               <label className="block text-sm font-medium mb-2">
                 Team Name <span className="text-red-500">*</span>
@@ -111,13 +109,11 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
                 type="text"
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
-                placeholder="e.g. SPMP"
-                className="w-full px-4 py-3 border rounded-lg focus:ring-4 focus:ring-blue-100"
+                className="w-full px-4 py-3 border rounded-lg"
                 disabled={isLoading}
               />
             </div>
 
-            {/* Subject */}
             <div>
               <label className="block text-sm font-medium mb-2">
                 Subject <span className="text-red-500">*</span>
@@ -126,14 +122,10 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
                 type="text"
                 value={selectedSubject || ""}
                 disabled
-                className="w-full px-4 py-3 border rounded-lg bg-gray-100 cursor-not-allowed"
+                className="w-full px-4 py-3 border rounded-lg bg-gray-100"
               />
-              <p className="text-xs text-gray-500 mt-2">
-                Subject is automatically filled from your profile
-              </p>
             </div>
 
-            {/* Buttons */}
             <div className="flex justify-end gap-4 pt-6 border-t">
               <button
                 type="button"
@@ -146,7 +138,7 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
               <button
                 type="submit"
                 disabled={!selectedSubject || isLoading}
-                className="px-8 py-3 bg-primary text-white rounded-lg disabled:opacity-50 flex items-center gap-2"
+                className="px-8 py-3 bg-primary text-white rounded-lg"
               >
                 {isLoading ? "Creating..." : "Create"}
               </button>
