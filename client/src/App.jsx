@@ -108,8 +108,8 @@ const App = () => {
           />
 
           {/* Student Routes */}
-          <Route path="/student/waiting" element={<WaitingPage />} />
           <Route element={<StudentGuard />}>
+            <Route path="/student/waiting" element={<WaitingPage />} />
             <Route path="/student/home" element={<StudentHome />} />
             <Route path="/student/team-members" element={<StudentTeamMembers />} />
             <Route path="/student/dashboard" element={<StudentDashboard />} />

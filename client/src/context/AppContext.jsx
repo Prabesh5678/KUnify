@@ -34,7 +34,7 @@ export const AppContextProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       setLoadingUser(true);
-      const { data } = await axios.get("/api/student/is-auth", { withCredentials: true });
+      const { data } = await axios.get("/api/student/is-auth?populateTeam=true", { withCredentials: true });
 
       if (data?.student) {
 const userData = {
