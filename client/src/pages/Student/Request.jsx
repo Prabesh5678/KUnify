@@ -6,8 +6,8 @@ import { useParams } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 
 const Request = () => {
-  const {user}=useAppContext()
-  const {teamId} = useParams();
+  const { user } = useAppContext()
+  const { teamId } = useParams();
   console.log(teamId)
   // Form fields
   const [title, setTitle] = useState("");
@@ -34,9 +34,9 @@ const Request = () => {
         // 🔹 TESTING: dummy data for now
         // Replace this with real API call later
         console.log(teamId)
-        const {data} = await axios.get(`/api/proposal/${teamId}`, { withCredentials: true });
+        const { data } = await axios.get(`/api/proposal/${teamId}`, { withCredentials: true });
         console.log(data)
-        if(!data) return;
+        if (!data) return;
         // const res = {
         //   data: {
         //     isProposalSubmitted: Math.random() > 0.5, // simulate submission randomly
@@ -54,12 +54,12 @@ const Request = () => {
           setTitle(p.projectTitle);
           setAbstract(p.abstract);
           setKeywords(p.projectKeyword);
-         if (p.proposalFile && p.proposalFile.url) {
-           setPdfPreviewUrl(p.proposalFile.url);
-           console.log("PDF URL set:", p.proposalFile.url); // This will log the URL
-         } else {
-           console.log("No PDF URL found in proposal");
-         }
+          if (p.proposalFile && p.proposalFile.url) {
+            setPdfPreviewUrl(p.proposalFile.url);
+            console.log("PDF URL set:", p.proposalFile.url); // This will log the URL
+          } else {
+            console.log("No PDF URL found in proposal");
+          }
           setExistingProposal(p);
           if (!pdfPreviewUrl) console.log('nothing');
           setIsProposalSubmitted(true);
@@ -131,26 +131,30 @@ const Request = () => {
       // -------------------------------
       // 🔹 TESTING: dummy delay for now
       // Replace this with real API POST later
-    const {data}=  await axios.post(`/api/proposal/upload/${teamId}`, formData, {
+      const { data } = await axios.post(`/api/proposal/upload/${teamId}`, formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });
       await new Promise((resolve) => setTimeout(resolve, 1500));
       // -------------------------------
-if(data.success){
-      // Update proposal so other team members can see immediately
-      const newProposal = {
-        title,
-        abstract,
-        keywords,
-        pdfUrl: data.proposal.proposalFile.url|| "/pdf_image.png", // replace with backend URL after real API
-      };
-      setExistingProposal(newProposal);
+      if (data.success) {
+        // Update proposal so other team members can see immediately
+        const newProposal = {
+          projectTitle: title,
+          abstract,
+          projectKeyword: keywords,
+          proposalFile: {
+            url: backendPdfUrl,
+          },
+        };
 
-      setIsProposalSubmitted(true);
-      setUploadStatus("uploaded");
-      toast.success("Proposal submitted successfully!");}
-      else{
+        setExistingProposal(newProposal);
+        setPdfFile(null);
+        setIsProposalSubmitted(true);
+        setUploadStatus("uploaded");
+        toast.success("Proposal submitted successfully!");
+      }
+      else {
         toast.error(data.message)
       }
     } catch (error) {
@@ -237,11 +241,10 @@ if(data.success){
                 Upload Proposal (PDF only, max 2MB)
               </label>
               <label
-                className={`w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg ${
-                  isProposalSubmitted
-                    ? "opacity-50 cursor-not-allowed"
-                    : "cursor-pointer hover:bg-gray-200"
-                }`}
+                className={`w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg ${isProposalSubmitted
+                  ? "opacity-50 cursor-not-allowed"
+                  : "cursor-pointer hover:bg-gray-200"
+                  }`}
               >
                 Choose File
                 <input
@@ -282,9 +285,10 @@ if(data.success){
                     <p className="text-sm font-semibold">
                       {existingProposal.title}
                     </p>
-                    {existingProposal.pdfUrl && (
+
+                    {existingProposal.proposalFile?.url && (
                       <a
-                        href={existingProposal.pdfUrl}
+                        href={existingProposal.proposalFile.url}
                         target="_blank"
                         rel="noreferrer"
                         className="text-xs text-blue-600 hover:underline"
@@ -292,6 +296,7 @@ if(data.success){
                         View PDF
                       </a>
                     )}
+
                   </div>
                 </div>
               )}
@@ -303,17 +308,16 @@ if(data.success){
                 type="submit"
                 disabled={isFormInvalid || isProposalSubmitted}
                 className={`bg-primary text-white font-bold py-3.5 px-12 rounded-xl shadow-lg transition
-                  ${
-                    isFormInvalid || isProposalSubmitted
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-primary/70 hover:scale-105"
+                  ${isFormInvalid || isProposalSubmitted
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-primary/70 hover:scale-105"
                   }`}
               >
                 {uploadStatus === "uploading"
                   ? "Uploading..."
                   : isProposalSubmitted
-                  ? "Proposal Already Submitted"
-                  : "Submit Request"}
+                    ? "Proposal Already Submitted"
+                    : "Submit Request"}
               </button>
             </div>
           </form>
