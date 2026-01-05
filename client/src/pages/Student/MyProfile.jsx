@@ -1,16 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useAppContext } from "../../context/AppContext";
-
-import avatar from "../../assets/avatar.png";
-
 import axios from "axios";
 import toast from "react-hot-toast";
-
 
 const MyProfile = () => {
   const { user, refreshUser } = useAppContext();
 
-  // Local form state
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -37,30 +32,72 @@ const MyProfile = () => {
     }
   }, [user]);
 
+  // 🔹 Subject code auto-update logic (UNCHANGED logic style)
+  const updateSubjectCode = (dept, sem) => {
+    let subject = "";
+
+    if (dept === "CS") {
+      const csMap = {
+        "1st": "ENGG101",
+        "2nd": "ENGG102",
+        "3rd": "COMP206",
+        "4th": "COMP207",
+        "5th": "COMP311",
+        "6th": "COMP313",
+      };
+
+      subject = csMap[sem] || "";
+    } else if (dept === "CE") {
+      const ceMap = {
+        "1st": "ENGG101",
+        "2nd": "ENGG102",
+        "3rd": "COMP206",
+        "4th": "COMP207",
+        "5th": "COMP311",
+        "6th": "COMP313",
+      };
+      subject = ceMap[sem] || "";
+    }
+
+    setForm((prev) => ({ ...prev, subjectCode: subject }));
+  };
+
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "department") {
+      updateSubjectCode(value, form.semester);
+    }
+
+    if (name === "semester") {
+      updateSubjectCode(form.department, value);
+    }
   };
 
-  // Handle save
+  // Save profile
   const handleSave = async () => {
     setLoading(true);
     try {
-      const res = await axios.put("/api/student/profile-update", {
-        name: form.name,
-        email: form.email,
-        department: form.department,
-        semester: form.semester,
-        subjectCode: form.subjectCode,
-      }, { withCredentials: true });
+      const res = await axios.put(
+        "/api/student/profile-update",
+        {
+          name: form.name,
+          email: form.email,
+          department: form.department,
+          semester: form.semester,
+          subjectCode: form.subjectCode,
+        },
+        { withCredentials: true }
+      );
 
       if (res.data.success) {
         toast.success("Profile updated successfully!");
         setEditing(false);
-        refreshUser(); // fetch updated user from backend
-      }else{
-        toast.error(res.data.message||'Failed to update profile.')
+        refreshUser();
+      } else {
+        toast.error(res.data.message || "Failed to update profile.");
       }
     } catch (err) {
       console.error(err);
@@ -78,23 +115,19 @@ const MyProfile = () => {
         </h2>
 
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          {/* Avatar */}
-          <img src="/avatar.png" alt="User Avatar"
-
-
+          <img
+            src="/avatar.png"
+            alt="User Avatar"
             className="w-32 h-32 rounded-full border-2 border-primary object-cover"
           />
 
-          {/* User Info Form */}
           <div className="flex flex-col gap-4 w-full">
             {/* Name */}
             <div className="flex flex-col">
               <label className="font-semibold text-primary">Name</label>
               <input
                 type="text"
-                name="name"
                 value={form.name}
-                onChange={handleChange}
                 disabled
                 className="w-full p-3 rounded-md border cursor-not-allowed"
               />
@@ -105,9 +138,7 @@ const MyProfile = () => {
               <label className="font-semibold text-primary">Email</label>
               <input
                 type="email"
-                name="email"
                 value={form.email}
-                onChange={handleChange}
                 disabled
                 className="w-full p-3 rounded-md border cursor-not-allowed"
               />
@@ -116,20 +147,29 @@ const MyProfile = () => {
             {/* Department */}
             <div className="flex flex-col">
               <label className="font-semibold text-primary">Department</label>
-              <input
-                type="text"
-                name="department"
-                value={form.department}
-                onChange={handleChange}
-                disabled
-                className="w-full p-3 rounded-md border  cursor-not-allowed"
-              />
+              {editing ? (
+                <select
+                  name="department"
+                  value={form.department}
+                  onChange={handleChange}
+                  className="w-full p-3 rounded-md border border-primary bg-white"
+                >
+                  <option value="CS">CS</option>
+                  <option value="CE">CE</option>
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={form.department}
+                  disabled
+                  className="w-full p-3 rounded-md border cursor-not-allowed"
+                />
+              )}
             </div>
 
             {/* Semester */}
             <div className="flex flex-col">
               <label className="font-semibold text-primary">Semester</label>
-
               {editing ? (
                 <select
                   name="semester"
@@ -137,19 +177,8 @@ const MyProfile = () => {
                   onChange={handleChange}
                   className="w-full p-3 rounded-md border border-primary bg-white"
                 >
-                  {[
-                    "1st",
-                    "2nd",
-                    "3rd",
-                    "4th",
-                    "5th",
-                    "6th",
-                    "7th",
-                    "8th",
-                  ].map((semester) => (
-                    <option key={semester} value={semester}>
-                      {semester}
-                    </option>
+                  {["1st", "2nd", "3rd", "4th", "5th", "6th"].map((s) => (
+                    <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
               ) : (
@@ -162,17 +191,14 @@ const MyProfile = () => {
               )}
             </div>
 
-
-            {/* Registration Number (Read-only) */}
+            {/* Registration Number */}
             <div className="flex flex-col">
               <label className="font-semibold text-primary">
                 Registration Number
               </label>
               <input
                 type="text"
-                name="rollNumber"
                 value={form.rollNumber}
-                placeholder="Registration Number"
                 disabled
                 className="w-full p-3 rounded-md border border-gray-300 bg-gray-100 cursor-not-allowed"
               />
@@ -180,45 +206,19 @@ const MyProfile = () => {
 
             {/* Subject Code */}
             <div className="flex flex-col">
-  <label className="font-semibold text-primary">Subject code</label>
-
-  {editing ? (
-    <select
-      name="subjectCode"
-      value={form.subjectCode}
-      onChange={handleChange}
-      className="w-full p-3 rounded-md border border-primary bg-white"
-    >
-      {[
-        "COMP 201",
-    "COMP 202",
-    "COMP 203",
-    "COMP 204",
-    "COMP 301",
-    "COMP 302",
-    "COMP 303",
-    "COMP 401",
-      ].map((subjectCode) => (
-        <option key={subjectCode} value={subjectCode}>
-          {subjectCode}
-        </option>
-      ))}
-    </select>
-  ) : (
-    <input
-      type="text"
-      value={form.subjectCode || "—"}
-      disabled
-      className="w-full p-3 rounded-md border border-gray-300 bg-gray-100 cursor-not-allowed"
-    />
-  )}
-</div>
+              <label className="font-semibold text-primary">Subject code</label>
+              <input
+                type="text"
+                value={form.subjectCode || "—"}
+                disabled
+                className="w-full p-3 rounded-md border border-gray-300 bg-gray-100 cursor-not-allowed"
+              />
+            </div>
 
             {/* Buttons */}
             <div className="flex gap-4 pt-6">
               {!editing ? (
                 <button
-                  type="button"
                   onClick={() => setEditing(true)}
                   className="px-6 py-3 bg-primary text-white rounded-md font-medium hover:bg-primary/80 transition"
                 >
@@ -227,14 +227,12 @@ const MyProfile = () => {
               ) : (
                 <>
                   <button
-                    type="button"
                     onClick={() => setEditing(false)}
                     className="px-6 py-3 bg-gray-400 text-white rounded-md font-medium hover:bg-gray-500 transition"
                   >
                     Cancel
                   </button>
                   <button
-                    type="button"
                     onClick={handleSave}
                     disabled={loading}
                     className="px-6 py-3 bg-primary text-white rounded-md font-medium hover:bg-primary/80 transition disabled:opacity-50"
@@ -247,7 +245,7 @@ const MyProfile = () => {
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 
