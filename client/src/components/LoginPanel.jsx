@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 
 const ADMIN_EMAIL = "deekshyabadal@gmail.com";
+const TEACHER_EMAIL = "subhechhakarkee@gmail.com";
 
 const LoginPanel = () => {
   const { setUser, showUserLogin, setShowUserLogin } = useAppContext();
@@ -61,6 +62,22 @@ const LoginPanel = () => {
         navigate("/admin/dashboard", { replace: true });
 
         toast.success("Admin login successful!");
+        return;
+      }
+      //Teacher Login
+      if (email === TEACHER_EMAIL) {
+        const teacherUser = {
+          name: decoded.name,
+          email: decoded.email,
+          picture: decoded.picture,
+          role: "teacher",
+        };
+
+        setUser(teacherUser);
+        setShowUserLogin(false);
+
+        navigate("/teacher/dashboard", { replace: true });
+        toast.success("Teacher login successful!");
         return;
       }
 

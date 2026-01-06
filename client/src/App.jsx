@@ -28,6 +28,17 @@ import AdminGuard from "./components/AdminGuard";
 import ProjectsManagement from "./pages/Admin/ProjectsManagement";
 import WaitingPage from "./pages/Student/WaitingPage";
 
+//Teacher Pages
+import TeacherGuard from "./components/TeacherGuard";
+import TeacherLayout from "./components/TeacherLayout";
+import TeacherSidebar from "./components/Teacher/TeacherSidebar";
+import TeacherDashboard from "./pages/Teacher/Dashboard";
+import TeacherProjects from "./pages/Teacher/Projects";
+import TeacherRequests from "./pages/Teacher/Requests";
+import TeacherTeams from "./pages/Teacher/Teams";
+import TeacherDeficits from "./pages/Teacher/Deficits";
+import TeacherSettings from "./pages/Teacher/Settings";
+
 const App = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -35,18 +46,19 @@ const App = () => {
 
   const isStudentPath = pathname.includes("student");
   const isAdminPath = pathname.includes("admin");
+  const isTeacherPath = pathname.includes("teacher");
   const isHomePath = pathname === "/";
 
   // Decide Navbar
   const NavbarToShow = isStudentPath ? (
     <StudentNavbar />
-  ) : !isAdminPath ? (
+  ) : !isAdminPath && !isTeacherPath ? (
     <Navbar />
   ) : null;
 
   const contentClass = isStudentPath
     ? "px-6 md:px-16 lg:px-24 xl:px-32 pt-24"
-    : !isHomePath && !isAdminPath
+    : !isHomePath && !isAdminPath && !isTeacherPath
       ? "px-6 md:px-16 lg:px-24 xl:px-32"
       : "";
 
@@ -56,6 +68,9 @@ const App = () => {
 
     // Admin bypass
     if (user.role === "admin") return;
+
+    // Teacher bypass
+    if (user.role === "teacher") return;
 
     // Student profile check
     if (user.role === "student") {
@@ -101,7 +116,8 @@ const App = () => {
                 <ProfileSetup />
               ) : user?.role === "admin" ? (
                 <Navigate to="/admin/dashboard" replace />
-              ) : (
+              ) : user?.role === "teacher"
+                ? (<Navigate to="/teacher/dashboard" replace />): (
                 <Navigate to="/" replace />
               )
             }
@@ -119,8 +135,6 @@ const App = () => {
             <Route path="/student/logsheet" element={<Logsheet />} />
             <Route path="/student/profile" element={<MyProfile />} />
             <Route path="/student/member/:teamId" element={<TeamMembers />} />
-      
-
           </Route>
 
 
@@ -132,13 +146,24 @@ const App = () => {
             {/* Add more admin routes here */}
           </Route>
 
+          {/* Teacher Routes */}
+          <Route element={<TeacherGuard />}>
+            <Route path="/teacher" element={<TeacherLayout />}>
+              <Route path="dashboard" element={<TeacherDashboard />} />
+              <Route path="projects" element={<TeacherProjects />} />
+              <Route path="requests" element={<TeacherRequests />} />
+              <Route path="teams" element={<TeacherTeams />} />
+              <Route path="deficits" element={<TeacherDeficits />} />
+              <Route path="settings" element={<TeacherSettings />} />
+            </Route>
+          </Route>
 
           {/* Fallback: Not Found */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
 
-      {!isStudentPath && !isAdminPath && <Footer />}
+      {!isStudentPath && !isAdminPath && !isTeacherPath && <Footer />}
     </>
   );
 };
