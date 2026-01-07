@@ -11,6 +11,10 @@ const logEntrySchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    week: {
+      type: String, // e.g. "Week 1", "Week 2"
+      required: true,
+    },
     logNumber: {
       type: Number,
       required: true,
@@ -34,4 +38,5 @@ const logEntrySchema = new mongoose.Schema(
 
 const LogEntry =
   mongoose.models.logEntry || mongoose.model("logEntry", logEntrySchema);
+
 export default LogEntry;
