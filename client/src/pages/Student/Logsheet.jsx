@@ -110,7 +110,7 @@ const Logsheet = () => {
             <div className="flex justify-between items-center mb-3">
               {/* Date + Week */}
               <h3 className="font-semibold text-gray-800">
-                {new Date(log.date).toLocaleDateString()} • {log.week}
+                {new Date(log.date).toLocaleDateString()} | {log.week}
               </h3>
 
               {activeTab === "team" && (

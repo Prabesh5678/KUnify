@@ -43,6 +43,9 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess }) => {
         setOutcome("");
         setDate(today);
       }
+      else {
+  toast.error(data.message || "Failed to add log");
+}
     } catch (err) {
       setError(err.response?.data?.message || "Failed to save log");
     } finally {

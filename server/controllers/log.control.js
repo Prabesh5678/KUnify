@@ -19,6 +19,18 @@ export const addLog = async (req, res) => {
       return res.json({ success: false, message: "Team not found" });
     }
 
+    const existingLog = await LogEntry.findOne({
+      createdBy: studentId,
+      week: week,
+    });
+
+    if (existingLog) {
+      return res.json({
+        success: false,
+        message: `Log for ${week} is already submitted`,
+      });
+    }
+
     const log = await LogEntry.create({
       date,
       week,
