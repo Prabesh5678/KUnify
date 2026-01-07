@@ -89,10 +89,6 @@ export const joinTeam = async (req, res) => {
       return res.json({ success: false, message: "Invalid team code or select the valid subject!" });
     }
 
-    // // 🔥 REJOIN CHECK
-    // const needsApproval =
-    //   student.lastTeamId &&
-    //   student.lastTeamId.toString() === team._id.toString();
   
     const needsApproval =
       student.lastTeamId &&
