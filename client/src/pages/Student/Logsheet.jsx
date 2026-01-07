@@ -3,26 +3,34 @@ import axios from "axios";
 import {toast } from "react-hot-toast";
 import AddLogEntryModal from "../../components/AddLogEntryModal";
 import { useAppContext } from "../../context/AppContext";
+import { useParams } from "react-router-dom";
 
 
 const Logsheet = () => {
+  const { user } = useAppContext();
   const [myLogs, setMyLogs] = useState([]);
   const [teamLogs, setTeamLogs] = useState([]);
   const [open, setOpen] = useState(false);
-  const { user } = useAppContext();
   const [activeTab, setActiveTab] = useState("my"); // my | team
-
+// if(!user||user._id){
+//   toast.error('user not found')
+//   console.error('hi')
+//   return;
+// }
+const userId=user._id;
+const teamId=user.teamId._id;
   useEffect(() => {
     fetchMyLogs();
     fetchTeamLogs();
-  }, []);
+  }, [activeTab]);
 
   const fetchMyLogs = async () => {
     try {
-      const res = await axios.get('/api/log/${logId}');
-      if (res.data.success) {
-        setMyLogs(res.data.logs);
+      const {data} = await axios.get(`/api/log/user/${userId}`);
+      if (data.success) {
+        setMyLogs(data.logs);
       }
+      else toast.error(data.message)
     } catch {
       toast.error("Failed to fetch my logs");
     }
@@ -30,10 +38,11 @@ const Logsheet = () => {
 
   const fetchTeamLogs = async () => {
     try {
-      const res = await axios.get("/api/log/team");
-      if (res.data.success) {
-        setTeamLogs(res.data.logs);
-      }
+      const {data} = await axios.get(`/api/log/team/${teamId}`);
+      if (data.success) {
+        setTeamLogs(data.logs);
+      } else toast.error(data.message);
+
     } catch {
       toast.error("Failed to fetch team logs");
     }
