@@ -4,6 +4,7 @@ import {
   addLog,
   getMyLogs,
   getTeamLogs,
+  updateLog,
   deleteLog,
 } from "../controllers/log.control.js";
 
@@ -28,6 +29,13 @@ logRouter.get(
   "/team/:teamId",
   authStudent,
   getTeamLogs
+);
+
+// Update log
+logRouter.put(
+  "/:logId",
+  authStudent,
+  updateLog
 );
 
 // Delete log

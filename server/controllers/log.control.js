@@ -7,7 +7,7 @@ export const addLog = async (req, res) => {
     const { date, week, activity, outcome } = req.body;
     const studentId = req.studentId;
 
-    if (!date || !week || !activity || !outcome || !studentId) {
+    if (!date || !week || !activity || !outcome) {
       return res.json({
         success: false,
         message: "Please provide all fields",
@@ -19,6 +19,7 @@ export const addLog = async (req, res) => {
       return res.json({ success: false, message: "Team not found" });
     }
 
+    // Prevent duplicate week
     const existingLog = await LogEntry.findOne({
       createdBy: studentId,
       week,
@@ -57,7 +58,7 @@ export const getMyLogs = async (req, res) => {
     const { userId } = req.params;
     const studentId = req.studentId;
 
-    if (!userId || userId !== studentId) {
+    if (userId !== studentId) {
       return res.json({ success: false, message: "Invalid user" });
     }
 
@@ -104,6 +105,72 @@ export const getTeamLogs = async (req, res) => {
   }
 };
 
+// PUT /api/log/:logId
+export const updateLog = async (req, res) => {
+  try {
+    const { logId } = req.params;
+    const studentId = req.studentId;
+    const { date, week, activity, outcome } = req.body;
+
+    if (!date || !week || !activity || !outcome) {
+      return res.json({
+        success: false,
+        message: "Please provide all fields",
+      });
+    }
+
+    const log = await LogEntry.findById(logId);
+    if (!log) {
+      return res.json({
+        success: false,
+        message: "Log not found",
+      });
+    }
+
+    // Only creator can edit
+    if (log.createdBy.toString() !== studentId) {
+      return res.json({
+        success: false,
+        message: "You are not allowed to edit this log",
+      });
+    }
+
+    //  Prevent duplicate week when editing
+    if (log.week !== week) {
+      const existingLog = await LogEntry.findOne({
+        createdBy: studentId,
+        week,
+      });
+
+      if (existingLog) {
+        return res.json({
+          success: false,
+          message: `Log for ${week} is already submitted`,
+        });
+      }
+    }
+
+    log.date = date;
+    log.week = week;
+    log.activity = activity;
+    log.outcome = outcome;
+
+    await log.save();
+
+    return res.json({
+      success: true,
+      message: "Log updated successfully",
+      log,
+    });
+  } catch (error) {
+    console.error(error.stack);
+    return res.json({
+      success: false,
+      message: "Internal Server Error!",
+    });
+  }
+};
+
 // DELETE /api/log/:logId
 export const deleteLog = async (req, res) => {
   try {
@@ -118,7 +185,7 @@ export const deleteLog = async (req, res) => {
       });
     }
 
-    // 🔒 Only creator can delete
+    //  Only creator can delete
     if (log.createdBy.toString() !== studentId) {
       return res.json({
         success: false,
