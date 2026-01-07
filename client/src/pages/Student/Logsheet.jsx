@@ -115,7 +115,7 @@ const teamId=user.teamId._id;
 
             {activeTab === "team" && (
               <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                {log.user?.name}
+                {log.createdBy.name||'user'}
               </span>
             )}
           </div>
