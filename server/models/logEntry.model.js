@@ -20,17 +20,18 @@ const logEntrySchema = new mongoose.Schema(
       ref: "student",
       required: true,
     },
-    files: [
-      {
-        url: String,
-        publicId: String,
-        fileName: String,
-        fileType: String,
-      },
-    ],
+    activity: {
+      type: String,
+      required: true,
+    },
+    outcome: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );
 
-const LogEntry = mongoose.models.logEntry || mongoose.model("logEntry", logEntrySchema);
+const LogEntry =
+  mongoose.models.logEntry || mongoose.model("logEntry", logEntrySchema);
 export default LogEntry;

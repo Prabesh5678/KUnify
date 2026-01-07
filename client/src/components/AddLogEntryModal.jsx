@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { X, Calendar } from "lucide-react";
 import { toast } from "react-hot-toast";
-
+import { useAppContext } from "../context/AppContext";
 const AddLogEntryModal = ({ isOpen, onClose, onSuccess }) => {
   const today = new Date().toISOString().split("T")[0];
 
@@ -26,19 +26,22 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess }) => {
     setIsSubmitting(true);
 
     try {
-      await axios.post("/api/log", {
+    const {data}=  await axios.post("/api/log/create", {
         date,
         activity,
         outcome,
       });
-
+if(data.success){
       toast.success("Log added successfully");
       onClose();
       onSuccess();
 
       setActivity("");
       setOutcome("");
-      setDate(today);
+      setDate(today);}
+      else{
+        toast.error('Unable to add log')
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to save log");
     } finally {

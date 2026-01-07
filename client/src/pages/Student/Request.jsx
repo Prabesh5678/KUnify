@@ -6,7 +6,6 @@ import { useParams } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 
 const Request = () => {
-  const { user } = useAppContext()
   const { teamId } = useParams();
   console.log(teamId)
   // Form fields
