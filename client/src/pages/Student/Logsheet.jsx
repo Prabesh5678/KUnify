@@ -20,7 +20,8 @@ const Logsheet = () => {
 const userId=user._id;
 const teamId=user.teamId._id;
   useEffect(() => {
-    fetchMyLogs();
+    if(activeTab==='my')
+    fetchMyLogs();else
     fetchTeamLogs();
   }, [activeTab]);
 
