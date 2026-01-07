@@ -29,3 +29,49 @@ export const addLog = async (req, res) => {
     return res.json({success:false,message:"Internal Server Error!"})
   }
 };
+
+//get /api/log/user/:userId
+
+export const getMyLogs=async (req,res) => {
+  try {
+    const {userId}=req.params;
+    const studentId =req.studentId;
+    if(!userId||!studentId||userId!==studentId)
+      return res.json({success:false,message:"Error with user!"})
+    const student =await Student.findById(studentId);
+    if(!student||!student.teamId)
+      return res.json({success:false,message:"Unable to find team"})
+    const teamId=student.teamId.toString();
+    const logs= await LogEntry.find({createdBy:studentId,teamId})
+    if(!logs.length)
+      return res.json({success:false,message:"Unable to find logs!"})
+    return res.json({success:true,logs})
+
+  } catch (error) {
+    console.error(error.stack)
+    return res.json({success:false,message:"Internal Server Error!"})
+  }
+}
+//get /api/log/team/:teamId
+
+export const getTeamLogs=async (req,res) => {
+  try {
+    const {teamId}=req.params;
+    const studentId =req.studentId;
+    if(!teamId||!studentId)
+      return res.json({success:false,message:"Error with user!"})
+    const student =await Student.findById(studentId);
+
+    if(!student||!student.teamId||!student.teamId.toString()===teamId)
+      return res.json({success:false,message:"Unable to find team"})
+    
+    const logs= await LogEntry.find({teamId}).populate('createdBy')
+    if(!logs.length)
+      return res.json({success:false,message:"Unable to find logs!"})
+    return res.json({success:true,logs})
+
+  } catch (error) {
+    console.error(error.stack)
+    return res.json({success:false,message:"Internal Server Error!"})
+  }
+}

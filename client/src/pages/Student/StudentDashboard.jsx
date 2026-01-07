@@ -18,6 +18,13 @@ import { useAppContext } from "../../context/AppContext";
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { selectedSubject, user } = useAppContext();
+  console.log(user._id)
+  if(!user||!user._id){
+    toast.error('user not found')
+    console.error('nothing')
+    return;
+  }
+  const userId=user._id;
 
   const [teamStatus, setTeamStatus] = useState("Not Joined");
   const [teamName, setTeamName] = useState("");
@@ -237,7 +244,7 @@ const StudentDashboard = () => {
               </button>
 
               <button
-                onClick={() => navigate("/student/logsheet")}
+                onClick={() => navigate(`/student/logsheet`)}
                 className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center
                            bg-gradient-to-r from-orange-50 to-amber-100"
               >

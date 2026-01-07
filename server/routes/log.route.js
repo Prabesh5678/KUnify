@@ -8,6 +8,8 @@ import {
   // deleteLog,
   // deleteLogFile,
   addLog,
+  getMyLogs,
+  getTeamLogs,
 } from "../controllers/log.control.js";
 import { uploadMultiple } from "../utils/upload.utils.js";
 
@@ -20,5 +22,15 @@ logRouter.post(
   addLog
 );
 
+logRouter.get(
+  "/user/:userId",
+  authStudent,
+  getMyLogs
+);
+logRouter.get(
+  "/team/:teamId",
+  authStudent,
+  getTeamLogs
+);
 
 export default logRouter;
