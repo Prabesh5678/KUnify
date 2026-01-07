@@ -17,6 +17,11 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
   const activityLimit = 500; 
   const outcomeLimit = 1000;
 
+  // Calculate weeks that are already added (excluding current edit if editing)
+  const usedWeeks = myLogs
+    .filter((log) => !editLog || log._id !== editLog._id)
+    .map((log) => Number(log.week));
+
   useEffect(() => {
     if (editLog) {
       setDate(editLog.date.split("T")[0]);
@@ -42,9 +47,9 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
       return;
     }
 
-    // Check duplicate week for the user (only for new logs)
-    if (!editLog && myLogs.some((log) => log.week === Number(week))) {
-      setError("You already have a log for this week!");
+    // Prevent duplicate week
+    if (!editLog && usedWeeks.includes(Number(week))) {
+      setError(`Week ${week} has already been updated`);
       return;
     }
 
@@ -120,11 +125,16 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
                 className="w-full px-4 py-2.5 border rounded-xl bg-white"
               >
                 <option value="">Select Week</option>
-                {[...Array(16)].map((_, idx) => (
-                  <option key={idx + 1} value={idx + 1}>
-                    Week {idx + 1}
-                  </option>
-                ))}
+                {[...Array(16)].map((_, idx) => {
+                  const wk = idx + 1;
+                  return (
+                    <option key={wk} value={wk} disabled={usedWeeks.includes(wk)}>
+                      {usedWeeks.includes(wk)
+                        ? `Week ${wk} (Already Updated)`
+                        : `Week ${wk}`}
+                    </option>
+                  );
+                })}
               </select>
             </div>
 
