@@ -21,7 +21,7 @@ export const addLog = async (req, res) => {
 
     const existingLog = await LogEntry.findOne({
       createdBy: studentId,
-      week: week,
+      week,
     });
 
     if (existingLog) {
@@ -38,7 +38,7 @@ export const addLog = async (req, res) => {
       outcome,
       createdBy: studentId,
       teamId: student.teamId,
-      logNumber: 1, // demo
+      logNumber: 1,
     });
 
     return res.json({ success: true, log });
@@ -95,6 +95,43 @@ export const getTeamLogs = async (req, res) => {
     const logs = await LogEntry.find({ teamId }).populate("createdBy");
 
     return res.json({ success: true, logs });
+  } catch (error) {
+    console.error(error.stack);
+    return res.json({
+      success: false,
+      message: "Internal Server Error!",
+    });
+  }
+};
+
+// DELETE /api/log/:logId
+export const deleteLog = async (req, res) => {
+  try {
+    const { logId } = req.params;
+    const studentId = req.studentId;
+
+    const log = await LogEntry.findById(logId);
+    if (!log) {
+      return res.json({
+        success: false,
+        message: "Log not found",
+      });
+    }
+
+    // 🔒 Only creator can delete
+    if (log.createdBy.toString() !== studentId) {
+      return res.json({
+        success: false,
+        message: "You are not allowed to delete this log",
+      });
+    }
+
+    await LogEntry.findByIdAndDelete(logId);
+
+    return res.json({
+      success: true,
+      message: "Log deleted successfully",
+    });
   } catch (error) {
     console.error(error.stack);
     return res.json({

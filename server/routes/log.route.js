@@ -1,36 +1,40 @@
 import express from "express";
 import authStudent from "../middlewares/student.middleware.js";
 import {
-  // createLog,
-  // getTeamLogs,
-  // getSingleLog,
-  // updateLog,
-  // deleteLog,
-  // deleteLogFile,
   addLog,
   getMyLogs,
   getTeamLogs,
+  deleteLog,
 } from "../controllers/log.control.js";
-import { uploadMultiple } from "../utils/upload.utils.js";
 
 const logRouter = express.Router();
 
-// Create log 
+// Create log
 logRouter.post(
   "/create",
   authStudent,
   addLog
 );
 
+// Get my logs
 logRouter.get(
   "/user/:userId",
   authStudent,
   getMyLogs
 );
+
+// Get team logs
 logRouter.get(
   "/team/:teamId",
   authStudent,
   getTeamLogs
+);
+
+// Delete log
+logRouter.delete(
+  "/:logId",
+  authStudent,
+  deleteLog
 );
 
 export default logRouter;
