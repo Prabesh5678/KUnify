@@ -5,8 +5,12 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 
-const ADMIN_EMAIL = "deekshyabadal@gmail.com";
-const TEACHER_EMAIL = "subhechhakarkee@gmail.com";
+const ADMIN_EMAIL = ["deekshyabadal@gmail.com","subhechhakarkee@gmail.com",'grocerease6699@gmail.com'];
+const TEACHER_EMAIL = [
+  "deekshyabadal@gmail.com",
+  "subhechhakarkee@gmail.com",
+  "grocerease6699@gmail.com",
+];
 
 const LoginPanel = () => {
   const { setUser, showUserLogin, setShowUserLogin } = useAppContext();
@@ -48,7 +52,7 @@ const LoginPanel = () => {
         return;
       }
         */
-      if (email === ADMIN_EMAIL) {
+      if (ADMIN_EMAIL.includes(email.toLowerCase())) {
         const adminUser = {
           name: decoded.name,
           email: decoded.email,
@@ -65,7 +69,7 @@ const LoginPanel = () => {
         return;
       }
       //Teacher Login
-      if (email === TEACHER_EMAIL) {
+      if (TEACHER_EMAIL.includes(email.toLowerCase())) {
         const teacherUser = {
           name: decoded.name,
           email: decoded.email,

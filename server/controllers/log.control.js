@@ -39,7 +39,6 @@ export const addLog = async (req, res) => {
       outcome,
       createdBy: studentId,
       teamId: student.teamId,
-      logNumber: 1,
     });
 
     return res.json({ success: true, log });
@@ -105,7 +104,7 @@ export const getTeamLogs = async (req, res) => {
   }
 };
 
-// PUT /api/log/:logId
+// PUT /api/log/update/:logId
 export const updateLog = async (req, res) => {
   try {
     const { logId } = req.params;
@@ -171,7 +170,7 @@ export const updateLog = async (req, res) => {
   }
 };
 
-// DELETE /api/log/:logId
+// DELETE /api/log/delete/:logId
 export const deleteLog = async (req, res) => {
   try {
     const { logId } = req.params;

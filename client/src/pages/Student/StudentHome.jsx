@@ -83,7 +83,7 @@ const StudentHome = () => {
 
               <button
                 onClick={() => navigate("/student/dashboard")}
-                className="mt-8 bg-gray-900 hover:bg-gray-800
+                className="mt-8 bg-gray-900 hover:bg-gray-800 cursor-pointer
                 text-white px-6 py-2.5 rounded-lg font-medium
                 transition-colors"
               >

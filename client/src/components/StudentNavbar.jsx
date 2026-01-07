@@ -71,7 +71,7 @@ const StudentNavbar = () => {
                   onClick={() => navigate("/")}
                   src={assets.ku_logo}
                   alt="ku_logo"
-                  className="h-12"
+                  className="h-12 cursor-pointer"
                 />
               </div>
               <div>
@@ -91,10 +91,10 @@ const StudentNavbar = () => {
               </span>
 
               {/* PLUS MENU */}
-              <div className="relative" ref={plusButtonRef}>
+              <div className="relative " ref={plusButtonRef}>
                 <button
                   onClick={() => setIsPlusMenuOpen(!isPlusMenuOpen)}
-                  className="hover:text-secondary/60 transition p-1"
+                  className="hover:text-secondary/60 cursor-pointer transition p-1"
                 >
                   <Plus size={25} strokeWidth={2.5} />
                 </button>
@@ -106,7 +106,7 @@ const StudentNavbar = () => {
                         setIsCreateModalOpen(true);
                         setIsPlusMenuOpen(false);
                       }}
-                      className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-500 transition"
+                      className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-500 cursor-pointer transition"
                     >
                       Create Team
                     </button>
@@ -116,7 +116,7 @@ const StudentNavbar = () => {
                         setIsJoinModalOpen(true);
                         setIsPlusMenuOpen(false);
                       }}
-                      className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-500 transition border-t border-gray-300"
+                      className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-500 transition cursor-pointer border-t border-gray-300"
                     >
                       Join Team
                     </button>
@@ -181,13 +181,13 @@ const StudentNavbar = () => {
             <div className="flex justify-center gap-4">
               <button
                 onClick={logout}
-                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg font-semibold"
+                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 cursor-pointer rounded-lg font-semibold"
               >
                 Yes
               </button>
               <button
                 onClick={() => setShowLogoutModal(false)}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 rounded-lg font-semibold"
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 cursor-pointer rounded-lg font-semibold"
               >
                 No
               </button>

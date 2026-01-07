@@ -63,7 +63,7 @@ const Logsheet = () => {
   const confirmDeleteLog = async () => {
     const { id } = confirmDelete;
     try {
-      await axios.delete(`/api/log/${id}`);
+      await axios.delete(`/api/log/delete/${id}`);
       toast.success("Log deleted");
       activeTab === "my" ? fetchMyLogs() : fetchTeamLogs();
     } catch {
@@ -121,7 +121,7 @@ const Logsheet = () => {
       <div className="max-w-5xl mx-auto flex gap-3 mb-8 px-4">
         <button
           onClick={() => setActiveTab("my")}
-          className={`px-5 py-2 rounded-full font-medium transition ${
+          className={`px-5 py-2 rounded-full font-medium transition cursor-pointer ${
             activeTab === "my"
               ? "bg-primary text-white shadow"
               : "bg-white text-gray-600 border hover:bg-gray-50"
@@ -132,7 +132,7 @@ const Logsheet = () => {
 
         <button
           onClick={() => setActiveTab("team")}
-          className={`px-5 py-2 rounded-full font-medium transition ${
+          className={`px-5 py-2 rounded-full font-medium transition cursor-pointer ${
             activeTab === "team"
               ? "bg-primary text-white shadow"
               : "bg-white text-gray-600 border hover:bg-gray-50"
@@ -180,13 +180,13 @@ const Logsheet = () => {
             {activeTab === "my" && (
               <div className="flex justify-end gap-3 mt-3">
                 <button
-                  className="text-blue-600 font-semibold"
+                  className="text-blue-600 font-semibold cursor-pointer "
                   onClick={() => handleEdit(log)}
                 >
                   Edit
                 </button>
                 <button
-                  className="text-red-600 font-semibold"
+                  className="text-red-600 font-semibold cursor-pointer "
                   onClick={() => handleDelete(log._id)}
                 >
                   Delete
@@ -222,13 +222,13 @@ const Logsheet = () => {
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setConfirmDelete({ isOpen: false, id: null })}
-                  className="px-5 py-2 bg-gray-100 rounded-xl"
+                  className="px-5 py-2 bg-gray-100 rounded-xl cursor-pointer "
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDeleteLog}
-                  className="px-5 py-2 bg-red-600 text-white rounded-xl"
+                  className="px-5 py-2 bg-red-600 text-white rounded-xl cursor-pointer "
                 >
                   Delete
                 </button>

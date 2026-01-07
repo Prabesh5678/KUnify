@@ -57,7 +57,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
 
     try {
       if (editLog) {
-        await axios.put(`/api/log/${editLog._id}`, {
+        await axios.put(`/api/log/update/${editLog._id}`, {
           date,
           week,
           activity,
@@ -92,7 +92,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
             <h2 className="text-lg font-bold">
               {editLog ? "Edit Log Entry" : "Add Log Entry"}
             </h2>
-            <button onClick={onClose}>
+            <button onClick={onClose} className="cursor-pointer">
               <X />
             </button>
           </div>
@@ -177,14 +177,14 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2 bg-gray-100 rounded-xl"
+                className="px-5 py-2 bg-gray-100 cursor-pointer rounded-xl"
                 disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-primary text-white rounded-xl"
+                className="px-5 py-2 bg-primary text-white cursor-pointer rounded-xl"
                 disabled={isSubmitting}
               >
                 {editLog ? "Update" : "Save"}
