@@ -6,11 +6,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 
 const ADMIN_EMAIL = "deekshyabadal@gmail.com";
-const TEACHER_EMAIL = ["subhechhakarkee@gmail.com",
-"sajanaranjitkar64@gmail.com",
-"prabesh5678@gmail.com",
-"deekshyabadal@gmail.com",
-];
+const TEACHER_EMAIL = "sajanaranjitkar64@gmail.com";
 
 const LoginPanel = () => {
   const { setUser, showUserLogin, setShowUserLogin } = useAppContext();
