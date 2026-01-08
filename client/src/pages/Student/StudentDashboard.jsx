@@ -19,12 +19,12 @@ const StudentDashboard = () => {
   const navigate = useNavigate();
   const { selectedSubject, user } = useAppContext();
   console.log(user._id)
-  if(!user||!user._id){
+  if (!user || !user._id) {
     toast.error('user not found')
     console.error('nothing')
     return;
   }
-  const userId=user._id;
+  const userId = user._id;
 
   const [teamStatus, setTeamStatus] = useState("Not Joined");
   const [teamName, setTeamName] = useState("");
@@ -132,7 +132,7 @@ const StudentDashboard = () => {
 
         {/* STATUS CARDS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
-          <div className="bg-white rounded-2xl shadow-sm p-6 border">
+          <div className="bg-white rounded-2xl shadow-sm p-6 border hover:shadow-md transition">
             <div className="flex items-center gap-4">
               <div className={`p-3 ${teamInfo.bgColor} rounded-xl`}>
                 {teamInfo.icon}
@@ -157,9 +157,9 @@ const StudentDashboard = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm p-6 border">
+          <div className="bg-white rounded-2xl shadow-sm p-6 border hover:shadow-md transition">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-100 rounded-xl">
+              <div className="p-3 bg-purple-100 rounded-xl  ">
                 <FileText className="text-purple-600" size={28} />
               </div>
               <div>
@@ -173,7 +173,7 @@ const StudentDashboard = () => {
             disabled={!teamId}
             onClick={() => navigate(`/student/member/${teamId}`)}
             className={`bg-white rounded-2xl shadow-sm p-6 border flex items-center gap-4
-              ${teamId ? "hover:shadow-md" : "opacity-60 cursor-not-allowed"}`}
+              ${teamId ? "hover:shadow-md transition" : "opacity-60 cursor-not-allowed"}`}
           >
             <div className="p-3 bg-blue-100 rounded-xl">
               <Users className="text-blue-600" size={28} />
@@ -186,17 +186,27 @@ const StudentDashboard = () => {
             </div>
           </button>
 
-          <div className="bg-white rounded-2xl shadow-sm p-6 border">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-orange-100 rounded-xl">
-                <Calendar className="text-orange-600" size={28} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Log Entries</p>
-                {/*<p className="text-lg font-bold">2 entries</p>*/}
-              </div>
+          <button
+            disabled={teamStatus !== "Joined"}
+            onClick={() => navigate("/student/logsheet")}
+            className={`bg-white rounded-2xl shadow-sm p-6 border flex items-center gap-4  transition text-left
+    ${teamStatus === "Joined"
+                ? "hover:shadow-md cursor-pointer"
+                : "opacity-60 cursor-not-allowed"
+              }`}
+          >
+            <div className="p-3 bg-orange-100 rounded-xl">
+              <Calendar className="text-orange-600" size={28} />
             </div>
-          </div>
+            <div>
+              <p className="text-sm text-gray-600">Log Entries</p>
+              <p className="text-xs text-gray-500">
+                {teamStatus === "Joined"
+                  ? "View & add logs"
+                  : "Join a team first"}
+              </p>
+            </div>
+          </button>
         </div>
 
         {/* ✅ QUICK ACTIONS — ONLY IF IN TEAM */}

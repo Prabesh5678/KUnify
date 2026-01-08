@@ -97,7 +97,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          <form onSubmit={handleSubmit} className="p-4 space-y-1">
             {error && (
               <div className="bg-red-50 text-red-700 p-3 rounded-xl">
                 {error}
@@ -144,7 +144,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
                 Activity (max {activityLimit} chars)
               </label>
               <textarea
-                rows={3}
+                rows={2}
                 value={activity}
                 maxLength={activityLimit}
                 onChange={(e) => setActivity(e.target.value)}
@@ -161,7 +161,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
                 Outcome (max {outcomeLimit} chars)
               </label>
               <textarea
-                rows={4}
+                rows={3}
                 value={outcome}
                 maxLength={outcomeLimit}
                 onChange={(e) => setOutcome(e.target.value)}

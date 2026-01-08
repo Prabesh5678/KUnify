@@ -47,7 +47,17 @@ const Logsheet = () => {
     }
   };
 
+  const groupLogsByWeek = (logs) => {
+    return logs.reduce((acc, log) => {
+      const week = log.week || "Unknown Week";
+      if (!acc[week]) acc[week] = [];
+      acc[week].push(log);
+      return acc;
+    }, {});
+  };
+
   const logsToShow = activeTab === "my" ? myLogs : teamLogs;
+  const groupedLogs = groupLogsByWeek(logsToShow);
 
   // Edit log
   const handleEdit = (log) => {
@@ -121,22 +131,20 @@ const Logsheet = () => {
       <div className="max-w-5xl mx-auto flex gap-3 mb-8 px-4">
         <button
           onClick={() => setActiveTab("my")}
-          className={`px-5 py-2 rounded-full font-medium transition cursor-pointer ${
-            activeTab === "my"
-              ? "bg-primary text-white shadow"
-              : "bg-white text-gray-600 border hover:bg-gray-50"
-          }`}
+          className={`px-5 py-2 rounded-full font-medium transition cursor-pointer ${activeTab === "my"
+            ? "bg-primary text-white shadow"
+            : "bg-white text-gray-600 border hover:bg-gray-50"
+            }`}
         >
           My Logs
         </button>
 
         <button
           onClick={() => setActiveTab("team")}
-          className={`px-5 py-2 rounded-full font-medium transition cursor-pointer ${
-            activeTab === "team"
-              ? "bg-primary text-white shadow"
-              : "bg-white text-gray-600 border hover:bg-gray-50"
-          }`}
+          className={`px-5 py-2 rounded-full font-medium transition cursor-pointer ${activeTab === "team"
+            ? "bg-primary text-white shadow"
+            : "bg-white text-gray-600 border hover:bg-gray-50"
+            }`}
         >
           Team Logs
         </button>
@@ -144,58 +152,75 @@ const Logsheet = () => {
 
       {/* Logs */}
       <div className="max-w-5xl mx-auto space-y-5 px-4">
-        {logsToShow.length === 0 && (
+        {Object.keys(groupedLogs).length === 0 && (
           <p className="text-gray-500 text-center py-10">No logs found</p>
         )}
 
-        {logsToShow.map((log) => (
-          <div
-            key={log._id}
-            className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition"
-          >
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-semibold text-gray-800">
-                {new Date(log.date).toLocaleDateString()} | WEEK - {log.week}
-              </h3>
 
-              {activeTab === "team" && (
-                <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                  {log.createdBy?.name || "User"}
-                </span>
-              )}
-            </div>
+        {Object.keys(groupedLogs).length === 0 && (
+          <p className="text-gray-500 text-center py-10">No logs found</p>
+        )}
 
-            <div className="space-y-2">
-              <p className="text-gray-700">
-                <span className="font-semibold text-blue-600">Activity:</span>{" "}
-                {renderText(log.activity, activityLimit, log._id + "_activity")}
-              </p>
+        {Object.entries(groupedLogs)
+          .sort((a, b) => Number(a[0]) - Number(b[0]))
+          .map(([week, logs]) => (
+            <div key={week} className="space-y-4">
+              {/* Week Header */}
+              <h2 className="text-xl font-bold text-gray-700 border-b pb-1 ml-2">
+                Week {week}
+              </h2>
 
-              <p className="text-gray-700">
-                <span className="font-semibold text-green-600">Outcome:</span>{" "}
-                {renderText(log.outcome, outcomeLimit, log._id + "_outcome")}
-              </p>
-            </div>
-
-            {activeTab === "my" && (
-              <div className="flex justify-end gap-3 mt-3">
-                <button
-                  className="text-blue-600 font-semibold cursor-pointer "
-                  onClick={() => handleEdit(log)}
+              {logs.map((log) => (
+                <div
+                  key={log._id}
+                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition"
                 >
-                  Edit
-                </button>
-                <button
-                  className="text-red-600 font-semibold cursor-pointer "
-                  onClick={() => handleDelete(log._id)}
-                >
-                  Delete
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-semibold text-gray-800">
+                      {new Date(log.date).toLocaleDateString()}
+                    </h3>
+
+                    {activeTab === "team" && (
+                      <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
+                        {log.createdBy?.name || "User"}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-gray-700">
+                      <span className="font-semibold text-blue-600">Activity:</span>{" "}
+                      {renderText(log.activity, activityLimit, log._id + "_activity")}
+                    </p>
+
+                    <p className="text-gray-700">
+                      <span className="font-semibold text-green-600">Outcome:</span>{" "}
+                      {renderText(log.outcome, outcomeLimit, log._id + "_outcome")}
+                    </p>
+                  </div>
+
+                  {activeTab === "my" && (
+                    <div className="flex justify-end gap-3 mt-3">
+                      <button
+                        className="text-blue-600 font-semibold cursor-pointer"
+                        onClick={() => handleEdit(log)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="text-red-600 font-semibold cursor-pointer"
+                        onClick={() => handleDelete(log._id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
       </div>
+
 
       {/* Add/Edit Modal */}
       <AddLogEntryModal
