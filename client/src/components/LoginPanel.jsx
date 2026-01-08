@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 
-const ADMIN_EMAIL = ["deekshyabadal@gmail.com","subhechhakarkee@gmail.com",'grocerease6699@gmail.com'];
+const ADMIN_EMAIL = ["deekshyabadal@gmail.com","subhechhakarkee@gmail.com"];
 const TEACHER_EMAIL = [
   "deekshyabadal@gmail.com",
   "subhechhakarkee@gmail.com",
@@ -75,13 +75,18 @@ const LoginPanel = () => {
           email: decoded.email,
           picture: decoded.picture,
           role: "teacher",
-        };
-
+        };console.log(teacherUser)
+        const {data}=await axios.post('/api/teacher/google-signin',teacherUser)
+        if(data.success){
         setUser(teacherUser);
         setShowUserLogin(false);
 
         navigate("/teacher/dashboard", { replace: true });
-        toast.success("Teacher login successful!");
+        toast.success("Teacher login successful!");}
+        else{
+          toast.error('failed')
+          console.error('hi')
+        }
         return;
       }
 
