@@ -15,10 +15,6 @@ const logEntrySchema = new mongoose.Schema(
       type: String, // e.g. "Week 1", "Week 2"
       required: true,
     },
-    logNumber: {
-      type: Number,
-      required: true,
-    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "student",

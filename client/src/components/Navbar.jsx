@@ -32,9 +32,13 @@ const Navbar = () => {
  };
   return (
     <nav className="fixed top-0 w-full z-50 transition-all duration-300 bg-primary text-secondary backdrop-blur-sm">
-      <div className="flex items-center justify-between px-6 md:px-16 py-3">
+      <div className="flex items-center justify-between px-6 md:px-16 py-3  ">
         <NavLink to="/" className="flex items-center gap-3">
-          <img src={assets.ku_logo} alt="ku_logo" className="h-12" />
+          <img
+            src={assets.ku_logo}
+            alt="ku_logo"
+            className="h-12 hover:cursor-pointer"
+          />
           <div className="leading-tight">
             <div className="text-lg font-semibold">Kathmandu University</div>
             <div className="text-sm">Student Project Management Platform</div>
@@ -71,10 +75,7 @@ const Navbar = () => {
               Login
             </button>
           ) : (
-            <button
-              onClick={logout}
-              className="cursor-pointer"
-            >
+            <button onClick={logout} className="cursor-pointer">
               Logout
             </button>
           )}
@@ -109,7 +110,11 @@ const Navbar = () => {
         <NavLink to="/" onClick={() => setOpen(false)} className="py-1">
           Home
         </NavLink>
-        <NavLink to="/about-spmp" onClick={() => setOpen(false)} className="py-1">
+        <NavLink
+          to="/about-spmp"
+          onClick={() => setOpen(false)}
+          className="py-1"
+        >
           About
         </NavLink>
         <NavLink to="/contact" onClick={() => setOpen(false)} className="py-1">

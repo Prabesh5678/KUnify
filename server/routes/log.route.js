@@ -33,14 +33,14 @@ logRouter.get(
 
 // Update log
 logRouter.put(
-  "/:logId",
+  "/update/:logId",
   authStudent,
   updateLog
 );
 
 // Delete log
 logRouter.delete(
-  "/:logId",
+  "/delete/:logId",
   authStudent,
   deleteLog
 );
