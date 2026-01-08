@@ -1,11 +1,18 @@
+import { useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { Eye, EyeOff } from "lucide-react";
 
-const ADMIN_EMAIL = ["deekshyabadal@gmail.com","subhechhakarkee@gmail.com",'grocerease6699@gmail.com'];
+const ADMIN_EMAIL = [
+  "deekshyabadal@gmail.com",
+  "subhechhakarkee@gmail.com",
+  "grocerease6699@gmail.com",
+];
+
 const TEACHER_EMAIL = [
   "deekshyabadal@gmail.com",
   "subhechhakarkee@gmail.com",
@@ -16,8 +23,15 @@ const LoginPanel = () => {
   const { setUser, showUserLogin, setShowUserLogin } = useAppContext();
   const navigate = useNavigate();
 
+  /* ===================== VISITING FACULTY STATES ===================== */
+  const [vfName, setVfName] = useState("");
+  const [vfPassword, setVfPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loadingVF, setLoadingVF] = useState(false);
+
   if (!showUserLogin) return null;
 
+  /* ===================== GOOGLE LOGIN HANDLER ===================== */
   const handleSuccess = async (credentialResponse) => {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
@@ -29,58 +43,44 @@ const LoginPanel = () => {
       }
 
       /* ===================== ADMIN LOGIN ===================== */
-      //THIS IS TO BE ACTUALLY INPLEMENTED SINCE NO BACKEND TEI BHAYERA THIS IS TEMPORRATY YEI HO DONOT DELETE THIS
+      if (ADMIN_EMAIL.includes(email.toLowerCase())) {
+        setUser({
+          name: decoded.name,
+          email: decoded.email,
+          picture: decoded.picture,
+          role: "admin",
+        });
 
-      /* if (email === ADMIN_EMAIL) {
-        const { data } = await axios.post("/api/admin/google-login", {
+        setShowUserLogin(false);
+        navigate("/admin/dashboard", { replace: true });
+        toast.success("Admin login successful!");
+        return;
+      }
+
+      /* ===================== TEACHER LOGIN ===================== */
+      if (
+        TEACHER_EMAIL.includes(email.toLowerCase()) ||
+        (email.endsWith("@ku.edu.np") && decoded.hd !== "student.ku.edu.np")
+      ) {
+        // TEMP API (replace later)
+        /*
+        await axios.post("/api/teacher/google-login", {
           name: decoded.name,
           email: decoded.email,
           googleId: decoded.sub,
           picture: decoded.picture,
         });
-
-        if (!data?.success || !data?.admin) {
-          toast.error("Admin login failed.");
-          return;
-        }
-
-        setUser(data.admin);
-        setShowUserLogin(false);
-
-        navigate("/admin/dashboard", { replace: true });
-        toast.success("Admin login successful!");
-        return;
-      }
         */
-      if (ADMIN_EMAIL.includes(email.toLowerCase())) {
-        const adminUser = {
-          name: decoded.name,
-          email: decoded.email,
-          picture: decoded.picture,
-          role: "admin",
-        };
 
-        setUser(adminUser);
-        setShowUserLogin(false);
-
-        navigate("/admin/dashboard", { replace: true });
-
-        toast.success("Admin login successful!");
-        return;
-      }
-      //Teacher Login
-      if (TEACHER_EMAIL.includes(email.toLowerCase())) {
-        const teacherUser = {
+        setUser({
           name: decoded.name,
           email: decoded.email,
           picture: decoded.picture,
           role: "teacher",
-        };
+        });
 
-        setUser(teacherUser);
         setShowUserLogin(false);
-
-        navigate("/teacher/dashboard", { replace: true });
+        navigate("/teacher/profilesetup", { replace: true });
         toast.success("Teacher login successful!");
         return;
       }
@@ -94,15 +94,13 @@ const LoginPanel = () => {
         return;
       }
 
-      const baseUser = {
-        name: decoded.name,
-        email: decoded.email,
-        googleId: decoded.sub,
-        picture: decoded.picture,
-      };
-
       const { data } = await axios.post("/api/student/google-signin", {
-        credential: baseUser,
+        credential: {
+          name: decoded.name,
+          email: decoded.email,
+          googleId: decoded.sub,
+          picture: decoded.picture,
+        },
       });
 
       if (!data?.success || !data?.student) {
@@ -110,12 +108,7 @@ const LoginPanel = () => {
         return;
       }
 
-      const studentWithRole = {
-        ...data.student,
-        role: "student", // ← ADD THIS
-      };
-
-      setUser(studentWithRole);
+      setUser({ ...data.student, role: "student" });
       setShowUserLogin(false);
 
       const profileCompleted = !!(
@@ -131,45 +124,129 @@ const LoginPanel = () => {
 
       toast.success("Login successful!");
     } catch (error) {
-      console.error("Login Error:", error);
+      console.error(error);
       toast.error("Something went wrong during login.");
     }
   };
 
-  const handleError = () => {
-    toast.error("Google Login Failed");
+  /* ===================== VISITING FACULTY HANDLERS ===================== */
+  const handleNameChange = (e) => {
+    const value = e.target.value
+      .replace(/[^A-Za-z\s]/g, "")
+      .toUpperCase();
+    setVfName(value);
+  };
+
+  const handleVisitingFacultyLogin = async () => {
+    if (!vfName || !vfPassword) {
+      toast.error("Please enter name and password");
+      return;
+    }
+
+    try {
+      setLoadingVF(true);
+
+      // TEMP API (replace later)
+      /*
+      const { data } = await axios.post("/api/teacher/visiting-login", {
+        name: vfName,
+        password: vfPassword,
+      });
+
+      if (!data?.success) {
+        toast.error(data?.message || "Login failed");
+        return;
+      }
+      */
+
+      setUser({
+        name: vfName,
+        role: "teacher",
+        type: "visiting",
+      });
+
+      setShowUserLogin(false);
+      navigate("/teacher/dashboard", { replace: true });
+      toast.success("Visiting faculty login successful");
+    } catch (error) {
+      toast.error("Login failed");
+    } finally {
+      setLoadingVF(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
-      <div className="w-full max-w-md rounded-xl bg-[#111] text-gray-100 shadow-2xl border border-gray-800 px-8 py-10 relative">
-        <h1 className="text-center text-xl font-semibold mb-8">
-          Continue with
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="w-full max-w-xl rounded-xl bg-[#111] text-gray-100 shadow-2xl border border-gray-800 px-10 py-10 relative">
+        <h1 className="text-center text-2xl font-semibold mb-6">
+          Login to Student Project Management Platform
         </h1>
 
-        <div className="flex justify-center mb-8">
+        {/* GOOGLE LOGIN */}
+        <div className="flex justify-center mb-6">
           <GoogleLogin
             onSuccess={handleSuccess}
-            onError={handleError}
+            onError={() => toast.error("Google Login Failed")}
             useOneTap={false}
-            text="Continue_with"
-            shape="rectangular"
-            width="260"
+            width="280"
           />
         </div>
 
-        <p className="text-sm text-center text-gray-300 mb-2">
-          Kathmandu University students can log in using their official KU email
-          (e.g.,{" "}
-          <span className="text-gray-100">username@student.ku.edu.np</span>
-          ).
-        </p>
+        {/* INFO */}
+        <div className="text-sm text-gray-300 space-y-2 mb-6">
+          <p>
+            <span className="font-semibold text-gray-100">Students:</span>{" "}
+            Use your student mail ending with <span className="text-gray-100">@student.ku.edu.np to continue</span>
+          </p>
+          <p>
+            <span className="font-semibold text-gray-100">Teachers:</span>{" "}
+            Use your teacher mail ending with <span className="text-gray-100">@ku.edu.np to continue</span>
+          </p>
+        </div>
 
-        <p className="text-sm text-center text-gray-300 mb-8">
-          Click <span className="font-semibold">“Login with KU Email”</span> to
-          enter the Student Project Management Platform.
-        </p>
+        {/* VISITING FACULTY LOGIN */}
+        <div className="border-t border-gray-800 pt-6">
+          <h2 className="text-lg font-semibold mb-4 text-center">
+            Visiting Faculty Login
+          </h2>
 
+          <div className="space-y-4">
+            <input
+              type="text"
+              placeholder="FULL NAME"
+              value={vfName}
+              onChange={handleNameChange}
+              className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] border border-gray-700 focus:ring-2 focus:ring-primary outline-none"
+            />
+
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={vfPassword}
+                onChange={(e) => setVfPassword(e.target.value)}
+                className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] border border-gray-700 focus:ring-2 focus:ring-primary outline-none pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <button
+              onClick={handleVisitingFacultyLogin}
+              disabled={loadingVF}
+              className="w-full bg-primary hover:bg-primary/90 text-white py-2 rounded-md font-medium transition disabled:opacity-50"
+            >
+              {loadingVF ? "Logging in..." : "Login as Visiting Faculty"}
+            </button>
+          </div>
+        </div>
+
+        {/* CLOSE */}
         <button
           onClick={() => setShowUserLogin(false)}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-lg"

@@ -38,7 +38,7 @@ import TeacherRequests from "./pages/Teacher/Requests";
 import TeacherTeams from "./pages/Teacher/Teams";
 import TeacherDeficits from "./pages/Teacher/Deficits";
 import TeacherSettings from "./pages/Teacher/Settings";
-
+import TeacherProfileSetup from "./pages/Teacher/TeacherProfileSetup";
 const App = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -117,9 +117,9 @@ const App = () => {
               ) : user?.role === "admin" ? (
                 <Navigate to="/admin/dashboard" replace />
               ) : user?.role === "teacher"
-                ? (<Navigate to="/teacher/dashboard" replace />): (
-                <Navigate to="/" replace />
-              )
+                ? (<Navigate to="/teacher/profilesetup" replace />) : (
+                  <Navigate to="/" replace />
+                )
             }
           />
 
@@ -155,6 +155,7 @@ const App = () => {
               <Route path="teams" element={<TeacherTeams />} />
               <Route path="deficits" element={<TeacherDeficits />} />
               <Route path="settings" element={<TeacherSettings />} />
+              <Route path="profilesetup" element={<TeacherProfileSetup />} />
             </Route>
           </Route>
 
