@@ -117,7 +117,7 @@ const App = () => {
               ) : user?.role === "admin" ? (
                 <Navigate to="/admin/dashboard" replace />
               ) : user?.role === "teacher"
-                ? (<Navigate to="/teacher/profilesetup" replace />) : (
+                ? (<Navigate to="/teacher/dashboard" replace />) : (
                   <Navigate to="/" replace />
                 )
             }

@@ -4,6 +4,7 @@ import "dotenv/config";
 import connectDB from "./configs/db.config.js";
 import cookieParser from "cookie-parser";
 import studentRouter from "./routes/student.route.js";
+import teacherRouter from "./routes/teacher.route.js";
 import teamRouter from "./routes/team.route.js";
 import logRouter from "./routes/log.route.js";
 import proposalRouter from './routes/proposal.route.js';
@@ -42,6 +43,7 @@ app.use(cookieParser());
 app.get("/", (_, res) => res.send("API is working"));
 
 app.use('/api/student',studentRouter);
+app.use('/api/teacher',teacherRouter);
 app.use('/api/team',teamRouter);
 app.use("/api/log", logRouter);
 app.use('/api/proposal', proposalRouter);
