@@ -13,6 +13,7 @@ const Logsheet = () => {
   const [activeTab, setActiveTab] = useState("my"); // my | team
   const [editLog, setEditLog] = useState(null);
   const [expandedLogs, setExpandedLogs] = useState({}); // Tracks expanded logs
+  const [selectedUser, setSelectedUser] = useState("all");
 
   const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, id: null });
 
@@ -26,6 +27,13 @@ const Logsheet = () => {
     if (activeTab === "my") fetchMyLogs();
     else fetchTeamLogs();
   }, [activeTab]);
+
+  useEffect(() => {
+  if (activeTab === "my") {
+    setSelectedUser("all");
+  }
+}, [activeTab]);
+
 
   const fetchMyLogs = async () => {
     try {
@@ -47,6 +55,15 @@ const Logsheet = () => {
     }
   };
 
+  const uniqueUsers = [
+    ...new Map(
+      teamLogs
+        .filter(log => log.createdBy)
+        .map(log => [log.createdBy._id, log.createdBy])
+    ).values(),
+  ].sort((a, b) => a.name.localeCompare(b.name));
+
+
   const groupLogsByWeek = (logs) => {
     return logs.reduce((acc, log) => {
       const week = log.week || "Unknown Week";
@@ -56,7 +73,15 @@ const Logsheet = () => {
     }, {});
   };
 
-  const logsToShow = activeTab === "my" ? myLogs : teamLogs;
+  const logsToShow =
+    activeTab === "my"
+      ? myLogs
+      : selectedUser === "all"
+        ? teamLogs
+        : teamLogs.filter(
+          log => log.createdBy?._id === selectedUser
+        );
+
   const groupedLogs = groupLogsByWeek(logsToShow);
 
   // Edit log
@@ -128,35 +153,49 @@ const Logsheet = () => {
       </div>
 
       {/* Tabs */}
-      <div className="max-w-5xl mx-auto flex gap-3 mb-8 px-4">
-        <button
-          onClick={() => setActiveTab("my")}
-          className={`px-5 py-2 rounded-full font-medium transition cursor-pointer ${activeTab === "my"
-            ? "bg-primary text-white shadow"
-            : "bg-white text-gray-600 border hover:bg-gray-50"
-            }`}
-        >
-          My Logs
-        </button>
+      <div className="max-w-5xl mx-auto flex mb-8 px-4">
+        <div className="flex gap-3">
+          <button
+            onClick={() => setActiveTab("my")}
+            className={`px-5 py-2 rounded-full font-medium transition cursor-pointer ${activeTab === "my"
+              ? "bg-primary text-white shadow"
+              : "bg-white text-gray-600 border hover:bg-gray-50"
+              }`}
+          >
+            My Logs
+          </button>
 
-        <button
-          onClick={() => setActiveTab("team")}
-          className={`px-5 py-2 rounded-full font-medium transition cursor-pointer ${activeTab === "team"
-            ? "bg-primary text-white shadow"
-            : "bg-white text-gray-600 border hover:bg-gray-50"
-            }`}
-        >
-          Team Logs
-        </button>
+          <button
+            onClick={() => setActiveTab("team")}
+            className={`px-5 py-2 rounded-full font-medium transition cursor-pointer ${activeTab === "team"
+              ? "bg-primary text-white shadow"
+              : "bg-white text-gray-600 border hover:bg-gray-50"
+              }`}
+          >
+            Team Logs
+          </button>
+        </div>
+
+        {activeTab === "team" && (
+          <select
+            value={selectedUser}
+            onChange={(e) => setSelectedUser(e.target.value)}
+            className="ml-auto
+      bg-white px-4 py-2 rounded-xl shadow border text-gray-700"
+          >
+            <option value="all">All Users</option>
+
+            {uniqueUsers.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.name}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       {/* Logs */}
       <div className="max-w-5xl mx-auto space-y-5 px-4">
-        {Object.keys(groupedLogs).length === 0 && (
-          <p className="text-gray-500 text-center py-10">No logs found</p>
-        )}
-
-
         {Object.keys(groupedLogs).length === 0 && (
           <p className="text-gray-500 text-center py-10">No logs found</p>
         )}
