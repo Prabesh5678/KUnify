@@ -82,3 +82,38 @@ export const logout = async (_, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+// /api/teacher/setup-profile
+export const profileCompletion = async (req, res) => {
+  try {
+    console.log("hi");
+    const teacherId = req.teacherId;
+    console.log(req.body);
+    const form = req.body;
+    console.log(form);
+    if (
+      !form.phone||!form.specialization
+    ) {
+      return res.json({ success: false, message: "Provide all the details!" });
+    } else {
+      const teacher = await Teacher.findByIdAndUpdate(
+        teacherId,
+        {
+          phone: form.phone,
+          specialization: form.specialization,
+        },
+        { runValidators: true, new: true }
+      );
+      console.log(teacher);
+      return res.json({
+        success: true,
+        message: "Profile completed successfully",
+        teacher,
+      });
+    }
+  } catch (error) {
+    console.error(error.stack)
+  return res.json({
+    success: false,
+    message: "Couldnot complete the profile."
+  });
+}};
