@@ -10,10 +10,12 @@ import { Eye, EyeOff } from "lucide-react";
 const ADMIN_EMAIL = [
   // "deekshyabadal@gmail.com",
   "subhechhakarkee@gmail.com",
-  "grocerease6699@gmail.com",
+  // "grocerease6699@gmail.com",
 ];
 
 const TEACHER_EMAIL = [
+  "grocerease6699@gmail.com",
+
   "deekshyabadal@gmail.com",
   "subhechhakarkee@gmail.com",
   "grocerease6699@gmail.com",

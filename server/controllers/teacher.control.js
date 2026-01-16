@@ -1,4 +1,6 @@
 import Teacher from "../models/teacher.model.js";
+import jwt from "jsonwebtoken";
+
 // post /api/teacher/google-signin
 export const googleSignIn = async (req, res) => {
   try {
@@ -8,7 +10,7 @@ export const googleSignIn = async (req, res) => {
     }
 
 
-    // Check if student already exists
+    // Check if teacher already exists
     let teacher = await Teacher.findOne({ email: credential.email });
 
     if (!teacher) {
@@ -21,9 +23,9 @@ export const googleSignIn = async (req, res) => {
       await teacher.save();
     }
 
-    // // Generate JWT studentToken
+    // // Generate JWT teacherToken
 
-    const teacherToken = jwt.sign({ id: student._id }, process.env.JWT_SECRET, {
+    const teacherToken = jwt.sign({ id: teacher._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
 
@@ -38,12 +40,45 @@ export const googleSignIn = async (req, res) => {
     return res.json({
       success: true,
       message: "Google sign-in successful",
-      student,
+      teacher,
     });
   } catch (error) {
     return res.json({
       success: false,
       message: error.message,
     });
+  }
+};
+
+// Check auth: api/teacher/is-auth
+export const isAuth = async (req, res) => {
+  try {
+    // Get teacherId from req object (set by middleware), not req.body
+    const teacherId = req.teacherId;
+    let teacher;
+    if (req.query.populateTeam === "true") {
+      teacher = await Teacher.findById(teacherId).populate("teamId");
+    } else {
+      teacher = await Teacher.findById(teacherId);
+    }
+    return res.json({ success: true, teacher });
+  } catch (error) {
+    console.log(error.message);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Logout user: /api/teacher/logout
+export const logout = async (_, res) => {
+  try {
+    res.clearCookie("teacherToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    });
+    return res.json({ success: true, message: "logged out" });
+  } catch (error) {
+    console.log(error.message);
+    res.json({ success: false, message: error.message });
   }
 };
