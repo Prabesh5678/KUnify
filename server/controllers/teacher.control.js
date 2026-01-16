@@ -101,3 +101,35 @@ export const logout = (req, res) => {
     });
   }
 };
+// /api/teacher/setup-profile
+export const profileCompletion = async (req, res) => {
+  try {
+    const teacherId = req.teacherId;
+    const form = req.body;
+    if (
+      !form.phone||!form.specialization
+    ) {
+      return res.json({ success: false, message: "Provide all the details!" });
+    } else {
+      const teacher = await Teacher.findByIdAndUpdate(
+        teacherId,
+        {
+          phone: form.phone,
+          specialization: form.specialization,
+        },
+        { runValidators: true, new: true }
+      );
+      console.log(teacher);
+      return res.json({
+        success: true,
+        message: "Profile completed successfully",
+        teacher,
+      });
+    }
+  } catch (error) {
+    console.error(error.stack)
+  return res.json({
+    success: false,
+    message: "Couldnot complete the profile."
+  });
+}};

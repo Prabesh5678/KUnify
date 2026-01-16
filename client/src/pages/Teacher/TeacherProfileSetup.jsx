@@ -63,7 +63,7 @@ const TeacherProfileSetup = () => {
       setLoading(true);
 
       // Send data to backend
-      const { data } = await axios.post("/api/teacher/profile-setup", {
+      const { data } = await axios.put("/api/teacher/setup-profile", {
         phone,
         specialization,
       });
