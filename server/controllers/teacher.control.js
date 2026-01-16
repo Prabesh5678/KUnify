@@ -1,35 +1,38 @@
-import Teacher from "../models/teacher.model.js";
 import jwt from "jsonwebtoken";
+import Teacher from "../models/teacher.model.js";
 
-// post /api/teacher/google-signin
+// POST /api/teacher/google-signin
 export const googleSignIn = async (req, res) => {
   try {
-    const credential = req.body.credential; //or {credential}
+    const credential = req.body.credential; // or { credential }
+
     if (!credential) {
       return res.json({ success: false, message: "No credential provided" });
     }
 
-
     // Check if teacher already exists
     let teacher = await Teacher.findOne({ email: credential.email });
 
+    // Create teacher if not exists
     if (!teacher) {
       teacher = new Teacher({
         name: credential.name || "KU teacher",
         email: credential.email,
         googleId: credential.googleId,
         avatar: credential.picture,
+        isProfileCompleted: false, // default
       });
       await teacher.save();
     }
 
-    // // Generate JWT teacherToken
+    // Generate JWT (FIXED: teacher._id, not student._id)
+    const teacherToken = jwt.sign(
+      { id: teacher._id, role: "teacher" },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-    const teacherToken = jwt.sign({ id: teacher._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    // // Set cookie (adjust options based on your setup)
+    // Set cookie
     res.cookie("teacherToken", teacherToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -37,10 +40,38 @@ export const googleSignIn = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
+    // Send proper user object
     return res.json({
       success: true,
       message: "Google sign-in successful",
-      teacher,
+      user: {
+        id: teacher._id,
+        name: teacher.name,
+        email: teacher.email,
+        avatar: teacher.avatar,
+        role: "teacher",
+        isProfileCompleted: teacher.isProfileCompleted,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Check if teacher is authenticated
+export const isAuth = (req, res) => {
+  try {
+    if (!req.user) {
+      return res.json({ success: false, message: "Not authenticated" });
+    }
+
+    res.json({
+      success: true,
+      user: req.user,
     });
   } catch (error) {
     return res.json({
@@ -50,35 +81,23 @@ export const googleSignIn = async (req, res) => {
   }
 };
 
-// Check auth: api/teacher/is-auth
-export const isAuth = async (req, res) => {
-  try {
-    // Get teacherId from req object (set by middleware), not req.body
-    const teacherId = req.teacherId;
-    let teacher;
-    if (req.query.populateTeam === "true") {
-      teacher = await Teacher.findById(teacherId).populate("teamId");
-    } else {
-      teacher = await Teacher.findById(teacherId);
-    }
-    return res.json({ success: true, teacher });
-  } catch (error) {
-    console.log(error.message);
-    res.json({ success: false, message: error.message });
-  }
-};
-
-// Logout user: /api/teacher/logout
-export const logout = async (_, res) => {
+// Logout teacher
+export const logout = (req, res) => {
   try {
     res.clearCookie("teacherToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
-    return res.json({ success: true, message: "logged out" });
+
+    res.json({
+      success: true,
+      message: "Logged out successfully",
+    });
   } catch (error) {
-    console.log(error.message);
-    res.json({ success: false, message: error.message });
+    return res.json({
+      success: false,
+      message: error.message,
+    });
   }
 };

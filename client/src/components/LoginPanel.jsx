@@ -59,48 +59,45 @@ const LoginPanel = () => {
 
       /* ===================== TEACHER LOGIN ===================== */
 
-    /* ===================== TEACHER LOGIN ===================== */
-if (
-  TEACHER_EMAIL.includes(email.toLowerCase()) ||
-  (email.endsWith("@ku.edu.np") && decoded.hd !== "student.ku.edu.np")
-) {
-  const teacherUser = {
-    name: decoded.name,
-    email: decoded.email,
-    picture: decoded.picture,
-    googleId: decoded.sub,
-  };
+      /* ===================== TEACHER LOGIN ===================== */
+      if (
+        TEACHER_EMAIL.includes(email.toLowerCase()) ||
+        (email.endsWith("@ku.edu.np") && decoded.hd !== "student.ku.edu.np")
+      ) {
+        const teacherUser = {
+          name: decoded.name,
+          email: decoded.email,
+          picture: decoded.picture,
+          googleId: decoded.sub,
+        };
 
-  console.log("Teacher payload:", teacherUser);
+        console.log("Teacher payload:", teacherUser);
 
-  const { data } = await axios.post("/api/teacher/google-signin", {
-    credential: teacherUser,
-  });
+        const { data } = await axios.post("/api/teacher/google-signin", {
+          credential: teacherUser,
+        });
 
-  console.log("Teacher API response:", data);
+        console.log("Teacher API response:", data);
+        if (data?.success) {
+          setUser(data.user);   // backend already sends role & isProfileCompleted
 
-  if (data?.success) {
-    setUser({
-      ...data.teacher,
-      role: "teacher",
-    });
+          setShowUserLogin(false);
 
-    setShowUserLogin(false);
+          navigate(
+            data.user.isProfileCompleted
+              ? "/teacher/dashboard"
+              : "/teacher/profilesetup",
+            { replace: true }
+          );
 
-    navigate(
-      data.teacher.profileCompleted
-        ? "/teacher/dashboard"
-        : "/teacher/complete-profile",
-      { replace: true }
-    );
+          toast.success("Teacher login successful!");
+        } else {
+          toast.error(data?.message || "Failed to login teacher");
+        }
 
-    toast.success("Teacher login successful!");
-  } else {
-    toast.error(data?.message || "Failed to login teacher");
-  }
 
-  return;
-}
+        return;
+      }
 
       /* ===================== STUDENT LOGIN ===================== */
       if (
