@@ -16,7 +16,7 @@ const TeacherProfileSetup = () => {
 
   const [loading, setLoading] = useState(false);
 
-  /* 🔒 Only teachers allowed */
+  /*  Only teachers allowed */
   useEffect(() => {
     if (!user || user.role !== "teacher") {
       navigate("/", { replace: true });

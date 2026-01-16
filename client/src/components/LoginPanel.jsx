@@ -19,6 +19,7 @@ const TEACHER_EMAIL = [
   "deekshyabadal@gmail.com",
   "subhechhakarkee@gmail.com",
   "grocerease6699@gmail.com",
+  "sajanaranjitkar64@gmail.com"
 ];
 
 const LoginPanel = () => {
