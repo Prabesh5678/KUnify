@@ -95,13 +95,7 @@ export default function TeacherSidebar() {
           )}
         </div>
 
-        <button
-          onClick={logout}
-          className="p-2 rounded-md hover:bg-[#1b2334]"
-          title="Logout"
-        >
-          <LogOut size={18} />
-        </button>
+       
       </div>
     </aside>
   );

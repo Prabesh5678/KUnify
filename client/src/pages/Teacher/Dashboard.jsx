@@ -1,4 +1,6 @@
 import axios from "axios";
+import TeacherHeader from "../../components/Teacher/TeacherHeader";
+
 export default function TeacherDashboard() {
   return (
     <div>
