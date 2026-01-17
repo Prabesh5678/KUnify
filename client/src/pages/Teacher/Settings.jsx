@@ -72,7 +72,7 @@ export default function TeacherSettings() {
       setSaving(true);
 
       await axios.put(
-        "/api/teacher/profile",
+        "/api/teacher/setup-profile",
         { phone: form.phone, specialization: form.specialization },
         { withCredentials: true }
       );
