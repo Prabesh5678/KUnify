@@ -39,6 +39,8 @@ import TeacherTeams from "./pages/Teacher/Teams";
 import TeacherDeficits from "./pages/Teacher/Deficits";
 import TeacherSettings from "./pages/Teacher/Settings";
 import TeacherProfileSetup from "./pages/Teacher/TeacherProfileSetup";
+import TeacherHeader from "./components/Teacher/TeacherHeader";
+import TeamDetails from "./pages/Teacher/TeamDetail";
 const App = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -168,6 +170,8 @@ const App = () => {
               <Route path="deficits" element={<TeacherDeficits />} />
               <Route path="settings" element={<TeacherSettings />} />
               <Route path="profilesetup" element={<TeacherProfileSetup />} />
+               <Route path="teamdetails/:id" element={<TeamDetails />} />
+              
             </Route>
           </Route>
 

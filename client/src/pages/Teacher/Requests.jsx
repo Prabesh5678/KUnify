@@ -30,6 +30,24 @@ export default function TeamRequests() {
         "This project provides a secure online exam platform with live monitoring.",
       proposalFileUrl: "/pdf_image.png",
     },
+     {
+      _id: "req2",
+      teamName: "Team Beta",
+      projectTitle: "Online Examination System",
+      keywords: "Web, Security, Proctoring",
+      abstract:
+        "This project provides a secure online exam platform with live monitoring.",
+      proposalFileUrl: "/pdf_image.png",
+    },
+     {
+      _id: "req2",
+      teamName: "Team Beta",
+      projectTitle: "Online Examination System",
+      keywords: "Web, Security, Proctoring",
+      abstract:
+        "This project provides a secure online exam platform with live monitoring.",
+      proposalFileUrl: "/pdf_image.png",
+    },
   ];
   // ------------------------------------------------------------
 
@@ -91,6 +109,7 @@ export default function TeamRequests() {
     <div className="min-h-screen bg-primary/10">
       <TeacherHeader teacherName="Teacher" />
 
+      {/* MAIN CONTENT */}
       <div className="p-6 max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Team Requests</h1>
 
@@ -99,7 +118,8 @@ export default function TeamRequests() {
         {requests.length === 0 ? (
           <p className="text-gray-500">No team requests available.</p>
         ) : (
-          <div className="space-y-4">
+          // 1. Make this section scroll-safe with max height + overflow
+          <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
             {requests.map((req) => (
               <div
                 key={req._id}
