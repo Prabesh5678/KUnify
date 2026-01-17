@@ -1,4 +1,4 @@
-
+/*
 import jwt from "jsonwebtoken";
 
 const authTeacher = async (req, res, next) => {
@@ -14,6 +14,42 @@ const authTeacher = async (req, res, next) => {
     } else {
       return res.json({ success: false, message: "not authorized" });
     }
+    next();
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+export default authTeacher;
+*/
+import jwt from "jsonwebtoken";
+import Teacher from "../models/teacher.model.js";
+
+const authTeacher = async (req, res, next) => {
+  const { teacherToken } = req.cookies;
+
+  if (!teacherToken) {
+    return res.json({ success: false, message: "Unauthorized" });
+  }
+
+  try {
+    const tokenDecode = jwt.verify(teacherToken, process.env.JWT_SECRET);
+
+    if (!tokenDecode?.id) {
+      return res.json({ success: false, message: "Not authorized" });
+    }
+
+    // Fetch teacher from DB
+    const teacher = await Teacher.findById(tokenDecode.id);
+
+    if (!teacher) {
+      return res.json({ success: false, message: "Teacher not found" });
+    }
+
+    // IMPORTANT: set both req.user and req.teacherId
+    req.user = teacher;
+    req.teacherId = teacher._id;
+
     next();
   } catch (error) {
     return res.json({ success: false, message: error.message });

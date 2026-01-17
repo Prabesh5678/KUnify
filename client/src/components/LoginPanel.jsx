@@ -7,6 +7,10 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { Eye, EyeOff } from "lucide-react";
 
+
+axios.defaults.withCredentials = true;
+
+
 const ADMIN_EMAIL = [
   // "deekshyabadal@gmail.com",
   "subhechhakarkee@gmail.com",
@@ -75,8 +79,9 @@ const LoginPanel = () => {
         console.log("Teacher payload:", teacherUser);
 
         const { data } = await axios.post("/api/teacher/google-signin", {
-          credential: teacherUser,
-        });
+          credential: teacherUser},
+            { withCredentials: true }
+        );
 
         console.log("Teacher API response:", data);
         if (data?.success) {

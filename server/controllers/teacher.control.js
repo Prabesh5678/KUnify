@@ -87,7 +87,8 @@ export const logout = (req, res) => {
     res.clearCookie("teacherToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      //sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      sameSite: "lax",
     });
 
     res.json({
@@ -107,7 +108,7 @@ export const profileCompletion = async (req, res) => {
     const teacherId = req.teacherId;
     const form = req.body;
     if (
-      !form.phone||!form.specialization
+      !form.phone || !form.specialization
     ) {
       return res.json({ success: false, message: "Provide all the details!" });
     } else {
@@ -116,20 +117,23 @@ export const profileCompletion = async (req, res) => {
         {
           phone: form.phone,
           specialization: form.specialization,
+          isProfileCompleted: true,
         },
+
         { runValidators: true, new: true }
       );
       console.log(teacher);
       return res.json({
         success: true,
         message: "Profile completed successfully",
-        teacher,
+        user: teacher,
       });
     }
   } catch (error) {
     console.error(error.stack)
-  return res.json({
-    success: false,
-    message: "Couldnot complete the profile."
-  });
-}};
+    return res.json({
+      success: false,
+      message: "Couldnot complete the profile."
+    });
+  }
+};

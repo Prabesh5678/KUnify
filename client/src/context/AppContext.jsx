@@ -27,61 +27,106 @@ export const AppContextProvider = ({ children }) => {
 
   // ✅ Selected subject
   const [selectedSubject, setSelectedSubject] = useState(null);
-  //team code
-   const [teamCode, setTeamCode] = useState(null);
+
+  // Team code
+  const [teamCode, setTeamCode] = useState(null);
 
   // 3️⃣ Fetch logged-in user
   const fetchUser = async () => {
     try {
       setLoadingUser(true);
-      const { data } = await axios.get("/api/student/is-auth?populateTeam=true", { withCredentials: true });
 
-      if (data?.student) {
-const userData = {
-  ...data.student,
-  role: "student",
-};        setUser(userData);
+      /* ===================== TEACHER AUTH ===================== */
+      /* ===================== TEACHER AUTH ===================== */
+      try {
+        const teacherRes = await axios.get("/api/teacher/is-auth");
 
-        // Compute profile setup
-        const profileDone = !!(
-          userData.department &&
-          userData.semester &&
-          userData.rollNumber &&
-          userData.subjectCode
-        );
-        setProfileSetupDone(profileDone);
+        console.log("Teacher API response:", teacherRes.data);
 
-        // Set student profile
-        setStudentProfile({
-          department: userData.department,
-          semester: userData.semester,
-          rollNumber: userData.rollNumber,
-          subjectCode: userData.subjectCode
+        if (teacherRes.data?.success && teacherRes.data?.user) {
+          const teacherUser = {
+            ...teacherRes.data.user,
+            role: "teacher",
+          };
+
+          // Compute profile completion
+          const profileDone = teacherUser.isProfileCompleted === true;
+
+          setUser(teacherUser);
+          setIsTeacher(true);
+          setIsAdmin(false);
+          setProfileSetupDone(profileDone);
+
+          // Clear student-specific state
+          setStudentProfile(null);
+          setSelectedSubject(null);
+
+          setLoadingUser(false);
+          return;
+        }
+      } catch (err) {
+        console.warn("Teacher not authenticated:", err.response?.data || err.message);
+      }
+
+
+
+      /* ===================== STUDENT AUTH ===================== */
+      try {
+        const studentRes = await axios.get("/api/student/is-auth?populateTeam=true", {
+          withCredentials: true,
         });
 
-        // Set selected subject immediately from backend
-        setSelectedSubject(userData.subjectCode || null);
+        if (studentRes.data?.student) {
+          const userData = { ...studentRes.data.student, role: "student" };
+          setUser(userData);
 
-        // Roles
-        setIsTeacher(false);
-        setIsAdmin(false);
-      } else {
+          // Compute profile setup
+          const profileDone = !!(
+            userData.department &&
+            userData.semester &&
+            userData.rollNumber &&
+            userData.subjectCode
+          );
+          setProfileSetupDone(profileDone);
+
+          setStudentProfile({
+            department: userData.department,
+            semester: userData.semester,
+            rollNumber: userData.rollNumber,
+            subjectCode: userData.subjectCode,
+          });
+
+          setSelectedSubject(userData.subjectCode || null);
+
+          setIsTeacher(false);
+          setIsAdmin(false);
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        console.error("Student auth failed:", err.response?.data || err.message);
         setUser(null);
       }
     } catch (err) {
-      console.error("Failed to fetch user:", err);
+      console.error("Fetch user failed:", err);
       setUser(null);
     } finally {
       setLoadingUser(false);
     }
   };
 
+
   // 4️⃣ Refresh user helper
   const refreshUser = async () => {
     await fetchUser();
+
+
+
+    toast.success("Profile completed successfully!");
+
   };
 
-  // 5️⃣ Complete profile helper
+  // 5️⃣ Complete profile helper (student)
   const completeProfile = async (formData) => {
     try {
       const res = await axios.put("/api/student/setup-profile", formData, {
@@ -89,7 +134,6 @@ const userData = {
       });
       console.log("Profile updated:", res.data);
 
-      // Refresh user state after update
       await fetchUser();
     } catch (err) {
       console.error("Failed to complete profile:", err);
@@ -97,17 +141,17 @@ const userData = {
     }
   };
 
-  // 6️⃣ Save selected subject helper (instant + backend)
+  // 6️⃣ Save selected subject helper (student)
   const saveSelectedSubject = async (subject) => {
     try {
-      setSelectedSubject(subject); // update context immediately
-      setStudentProfile(prev => ({ ...prev, subjectCode: subject })); // keep profile consistent
+      setSelectedSubject(subject);
+      setStudentProfile((prev) => ({ ...prev, subjectCode: subject }));
 
-      // 🔹 Save to backend immediately
-      await axios.put("/api/student/profile-update", { subjectCode: subject }, {
-        withCredentials: true,
-      });
-
+      await axios.put(
+        "/api/student/profile-update",
+        { subjectCode: subject },
+        { withCredentials: true }
+      );
     } catch (err) {
       console.error("Failed to save selected subject:", err);
     }
@@ -118,32 +162,43 @@ const userData = {
     fetchUser();
   }, []);
 
-  // 10️⃣ Add leaveTeam helper
-const leaveTeam = async (teamId) => {
-  try {
-    const { data } = await axios.post(
-      `/api/team/${teamId}/leave`,
-      {},
-      { withCredentials: true }
-    );
+  // 8️⃣ Leave team helper
+  const leaveTeam = async (teamId) => {
+    try {
+      const { data } = await axios.post(
+        `/api/team/${teamId}/leave`,
+        {},
+        { withCredentials: true }
+      );
 
-    if (data.success) {
-      toast.success("You left the team successfully!");
-      // Refresh user to update team info
-      await fetchUser();
-      return true;
-    } else {
-      toast.error(data.message || "Failed to leave the team");
+      if (data.success) {
+        toast.success("You left the team successfully!");
+        await fetchUser();
+        return true;
+      } else {
+        toast.error(data.message || "Failed to leave the team");
+        return false;
+      }
+    } catch (err) {
+      console.error("Error leaving team:", err);
+      toast.error("Something went wrong while leaving the team");
       return false;
     }
-  } catch (err) {
-    console.error("Error leaving team:", err);
-    toast.error("Something went wrong while leaving the team");
-    return false;
-  }
-};
+  };
+  const logout = async () => {
+    try {
+      await axios.get("/api/teacher/logout", { withCredentials: true });
+      setUser(null);
+      setIsTeacher(false);
+      setProfileSetupDone(false);
+      toast.success("Logged out successfully!");
+      navigate("/", { replace: true });
+    } catch (err) {
+      toast.error("Logout failed");
+    }
+  };
 
-  // 8️⃣ Context value
+  // 9️⃣ Context value
   const value = {
     user,
     setUser,
@@ -167,12 +222,14 @@ const leaveTeam = async (teamId) => {
     setShowSignupPanel,
     navigate,
     leaveTeam,
-    teamCode, 
-    setTeamCode 
+    teamCode,
+    setTeamCode,
+    logout,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
-// 9️⃣ Custom hook
+// 🔟 Custom hook
 export const useAppContext = () => useContext(AppContext);
+

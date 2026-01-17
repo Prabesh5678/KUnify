@@ -1,26 +1,27 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 
-const TeacherGuard = () => {
-  const { user } = useAppContext();
-  const location = useLocation();
+export default function TeacherGuard() {
+  const { user, loadingUser } = useAppContext();
 
-  if (!user || user.role !== "teacher") {
-    return <Navigate to="/home" replace />;
+  if (loadingUser) return null;
+
+  if (!user) return <Navigate to="/" replace />;
+
+  if (user.role !== "teacher") {
+    return (
+      <Navigate
+        to={user.role === "student" ? "/student/home" : "/admin/dashboard"}
+        replace
+      />
+    );
   }
 
-  if (!user.isProfileCompleted) {
-    if (location.pathname !== "/teacher/profilesetup") {
-      return <Navigate to="/teacher/profilesetup" replace />;
-    }
-    return <Outlet />;
-  }
+  const profileDone = user?.isProfileCompleted === true;
 
-  if (user.isProfileCompleted && location.pathname === "/teacher/profilesetup") {
-    return <Navigate to="/teacher/dashboard" replace />;
+  if (!profileDone) {
+    return <Navigate to="/teacher/profilesetup" replace />;
   }
 
   return <Outlet />;
-};
-
-export default TeacherGuard;
+}

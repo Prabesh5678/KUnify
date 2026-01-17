@@ -5,7 +5,11 @@ const teacherSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   googleId:{type:String,unique:true,sparse:true},
   phone:{type:String,unique:true,default:null},
-  specialization:{type:String,unique:true,default:null}
+  specialization:{type:String,unique:true,default:null},
+   isProfileCompleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const Teacher = mongoose.models.teacher || mongoose.model('teacher', teacherSchema);

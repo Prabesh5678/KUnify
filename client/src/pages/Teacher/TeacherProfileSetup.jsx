@@ -5,7 +5,8 @@ import toast from "react-hot-toast";
 import axios from "axios";
 
 const TeacherProfileSetup = () => {
-  const { user, setUser } = useAppContext();
+  const { user, setUser, refreshUser } = useAppContext();
+
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -16,38 +17,49 @@ const TeacherProfileSetup = () => {
 
   const [loading, setLoading] = useState(false);
 
-  /*  Only teachers allowed */
+  // Only teachers allowed
   useEffect(() => {
-    if (!user || user.role !== "teacher") {
-      navigate("/", { replace: true });
-      return;
-    }
+  if (!user || user.role !== "teacher") {
+    navigate("/", { replace: true });
+    return;
+  }
 
-    // Prefill name
-    setForm((prev) => ({
+  if (user.isProfileCompleted) {
+    navigate("/teacher/dashboard", { replace: true });
+    return;
+  }
+
+  setForm((prev) => {
+    if (prev.name === user.name) return prev;
+    return {
       ...prev,
       name: user?.name || "",
-    }));
-  }, [user, navigate]);
+    };
+  });
+}, [user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Limit specialization field to 150 words
-    if (name === "specialization") {
-      const words = value.split(/\s+/); // split by whitespace
-      if (words.length > 150) return; // do not allow more than 150 words
+    // Phone: allow only numbers
+    if (name === "phone") {
+      if (!/^\d*$/.test(value)) return;
     }
 
-    setForm({ ...form, [name]: value });
+    // Specialization: limit to 150 words
+    if (name === "specialization") {
+      const words = value.trim().split(/\s+/);
+      if (words.length > 150) return;
+    }
+
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { phone, specialization } = form;
 
-    // Strict phone validation
-    const phoneRegex = /^\d{10}$/; // exactly 10 digits
+    const { phone, specialization } = form;
+    const phoneRegex = /^\d{10}$/;
 
     if (!phone || !specialization) {
       toast.error("Please fill all required fields");
@@ -55,39 +67,41 @@ const TeacherProfileSetup = () => {
     }
 
     if (!phoneRegex.test(phone)) {
-      toast.error("Phone number must be exactly 10 digits and contain only numbers");
+      toast.error("Phone number must be exactly 10 digits");
       return;
     }
 
     try {
       setLoading(true);
 
-      // Send data to backend
-      const { data } = await axios.put("/api/teacher/setup-profile", {
-        phone,
-        specialization,
-      });
+      const { data } = await axios.put(
+        "/api/teacher/setup-profile",
+        { phone, specialization },
+        { withCredentials: true }
+      );
 
       if (!data.success) {
-        throw new Error(data.message || "Failed to update profile");
+        throw new Error(data.message || "Failed to complete profile");
       }
 
-      // Update user context
-      setUser({
-        ...user,
-        phone,
-        specialization,
-        isProfileCompleted: true,
-      });
+      // ✅ Update user immediately
+      setUser(data.user);
 
       toast.success("Profile completed successfully!");
       navigate("/teacher/dashboard", { replace: true });
     } catch (error) {
+      console.error(error);
       toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
+
+
+
+  // ✅ Form validity
+  const isFormValid =
+    form.phone.trim() !== "" && form.specialization.trim() !== "";
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">
@@ -97,22 +111,25 @@ const TeacherProfileSetup = () => {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-
-          {/* Name Field */}
+          {/* Name */}
           <div>
-            <label className="block mb-1 font-medium text-primary700">Full Name</label>
+            <label className="block mb-1 font-medium text-primary-700">
+              Full Name
+            </label>
             <input
               type="text"
               name="name"
               value={form.name}
               readOnly
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-black cursor-not-allowed"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md text-black cursor-not-allowed bg-gray-100"
             />
           </div>
 
-          {/* Phone Number Field */}
+          {/* Phone */}
           <div>
-            <label className="block mb-1 font-medium text-primary-700">Phone Number</label>
+            <label className="block mb-1 font-medium text-primary-700">
+              Phone Number
+            </label>
             <input
               type="tel"
               name="phone"
@@ -124,26 +141,34 @@ const TeacherProfileSetup = () => {
             />
           </div>
 
-          {/* Specialization / Expertise Field */}
+          {/* Specialization */}
           <div>
-            <label className="block mb-1 font-medium text-primary-700">Specialization / Expertise</label>
+            <label className="block mb-1 font-medium text-primary-700">
+              Specialization / Expertise
+            </label>
             <textarea
               name="specialization"
-              placeholder="List your specializations and expertise (max 150 words)"
+              placeholder="List your expertise (max 150 words)"
               value={form.specialization}
               onChange={handleChange}
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <p className="text-xs text-gray-500 mt-1">
-              {form.specialization.split(/\s+/).filter(Boolean).length}/150 words
+              {form.specialization.trim().split(/\s+/).filter(Boolean).length}
+              /150 words
             </p>
           </div>
 
+          {/* Submit */}
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-primary hover:bg-primary/90 text-white py-2 rounded-md font-medium transition disabled:opacity-50 cursor-pointer"
+            disabled={!isFormValid || loading}
+            className={`w-full py-2 rounded-md font-medium transition
+              ${!isFormValid || loading
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-primary hover:bg-primary/90 text-white"
+              }`}
           >
             {loading ? "Saving..." : "Save & Continue"}
           </button>

@@ -64,32 +64,44 @@ const App = () => {
 
   // ✅ Global redirect logic
   useEffect(() => {
-    if (!user) return;
+  if (!user) return;
 
-    // Admin bypass
-    if (user.role === "admin") return;
+  // Admin bypass
+  if (user.role === "admin") return;
 
-    // Teacher bypass
-    if (user.role === "teacher") return;
+  // Teacher profile check
+ if (user.role === "teacher") {
+  const profileDone = !!user.isProfileCompleted;
 
-    // Student profile check
-    if (user.role === "student") {
-      const profileDone = !!(
-        user.department &&
-        user.semester &&
-        user.rollNumber &&
-        user.subjectCode
-      );
+  if (!profileDone && pathname !== "/teacher/profilesetup") {
+    navigate("/teacher/profilesetup", { replace: true });
+  }
 
-      if (!profileDone && pathname !== "/setup-profile") {
-        navigate("/setup-profile", { replace: true });
-      }
+  if (profileDone && pathname === "/teacher/profilesetup") {
+    navigate("/teacher/dashboard", { replace: true });
+  }
+  return;
+}
 
-      if (profileDone && (pathname === "/setup-profile" || pathname === "/")) {
-        navigate("/student/home", { replace: true });
-      }
+
+  // Student profile check
+  if (user.role === "student") {
+    const profileDone = !!(
+      user.department &&
+      user.semester &&
+      user.rollNumber &&
+      user.subjectCode
+    );
+
+    if (!profileDone && pathname !== "/setup-profile") {
+      navigate("/setup-profile", { replace: true });
     }
-  }, [user, pathname, navigate]);
+
+    if (profileDone && (pathname === "/setup-profile" || pathname === "/")) {
+      navigate("/student/home", { replace: true });
+    }
+  }
+}, [user, pathname, navigate]);
 
   return (
     <>
