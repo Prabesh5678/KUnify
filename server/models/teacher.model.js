@@ -4,8 +4,8 @@ const teacherSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   googleId:{type:String,unique:true,sparse:true},
-  phone:{type:String,unique:true,default:null},
-  specialization:{type:String,unique:true,default:null},
+  phone:{type:String,unique:true,sparse:true},
+  specialization:{type:String,default:null},
    isProfileCompleted: {
     type: Boolean,
     default: false,
