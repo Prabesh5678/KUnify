@@ -6,6 +6,7 @@ export default function TeamDetails() {
 
   const [team, setTeam] = useState(null);
   const [logs, setLogs] = useState([]);
+  const [activeTab, setActiveTab] = useState("team");
 
   useEffect(() => {
     const teamData = {
@@ -33,7 +34,6 @@ export default function TeamDetails() {
 
   return (
     <div className="h-screen bg-gray-50 flex">
-      {/* MAIN CONTENT */}
       <div className="flex-1 overflow-hidden">
         <div className="p-6 h-full flex flex-col">
           <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 flex-1 overflow-hidden">
@@ -48,37 +48,72 @@ export default function TeamDetails() {
               </span>
             </div>
 
-            {/* CONTENT */}
-            <div className="mt-6 h-full flex flex-col overflow-hidden">
-              {/* Scrollable area */}
-              <div className="overflow-auto pr-2">
+            {/* TABS */}
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setActiveTab("team")}
+                className={`px-5 py-2 rounded-xl font-medium shadow-md transition ${activeTab === "team"
+                  ? "bg-blue-600 text-white shadow-blue-200"
+                  : "bg-white text-gray-600 hover:shadow-lg"
+                  }`}
+              >
+                Team Details
+              </button>
 
-                {/* 2-column layout */}
+              <button
+                onClick={() => setActiveTab("logs")}
+                className={`px-5 py-2 rounded-xl font-medium shadow-md transition ${activeTab === "logs"
+                  ? "bg-blue-600 text-white shadow-blue-200"
+                  : "bg-white text-gray-600 hover:shadow-lg"
+                  }`}
+              >
+                Logsheets
+              </button>
+            </div>
+
+            {/* CONTENT */}
+            <div className="mt-6 h-full overflow-auto pr-2">
+
+              {/* TEAM DETAILS TAB */}
+              {activeTab === "team" && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                  {/* Project Details */}
+                  {/* PROJECT DETAILS */}
                   <div className="rounded-xl border border-purple-200 p-5 shadow-sm">
                     <h2 className="font-bold text-lg text-blue-700">
                       Project Details
                     </h2>
 
                     <div className="mt-4">
-                      <h3 className="font-semibold text-primary-600">Project Title</h3>
-                      <p className="text-gray-700">{team.projectTitle}</p>
+                      <h3 className="font-semibold text-gray-600">
+                        Project Title
+                      </h3>
+                      <p className="text-gray-700">
+                        {team.projectTitle}
+                      </p>
                     </div>
 
                     <div className="mt-4">
-                      <h3 className="font-semibold text-primary-600">Abstract</h3>
-                      <p className="text-gray-700">{team.abstract}</p>
+                      <h3 className="font-semibold text-gray-600">
+                        Abstract
+                      </h3>
+                      <p className="text-gray-700">
+                        {team.abstract}
+                      </p>
                     </div>
 
                     <div className="mt-4">
-                      <h3 className="font-semibold text-primary-600">Keywords</h3>
-                      <p className="text-gray-700">{team.keywords.join(", ")}</p>
+                      <h3 className="font-semibold text-gray-600">
+                        Keywords
+                      </h3>
+                      <p className="text-gray-700">
+                        {team.keywords.join(", ")}
+                      </p>
                     </div>
-
                     <div className="mt-4">
-                      <h3 className="font-semibold text-primary-600">Proposal File</h3>
+                      <h3 className="font-semibold text-gray-600">
+                        Proposal File
+                      </h3>
                       <a
                         href={`/${team.proposalFile}`}
                         download
@@ -89,7 +124,7 @@ export default function TeamDetails() {
                     </div>
                   </div>
 
-                  {/* Team Members */}
+                  {/* TEAM MEMBERS */}
                   <div className="rounded-xl border border-blue-200 p-5 shadow-sm">
                     <h2 className="font-bold text-lg text-blue-700">
                       Team Members
@@ -101,7 +136,9 @@ export default function TeamDetails() {
                           key={idx}
                           className="bg-gray-50 rounded-lg border border-gray-200 p-3"
                         >
-                          <p className="font-semibold text-gray-700">{member}</p>
+                          <p className="font-semibold text-gray-700">
+                            {member}
+                          </p>
                           <p className="text-xs text-gray-400">
                             Member #{idx + 1}
                           </p>
@@ -109,35 +146,41 @@ export default function TeamDetails() {
                       ))}
                     </div>
                   </div>
-                </div>
 
-                {/* Logs below */}
-                <div className="mt-6 rounded-xl border border-green-200 p-5 shadow-sm">
+                </div>
+              )}
+
+              {/* LOGSHEETS TAB */}
+              {activeTab === "logs" && (
+                <div className="rounded-xl border border-green-200 p-5 shadow-sm">
                   <h2 className="font-bold text-lg text-blue-700">
                     Logs
                   </h2>
 
-                  <div className="mt-4 max-h-64 overflow-y-auto space-y-3 pr-2">
+                  <div className="mt-4 max-h-96 overflow-y-auto space-y-3 pr-2">
                     {logs.map((log) => (
                       <div
                         key={log.id}
                         className="border border-gray-200 rounded-lg p-3 bg-white"
                       >
                         <div className="flex justify-between items-center">
-                          <p className="text-sm text-gray-500">{log.date}</p>
+                          <p className="text-sm text-gray-500">
+                            {log.date}
+                          </p>
                           <span className="text-xs text-gray-400">
                             Log #{log.id}
                           </span>
                         </div>
-                        <p className="mt-2 text-gray-700">{log.message}</p>
+                        <p className="mt-2 text-gray-700">
+                          {log.message}
+                        </p>
                       </div>
                     ))}
                   </div>
                 </div>
+              )}
 
-              </div>
             </div>
-
           </div>
         </div>
       </div>

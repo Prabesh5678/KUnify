@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CheckCircle, Clock, Users, FileText, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const stats = [
   {
@@ -40,7 +41,7 @@ const stats = [
 const teams = [
   {
     name: "Team Alpha",
-    project: "E-Learning Platform",
+    project: "Smart Attendance System",
     members: 5,
     category: "Web Development",
     logs: 15,
@@ -48,11 +49,30 @@ const teams = [
     proposed: "2025-12-28",
     updated: "2025-12-30",
   },
+  {
+    id: 2,
+    name: "Team Beta",
+    project: "Online Examination System",
+    members: 4,
+    category: "Software Engineering",
+    logs: 10,
+    status: "approved",
+    proposed: "2025-12-20",
+    updated: "2025-12-29",
+  },
 ];
 
 export default function TeacherProjects() {
+  const navigate = useNavigate();
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [tab, setTab] = useState("teams");
+  const [search, setSearch] = useState("");
+
+  const filteredTeams = teams.filter(
+    (team) =>
+      team.name.toLowerCase().includes(search.toLowerCase()) ||
+      team.project.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="flex flex-col h-full w-full p-6">
@@ -89,49 +109,31 @@ export default function TeacherProjects() {
       </div>
 
 
-      {/* Search + Tabs */}
+      {/* Search*/}
       <div className="flex justify-between items-center mt-8">
         <div className="relative w-72">
           <input
             type="text"
-            placeholder="Search teams"
-            className="cursor-pointer bg-white rounded-2xl pl-10 py-2
-           shadow-md hover:shadow-lg transition-shadow"
-
+            placeholder="Search teams or projects"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="cursor-pointer bg-white rounded-2xl pl-10 py-2 shadow-md hover:shadow-lg transition-shadow w-full"
           />
           <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
-        </div>
-
-        <div className="flex gap-3">
-          <button
-            onClick={() => setTab("teams")}
-            className={`px-5 py-2 rounded-xl font-medium shadow-md transition ${tab === "teams"
-                ? "bg-blue-600 text-white shadow-blue-200"
-                : "bg-white text-gray-600 hover:shadow-lg"
-              }`}
-          >
-            Teams
-          </button>
-          <button
-            onClick={() => setTab("logsheets")}
-            className={`px-5 py-2 rounded-xl font-medium shadow-md transition ${tab === "logsheets"
-                ? "bg-blue-600 text-white shadow-blue-200"
-                : "bg-white text-gray-600 hover:shadow-lg"
-              }`}
-          >
-            Logsheets
-          </button>
         </div>
       </div>
 
       {/* Main content */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        {/* Left section: team cards */}
-        <div className="space-y-4">
-          {teams.map((team, index) => (
+        {filteredTeams.length === 0 ? (
+          <p className="text-gray-500 col-span-2 text-center">
+            No teams found
+          </p>
+        ) : (
+          filteredTeams.map((team) => (
             <div
-              key={index}
-              onClick={() => setSelectedTeam(team)}
+              key={team.id}
+              onClick={() => navigate(`/teacher/teamdetails/${team.id}`)}
               className="cursor-pointer bg-white rounded-2xl p-5 
            shadow-md hover:shadow-lg transition-shadow"
             >
@@ -156,29 +158,8 @@ export default function TeacherProjects() {
                 <span>Last update: {team.updated}</span>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Right section: details */}
-        <div className="rounded-2xl bg-white shadow-md 
-           flex items-center justify-center"
-        >
-          {!selectedTeam ? (
-            <div className="text-center text-gray-400">
-              <FileText className="w-14 h-14 mx-auto mb-3" />
-              Select a team project to view details
-            </div>
-          ) : (
-            <div className="p-6 w-full">
-              <h2 className="text-xl font-bold">{selectedTeam.name}</h2>
-              <p className="text-gray-500">{selectedTeam.project}</p>
-              <hr className="my-4" />
-              <p>Members: {selectedTeam.members}</p>
-              <p>Category: {selectedTeam.category}</p>
-              <p>Logsheets: {selectedTeam.logs}</p>
-            </div>
-          )}
-        </div>
+          ))
+        )}
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ import { Eye, EyeOff } from "lucide-react";
 axios.defaults.withCredentials = true;
 
 const ADMIN_EMAIL = [
-  "subhechhakarkee@gmail.com",
+  "ssubhechhakarkee@gmail.com",
 ];
 
 const TEACHER_EMAIL = [

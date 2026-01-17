@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import TeacherHeader from "../../components/Teacher/TeacherHeader";
+
 
 export default function TeamRequests() {
   const [loading, setLoading] = useState(true);
@@ -22,24 +22,6 @@ export default function TeamRequests() {
       proposalFileUrl: "/pdf_image.png",
     },
     {
-      _id: "req2",
-      teamName: "Team Beta",
-      projectTitle: "Online Examination System",
-      keywords: "Web, Security, Proctoring",
-      abstract:
-        "This project provides a secure online exam platform with live monitoring.",
-      proposalFileUrl: "/pdf_image.png",
-    },
-     {
-      _id: "req2",
-      teamName: "Team Beta",
-      projectTitle: "Online Examination System",
-      keywords: "Web, Security, Proctoring",
-      abstract:
-        "This project provides a secure online exam platform with live monitoring.",
-      proposalFileUrl: "/pdf_image.png",
-    },
-     {
       _id: "req2",
       teamName: "Team Beta",
       projectTitle: "Online Examination System",
@@ -107,8 +89,7 @@ export default function TeamRequests() {
 
   return (
     <div className="min-h-screen bg-primary/10">
-      <TeacherHeader teacherName="Teacher" />
-
+      
       {/* MAIN CONTENT */}
       <div className="p-6 max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Team Requests</h1>
