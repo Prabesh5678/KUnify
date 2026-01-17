@@ -1,10 +1,11 @@
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 
 export default function TeacherGuard() {
   const { user, loadingUser } = useAppContext();
+  const location = useLocation();
 
-  if (loadingUser) return null;
+  if (loadingUser) return null; // wait for user context
 
   if (!user) return <Navigate to="/" replace />;
 
@@ -17,9 +18,11 @@ export default function TeacherGuard() {
     );
   }
 
-  const profileDone = user?.isProfileCompleted === true;
+  // Prevent redirect loop on /teacher/profilesetup
+  const isProfileSetupPage = location.pathname === "/teacher/profilesetup";
+  const profileDone = user.isProfileCompleted === true;
 
-  if (!profileDone) {
+  if (!profileDone && !isProfileSetupPage) {
     return <Navigate to="/teacher/profilesetup" replace />;
   }
 

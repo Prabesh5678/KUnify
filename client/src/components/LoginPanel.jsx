@@ -7,22 +7,16 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { Eye, EyeOff } from "lucide-react";
 
-
 axios.defaults.withCredentials = true;
 
-
 const ADMIN_EMAIL = [
-  // "deekshyabadal@gmail.com",
   "subhechhakarkee@gmail.com",
-  // "grocerease6699@gmail.com",
 ];
 
 const TEACHER_EMAIL = [
   "grocerease6699@gmail.com",
-
   "deekshyabadal@gmail.com",
   "subhechhakarkee@gmail.com",
-  "grocerease6699@gmail.com",
   "sajanaranjitkar64@gmail.com"
 ];
 
@@ -63,8 +57,6 @@ const LoginPanel = () => {
       }
 
       /* ===================== TEACHER LOGIN ===================== */
-
-      /* ===================== TEACHER LOGIN ===================== */
       if (
         TEACHER_EMAIL.includes(email.toLowerCase()) ||
         (email.endsWith("@ku.edu.np") && decoded.hd !== "student.ku.edu.np")
@@ -78,29 +70,42 @@ const LoginPanel = () => {
 
         console.log("Teacher payload:", teacherUser);
 
-        const { data } = await axios.post("/api/teacher/google-signin", {
-          credential: teacherUser},
-            { withCredentials: true }
+        const { data } = await axios.post(
+          "/api/teacher/google-signin",
+          { credential: teacherUser },
+          { withCredentials: true }
         );
 
         console.log("Teacher API response:", data);
-        if (data?.success) {
-          setUser(data.user);   // backend already sends role & isProfileCompleted
 
+        if (data?.success && data.user) {
+          const backendUser = data.user;
+
+          const userWithRole = {
+            _id: backendUser._id || backendUser.id,   // support both
+            name: backendUser.name,
+            email: backendUser.email,
+            picture: backendUser.avatar || backendUser.picture || "",
+            role: backendUser.role || "teacher",     // force role
+            isProfileCompleted: backendUser.isProfileCompleted || false,
+            specialization: backendUser.specialization || null,
+            googleId: backendUser.googleId || "",
+          };
+
+          setUser(userWithRole);
           setShowUserLogin(false);
 
           navigate(
-            data.user.isProfileCompleted
+            userWithRole.isProfileCompleted
               ? "/teacher/dashboard"
               : "/teacher/profilesetup",
             { replace: true }
           );
 
-          toast.success("Teacher login successful!");
+          console.log("User in context after login:", userWithRole);
         } else {
-          toast.error(data?.message || "Failed to login teacher");
+          toast.error(data?.message || "Teacher login failed");
         }
-
 
         return;
       }
@@ -151,9 +156,7 @@ const LoginPanel = () => {
 
   /* ===================== VISITING FACULTY ===================== */
   const handleNameChange = (e) => {
-    const value = e.target.value
-      .replace(/[^A-Za-z\s]/g, "")
-      .toUpperCase();
+    const value = e.target.value.replace(/[^A-Za-z\s]/g, "").toUpperCase();
     setVfName(value);
   };
 
