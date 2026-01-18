@@ -47,7 +47,8 @@ export const uploadProposalToCloudinary = (buffer, options = {}) => {
     cloudinary.uploader.upload_stream(
       {
         folder: 'kunify/proposals',
-        resource_type: 'raw',
+        resource_type: 'image',
+        format:'pdf',
         ...options
       },
       (error, result) => {

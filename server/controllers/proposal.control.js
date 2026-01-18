@@ -38,8 +38,17 @@ export const uploadProposal = async (req, res) => {
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: "kunify/proposals",
       resource_type: "raw",
-      format:'pdf'
+      type: "upload",
+      access_mode: "public",
+      flags: "attachment",
+      transformation: [{ flags: "attachment" }],
     });
+    let secureUrl = result.secure_url;
+
+    // If URL contains /upload/, inject fl_attachment flag
+    if (secureUrl.includes("/upload/")) {
+      secureUrl = secureUrl.replace("/upload/", "/upload/fl_attachment/");
+    }
 
     const proposal = await Proposal.create({
       projectTitle: title,
@@ -48,7 +57,7 @@ export const uploadProposal = async (req, res) => {
       // submittedBy: studentId,
       team: team._id,
       proposalFile: {
-        url: result.secure_url,
+        url: secureUrl,
         publicId: result.public_id,
       },
     });

@@ -41,6 +41,7 @@ import TeacherSettings from "./pages/Teacher/Settings";
 import TeacherProfileSetup from "./pages/Teacher/TeacherProfileSetup";
 import TeacherHeader from "./components/Teacher/TeacherHeader";
 import TeamDetails from "./pages/Teacher/TeamDetail";
+import PDFViewer from "./components/PDFViewer";
 const App = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -130,10 +131,11 @@ const App = () => {
                 <ProfileSetup />
               ) : user?.role === "admin" ? (
                 <Navigate to="/admin/dashboard" replace />
-              ) : user?.role === "teacher"
-                ? (<Navigate to="/teacher/dashboard" replace />) : (
-                  <Navigate to="/" replace />
-                )
+              ) : user?.role === "teacher" ? (
+                <Navigate to="/teacher/dashboard" replace />
+              ) : (
+                <Navigate to="/" replace />
+              )
             }
           />
 
@@ -141,16 +143,21 @@ const App = () => {
           <Route element={<StudentGuard />}>
             <Route path="/student/waiting" element={<WaitingPage />} />
             <Route path="/student/home" element={<StudentHome />} />
-            <Route path="/student/team-members" element={<StudentTeamMembers />} />
+            <Route
+              path="/student/team-members"
+              element={<StudentTeamMembers />}
+            />
             <Route path="/student/dashboard" element={<StudentDashboard />} />
             <Route path="/student/guidelines" element={<GuidelinesPage />} />
-            <Route path="/student/requestsupervisor/:teamId" element={<Request />} />
-
+            <Route path="/view-pdf" element={<PDFViewer />} />
+            <Route
+              path="/student/requestsupervisor/:teamId"
+              element={<Request />}
+            />
             <Route path="/student/logsheet" element={<Logsheet />} />
             <Route path="/student/profile" element={<MyProfile />} />
             <Route path="/student/member/:teamId" element={<TeamMembers />} />
           </Route>
-
 
           {/* Admin Routes */}
           <Route element={<AdminGuard />}>
@@ -170,8 +177,7 @@ const App = () => {
               <Route path="deficits" element={<TeacherDeficits />} />
               <Route path="settings" element={<TeacherSettings />} />
               <Route path="profilesetup" element={<TeacherProfileSetup />} />
-               <Route path="teamdetails/:id" element={<TeamDetails />} />
-              
+              <Route path="teamdetails/:id" element={<TeamDetails />} />
             </Route>
           </Route>
 
