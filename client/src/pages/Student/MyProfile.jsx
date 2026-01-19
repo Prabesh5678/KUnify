@@ -148,7 +148,7 @@ const MyProfile = () => {
             <div className="flex flex-col">
               <label className="font-semibold text-primary">Department</label>
               {editing ? (
-                <select
+               <select
                   name="department"
                   value={form.department}
                   onChange={handleChange}

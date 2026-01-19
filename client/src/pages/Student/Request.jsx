@@ -332,11 +332,39 @@
 // export default Request;
 
 import React, { useState, useEffect } from "react";
-import { NotebookPen, ExternalLink } from "lucide-react";
+import { NotebookPen, ExternalLink, ChevronDown } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
+
+const SUPERVISORS = [
+  {
+    id: "sup1",
+    name: "Dr. Ram Prasad Sharma",
+    specialization: "Artificial Intelligence, Machine Learning, Data Mining",
+  },
+  {
+    id: "sup2",
+    name: "Prof. Sita Adhikari",
+    specialization: "Web Technologies, Cloud Computing, Distributed Systems",
+  },
+  {
+    id: "sup3",
+    name: "Dr. Bikash Gautam",
+    specialization: "Cyber Security, Cryptography, Network Security",
+  },
+  {
+    id: "sup4",
+    name: "Prof. Nisha Koirala",
+    specialization: "IoT, Embedded Systems, Robotics",
+  },
+  {
+    id: "sup5",
+    name: "Dr. Anil Shrestha",
+    specialization: "Data Science, Big Data Analytics, Deep Learning",
+  },
+];
 
 const Request = () => {
   const { teamId } = useParams();
@@ -355,6 +383,13 @@ const Request = () => {
   const [uploadStatus, setUploadStatus] = useState("idle");
   const [isProposalSubmitted, setIsProposalSubmitted] = useState(false);
   const [existingProposal, setExistingProposal] = useState(null);
+
+  // Supervisors
+  const [supervisors, setSupervisors] = useState([]);
+  const [selectedSupervisor, setSelectedSupervisor] = useState("");
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [hoveredSupervisor, setHoveredSupervisor] = useState(null);
 
   // Fetch existing proposal
   useEffect(() => {
@@ -389,6 +424,25 @@ const Request = () => {
 
     fetchTeamProposal();
   }, [teamId]);
+
+  useEffect(() => {
+    const fetchSupervisors = async () => {
+      try {
+        const { data } = await axios.get("/api/supervisors", {
+          withCredentials: true,
+        });
+
+        if (data.success) {
+          setSupervisors(data.supervisors);
+        }
+      } catch (error) {
+        console.error("Error fetching supervisors", error);
+      }
+    };
+
+    fetchSupervisors();
+  }, []);
+
 
   // Form validation
   const isFormInvalid =
@@ -545,73 +599,102 @@ const Request = () => {
               />
             </div>
 
-            {/* PDF Upload */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Upload Proposal (PDF only, max 2MB)
-              </label>
-              <label
-                className={`w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg ${
-                  isProposalSubmitted
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Supervisor Dropdown */}
+              <div className="relative">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Select Supervisor
+                </label>
+
+                {/* Dropdown button */}
+                <button
+                  type="button"
+                  disabled={isProposalSubmitted}
+                  onClick={() => setIsOpen(!isOpen)}
+                  className={`w-full flex items-center justify-between px-4 py-3 border rounded-lg bg-gray-100
+      ${isProposalSubmitted ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+    `}
+                >
+                  <span>
+                    {selectedSupervisor
+                      ? SUPERVISORS.find((s) => s.id === selectedSupervisor)?.name
+                      : "Select Supervisor"}
+                  </span>
+
+                  <ChevronDown
+                    size={20}
+                    className={`text-gray-600 transition-transform duration-200
+        ${isOpen ? "rotate-180" : ""}
+      `}
+                  />
+                </button>
+
+                {/* Dropdown list */}
+                {isOpen && !isProposalSubmitted && (
+                  <div className="absolute z-50 mt-2 w-full bg-white border rounded-lg shadow-lg">
+                    {SUPERVISORS.map((sup) => (
+                      <div
+                        key={sup.id}
+                        onClick={() => {
+                          setSelectedSupervisor(sup.id);
+                          setIsOpen(false);
+                        }}
+                        onMouseEnter={() => setHoveredSupervisor(sup)}
+                        onMouseLeave={() => setHoveredSupervisor(null)}
+                        className="relative px-4 py-2 cursor-pointer hover:bg-blue-50"
+                      >
+                        {sup.name}
+
+                        {/* Hover Tooltip */}
+                        {hoveredSupervisor?.id === sup.id && (
+                          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 w-64 bg-black text-white text-xs rounded-lg px-3 py-2 shadow-lg">
+                            <p className="font-semibold mb-1">Specialization</p>
+                            <p>{sup.specialization}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+
+              {/* PDF Upload */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Upload Proposal (PDF only, max 2MB)
+                </label>
+                <label
+                  className={`w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg ${isProposalSubmitted
                     ? "opacity-50 cursor-not-allowed"
                     : "cursor-pointer hover:bg-gray-200"
-                }`}
-              >
-                Choose File
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="application/pdf"
-                  disabled={isProposalSubmitted}
-                  onChange={(e) => handlePdfSelect(e.target.files[0])}
-                />
-              </label>
+                    }`}
+                >
+                  Choose File
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="application/pdf"
+                    disabled={isProposalSubmitted}
+                    onChange={(e) => handlePdfSelect(e.target.files[0])}
+                  />
+                </label>
 
-              {/* PDF info for newly selected file */}
-              {pdfFile && (
-                <div className="mt-4 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-800">
-                      {pdfFile.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Size: {(pdfFile.size / 1024).toFixed(2)} KB
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleViewPDF(pdfPreviewUrl, pdfFile.name)}
-                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
-                  >
-                    <ExternalLink size={16} />
-                    View
-                  </button>
-                </div>
-              )}
-
-              {/* PDF uploaded by team (already submitted) */}
-              {existingProposal &&
-                !pdfFile &&
-                existingProposal.proposalFile?.url && (
-                  <div className="mt-4 flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-3">
+                {/* PDF info for newly selected file */}
+                {pdfFile && (
+                  <div className="mt-4 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
                     <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-gray-800">
-                        {existingProposal.projectTitle || "Team Proposal"}
+                        {pdfFile.name}
                       </p>
-                      <p className="text-xs text-green-600">
-                        ✓ Submitted successfully
+                      <p className="text-xs text-gray-500">
+                        Size: {(pdfFile.size / 1024).toFixed(2)} KB
                       </p>
                     </div>
                     <button
                       type="button"
-                      onClick={() =>
-                        handleViewPDF(
-                          existingProposal.proposalFile.url,
-                          existingProposal.projectTitle || "Proposal",
-                        )
-                      }
+                      onClick={() => handleViewPDF(pdfPreviewUrl, pdfFile.name)}
                       className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
                     >
                       <ExternalLink size={16} />
@@ -619,6 +702,37 @@ const Request = () => {
                     </button>
                   </div>
                 )}
+
+                {/* PDF uploaded by team (already submitted) */}
+                {existingProposal &&
+                  !pdfFile &&
+                  existingProposal.proposalFile?.url && (
+                    <div className="mt-4 flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-3">
+                      <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-gray-800">
+                          {existingProposal.projectTitle || "Team Proposal"}
+                        </p>
+                        <p className="text-xs text-green-600">
+                          ✓ Submitted successfully
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleViewPDF(
+                            existingProposal.proposalFile.url,
+                            existingProposal.projectTitle || "Proposal",
+                          )
+                        }
+                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        <ExternalLink size={16} />
+                        View
+                      </button>
+                    </div>
+                  )}
+              </div>
             </div>
 
             {/* Submit Button */}
@@ -627,10 +741,9 @@ const Request = () => {
                 type="submit"
                 disabled={isFormInvalid || isProposalSubmitted}
                 className={`bg-primary text-white font-bold py-3.5 px-12 rounded-xl shadow-lg transition
-                  ${
-                    isFormInvalid || isProposalSubmitted
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-primary/70 hover:scale-105"
+                  ${isFormInvalid || isProposalSubmitted
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-primary/70 hover:scale-105"
                   }`}
               >
                 {uploadStatus === "uploading"
