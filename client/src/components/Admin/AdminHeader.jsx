@@ -8,7 +8,7 @@ const AdminHeader = ({ adminName = "Admin" }) => {
   const handleLogout = async () => {
     try {
       // API call only
-      await axios.post("/auth/logout");
+      await axios.post("/api/logout");
 
       // Redirect after successful logout
       navigate("/");

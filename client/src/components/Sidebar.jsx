@@ -25,7 +25,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     // clear session in context
     try {
       
-      const { data } = await axios.get("/api/student/logout");
+      const { data } = await axios.get("/api/logout");
       if (data.success) {
         setUser(null);
         

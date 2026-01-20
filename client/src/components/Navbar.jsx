@@ -18,7 +18,7 @@ const Navbar = () => {
   
  const logout = async () => {
    try {
-     const { data } = await axios.get("/api/student/logout");
+     const { data } = await axios.get("/api/logout");
      if (data.success) {
        toast.success(data.message);
        setUser(null);

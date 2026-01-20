@@ -86,20 +86,20 @@ export const isAuth = async (req, res) => {
   }
 };
 
-// Logout user: /api/student/logout
-export const logout = async (_, res) => {
-  try {
-    res.clearCookie("studentToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-    });
-    return res.json({ success: true, message: "logged out" });
-  } catch (error) {
-    console.log(error.message);
-    res.json({ success: false, message: error.message });
-  }
-};
+// // Logout user: /api/student/logout
+// export const logout = async (_, res) => {
+//   try {
+//     res.clearCookie("studentToken", {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === "production",
+//       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+//     });
+//     return res.json({ success: true, message: "logged out" });
+//   } catch (error) {
+//     console.log(error.message);
+//     res.json({ success: false, message: error.message });
+//   }
+// };
 // /api/student/setup-profile
 export const profileCompletion = async (req, res) => {
   try {

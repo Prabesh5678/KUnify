@@ -81,27 +81,27 @@ export const isAuth = (req, res) => {
   }
 };
 
-// Logout teacher
-export const logout = (req, res) => {
-  try {
-    res.clearCookie("teacherToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      //sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      sameSite: "lax",
-    });
+// // Logout teacher
+// export const logout = (req, res) => {
+//   try {
+//     res.clearCookie("teacherToken", {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === "production",
+//       //sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+//       sameSite: "lax",
+//     });
 
-    res.json({
-      success: true,
-      message: "Logged out successfully",
-    });
-  } catch (error) {
-    return res.json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+//     res.json({
+//       success: true,
+//       message: "Logged out successfully",
+//     });
+//   } catch (error) {
+//     return res.json({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// };
 // /api/teacher/setup-profile
 export const profileCompletion = async (req, res) => {
   try {

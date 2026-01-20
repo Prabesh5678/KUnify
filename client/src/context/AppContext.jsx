@@ -187,7 +187,7 @@ export const AppContextProvider = ({ children }) => {
   };
   const logout = async () => {
     try {
-      await axios.get("/api/teacher/logout", { withCredentials: true });
+      await axios.get("/api/logout", { withCredentials: true });
       setUser(null);
       setIsTeacher(false);
       setProfileSetupDone(false);

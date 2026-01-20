@@ -47,6 +47,22 @@ app.use('/api/teacher',teacherRouter);
 app.use('/api/team',teamRouter);
 app.use("/api/log", logRouter);
 app.use('/api/proposal', proposalRouter);
+app.get('/api/logout', (_,res)=>{
+  try {
+    const options = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    };
+    res.clearCookie("studentToken", options);
+    res.clearCookie("teacherToken", options);
+    res.clearCookie("adminToken", options);
+    return res.json({ success: true, message: "logged out" });
+  } catch (error) {
+    console.log(error.message);
+    res.json({ success: false, message: error.message });
+  }
+});
 
 
 // ✅ Start server

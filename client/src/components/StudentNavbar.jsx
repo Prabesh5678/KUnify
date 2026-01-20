@@ -24,7 +24,7 @@ const StudentNavbar = () => {
   ========================= */
   const logout = async () => {
     try {
-      const { data } = await axios.get("/api/student/logout", {
+      const { data } = await axios.get("/api/logout", {
         withCredentials: true,
       });
 
