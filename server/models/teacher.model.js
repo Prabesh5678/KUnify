@@ -10,12 +10,24 @@ const teacherSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  //  activeStatus: {
-  //   type: Boolean,  //leave it for admin
-  //   default: false,
-  // },
-  // maxCount:{type:Number,default:5},
-  // activeCount:{type:Number,default:0},
+   activeStatus: {
+    type: Boolean,  //leave it for admin
+    default: false,
+  },
+  maxCount:{type:Number,default:5},
+  activeCount:{type:Number,default:0},
+  pendingTeams:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'team'
+  }],
+  approvedTeams:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'team'
+  }],
+  assignedTeams:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'team'
+  }],
 });
 
 const Teacher =

@@ -63,7 +63,7 @@ const TeamMembers = () => {
       setActionLoading(memberId);
       const res = await axios.post(
         `/api/team/approve/${teamId}`,
-        { memberId, action },
+        { memberId, action,memberCount:approvedMembers.length },
         { withCredentials: true }
       );
 

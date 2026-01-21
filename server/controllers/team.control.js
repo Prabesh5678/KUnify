@@ -180,7 +180,7 @@ export const memberApprove = async (req, res) => {
   try {
     const leaderId = req.studentId;
     const { teamId } = req.params;
-    const { memberId, action } = req.body;
+    const { memberId, action,memberCount } = req.body;
 
     const team = await Team.findById(teamId);
     if (!team) {
@@ -200,6 +200,8 @@ export const memberApprove = async (req, res) => {
     }
 
     if (action === "approve") {
+      if(memberCount>=5)
+         return res.json({ success: false, message: "Max member reached!" });
       member.isApproved = true;
       await member.save();
       return res.json({ success: true, message: "Member approved!" });

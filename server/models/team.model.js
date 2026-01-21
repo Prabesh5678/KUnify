@@ -29,18 +29,15 @@ const teamSchema = new mongoose.Schema(
         ref: "student",
       },
     ],
-    maxMembers: {
-      type: Number,
-      default: 5,
-    },
     proposal: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "proposal",
       default: null,
     },
-    supervisorStatus:{type:String,default:'notApproved'},// notapproved,pending,teacherApproved,adminApproved
+    supervisorStatus: { type: String, default: "notApproved" }, // notapproved,pending,teacherApproved,adminApproved
+    supervisor: { type: mongoose.Schema.Types.ObjectId ,ref:'teacher'},
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Team = mongoose.models.team || mongoose.model("team", teamSchema);
