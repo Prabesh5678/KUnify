@@ -1,13 +1,19 @@
 import Proposal from "../models/proposal.model.js";
 import Team from "../models/team.model.js";
 import cloudinary from "../configs/cloudinary.config.js";
+import Teacher from "../models/teacher.model.js";
+import mongoose from "mongoose";
 
+// post /api/proposal/upload
 export const uploadProposal = async (req, res) => {
+  let session;
   try {
-    const { title, abstract, keywords } = req.body;
+    session = await mongoose.startSession();
+        session.startTransaction();
+    const { title, abstract, keywords,supervisor } = req.body;
     const {teamId}=req.params
     if(!teamId) return res.status(400).json({success:false, message: "An error occured!" });
-    if (!title || !abstract || !keywords) {
+    if (!title || !abstract || !keywords||!supervisor) {
       return res.status(400).json({success:false, message: "All fields are required" });
     }
 
@@ -34,6 +40,8 @@ export const uploadProposal = async (req, res) => {
         message: "Proposal already submitted by your team",
       });
     }
+    const teacher= await Teacher.findById(supervisor);
+    if(!teacher) return res.json({success:false,message:"Unable to find teacher!"})
 
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: "kunify/proposals",
@@ -50,7 +58,7 @@ export const uploadProposal = async (req, res) => {
       secureUrl = secureUrl.replace("/upload/", "/upload/fl_attachment/");
     }
 
-    const proposal = await Proposal.create({
+    const proposal = await Proposal.create([{
       projectTitle: title,
       abstract,
       projectKeyword: keywords,
@@ -60,19 +68,27 @@ export const uploadProposal = async (req, res) => {
         url: secureUrl,
         publicId: result.public_id,
       },
-    });
+    }],{session});
 
-    team.proposal = proposal._id;
-    await team.save();
+    team.proposal = proposal[0]._id;
+    team.supervisorStatus = 'pending';
+
+    teacher.pendingTeams.addToSet(teamId);
+    await Promise.all([team.save({session}),teacher.save({session})]) 
+        await session.commitTransaction();
+
 
     return res.status(201).json({
       success: true,
       message: "Proposal submitted successfully",
-      proposal,
+      proposal:proposal[0],
     });
   } catch (error) {
+        if (session) await session.abortTransaction();
     console.error(error.stack);
     return res.status(500).json({ message: "Server error" });
+  }finally {
+    if (session) session.endSession();
   }
 };
 

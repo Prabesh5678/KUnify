@@ -90,18 +90,20 @@ export const joinTeam = async (req, res) => {
     }
 
   
-    const needsApproval =
-      student.lastTeamId &&
-      student.lastTeamId.toString() === team._id.toString();
+    // const needsApproval =
+    //   student.lastTeamId &&
+    //   student.lastTeamId.toString() === team._id.toString();
 
     team.members.addToSet(studentId);
-    await team.save({ session });
-
+    
     student.teamId = team._id;
     student.isApproved = false;
     student.isTeamLeader = false;
-
-    await student.save({ session });
+    
+   await Promise.all([
+     team.save({ session }),
+    student.save({ session })
+  ]);
     await session.commitTransaction();
 
     return res.json({

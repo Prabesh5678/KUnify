@@ -338,33 +338,33 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 
-const SUPERVISORS = [
-  {
-    id: "sup1",
-    name: "Dr. Ram Prasad Sharma",
-    specialization: "Artificial Intelligence, Machine Learning, Data Mining",
-  },
-  {
-    id: "sup2",
-    name: "Prof. Sita Adhikari",
-    specialization: "Web Technologies, Cloud Computing, Distributed Systems",
-  },
-  {
-    id: "sup3",
-    name: "Dr. Bikash Gautam",
-    specialization: "Cyber Security, Cryptography, Network Security",
-  },
-  {
-    id: "sup4",
-    name: "Prof. Nisha Koirala",
-    specialization: "IoT, Embedded Systems, Robotics",
-  },
-  {
-    id: "sup5",
-    name: "Dr. Anil Shrestha",
-    specialization: "Data Science, Big Data Analytics, Deep Learning",
-  },
-];
+// const SUPERVISORS = [
+//   {
+//     id: "sup1",
+//     name: "Dr. Ram Prasad Sharma",
+//     specialization: "Artificial Intelligence, Machine Learning, Data Mining",
+//   },
+//   {
+//     id: "sup2",
+//     name: "Prof. Sita Adhikari",
+//     specialization: "Web Technologies, Cloud Computing, Distributed Systems",
+//   },
+//   {
+//     id: "sup3",
+//     name: "Dr. Bikash Gautam",
+//     specialization: "Cyber Security, Cryptography, Network Security",
+//   },
+//   {
+//     id: "sup4",
+//     name: "Prof. Nisha Koirala",
+//     specialization: "IoT, Embedded Systems, Robotics",
+//   },
+//   {
+//     id: "sup5",
+//     name: "Dr. Anil Shrestha",
+//     specialization: "Data Science, Big Data Analytics, Deep Learning",
+//   },
+// ];
 
 const Request = () => {
   const { teamId } = useParams();
@@ -428,12 +428,16 @@ const Request = () => {
   useEffect(() => {
     const fetchSupervisors = async () => {
       try {
-        const { data } = await axios.get("/api/supervisors", {
+        const { data } = await axios.get("/api/student/get-teachers", {
           withCredentials: true,
         });
 
         if (data.success) {
-          setSupervisors(data.supervisors);
+          setSupervisors(data.teachers);
+        }
+        else{
+          toast.error('Unable to find teachers')
+          console.error(data.message)
         }
       } catch (error) {
         console.error("Error fetching supervisors", error);
@@ -492,6 +496,7 @@ const Request = () => {
     formData.append("abstract", abstract);
     formData.append("keywords", keywords);
     formData.append("proposal", pdfFile);
+    formData.append("supervisor", selectedSupervisor);
 
     try {
       setUploadStatus("uploading");
@@ -617,7 +622,7 @@ const Request = () => {
                 >
                   <span>
                     {selectedSupervisor
-                      ? SUPERVISORS.find((s) => s.id === selectedSupervisor)?.name
+                      ? supervisors.find((s) => s._id === selectedSupervisor)?.name
                       : "Select Supervisor"}
                   </span>
 
@@ -632,11 +637,11 @@ const Request = () => {
                 {/* Dropdown list */}
                 {isOpen && !isProposalSubmitted && (
                   <div className="absolute z-50 mt-2 w-full bg-white border rounded-lg shadow-lg">
-                    {SUPERVISORS.map((sup) => (
+                    {supervisors.map((sup) => (
                       <div
-                        key={sup.id}
+                        key={sup._id}
                         onClick={() => {
-                          setSelectedSupervisor(sup.id);
+                          setSelectedSupervisor(sup._id);
                           setIsOpen(false);
                         }}
                         onMouseEnter={() => setHoveredSupervisor(sup)}
@@ -646,7 +651,7 @@ const Request = () => {
                         {sup.name}
 
                         {/* Hover Tooltip */}
-                        {hoveredSupervisor?.id === sup.id && (
+                        {hoveredSupervisor?._id === sup._id && (
                           <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 w-64 bg-black text-white text-xs rounded-lg px-3 py-2 shadow-lg">
                             <p className="font-semibold mb-1">Specialization</p>
                             <p>{sup.specialization}</p>

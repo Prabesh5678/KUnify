@@ -29,7 +29,7 @@ export const googleSignIn = async (req, res) => {
     const teacherToken = jwt.sign(
       { id: teacher._id, role: "teacher" },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     // Set cookie
@@ -63,15 +63,18 @@ export const googleSignIn = async (req, res) => {
 };
 
 // Check if teacher is authenticated
-export const isAuth = (req, res) => {
+export const isAuth = async (req, res) => {
   try {
-    if (!req.user) {
+    if (!req.teacherId) {
       return res.json({ success: false, message: "Not authenticated" });
     }
-
+    const teacher = await Teacher.findById(req.teacherId);
+    if (!teacher) {
+      return res.json({ success: false, message: "Teacher not found" });
+    }
     res.json({
       success: true,
-      user: req.user,
+      user: teacher,
     });
   } catch (error) {
     return res.json({
@@ -107,9 +110,7 @@ export const profileCompletion = async (req, res) => {
   try {
     const teacherId = req.teacherId;
     const form = req.body;
-    if (
-      !form.phone || !form.specialization
-    ) {
+    if (!form.phone || !form.specialization) {
       return res.json({ success: false, message: "Provide all the details!" });
     } else {
       const teacher = await Teacher.findByIdAndUpdate(
@@ -120,7 +121,7 @@ export const profileCompletion = async (req, res) => {
           isProfileCompleted: true,
         },
 
-        { runValidators: true, new: true }
+        { runValidators: true, new: true },
       );
       console.log(teacher);
       return res.json({
@@ -130,10 +131,41 @@ export const profileCompletion = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error.stack)
+    console.error(error.stack);
     return res.json({
       success: false,
-      message: "Couldnot complete the profile."
+      message: "Couldnot complete the profile.",
     });
+  }
+};
+
+// get /api/teacher/teams
+export const teamRequest = async (req, res) => {
+  try {
+    const teacherId = req.teacherId;
+    if (!teacherId)
+      return res.json({
+        success: false,
+        message: "Couldnot find teacher id. ",
+      });
+
+    if (req.query.get === "request") {
+      const requests = await Teacher.findById(teacherId)
+      .select("pendingTeams")
+      .populate({path:"pendingTeams",select:'name',populate:{path:'proposal',select:'-team'}});
+      if (!requests)
+        return res.json({ success: false, message: "Unable to find teacher!" });
+      return res.json({ success: true, teams: requests.pendingTeams });
+    } else if (req.query.get === "assigned") {
+      const requests = await Teacher.findById(teacherId)
+        .populate("assignedTeams")
+        .select("assignedTeams");
+      if (!requests)
+        return res.json({ success: false, message: "Unable to find teacher!" });
+      return res.json({ success: true, teams: requests.assignedTeams });
+    }
+  } catch (error) {
+    console.error(error.stack);
+    return res.json({ success: false, message: "Unable to get team data!" });
   }
 };

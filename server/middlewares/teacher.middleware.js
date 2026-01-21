@@ -35,20 +35,12 @@ const authTeacher = async (req, res, next) => {
   try {
     const tokenDecode = jwt.verify(teacherToken, process.env.JWT_SECRET);
 
-    if (!tokenDecode?.id) {
+    if (!tokenDecode.id) {
       return res.json({ success: false, message: "Not authorized" });
     }
 
-    // Fetch teacher from DB
-    const teacher = await Teacher.findById(tokenDecode.id);
-
-    if (!teacher) {
-      return res.json({ success: false, message: "Teacher not found" });
-    }
-
     // IMPORTANT: set both req.user and req.teacherId
-    req.user = teacher;
-    req.teacherId = teacher._id;
+    req.teacherId = tokenDecode.id;
 
     next();
   } catch (error) {

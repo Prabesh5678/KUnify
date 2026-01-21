@@ -4,7 +4,6 @@ import toast from "react-hot-toast";
 
 
 export default function TeamRequests() {
-  const [loading, setLoading] = useState(true);
   const [requests, setRequests] = useState([]);
   const [selected, setSelected] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -36,17 +35,21 @@ export default function TeamRequests() {
   const fetchTeamRequests = async () => {
     try {
       // BACKEND (when ready)
-      // const res = await axios.get("/api/teacher/team-requests", { withCredentials: true });
-      // setRequests(res.data.requests);
-
+      const {data} = await axios.get("/api/teacher/teams?get=request", { withCredentials: true });
+      if(data.success)
+      {
+      console.log(data.teams)
+      setRequests(data.teams);
+      }else{
+        toast.error('Unable to get teams!')
+        console.error(data.message)
+      }
       // TEMP:
-      setRequests(testRequests);
+      // setRequests(testRequests);
     } catch (err) {
       setError("Failed to load requests");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+      console.error(err.stack);
+    } 
   };
 
   useEffect(() => {
@@ -80,12 +83,11 @@ export default function TeamRequests() {
       setDialogOpen(false);
       toast.success("Project rejected successfully!");
     } catch (err) {
-      console.error(err);
+      console.error(err.stack);
       toast.error("Failed to reject project.");
     }
   };
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
 
   return (
     <div className="min-h-screen bg-primary/10">
@@ -103,15 +105,15 @@ export default function TeamRequests() {
           <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
             {requests.map((req) => (
               <div
-                key={req._id}
+                key={req._id}// this will be teamId
                 className="bg-white rounded-xl shadow-md border border-gray-200 p-5"
               >
                 <div className="flex justify-between items-start gap-4">
                   <div>
-                    <h2 className="font-bold text-lg">{req.projectTitle}</h2>
-                    <p className="text-gray-600">Team: {req.teamName}</p>
+                    <h2 className="font-bold text-lg">{req.proposal.projectTitle}</h2>
+                    <p className="text-gray-600">Team: {req.name}</p>
                     <p className="text-gray-500 text-sm mt-1">
-                      Keywords: {req.keywords}
+                      Keywords: {req.proposal.projectKeyword}
                     </p>
                   </div>
 
@@ -132,13 +134,13 @@ export default function TeamRequests() {
                 </div>
 
                 <div className="mt-4 text-gray-700">
-                  <strong>Abstract:</strong> {req.abstract}
+                  <strong>Abstract:</strong> {req.proposal.abstract}
                 </div>
 
                 <div className="mt-2 text-gray-700">
                   <strong>Proposal PDF:</strong>{" "}
                   <a
-                    href={req.proposalFileUrl}
+                    href={req.proposal.proposalFile.url}
                     target="_blank"
                     rel="noreferrer"
                     className="text-blue-600 hover:underline"

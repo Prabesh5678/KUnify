@@ -12,7 +12,7 @@ const teacherSchema = new mongoose.Schema({
   },
    activeStatus: {
     type: Boolean,  //leave it for admin
-    default: false,
+    default: true,//remember to make it false after making admin
   },
   maxCount:{type:Number,default:5},
   activeCount:{type:Number,default:0},

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Student from "../models/student.model.js";
+import Teacher from "../models/teacher.model.js";
 import jwt from "jsonwebtoken";
 // import { OAuth2Client } from "google-auth-library";
 
@@ -73,12 +74,19 @@ export const isAuth = async (req, res) => {
   try {
     // Get studentId from req object (set by middleware), not req.body
     const studentId = req.studentId;
+    if (!studentId)
+      return res.json({
+        success: false,
+        message: "Couldnot find student id. ",
+      });
     let student;
     if (req.query.populateTeam === "true") {
       student = await Student.findById(studentId).populate("teamId");
     } else {
       student = await Student.findById(studentId);
     }
+    if(!student)
+      return res.json({success:false,message:'Unale to find Student!'})
     return res.json({ success: true, student });
   } catch (error) {
     console.log(error.message);
@@ -105,9 +113,7 @@ export const profileCompletion = async (req, res) => {
   try {
     console.log("hi");
     const studentId = req.studentId;
-    console.log(req.body);
     const form = req.body;
-    console.log(form);
     if (
       !form.department ||
       !form.semester ||
@@ -144,6 +150,12 @@ export const profileUpdate = async (req, res) => {
   try {
     const data = req.body;
     const studentId = req.studentId;
+        if (!studentId)
+          return res.json({
+            success: false,
+            message: "Couldnot find student id. ",
+          });
+
     if (!data.department || !data.semester || !data.name || !data.subjectCode) {
       return res.json({ success: false, message: "Please provide all feilds" });
     } else {
@@ -168,3 +180,22 @@ export const profileUpdate = async (req, res) => {
     return res.json({ success: false, message: "Can't update profile!" });
   }
 };
+
+// Get all teachers //api/student/get-teachers
+export const getTeachers =async (_,res) => {
+  try {
+    const teachers = await Teacher.find({ activeStatus:true},{name:1,specialization:1});
+  if(teachers.length===0){
+    return res.json({success:false,message:'No active teachers found!'})
+  }
+  return res.json({success:true,teachers})
+  } catch (error) {
+    console.error(error.stack);
+    
+        return res.json({
+          success: false,
+          message: "Unable to return teachers!",
+        });
+
+  }
+}
