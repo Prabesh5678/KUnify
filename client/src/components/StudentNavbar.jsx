@@ -55,10 +55,11 @@ const StudentNavbar = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
+ if (!selectedSubject) {
+   return <></>;
+ }
   return (
     <>
       <nav className="fixed top-0 w-full z-50 bg-primary text-secondary backdrop-blur-sm">

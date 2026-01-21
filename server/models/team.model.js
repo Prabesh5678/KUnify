@@ -38,6 +38,7 @@ const teamSchema = new mongoose.Schema(
       ref: "proposal",
       default: null,
     },
+    supervisorStatus:{type:String,default:'notApproved'},// notapproved,pending,teacherApproved,adminApproved
   },
   { timestamps: true }
 );

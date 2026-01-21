@@ -22,13 +22,14 @@ export const addLog = async (req, res) => {
     // Prevent duplicate week
     const existingLog = await LogEntry.findOne({
       createdBy: studentId,
+      teamId:student.teamId,
       week,
     });
 
     if (existingLog) {
       return res.json({
         success: false,
-        message: `Log for ${week} is already submitted`,
+        message: `Log for week ${week} is already submitted`,
       });
     }
 

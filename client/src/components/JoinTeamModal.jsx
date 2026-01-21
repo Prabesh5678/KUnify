@@ -41,6 +41,8 @@ const JoinTeamModal = ({ isOpen, onClose, selectedSubject }) => {
         }
       } else {
         toast.error(res.data.message || "Failed to join team");
+        console.error(res.data.message);
+        
       }
     } catch (err) {
       console.error("Join team error:", err);

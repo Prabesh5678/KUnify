@@ -57,26 +57,37 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
 
     try {
       if (editLog) {
-        await axios.put(`/api/log/update/${editLog._id}`, {
-          date,
-          week,
-          activity,
-          outcome,
-        });
+       const { data } = await axios.put(`/api/log/update/${editLog._id}`, {
+         date,
+         week,
+         activity,
+         outcome,
+       });
+       if(data.success)
         toast.success("Log updated successfully");
+      else{
+        toast.error('Unable to update log!')
+        console.error(data.message)
+      }
       } else {
-        await axios.post("/api/log/create", {
+     const {data}=   await axios.post("/api/log/create", {
           date,
           week,
           activity,
           outcome,
         });
+        if(data.success){
         toast.success("Log added successfully");
+        onSuccess();
+        onClose();
+      }else{
+        toast.error('Unable to add log!')
+        console.error(data.message);
       }
-      onSuccess();
-      onClose();
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to save log");
+      console.error(err.stack)
+      setError(err.message || "Failed to save log");
     } finally {
       setIsSubmitting(false);
     }
