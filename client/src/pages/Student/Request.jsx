@@ -391,6 +391,10 @@ const Request = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredSupervisor, setHoveredSupervisor] = useState(null);
 
+  const abstractWordCount = abstract.trim()
+    ? abstract.trim().split(/\s+/).length
+    : 0;
+
   // Fetch existing proposal
   useEffect(() => {
     const fetchTeamProposal = async () => {
@@ -435,7 +439,7 @@ const Request = () => {
         if (data.success) {
           setSupervisors(data.teachers);
         }
-        else{
+        else {
           toast.error('Unable to find teachers')
           console.error(data.message)
         }
@@ -477,10 +481,10 @@ const Request = () => {
   };
 
   // Open PDF in new tab with custom viewer
-  const handleViewPDF = (url, filename) => {
-    const viewerUrl = `/view-pdf?url=${encodeURIComponent(url)}&title=${encodeURIComponent(filename)}`;
-    window.open(viewerUrl, "_blank");
+  const handleViewPDF = (url) => {
+    window.open(url, "_blank");
   };
+
 
   // Form submit handler
   const handleSubmit = async (e) => {
@@ -576,18 +580,34 @@ const Request = () => {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Project Abstract <span className="text-red-500">*</span>
               </label>
+
               <textarea
                 value={abstract}
                 disabled={isProposalSubmitted}
                 onChange={(e) => {
-                  const words = e.target.value.split(/\s+/);
-                  if (words.length <= 250) setAbstract(e.target.value);
+                  const words = e.target.value.trim().split(/\s+/);
+                  if (words.length <= 250) {
+                    setAbstract(e.target.value);
+                  }
                 }}
-                rows={3}
-                placeholder="Abstract of your project in 200-250 words."
+                rows={4}
+                placeholder="Abstract of your project in 200–250 words."
                 className="w-full px-4 py-6 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500"
               />
+
+              {/* Word Counter */}
+              <div className="mt-1 text-right text-xs">
+                <span
+                  className={`font-medium ${abstractWordCount === 250
+                      ? "text-red-600"
+                      : "text-gray-500"
+                    }`}
+                >
+                  {abstractWordCount}/250 words
+                </span>
+              </div>
             </div>
+
 
             {/* Keywords */}
             <div>
@@ -709,34 +729,28 @@ const Request = () => {
                 )}
 
                 {/* PDF uploaded by team (already submitted) */}
-                {existingProposal &&
-                  !pdfFile &&
-                  existingProposal.proposalFile?.url && (
-                    <div className="mt-4 flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-3">
-                      <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-800">
-                          {existingProposal.projectTitle || "Team Proposal"}
-                        </p>
-                        <p className="text-xs text-green-600">
-                          ✓ Submitted successfully
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleViewPDF(
-                            existingProposal.proposalFile.url,
-                            existingProposal.projectTitle || "Proposal",
-                          )
-                        }
-                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
-                      >
-                        <ExternalLink size={16} />
-                        View
-                      </button>
+                {existingProposal && !pdfFile && (
+                  <div className="mt-4 flex items-center gap-3 bg-gray-50 border rounded-lg p-3">
+                    <img src="/pdf_image.png" alt="PDF" className="w-8 h-8" />
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {existingProposal.title}
+                      </p>
+
+                      {(existingProposal.proposalFile?.url || pdfPreviewUrl) && (
+                        <a
+                          href={existingProposal.proposalFile?.url || pdfPreviewUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          View PDF
+                        </a>
+                      )}
                     </div>
-                  )}
+                  </div>
+                )}
+
               </div>
             </div>
 
