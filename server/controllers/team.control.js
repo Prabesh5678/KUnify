@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import Team from "../models/team.model.js";
 import Student from "../models/student.model.js";
+import Teacher from "../models/teacher.model.js";
+import proposalModel from "../models/proposal.model.js";
+import LogEntry from "../models/logEntry.model.js";
 
 const generateTeamCode = () => {
   const chars =
@@ -179,10 +182,13 @@ export const teamInfo = async (req, res) => {
 
 // POST /api/team/approve/:teamId
 export const memberApprove = async (req, res) => {
+  let session;
   try {
+    session = await mongoose.startSession();
+    session.startTransaction();
     const leaderId = req.studentId;
     const { teamId } = req.params;
-    const { memberId, action,memberCount } = req.body;
+    const { memberId, action, memberCount } = req.body;
 
     const team = await Team.findById(teamId);
     if (!team) {
@@ -202,8 +208,8 @@ export const memberApprove = async (req, res) => {
     }
 
     if (action === "approve") {
-      if(memberCount>=5)
-         return res.json({ success: false, message: "Max member reached!" });
+      if (memberCount >= 5)
+        return res.json({ success: false, message: "Max member reached!" });
       member.isApproved = true;
       await member.save();
       return res.json({ success: true, message: "Member approved!" });
@@ -215,14 +221,18 @@ export const memberApprove = async (req, res) => {
       member.isApproved = false;
       // member.lastTeamId = teamId;
 
-      await Promise.all([team.save(), member.save()]);
+      await Promise.all([team.save({ session }), member.save({ session })]);
+      await session.commitTransaction();
       return res.json({ success: true, message: "Member declined!" });
     }
 
     return res.json({ success: false, message: "Invalid action!" });
   } catch (err) {
+    if (session) await session.abortTransaction();
     console.error(err);
-    return res.json({ success: false, message: "Approval failed" });
+    return res.json({ success: false, message: "Approval failed!" });
+  } finally {
+    if (session) session.endSession();
   }
 };
 
@@ -241,11 +251,23 @@ export const deleteTeam = async (req, res) => {
     }
 
     const team = await Team.findById(student.teamId);
+    if(!team) return res.json({success:false, message:'Team not found!'})
+      if(team.supervisorStatus==='adminApproved')
+        return res.json({success:false,message:"Supervisor already allocated so unable to delete team!"})
     const count=team.members.length;
     if(count>1 && team.leaderId.toString()!==studentId){
       return res.json({success:false,message:"Not a leader or more team members!"});
     }
-
+  if(team.supervisor){
+    const teacher = await Teacher.findById(team.supervisor);
+    if(teacher){
+      teacher.pendingTeams.pull(student.teamId)
+      teacher.approvedTeams.pull(student.teamId)
+      teacher.save({ session });
+    }}
+    
+  await proposalModel.deleteMany({team:student.teamId},{session}),
+  await LogEntry.deleteMany({teamId:student.teamId},{session}),
     team.members.pull(studentId);
 
     // student.lastTeamId = student.teamId;
@@ -256,6 +278,7 @@ export const deleteTeam = async (req, res) => {
     await Promise.all([
       team.deleteOne({ session }),
       student.save({ session }),
+      
     ]);
 
     await session.commitTransaction();

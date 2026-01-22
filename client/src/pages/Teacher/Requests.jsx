@@ -38,7 +38,6 @@ export default function TeamRequests() {
       const {data} = await axios.get("/api/teacher/teams?get=request", { withCredentials: true });
       if(data.success)
       {
-      console.log(data.teams)
       setRequests(data.teams);
       }else{
         toast.error('Unable to get teams!')
@@ -64,12 +63,16 @@ export default function TeamRequests() {
   const handleAccept = async (reqId) => {
     try {
       // BACKEND (when ready)
-      // await axios.post("/api/teacher/team-requests/accept", { requestId: reqId }, { withCredentials: true });
-
-      setRequests((prev) => prev.filter((r) => r._id !== reqId));
-      toast.success("Project accepted successfully!");
+    const {data}=  await axios.post("/api/teacher/team-request?action=accept", { requestId: reqId }, { withCredentials: true });
+      if(data.success){
+    toast.success("Project accepted successfully!");
+      setRequests((prev) => prev.filter((r) => r._id !== reqId));}
+      else{
+        toast.error('Unable to accept team')
+        console.error(data.message)
+      }
     } catch (err) {
-      console.error(err);
+      console.error(err.stack);
       toast.error("Failed to accept project.");
     }
   };
@@ -77,11 +80,15 @@ export default function TeamRequests() {
   const handleReject = async () => {
     try {
       // BACKEND (when ready)
-      // await axios.post("/api/teacher/team-requests/reject", { requestId: selected._id }, { withCredentials: true });
-
+    const {data}=  await axios.post("/api/teacher/team-request?action=decline", { requestId: selected._id }, { withCredentials: true });
+if(data.success){
       setRequests((prev) => prev.filter((r) => r._id !== selected._id));
       setDialogOpen(false);
-      toast.success("Project rejected successfully!");
+      toast.success("Project rejected successfully!");}
+      else{
+        toast.error('Failed to reject team!')
+        console.error(data.message)
+      }
     } catch (err) {
       console.error(err.stack);
       toast.error("Failed to reject project.");
@@ -164,7 +171,7 @@ export default function TeamRequests() {
 
             <p className="text-gray-600 mb-4">
               Are you sure you want to reject the project{" "}
-              <span className="font-bold">{selected.projectTitle}</span>?
+              <span className="font-bold">{selected.proposal.projectTitle}</span>?
             </p>
 
             <div className="flex justify-end gap-4">

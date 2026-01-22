@@ -35,7 +35,7 @@ const teamSchema = new mongoose.Schema(
       default: null,
     },
     supervisorStatus: { type: String, default: "notApproved" }, // notapproved,pending,teacherApproved,adminApproved
-    supervisor: { type: mongoose.Schema.Types.ObjectId ,ref:'teacher'},
+    supervisor: { type: mongoose.Schema.Types.ObjectId ,ref:'teacher',default:null},
   },
   { timestamps: true },
 );

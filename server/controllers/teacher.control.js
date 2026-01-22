@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import Teacher from "../models/teacher.model.js";
+import Team from "../models/team.model.js";
+import mongoose from "mongoose";
 
 // POST /api/teacher/google-signin
 export const googleSignIn = async (req, res) => {
@@ -123,7 +125,6 @@ export const profileCompletion = async (req, res) => {
 
         { runValidators: true, new: true },
       );
-      console.log(teacher);
       return res.json({
         success: true,
         message: "Profile completed successfully",
@@ -151,8 +152,12 @@ export const teamRequest = async (req, res) => {
 
     if (req.query.get === "request") {
       const requests = await Teacher.findById(teacherId)
-      .select("pendingTeams")
-      .populate({path:"pendingTeams",select:'name',populate:{path:'proposal',select:'-team'}});
+        .select("pendingTeams")
+        .populate({
+          path: "pendingTeams",
+          select: "name",
+          populate: { path: "proposal", select: "-team" },
+        });
       if (!requests)
         return res.json({ success: false, message: "Unable to find teacher!" });
       return res.json({ success: true, teams: requests.pendingTeams });
@@ -167,5 +172,55 @@ export const teamRequest = async (req, res) => {
   } catch (error) {
     console.error(error.stack);
     return res.json({ success: false, message: "Unable to get team data!" });
+  }
+};
+
+// post /api/teacher/team-request
+export const teamApprove = async (req, res) => {
+  let session;
+  try {
+    session = await mongoose.startSession();
+    session.startTransaction();
+    const teacherId = req.teacherId;
+    if (!teacherId)
+      return res.json({ success: false, message: "Unable to get teacher id!" });
+    const { requestId } = req.body;
+    if (!requestId)
+      return res.json({ success: false, message: "Unable to get team id!" });
+    const team = await Team.findById(requestId);
+    if (!team)
+      return res.json({ success: false, message: "Unable to find team!" });
+    const teacher = await Teacher.findById(teacherId);
+    if (!teacher || !teacher.pendingTeams.map(String).includes(requestId))
+      return res.json({
+        success: false,
+        message: "Unable to find teacher or team is not in pending list!",
+      });
+
+    if (req.query.action === "accept") {
+      teacher.approvedTeams.addToSet(requestId);
+      teacher.pendingTeams.pull(requestId);
+      team.supervisorStatus = "teacherApproved";
+      await Promise.all([teacher.save({ session }), team.save({ session })]);
+      await session.commitTransaction();
+      return res.json({ success: true, message: "Team accepted!" });
+    }
+
+    else if (req.query.action === "decline") {
+      teacher.pendingTeams.pull(requestId);
+      team.supervisorStatus = "notApproved";
+      team.supervisor = null;
+      await Promise.all([teacher.save({ session }), team.save({ session })]);
+      await session.commitTransaction();
+      return res.json({ success: true, message: "Team declined!" });
+    }
+        return res.json({ success: false, message: "Invalid action!" });
+
+  } catch (error) {
+    if (session) await session.abortTransaction();
+    console.error(error.stack);
+    return res.status(500).json({ message: "Server error" });
+  } finally {
+    if (session) session.endSession();
   }
 };

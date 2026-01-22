@@ -9,24 +9,31 @@ export const uploadProposal = async (req, res) => {
   let session;
   try {
     session = await mongoose.startSession();
-        session.startTransaction();
-    const { title, abstract, keywords,supervisor } = req.body;
-    const {teamId}=req.params
-    if(!teamId) return res.status(400).json({success:false, message: "An error occured!" });
-    if (!title || !abstract || !keywords||!supervisor) {
-      return res.status(400).json({success:false, message: "All fields are required" });
+    session.startTransaction();
+    const { title, abstract, keywords, supervisor } = req.body;
+    const { teamId } = req.params;
+    if (!teamId)
+      return res
+        .status(400)
+        .json({ success: false, message: "An error occured!" });
+    if (!title || !abstract || !keywords || !supervisor) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
 
     if (!req.file) {
-      return res.status(400).json({success:false, message: "PDF file is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "PDF file is required" });
     }
 
-    const team = await Team.findById(teamId)
+    const team = await Team.findById(teamId);
 
     if (!team) {
-      return res.status(403).json({success:false,
-        message: "You are not part of any team",
-      });
+      return res
+        .status(403)
+        .json({ success: false, message: "You are not part of any team" });
     }
 
     // if (team.leaderId.toString() !== studentId.toString()) {
@@ -35,13 +42,15 @@ export const uploadProposal = async (req, res) => {
     //   });
     // }
 
-    if (team.proposal) {
-      return res.json({success:false,
+    if (req.query.edit!=='yes'&&team.proposal) {
+      return res.json({
+        success: false,
         message: "Proposal already submitted by your team",
       });
     }
-    const teacher= await Teacher.findById(supervisor);
-    if(!teacher) return res.json({success:false,message:"Unable to find teacher!"})
+    const teacher = await Teacher.findById(supervisor);
+    if (!teacher)
+      return res.json({ success: false, message: "Unable to find teacher!" });
 
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: "kunify/proposals",
@@ -58,53 +67,59 @@ export const uploadProposal = async (req, res) => {
       secureUrl = secureUrl.replace("/upload/", "/upload/fl_attachment/");
     }
 
-    const proposal = await Proposal.create([{
-      projectTitle: title,
-      abstract,
-      projectKeyword: keywords,
-      // submittedBy: studentId,
-      team: team._id,
-      proposalFile: {
-        url: secureUrl,
-        publicId: result.public_id,
-      },
-    }],{session});
+    const proposal = await Proposal.create(
+      [
+        {
+          projectTitle: title,
+          abstract,
+          projectKeyword: keywords,
+          // submittedBy: studentId,
+          team: team._id,
+          proposalFile: {
+            url: secureUrl,
+            publicId: result.public_id,
+          },
+        },
+      ],
+      { session },
+    );
 
     team.proposal = proposal[0]._id;
-    team.supervisorStatus = 'pending';
+    team.supervisorStatus = "pending";
+    team.supervisor = supervisor;
 
     teacher.pendingTeams.addToSet(teamId);
-    await Promise.all([team.save({session}),teacher.save({session})]) 
-        await session.commitTransaction();
-
+    await Promise.all([team.save({ session }), teacher.save({ session })]);
+    await session.commitTransaction();
 
     return res.status(201).json({
       success: true,
       message: "Proposal submitted successfully",
-      proposal:proposal[0],
+      proposal: proposal[0],
     });
   } catch (error) {
-        if (session) await session.abortTransaction();
+    if (session) await session.abortTransaction();
     console.error(error.stack);
     return res.status(500).json({ message: "Server error" });
-  }finally {
+  } finally {
     if (session) session.endSession();
   }
 };
 
 // get /api/proposal/:teamId
-export const getProposal =async (req,res) => {
+export const getProposal = async (req, res) => {
   try {
-    const {teamId}=req.params;
-    if(!teamId) return res.json({success:false,message:"Couldnot get Team Id!"})
+    const { teamId } = req.params;
+    if (!teamId)
+      return res.json({ success: false, message: "Couldnot get Team Id!" });
 
-      const team= await Team.findById(teamId).populate('proposal');
-      console.log(team)
-      if(!team) return res.json({ success: false, message: "Couldnot find team!" });
+    const team = await Team.findById(teamId).populate("proposal");
+    if (!team)
+      return res.json({ success: false, message: "Couldnot find team!" });
 
-      return res.json({success:true , team});
+    return res.json({ success: true, team });
   } catch (error) {
-    console.error(error.stack)
+    console.error(error.stack);
     return res.json({ success: false, message: "Couldnot get proposal!" });
   }
-}
+};

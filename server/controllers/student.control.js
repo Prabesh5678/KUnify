@@ -89,7 +89,7 @@ export const isAuth = async (req, res) => {
       return res.json({success:false,message:'Unale to find Student!'})
     return res.json({ success: true, student });
   } catch (error) {
-    console.log(error.message);
+    console.error(error.stack);
     res.json({ success: false, message: error.message });
   }
 };
@@ -111,7 +111,6 @@ export const isAuth = async (req, res) => {
 // /api/student/setup-profile
 export const profileCompletion = async (req, res) => {
   try {
-    console.log("hi");
     const studentId = req.studentId;
     const form = req.body;
     if (
@@ -132,7 +131,6 @@ export const profileCompletion = async (req, res) => {
         },
         { runValidators: true, new: true }
       );
-      console.log(student);
       return res.json({
         success: true,
         message: "Profile completed successfully",
