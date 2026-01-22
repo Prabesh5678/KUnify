@@ -12,13 +12,14 @@ axios.defaults.withCredentials = true;
 const ADMIN_EMAIL = [
   "ssubhechhakarkee@gmail.com",
    "deekshyabadal@gmail.com",
+   "sajanaranjitkar64@gmail.com",
 ];
 
 const TEACHER_EMAIL = [
   "grocerease6699@gmail.com",
   "ddeekshyabadal@gmail.com",
   "subhechhakarkee@gmail.com",
-  "sajanaranjitkar64@gmail.com"
+  "ssajanaranjitkar64@gmail.com"
 ];
 
 const LoginPanel = () => {
