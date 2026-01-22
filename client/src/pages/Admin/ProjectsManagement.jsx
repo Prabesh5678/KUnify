@@ -18,31 +18,69 @@ const ProjectsManagement = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Fetch all projects
+  const sampleProjects = [
+    {
+      id: 1,
+      title: "Smart Attendance System",
+      teamName: "Team Alpha",
+      assignedTeacher: { id: 101, name: "Prof. Sharma" },
+    },
+    {
+      id: 2,
+      title: "AI Chatbot",
+      teamName: "Team Beta",
+      assignedTeacher: null,
+    },
+    {
+      id: 3,
+      title: "Online Exam Portal",
+      teamName: "Team Gamma",
+      assignedTeacher: { id: 103, name: "Prof. Joshi" },
+    },
+  ];
+
+  const sampleTeachers = [
+    { id: 101, name: "Prof. Sharma" },
+    { id: 102, name: "Prof. Koirala" },
+    { id: 103, name: "Prof. Joshi" },
+  ];
+
+  
+  const MAX_PROJECTS_PER_TEACHER = 5;
+
+ 
+  const countAssignedProjects = (teacherId) => {
+    return projects.filter(
+      (p) => p.assignedTeacher && p.assignedTeacher.id === teacherId
+    ).length;
+  };
+
+
   const fetchProjects = async () => {
     try {
-      const res = await axios.get("/admin/projects"); // GET projects from backend
-      setProjects(res.data);
+      // API CALL: GET /admin/projects
+      // const res = await axios.get("/admin/projects");
+      // setProjects(res.data);
+
+      // TEMP: Using sample data for now
+      setProjects(sampleProjects);
     } catch (err) {
       console.error("Failed to fetch projects", err);
       toast.error("Unable to load projects");
     }
   };
+useEffect(() => {
+  fetchProjects(); 
+}, []);
 
-  // Auto-refresh every 10 seconds
-  useEffect(() => {
-    fetchProjects();
-    const interval = setInterval(fetchProjects, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Open modal and fetch suggested teachers for project
   const openModal = async (project) => {
     try {
-      const res = await axios.get(
-        `/admin/projects/${project.id}/suggested-teachers`
-      ); // teachers sorted by cosine similarity
-      setSelectedProject({ ...project, teachers: res.data });
+      // API CALL: GET /admin/projects/:id/suggested-teachers
+      // const res = await axios.get(`/admin/projects/${project.id}/suggested-teachers`);
+      // setSelectedProject({ ...project, teachers: res.data });
+
+      // temporary this is to be deleted laterrr
+      setSelectedProject({ ...project, teachers: sampleTeachers });
       setModalOpen(true);
     } catch (err) {
       console.error(err);
@@ -50,21 +88,26 @@ const ProjectsManagement = () => {
     }
   };
 
-  // Assign or change teacher
   const handleAssignTeacher = async (teacherId, projectId) => {
     try {
-      const res = await axios.post(
-        `/admin/projects/${projectId}/assign-teacher`,
-        { teacherId }
-      );
+      // API CALL: POST /admin/projects/:id/assign-teacher
+      // const res = await axios.post(`/admin/projects/${projectId}/assign-teacher`, { teacherId });
 
-      // Update project in state
+      // TEMP: Simulate API response
+      const updatedProject = projects
+        .map((p) =>
+          p.id === projectId
+            ? { ...p, assignedTeacher: sampleTeachers.find((t) => t.id === teacherId) }
+            : p
+        )
+        .find((p) => p.id === projectId);
+
       setProjects((prev) =>
-        prev.map((p) => (p.id === projectId ? res.data : p))
+        prev.map((p) => (p.id === projectId ? updatedProject : p))
       );
 
       toast.success(
-        `Teacher ${res.data.assignedTeacher.name} assigned to ${res.data.title}`
+        `Teacher ${updatedProject.assignedTeacher.name} assigned to ${updatedProject.title}`
       );
 
       setModalOpen(false);
@@ -75,11 +118,12 @@ const ProjectsManagement = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <AdminSidebar />
-      <div className="flex-1 p-8">
-        <AdminHeader adminName="Deekshya Badal" />
 
+ <div className="flex min-h-screen bg-gray-50">
+      <AdminSidebar />
+
+      <div className="flex-1 p-8">
+        <AdminHeader />
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
           Projects Management
         </h2>
@@ -97,6 +141,12 @@ const ProjectsManagement = () => {
             <tbody>
               {projects.map((p, idx) => {
                 const color = pastelColors[idx % pastelColors.length];
+
+
+                const count = p.assignedTeacher
+                  ? countAssignedProjects(p.assignedTeacher.id)
+                  : 0;
+
                 return (
                   <tr
                     key={p.id}
@@ -105,7 +155,9 @@ const ProjectsManagement = () => {
                     <td className="p-3 font-medium text-gray-800">{p.title}</td>
                     <td className="p-3 text-gray-600">{p.teamName}</td>
                     <td className="p-3 text-gray-700">
-                      {p.assignedTeacher ? p.assignedTeacher.name : "Not Assigned"}
+                      {p.assignedTeacher
+                        ? `${p.assignedTeacher.name} (${count}/${MAX_PROJECTS_PER_TEACHER})`
+                        : "Not Assigned"}
                     </td>
                     <td className="p-3">
                       <button

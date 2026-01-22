@@ -14,6 +14,8 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
     const fetchSuggestedTeachers = async () => {
       try {
         setLoading(true);
+
+        // API CALL
         const res = await axios.get(
           `/admin/projects/${project.id}/suggested-teachers`
         );
@@ -81,6 +83,32 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
             View PDF
           </a>
         </p>
+
+        {/* --------------------------
+             REQUESTED TEACHER SECTION
+        -------------------------- */}
+        <div className="mb-4 p-4 border rounded border-sky-200 bg-sky-50">
+          <p className="font-semibold text-gray-700">
+            Requested Teacher by Students:
+          </p>
+
+          {project.requestedTeacher ? (
+            <p className="text-gray-700">
+              {project.requestedTeacher.name}
+            </p>
+          ) : (
+            <p className="text-gray-700">No teacher requested</p>
+          )}
+
+          <p className="mt-2 text-gray-700">
+            <strong>Teacher Acceptance Status:</strong>{" "}
+            {project.teacherAccepted ? (
+              <span className="text-green-600 font-semibold">Accepted</span>
+            ) : (
+              <span className="text-red-600 font-semibold">Not Accepted</span>
+            )}
+          </p>
+        </div>
 
         {/* Assign Teacher */}
         <div className="mt-4">

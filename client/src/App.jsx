@@ -27,6 +27,9 @@ import AddTeacherModal from "./components/Admin/AddTeacherModal";
 import AdminGuard from "./components/AdminGuard";
 import ProjectsManagement from "./pages/Admin/ProjectsManagement";
 import WaitingPage from "./pages/Student/WaitingPage";
+import AllTeachers from "./pages/Admin/AllTeachers";
+import StudentsManagement from "./pages/Admin/StudentsManagement";
+import StudentDetails from "./pages/Admin/StudentDetails";
 
 //Teacher Pages
 import TeacherGuard from "./components/TeacherGuard";
@@ -164,6 +167,12 @@ const App = () => {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/teachers" element={<TeachersManagement />} />
             <Route path="/admin/projects" element={<ProjectsManagement />} />
+          <Route path="/admin/allteachers/:id" element={<AllTeachers />} />
+          <Route path="/admin/students" element={<StudentsManagement />} />
+<Route path="/admin/student-details" element={<StudentDetails />} />
+
+
+
             {/* Add more admin routes here */}
           </Route>
 

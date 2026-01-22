@@ -32,8 +32,8 @@ const AdminHeader = ({ adminName = "Admin" }) => {
       {/* Logout Button */}
       <button
         onClick={handleLogout}
-        className="bg-secondary text-primary font-semibold px-5 py-2 rounded-lg
-                   hover:bg-secondary/80 transition-all duration-200"
+        className="bg-primary text-secondary font-semibold px-5 py-2 rounded-lg
+                   hover:bg-primary/80 transition-all duration-200 cursor-pointer"
       >
         Logout
       </button>

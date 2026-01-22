@@ -7,6 +7,7 @@ import {
   FaChalkboardTeacher,
   FaProjectDiagram,
   FaCog,
+    FaUserGraduate,
 } from "react-icons/fa";
 
 const AdminSidebar = () => {
@@ -29,9 +30,9 @@ const AdminSidebar = () => {
       icon: <FaProjectDiagram />,
     },
     {
-      label: "Settings",
-      path: "/admin/settings",
-      icon: <FaCog />,
+      label: "Students",
+      path: "/admin/students",
+      icon: <  FaUserGraduate />,
     },
   ];
 

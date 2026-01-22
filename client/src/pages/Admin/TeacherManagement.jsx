@@ -5,6 +5,7 @@ import AddTeacherModal from "../../components/Admin/AddTeacherModal";
 import { FaToggleOn, FaToggleOff } from "react-icons/fa";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const pastelColors = [
   { bg: "bg-blue-50", border: "border-blue-200" },
@@ -17,12 +18,46 @@ const pastelColors = [
 const TeachersManagement = () => {
   const [teachers, setTeachers] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [search, setSearch] = useState(""); // <-- search state
+  const navigate = useNavigate();
 
-  // Fetch teachers periodically for auto-refresh
+  const sampleTeachers = [
+    {
+      id: 1,
+      name: "Prof. Sharma",
+      email: "sharma@college.edu",
+      active: true,
+      isVisiting: false,
+    },
+    {
+      id: 2,
+      name: "Prof. Koirala",
+      email: "koirala@college.edu",
+      active: true,
+      isVisiting: true,
+      password: "visit@123",
+    },
+    {
+      id: 3,
+      name: "Prof. Joshi",
+      email: "joshi@college.edu",
+      active: false,
+      isVisiting: true,
+      password: "temp@456",
+    },
+  ];
+
+  // =========================
+  // Fetch teachers
+  // =========================
   const fetchTeachers = async () => {
     try {
-      const res = await axios.get("/api/teachers");
-      setTeachers(res.data);
+      // API CALL (commented)
+      // const res = await axios.get("/api/teachers");
+      // setTeachers(res.data);
+
+      // TEMP: use sample data
+      setTeachers(sampleTeachers);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch teachers");
@@ -30,21 +65,29 @@ const TeachersManagement = () => {
   };
 
   useEffect(() => {
-    fetchTeachers();
-    const interval = setInterval(fetchTeachers, 10000); // refresh every 10s
-    return () => clearInterval(interval);
+    fetchTeachers(); // load once (no auto-refresh)
   }, []);
 
+  // Toggle active/inactive
   const handleToggle = async (id) => {
     try {
       const teacher = teachers.find((t) => t.id === id);
-      const res = await axios.patch(`/api/teachers/${id}/toggle`, {
-        active: !teacher.active,
-      });
+
+      // API CALL (commented)
+      // const res = await axios.patch(`/api/teachers/${id}/toggle`, {
+      //   active: !teacher.active,
+      // });
+
+      // TEMP: local toggle
       setTeachers((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, active: res.data.active } : t))
+        prev.map((t) =>
+          t.id === id ? { ...t, active: !t.active } : t
+        )
       );
-      toast.success(`${teacher.name} is now ${res.data.active ? "Active" : "Inactive"}`);
+
+      toast.success(
+        `${teacher.name} is now ${!teacher.active ? "Active" : "Inactive"}`
+      );
     } catch (err) {
       console.error(err);
       toast.error("Failed to update status");
@@ -55,21 +98,44 @@ const TeachersManagement = () => {
     setTeachers((prev) => [...prev, teacher]);
   };
 
+  // 🔎 Filter teachers based on search
+  const filteredTeachers = teachers.filter((t) => {
+    const term = search.toLowerCase();
+    return (
+      t.name.toLowerCase().includes(term) ||
+      t.email.toLowerCase().includes(term)
+    );
+  });
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
 
       <div className="flex-1 p-8">
-        <AdminHeader adminName="Deekshya Badal" />
+        <AdminHeader />
 
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Teachers Management</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Teachers Management
+          </h2>
+
           <button
             onClick={() => setModalOpen(true)}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80 cursor-pointer"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80"
           >
             Add Visiting Faculty
           </button>
+        </div>
+
+        {/* 🔎 SEARCH BAR */}
+        <div className="mb-4">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name or email..."
+            className="w-full p-3 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300"
+          />
         </div>
 
         <div className="overflow-x-auto bg-white rounded-xl shadow p-4">
@@ -82,15 +148,33 @@ const TeachersManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {teachers.map((t, idx) => {
+              {filteredTeachers.map((t, idx) => {
                 const color = pastelColors[idx % pastelColors.length];
                 return (
                   <tr
                     key={t.id}
                     className={`${color.bg} ${color.border} border-b hover:shadow-md`}
                   >
-                    <td className="p-3">{t.name} {t.isVisiting && <span className="text-xs text-purple-700 font-semibold">Visiting</span>}</td>
+                    <td className="p-3">
+                      <button
+                        onClick={() => navigate(`/admin/teachers/${t.id}`)}
+                        className="font-medium text-blue-700 hover:underline"
+                      >
+                        {t.name}
+                      </button>
+
+                      {t.isVisiting && (
+                        <div className="text-sm text-purple-700">
+                          Visiting Faculty | Password:{" "}
+                          <span className="font-mono text-gray-800">
+                            {t.password}
+                          </span>
+                        </div>
+                      )}
+                    </td>
+
                     <td className="p-3">{t.email}</td>
+
                     <td className="p-3">
                       <button onClick={() => handleToggle(t.id)}>
                         {t.active ? (
@@ -103,6 +187,14 @@ const TeachersManagement = () => {
                   </tr>
                 );
               })}
+
+              {filteredTeachers.length === 0 && (
+                <tr>
+                  <td colSpan="3" className="p-3 text-center text-gray-500">
+                    No teachers found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

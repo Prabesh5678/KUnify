@@ -415,6 +415,7 @@ const Request = () => {
 
           if (p.proposalFile && p.proposalFile.url) {
             setPdfPreviewUrl(p.proposalFile.url);
+          // setPdfPreviewUrl(pdfUrl);
           }
 
           setExistingProposal(p);
@@ -481,9 +482,13 @@ const Request = () => {
   };
 
   // Open PDF in new tab with custom viewer
-  const handleViewPDF = (url) => {
-    window.open(url, "_blank");
-  };
+ const handleViewPDF = (url) => {
+  if (!url) {
+    toast.error("PDF file not found");
+    return;
+  }
+  window.open(url, "_blank");
+};
 
 
   // Form submit handler
@@ -599,8 +604,8 @@ const Request = () => {
               <div className="mt-1 text-right text-xs">
                 <span
                   className={`font-medium ${abstractWordCount === 250
-                      ? "text-red-600"
-                      : "text-gray-500"
+                    ? "text-red-600"
+                    : "text-gray-500"
                     }`}
                 >
                   {abstractWordCount}/250 words
@@ -738,15 +743,17 @@ const Request = () => {
                       </p>
 
                       {(existingProposal.proposalFile?.url || pdfPreviewUrl) && (
-                        <a
-                          href={existingProposal.proposalFile?.url || pdfPreviewUrl}
-                          target="_blank"
-                          rel="noreferrer"
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleViewPDF(existingProposal.proposalFile?.url || pdfPreviewUrl)
+                          }
                           className="text-xs text-blue-600 hover:underline"
                         >
                           View PDF
-                        </a>
+                        </button>
                       )}
+
                     </div>
                   </div>
                 )}
