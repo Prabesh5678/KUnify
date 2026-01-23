@@ -330,41 +330,12 @@
 // };
 
 // export default Request;
-
 import React, { useState, useEffect } from "react";
 import { NotebookPen, ExternalLink, ChevronDown } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
-
-// const SUPERVISORS = [
-//   {
-//     id: "sup1",
-//     name: "Dr. Ram Prasad Sharma",
-//     specialization: "Artificial Intelligence, Machine Learning, Data Mining",
-//   },
-//   {
-//     id: "sup2",
-//     name: "Prof. Sita Adhikari",
-//     specialization: "Web Technologies, Cloud Computing, Distributed Systems",
-//   },
-//   {
-//     id: "sup3",
-//     name: "Dr. Bikash Gautam",
-//     specialization: "Cyber Security, Cryptography, Network Security",
-//   },
-//   {
-//     id: "sup4",
-//     name: "Prof. Nisha Koirala",
-//     specialization: "IoT, Embedded Systems, Robotics",
-//   },
-//   {
-//     id: "sup5",
-//     name: "Dr. Anil Shrestha",
-//     specialization: "Data Science, Big Data Analytics, Deep Learning",
-//   },
-// ];
 
 const Request = () => {
   const { teamId } = useParams();
@@ -415,7 +386,6 @@ const Request = () => {
 
           if (p.proposalFile && p.proposalFile.url) {
             setPdfPreviewUrl(p.proposalFile.url);
-          // setPdfPreviewUrl(pdfUrl);
           }
 
           setExistingProposal(p);
@@ -439,10 +409,9 @@ const Request = () => {
 
         if (data.success) {
           setSupervisors(data.teachers);
-        }
-        else {
-          toast.error('Unable to find teachers')
-          console.error(data.message)
+        } else {
+          toast.error("Unable to find teachers");
+          console.error(data.message);
         }
       } catch (error) {
         console.error("Error fetching supervisors", error);
@@ -451,7 +420,6 @@ const Request = () => {
 
     fetchSupervisors();
   }, []);
-
 
   // Form validation
   const isFormInvalid =
@@ -482,14 +450,25 @@ const Request = () => {
   };
 
   // Open PDF in new tab with custom viewer
- const handleViewPDF = (url) => {
-  if (!url) {
-    toast.error("PDF file not found");
-    return;
-  }
-  window.open(url, "_blank");
-};
-
+  const handleViewPDFBefore = (url) => {
+    if (!url) {
+      toast.error("PDF file not found");
+      return;
+    }
+    
+    // Open PDF viewer in new tab
+    window.open(url, "_blank");
+  };
+  const handleViewPDFAfter = (url, filename) => {
+    if (!url) {
+      toast.error("PDF file not found");
+      return;
+    }
+    
+    // Open PDF viewer in new tab
+    const viewerUrl = `/view-pdf?url=${encodeURIComponent(url)}&title=${encodeURIComponent(filename || 'Proposal')}`;
+    window.open(viewerUrl, "_blank");
+  };
 
   // Form submit handler
   const handleSubmit = async (e) => {
@@ -516,7 +495,7 @@ const Request = () => {
         {
           withCredentials: true,
           headers: { "Content-Type": "multipart/form-data" },
-        },
+        }
       );
 
       if (data.success) {
@@ -530,11 +509,13 @@ const Request = () => {
         };
 
         setExistingProposal(newProposal);
+        setPdfPreviewUrl(data.proposal.proposalFile.url);
         setPdfFile(null);
         setIsProposalSubmitted(true);
         setUploadStatus("uploaded");
         toast.success("Proposal submitted successfully!");
       } else {
+        setUploadStatus("failed");
         toast.error(data.message);
       }
     } catch (error) {
@@ -576,7 +557,7 @@ const Request = () => {
                 disabled={isProposalSubmitted}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Your project title"
-                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
               />
             </div>
 
@@ -597,22 +578,22 @@ const Request = () => {
                 }}
                 rows={4}
                 placeholder="Abstract of your project in 200–250 words."
-                className="w-full px-4 py-6 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-6 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
               />
 
               {/* Word Counter */}
               <div className="mt-1 text-right text-xs">
                 <span
-                  className={`font-medium ${abstractWordCount === 250
-                    ? "text-red-600"
-                    : "text-gray-500"
-                    }`}
+                  className={`font-medium ${
+                    abstractWordCount === 250
+                      ? "text-red-600"
+                      : "text-gray-500"
+                  }`}
                 >
                   {abstractWordCount}/250 words
                 </span>
               </div>
             </div>
-
 
             {/* Keywords */}
             <div>
@@ -625,7 +606,7 @@ const Request = () => {
                 disabled={isProposalSubmitted}
                 onChange={(e) => setKeywords(e.target.value)}
                 placeholder="e.g. React, ML, IoT"
-                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
               />
             </div>
 
@@ -642,26 +623,27 @@ const Request = () => {
                   disabled={isProposalSubmitted}
                   onClick={() => setIsOpen(!isOpen)}
                   className={`w-full flex items-center justify-between px-4 py-3 border rounded-lg bg-gray-100
-      ${isProposalSubmitted ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-    `}
+                    ${isProposalSubmitted ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-200"}
+                  `}
                 >
                   <span>
                     {selectedSupervisor
-                      ? supervisors.find((s) => s._id === selectedSupervisor)?.name
+                      ? supervisors.find((s) => s._id === selectedSupervisor)
+                          ?.name
                       : "Select Supervisor"}
                   </span>
 
                   <ChevronDown
                     size={20}
-                    className={`text-gray-600 transition-transform duration-200
-        ${isOpen ? "rotate-180" : ""}
-      `}
+                    className={`text-gray-600 transition-transform duration-200 ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
 
                 {/* Dropdown list */}
                 {isOpen && !isProposalSubmitted && (
-                  <div className="absolute z-50 mt-2 w-full bg-white border rounded-lg shadow-lg">
+                  <div className="absolute z-50 mt-2 w-full bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {supervisors.map((sup) => (
                       <div
                         key={sup._id}
@@ -677,7 +659,7 @@ const Request = () => {
 
                         {/* Hover Tooltip */}
                         {hoveredSupervisor?._id === sup._id && (
-                          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 w-64 bg-black text-white text-xs rounded-lg px-3 py-2 shadow-lg">
+                          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 w-64 bg-black text-white text-xs rounded-lg px-3 py-2 shadow-lg z-50">
                             <p className="font-semibold mb-1">Specialization</p>
                             <p>{sup.specialization}</p>
                           </div>
@@ -688,17 +670,17 @@ const Request = () => {
                 )}
               </div>
 
-
               {/* PDF Upload */}
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Upload Proposal (PDF only, max 2MB)
                 </label>
                 <label
-                  className={`w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg ${isProposalSubmitted
-                    ? "opacity-50 cursor-not-allowed"
-                    : "cursor-pointer hover:bg-gray-200"
-                    }`}
+                  className={`w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg ${
+                    isProposalSubmitted
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer hover:bg-gray-200"
+                  }`}
                 >
                   Choose File
                   <input
@@ -710,8 +692,8 @@ const Request = () => {
                   />
                 </label>
 
-                {/* PDF info for newly selected file */}
-                {pdfFile && (
+                {/* PDF info for newly selected file (before submission) */}
+                {pdfFile && !isProposalSubmitted && (
                   <div className="mt-4 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
                     <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
                     <div className="flex-1">
@@ -724,7 +706,7 @@ const Request = () => {
                     </div>
                     <button
                       type="button"
-                      onClick={() => handleViewPDF(pdfPreviewUrl, pdfFile.name)}
+                      onClick={() => handleViewPDFBefore(pdfPreviewUrl)}
                       className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
                     >
                       <ExternalLink size={16} />
@@ -733,31 +715,35 @@ const Request = () => {
                   </div>
                 )}
 
-                {/* PDF uploaded by team (already submitted) */}
-                {existingProposal && !pdfFile && (
-                  <div className="mt-4 flex items-center gap-3 bg-gray-50 border rounded-lg p-3">
-                    <img src="/pdf_image.png" alt="PDF" className="w-8 h-8" />
-                    <div>
-                      <p className="text-sm font-semibold">
-                        {existingProposal.title}
+                {/* PDF uploaded by team (after submission) */}
+                {isProposalSubmitted && existingProposal && (
+                  <div className="mt-4 flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-3">
+                    <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-800">
+                        {existingProposal.projectTitle || title || "Team Proposal"}
                       </p>
-
-                      {(existingProposal.proposalFile?.url || pdfPreviewUrl) && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleViewPDF(existingProposal.proposalFile?.url || pdfPreviewUrl)
-                          }
-                          className="text-xs text-blue-600 hover:underline"
-                        >
-                          View PDF
-                        </button>
-                      )}
-
+                      <p className="text-xs text-green-600 font-medium">
+                        ✓ Submitted successfully
+                      </p>
                     </div>
+                    {(existingProposal.proposalFile?.url || pdfPreviewUrl) && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleViewPDFAfter(
+                            existingProposal.proposalFile?.url || pdfPreviewUrl,
+                            existingProposal.projectTitle || title || "Proposal"
+                          )
+                        }
+                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        <ExternalLink size={16} />
+                        View
+                      </button>
+                    )}
                   </div>
                 )}
-
               </div>
             </div>
 
@@ -767,9 +753,10 @@ const Request = () => {
                 type="submit"
                 disabled={isFormInvalid || isProposalSubmitted}
                 className={`bg-primary text-white font-bold py-3.5 px-12 rounded-xl shadow-lg transition
-                  ${isFormInvalid || isProposalSubmitted
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-primary/70 hover:scale-105"
+                  ${
+                    isFormInvalid || isProposalSubmitted
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-primary/70 hover:scale-105"
                   }`}
               >
                 {uploadStatus === "uploading"
