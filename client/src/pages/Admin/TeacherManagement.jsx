@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import AdminSidebar from "../../components/Admin/AdminSideBar";
@@ -6,7 +7,6 @@ import { FaToggleOn, FaToggleOff } from "react-icons/fa";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-
 const pastelColors = [
   { bg: "bg-blue-50", border: "border-blue-200" },
   { bg: "bg-green-50", border: "border-green-200" },
@@ -14,13 +14,11 @@ const pastelColors = [
   { bg: "bg-pink-50", border: "border-pink-200" },
   { bg: "bg-yellow-50", border: "border-yellow-200" },
 ];
-
 const TeachersManagement = () => {
   const [teachers, setTeachers] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [search, setSearch] = useState(""); // <-- search state
   const navigate = useNavigate();
-
   const sampleTeachers = [
     {
       id: 1,
@@ -46,7 +44,6 @@ const TeachersManagement = () => {
       password: "temp@456",
     },
   ];
-
   // =========================
   // Fetch teachers
   // =========================
@@ -55,7 +52,6 @@ const TeachersManagement = () => {
       // API CALL (commented)
       // const res = await axios.get("/api/teachers");
       // setTeachers(res.data);
-
       // TEMP: use sample data
       setTeachers(sampleTeachers);
     } catch (err) {
@@ -63,28 +59,23 @@ const TeachersManagement = () => {
       toast.error("Failed to fetch teachers");
     }
   };
-
   useEffect(() => {
     fetchTeachers(); // load once (no auto-refresh)
   }, []);
-
   // Toggle active/inactive
   const handleToggle = async (id) => {
     try {
       const teacher = teachers.find((t) => t.id === id);
-
       // API CALL (commented)
       // const res = await axios.patch(`/api/teachers/${id}/toggle`, {
       //   active: !teacher.active,
       // });
-
       // TEMP: local toggle
       setTeachers((prev) =>
         prev.map((t) =>
           t.id === id ? { ...t, active: !t.active } : t
         )
       );
-
       toast.success(
         `${teacher.name} is now ${!teacher.active ? "Active" : "Inactive"}`
       );
@@ -93,11 +84,9 @@ const TeachersManagement = () => {
       toast.error("Failed to update status");
     }
   };
-
   const handleAddTeacher = (teacher) => {
     setTeachers((prev) => [...prev, teacher]);
   };
-
   // 🔎 Filter teachers based on search
   const filteredTeachers = teachers.filter((t) => {
     const term = search.toLowerCase();
@@ -106,19 +95,15 @@ const TeachersManagement = () => {
       t.email.toLowerCase().includes(term)
     );
   });
-
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
-
       <div className="flex-1 p-8">
         <AdminHeader />
-
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">
             Teachers Management
           </h2>
-
           <button
             onClick={() => setModalOpen(true)}
             className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80"
@@ -126,7 +111,6 @@ const TeachersManagement = () => {
             Add Visiting Faculty
           </button>
         </div>
-
         {/* 🔎 SEARCH BAR */}
         <div className="mb-4">
           <input
@@ -137,7 +121,6 @@ const TeachersManagement = () => {
             className="w-full p-3 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300"
           />
         </div>
-
         <div className="overflow-x-auto bg-white rounded-xl shadow p-4">
           <table className="min-w-full text-left">
             <thead>
@@ -162,7 +145,6 @@ const TeachersManagement = () => {
                       >
                         {t.name}
                       </button>
-
                       {t.isVisiting && (
                         <div className="text-sm text-purple-700">
                           Visiting Faculty | Password:{" "}
@@ -172,9 +154,7 @@ const TeachersManagement = () => {
                         </div>
                       )}
                     </td>
-
                     <td className="p-3">{t.email}</td>
-
                     <td className="p-3">
                       <button onClick={() => handleToggle(t.id)}>
                         {t.active ? (
@@ -187,7 +167,6 @@ const TeachersManagement = () => {
                   </tr>
                 );
               })}
-
               {filteredTeachers.length === 0 && (
                 <tr>
                   <td colSpan="3" className="p-3 text-center text-gray-500">
@@ -198,7 +177,6 @@ const TeachersManagement = () => {
             </tbody>
           </table>
         </div>
-
         <AddTeacherModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
@@ -208,5 +186,4 @@ const TeachersManagement = () => {
     </div>
   );
 };
-
 export default TeachersManagement;

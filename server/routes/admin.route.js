@@ -1,5 +1,5 @@
 import express from "express";
-import adminMiddleware from "../middlewares/admin.middleware.js";
+import authAdmin from "../middlewares/admin.middleware.js";
 import {
   getDashboardStats,
   getAllTeachers,
@@ -8,11 +8,17 @@ import {
   toggleStudentStatus,
 } from "../controllers/admin.control.js";
 
-const router = express.Router();
-router.get("/dashboard", adminMiddleware, getDashboardStats);
-router.get("/teachers", adminMiddleware, getAllTeachers);
-router.patch("/teachers/:id/status", adminMiddleware, toggleTeacherStatus);
-router.get("/students", adminMiddleware, getStudentsBySemester);
-router.patch("/students/:id/status", adminMiddleware, toggleStudentStatus);
+const adminRouter = express.Router();
 
-export default router;
+// Dashboard
+adminRouter.get("/dashboard", authAdmin, getDashboardStats);
+
+// Teachers
+adminRouter.get("/teachers", authAdmin, getAllTeachers);
+adminRouter.patch("/get-teachers/:id/status", authAdmin, toggleTeacherStatus);
+
+// Students
+adminRouter.get("/students", authAdmin, getStudentsBySemester);
+adminRouter.patch("/get-students/:id/status", authAdmin, toggleStudentStatus);
+
+export default adminRouter;

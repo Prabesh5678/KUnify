@@ -1,15 +1,13 @@
+
 import React, { useEffect, useState } from "react";
 import { FaChalkboardTeacher, FaProjectDiagram, FaUsers, FaTasks } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
 import AdminSidebar from "../../components/Admin/AdminSideBar";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import StatsCard from "../../components/Admin/StatsCard";
-
 const AdminDashboard = () => {
   const navigate = useNavigate();
-
   // Dashboard stats state
   const [stats, setStats] = useState({
     totalStudents: 0,
@@ -17,9 +15,7 @@ const AdminDashboard = () => {
     totalProjects: 0,
     activeProjects: 0,
   });
-
   const [loading, setLoading] = useState(true);
-
   // Fetch dashboard statistics
   const fetchDashboardStats = async () => {
     try {
@@ -31,25 +27,19 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   };
-
   // Initial fetch + auto refresh every 5 seconds
   useEffect(() => {
     fetchDashboardStats();
-
     const interval = setInterval(() => {
       fetchDashboardStats();
     }, 5000); // auto refresh
-
     return () => clearInterval(interval);
   }, []);
-
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
-
       <div className="flex-1 p-8">
         <AdminHeader adminName="Admin" />
-
         {/* Stats Section */}
         <div className="bg-blue-50/40 rounded-2xl p-6 mb-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -79,7 +69,6 @@ const AdminDashboard = () => {
             />
           </div>
         </div>
-
         {/* Management Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Teachers Management */}
@@ -101,7 +90,6 @@ const AdminDashboard = () => {
             </div>
             <span className="text-xl text-purple-700">→</span>
           </button>
-
           {/* Projects Management */}
           <button
             onClick={() => navigate("/admin/projects")}
@@ -144,5 +132,4 @@ const AdminDashboard = () => {
     </div>
   );
 };
-
 export default AdminDashboard;

@@ -1,24 +1,21 @@
-import jwt from "jsonwebtoken";
+const authAdmin = (req, res, next) => {
+  const adminKey = req.headers["x-admin-key"];
 
-const adminMiddleware = (req, res, next) => {
-  const { adminToken } = req.cookies;
-
-  if (!adminToken) {
-    return res.json({ success: false, message: "Admin unauthorized" });
+  if (!adminKey) {
+    return res.json({
+      success: false,
+      message: "Admin key missing",
+    });
   }
 
-  try {
-    const decoded = jwt.verify(adminToken, process.env.JWT_SECRET);
-
-    if (decoded.role !== "admin") {
-      return res.json({ success: false, message: "Access denied" });
-    }
-
-    req.adminId = decoded.id;
-    next();
-  } catch (error) {
-    return res.json({ success: false, message: error.message });
+  if (adminKey !== process.env.ADMIN_KEY) {
+    return res.json({
+      success: false,
+      message: "Admin unauthorized",
+    });
   }
+
+  next();
 };
 
-export default adminMiddleware;
+export default authAdmin;

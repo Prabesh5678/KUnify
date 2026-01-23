@@ -1,16 +1,14 @@
+
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AdminSidebar from "../../components/Admin/AdminSideBar";
 import AdminHeader from "../../components/Admin/AdminHeader";
-
 const AllTeachers = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
   // SAFELY extract state
   const teacherId = location.state?.teacherId;
   const projects = location.state?.projects || [];
-
   // SAMPLE TEACHER DATA
   const teachers = [
     {
@@ -38,10 +36,8 @@ const AllTeachers = () => {
       designation: "Lecturer",
     },
   ];
-
   // Find teacher safely
   const teacher = teachers.find((t) => t.id === teacherId);
-
   // If page refreshed or opened directly
   if (!teacherId || !teacher) {
     return (
@@ -52,7 +48,6 @@ const AllTeachers = () => {
           <p className="text-red-600 font-semibold">
             Teacher data not found. Please navigate from Projects page.
           </p>
-
           <button
             onClick={() => navigate(-1)}
             className="mt-4 px-4 py-2 bg-primary text-white rounded"
@@ -63,31 +58,24 @@ const AllTeachers = () => {
       </div>
     );
   }
-
   const assignedProjects = projects.filter(
     (p) => p.assignedTeacher?.id === teacherId
   );
-
   const [designation, setDesignation] = useState(teacher.designation);
-
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
-
       <div className="flex-1 p-8">
         <AdminHeader adminName="Deekshya Badal" />
-
         <h2 className="text-2xl font-bold mb-6 text-gray-800">
           Teacher Details
         </h2>
-
         {/* Teacher Info */}
         <div className="bg-white rounded-xl shadow p-6 mb-6">
           <p className="mb-2"><strong>Name:</strong> {teacher.name}</p>
           <p className="mb-2"><strong>Phone:</strong> {teacher.phone}</p>
           <p className="mb-2"><strong>Email:</strong> {teacher.email}</p>
           <p className="mb-2"><strong>Expertise:</strong> {teacher.expertise}</p>
-
           <div className="mb-2">
             <strong>Designation:</strong>
             <select
@@ -102,13 +90,11 @@ const AllTeachers = () => {
             </select>
           </div>
         </div>
-
         {/* Assigned Projects */}
         <div className="bg-white rounded-xl shadow p-6">
           <h3 className="text-xl font-semibold mb-4">
             Assigned Projects
           </h3>
-
           {assignedProjects.length === 0 ? (
             <p className="text-gray-600">No projects assigned</p>
           ) : (
@@ -125,5 +111,4 @@ const AllTeachers = () => {
     </div>
   );
 };
-
 export default AllTeachers;
