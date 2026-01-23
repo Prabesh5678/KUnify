@@ -14,11 +14,11 @@ const adminRouter = express.Router();
 adminRouter.get("/dashboard", authAdmin, getDashboardStats);
 
 // Teachers
-adminRouter.get("/teachers", authAdmin, getAllTeachers);
+adminRouter.get("/get-teachers", authAdmin, getAllTeachers);
 adminRouter.patch("/get-teachers/:id/status", authAdmin, toggleTeacherStatus);
 
 // Students
-adminRouter.get("/students", authAdmin, getStudentsBySemester);
+adminRouter.get("/get-students", authAdmin, getStudentsBySemester);
 adminRouter.patch("/get-students/:id/status", authAdmin, toggleStudentStatus);
 
 export default adminRouter;
