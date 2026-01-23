@@ -19,7 +19,7 @@ const AdminDashboard = () => {
   // Fetch dashboard statistics
   const fetchDashboardStats = async () => {
     try {
-      const res = await axios.get("/admin/dashboard-stats");
+      const res = await axios.get("/admin/dashboard");
       setStats(res.data);
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
