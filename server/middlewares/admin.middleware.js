@@ -1,21 +1,32 @@
+import jwt from "jsonwebtoken";
+
 const authAdmin = (req, res, next) => {
-  const adminKey = req.headers["x-admin-key"];
+  const token = req.cookies.adminToken;
 
-  if (!adminKey) {
+  if (!token) {
     return res.json({
       success: false,
-      message: "Admin key missing",
+      message: "Admin not logged in",
     });
   }
 
-  if (adminKey !== process.env.ADMIN_KEY) {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    next();
+  } catch (error) {
     return res.json({
       success: false,
-      message: "Admin unauthorized",
+      message: "Invalid admin token",
     });
   }
-
-  next();
 };
 
 export default authAdmin;

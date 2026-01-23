@@ -1,10 +1,45 @@
 import Teacher from "../models/teacher.model.js";
 import Student from "../models/student.model.js";
 import Team from "../models/team.model.js";
+import jwt from "jsonwebtoken";
+
+export const adminLogin = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // only one admin
+    if (email !== process.env.ADMIN_EMAIL) {
+      return res.json({
+        success: false,
+        message: "Not an admin",
+      });
+    }
+
+    const token = jwt.sign(
+      { role: "admin" },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.cookie("adminToken", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({
+      success: true,
+      message: "Admin logged in",
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 
 export const getDashboardStats = async (req, res) => {
   try {
-    const [teachers, students, totalProjects, activeProjects] =
+    const [totalTeachers, totalStudents, totalProjects, activeProjects] =
       await Promise.all([
         Teacher.countDocuments(),
         Student.countDocuments(),
@@ -14,12 +49,10 @@ export const getDashboardStats = async (req, res) => {
 
     res.json({
       success: true,
-      data: {
-        teachers,
-        students,
-        totalProjects,
-        activeProjects,
-      },
+      totalTeachers,
+      totalStudents,
+      totalProjects,
+      activeProjects,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -55,7 +88,6 @@ export const toggleTeacherStatus = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Teacher status updated",
       activeStatus: teacher.activeStatus,
     });
   } catch (err) {
@@ -96,7 +128,6 @@ export const toggleStudentStatus = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Student status updated",
       activeStatus: student.activeStatus,
     });
   } catch (err) {
