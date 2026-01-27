@@ -25,8 +25,8 @@ adminRouter.get("/get-teachers", authAdmin, getAllTeachers);
 adminRouter.patch("/get-teachers/:id/status", authAdmin, toggleTeacherStatus);
 adminRouter.post("/create-visiting-teacher", authAdmin, createVisitingTeacher);
 
-// Students
-adminRouter.get("/get-students", authAdmin, getStudentsBySemester);
-adminRouter.patch("/get-students/:id/status", authAdmin, toggleStudentStatus);
+// Students (authAdmin removed here)
+adminRouter.get("/get-students", getStudentsBySemester);
+adminRouter.patch("/get-students/:id/status", toggleStudentStatus);
 
 export default adminRouter;

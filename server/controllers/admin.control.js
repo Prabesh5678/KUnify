@@ -126,6 +126,7 @@ export const createVisitingTeacher = async (req, res) => {
 };
 
 // Get students by semester
+/*
 export const getStudentsBySemester = async (req, res) => {
   try {
     const semester = Number(req.query.semester);
@@ -146,6 +147,29 @@ export const getStudentsBySemester = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+*/
+// Get students by semester
+export const getStudentsBySemester = async (req, res) => {
+  try {
+    const semester = req.query.semester || "";   // <-- keep as string
+    const search = req.query.search || "";
+
+    const students = await Student.find({
+      semester: semester,    // <-- string match
+      $or: [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ],
+    })
+      .select("name email semester activeStatus rollNumber teamId")
+      .populate("teamId", "name");
+
+    res.json({ success: true, students });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 
 // Toggle student activeStatus
 export const toggleStudentStatus = async (req, res) => {

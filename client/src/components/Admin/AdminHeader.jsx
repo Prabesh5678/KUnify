@@ -1,16 +1,21 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { assets } from "../../assets/assets";
+import { useAppContext } from "../../context/AppContext";  // <-- add this
 
 const AdminHeader = ({ adminName = "Admin" }) => {
   const navigate = useNavigate();
+  const { setUser } = useAppContext();  // <-- add this
 
   const handleLogout = async () => {
     try {
-      // API call only
-      await axios.post("/api/logout");
+      // Call backend logout endpoint
+      await axios.post("/api/admin/logout", {}, { withCredentials: true });
 
-      // Redirect after successful logout
+      // Clear user context
+      setUser(null);
+
+      // Redirect to home/login page
       navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -19,7 +24,6 @@ const AdminHeader = ({ adminName = "Admin" }) => {
 
   return (
     <div className="flex justify-between items-center bg-primary p-5 rounded-xl shadow-md mb-8">
-      {/* Left Section */}
       <NavLink to="/" className="flex items-center gap-4">
         <img src={assets.ku_logo} alt="ku_logo" className="h-12" />
         <div className="text-white">
@@ -29,11 +33,9 @@ const AdminHeader = ({ adminName = "Admin" }) => {
         </div>
       </NavLink>
 
-      {/* Logout Button */}
       <button
         onClick={handleLogout}
-        className="bg-primary text-secondary font-semibold px-5 py-2 rounded-lg
-                   hover:bg-primary/80 transition-all duration-200 cursor-pointer"
+        className="bg-primary text-secondary font-semibold px-5 py-2 rounded-lg hover:bg-primary/80 transition-all duration-200 cursor-pointer"
       >
         Logout
       </button>

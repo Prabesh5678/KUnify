@@ -26,7 +26,7 @@ const LoginPanel = () => {
   const { setUser, showUserLogin, setShowUserLogin } = useAppContext();
   const navigate = useNavigate();
 
-  const [vfName, setVfName] = useState("");
+  const [vfEmail, setVfEmail] = useState("");
   const [vfPassword, setVfPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loadingVF, setLoadingVF] = useState(false);
@@ -156,36 +156,63 @@ const LoginPanel = () => {
     }
   };
 
-  /* ===================== VISITING FACULTY ===================== */
-  const handleNameChange = (e) => {
-    const value = e.target.value.replace(/[^A-Za-z\s]/g, "").toUpperCase();
-    setVfName(value);
-  };
+ /* ===================== VISITING FACULTY ===================== */
+const handleEmailChange = (e) => {
+  setVfEmail(e.target.value);
+};
 
-  const handleVisitingFacultyLogin = async () => {
-    if (!vfName || !vfPassword) {
-      toast.error("Please enter name and password");
-      return;
-    }
+const handleVisitingFacultyLogin = async () => {
+  if (!vfEmail || !vfPassword) {
+    toast.error("Please enter email and password");
+    return;
+  }
 
-    try {
-      setLoadingVF(true);
+  setLoadingVF(true);
 
+  try {
+    // Try Admin login first
+    const { data } = await axios.post(
+      "/api/admin/login",
+      {
+        email: vfEmail,
+        password: vfPassword,
+      },
+      { withCredentials: true }
+    );
+
+    if (data.success) {
       setUser({
-        name: vfName,
-        role: "teacher",
-        type: "visiting",
+        email: vfEmail,
+        role: "admin",
       });
 
       setShowUserLogin(false);
-      navigate("/teacher/dashboard", { replace: true });
-      toast.success("Visiting faculty login successful");
-    } catch (error) {
-      toast.error("Login failed");
-    } finally {
-      setLoadingVF(false);
+      navigate("/admin/dashboard", { replace: true });
+      toast.success("Admin login successful!");
+      return;
     }
-  };
+  } catch (err) {
+    console.log("Not admin, trying Visiting Faculty login");
+  }
+
+  // If not admin, fallback to Visiting Faculty login
+  try {
+    setUser({
+      name: vfEmail,
+      role: "teacher",
+      type: "visiting",
+    });
+
+    setShowUserLogin(false);
+    navigate("/teacher/dashboard", { replace: true });
+    toast.success("Visiting faculty login successful");
+  } catch (err) {
+    toast.error("Login failed");
+  } finally {
+    setLoadingVF(false);
+  }
+};
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
@@ -223,10 +250,10 @@ const LoginPanel = () => {
 
           <div className="space-y-4">
             <input
-              type="text"
-              placeholder="FULL NAME"
-              value={vfName}
-              onChange={handleNameChange}
+              type="email"
+              placeholder="Email"
+              value={vfEmail}
+              onChange={handleEmailChange}
               className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] border border-gray-700"
             />
 

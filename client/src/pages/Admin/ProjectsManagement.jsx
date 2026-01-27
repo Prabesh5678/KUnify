@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AdminSidebar from "../../components/Admin/AdminSideBar";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import ProjectDetailModal from "../../components/Admin/ProjectDetailModal";
 import { toast } from "react-hot-toast";
+
 const pastelColors = [
   { bg: "bg-sky-50", border: "border-sky-200" },
   { bg: "bg-teal-50", border: "border-teal-200" },
@@ -12,10 +12,15 @@ const pastelColors = [
   { bg: "bg-rose-50", border: "border-rose-200" },
   { bg: "bg-amber-50", border: "border-amber-200" },
 ];
+
+axios.defaults.withCredentials = true;
+
 const ProjectsManagement = () => {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+
+  // TEMP DATA UNTIL PROJECT API EXISTS
   const sampleProjects = [
     {
       id: 1,
@@ -36,14 +41,15 @@ const ProjectsManagement = () => {
       assignedTeacher: { id: 103, name: "Prof. Joshi" },
     },
   ];
+
   const sampleTeachers = [
     { id: 101, name: "Prof. Sharma" },
     { id: 102, name: "Prof. Koirala" },
     { id: 103, name: "Prof. Joshi" },
   ];
-  
+
   const MAX_PROJECTS_PER_TEACHER = 5;
- 
+
   const countAssignedProjects = (teacherId) => {
     return projects.filter(
       (p) => p.assignedTeacher && p.assignedTeacher.id === teacherId
@@ -52,47 +58,55 @@ const ProjectsManagement = () => {
 
   const fetchProjects = async () => {
     try {
-      // API CALL: GET /admin/projects
-      // const res = await axios.get("/admin/projects");
-      // setProjects(res.data);
-      // TEMP: Using sample data for now
-      setProjects(sampleProjects);
+      // ⚠️ No API exists yet
+      // const res = await axios.get("/api/admin/projects");
+      // setProjects(res.data.projects);
+
+      setProjects(sampleProjects); // temporary
     } catch (err) {
       console.error("Failed to fetch projects", err);
       toast.error("Unable to load projects");
     }
   };
-useEffect(() => {
-  fetchProjects(); 
-}, []);
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
   const openModal = async (project) => {
     try {
-      // API CALL: GET /admin/projects/:id/suggested-teachers
-      // const res = await axios.get(`/admin/projects/${project.id}/suggested-teachers`);
-      // setSelectedProject({ ...project, teachers: res.data });
-      // temporary this is to be deleted laterrr
-      setSelectedProject({ ...project, teachers: sampleTeachers });
+      // ⚠️ No API exists yet
+      // const res = await axios.get(`/api/admin/projects/${project.id}/suggested-teachers`);
+      // setSelectedProject({ ...project, teachers: res.data.teachers });
+
+      setSelectedProject({ ...project, teachers: sampleTeachers }); // temporary
       setModalOpen(true);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch suggested teachers");
     }
   };
+
   const handleAssignTeacher = async (teacherId, projectId) => {
     try {
-      // API CALL: POST /admin/projects/:id/assign-teacher
-      // const res = await axios.post(`/admin/projects/${projectId}/assign-teacher`, { teacherId });
-      // TEMP: Simulate API response
+      // ⚠️ No API exists yet
+      // const res = await axios.post(`/api/admin/projects/${projectId}/assign-teacher`, { teacherId });
+
       const updatedProject = projects
         .map((p) =>
           p.id === projectId
-            ? { ...p, assignedTeacher: sampleTeachers.find((t) => t.id === teacherId) }
+            ? {
+                ...p,
+                assignedTeacher: sampleTeachers.find((t) => t.id === teacherId),
+              }
             : p
         )
         .find((p) => p.id === projectId);
+
       setProjects((prev) =>
         prev.map((p) => (p.id === projectId ? updatedProject : p))
       );
+
       toast.success(
         `Teacher ${updatedProject.assignedTeacher.name} assigned to ${updatedProject.title}`
       );
@@ -102,8 +116,9 @@ useEffect(() => {
       toast.error("Assignment failed");
     }
   };
+
   return (
- <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
       <div className="flex-1 p-8">
         <AdminHeader />
@@ -127,6 +142,7 @@ useEffect(() => {
                 const count = p.assignedTeacher
                   ? countAssignedProjects(p.assignedTeacher.id)
                   : 0;
+
                 return (
                   <tr
                     key={p.id}
@@ -153,6 +169,7 @@ useEffect(() => {
             </tbody>
           </table>
         </div>
+
         {selectedProject && (
           <ProjectDetailModal
             isOpen={modalOpen}
@@ -165,4 +182,5 @@ useEffect(() => {
     </div>
   );
 };
+
 export default ProjectsManagement;
