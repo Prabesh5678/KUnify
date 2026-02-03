@@ -13,6 +13,7 @@ const ADMIN_EMAIL = [
   "ssubhechhakarkee@gmail.com",
    "deekshyabadal@gmail.com",
    "ranjitkarsajana@gmail.com",
+   'milannepal2023@gmail.com'
 ];
 
 const TEACHER_EMAIL = [

@@ -1,4 +1,6 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 export default function TeacherTeams() {
@@ -15,47 +17,69 @@ export default function TeacherTeams() {
 
   // 2. Dummy data for teams (replace with API later)
   const [teams, setTeams] = useState([
-    {
-      id: 1,
-      teamName: "Team Alpha",
-      subjectCode: "CS101",
-    },
-    {
-      id: 2,
-      teamName: "Team Beta",
-      subjectCode: "CS102",
-    },
-    {
-      id: 3,
-      teamName: "Team Gamma",
-      subjectCode: "CS103",
-    },
-    {
-      id: 4,
-      teamName: "Team Delta",
-      subjectCode: "CS104",
-    },
-    {
-      id: 5,
-      teamName: "Team Epsilon",
-      subjectCode: "CS105",
-    },
-    {
-      id: 6,
-      teamName: "Team Zeta",
-      subjectCode: "CS106",
-    },
-    {
-      id: 7,
-      teamName: "Team Eta",
-      subjectCode: "CS107",
-    },
+    // {
+    //   id: 1,
+    //   teamName: "Team Alpha",
+    //   subjectCode: "CS101",
+    // },
+    // {
+    //   id: 2,
+    //   teamName: "Team Beta",
+    //   subjectCode: "CS102",
+    // },
+    // {
+    //   id: 3,
+    //   teamName: "Team Gamma",
+    //   subjectCode: "CS103",
+    // },
+    // {
+    //   id: 4,
+    //   teamName: "Team Delta",
+    //   subjectCode: "CS104",
+    // },
+    // {
+    //   id: 5,
+    //   teamName: "Team Epsilon",
+    //   subjectCode: "CS105",
+    // },
+    // {
+    //   id: 6,
+    //   teamName: "Team Zeta",
+    //   subjectCode: "CS106",
+    // },
+    // {
+    //   id: 7,
+    //   teamName: "Team Eta",
+    //   subjectCode: "CS107",
+    // },
   ]);
+const fetchTeams = async () => {
+  try {
+    // BACKEND (when ready)
+    const { data } = await axios.get("/api/teacher/teams?get=assigned", {
+      withCredentials: true,
+    });
+    if (data.success) {
+      setTeams(data.teams);
+    } else {
+      toast.error("Unable to get teams!");
+      console.error(data.message);
+    }
+    // TEMP:
+    // setRequests(testRequests);
+  } catch (err) {
+    toast.error("Failed to load requests");
+    console.error(err.stack);
+  }
+};
 
+useEffect(() => {
+  fetchTeams();
+}, []);
   const [search, setSearch] = useState("");
 
   const filteredTeams = teams.filter((team) =>
-    team.teamName.toLowerCase().includes(search.toLowerCase())
+    team.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -75,14 +99,14 @@ export default function TeacherTeams() {
       <div className="grid grid-cols-1 gap-4 max-h-[75vh] overflow-y-auto">
         {filteredTeams.map((team, index) => (
           <div
-            key={team.id}
+            key={team.id||1}
             className={`border p-4 rounded flex justify-between items-center ${
               colorPalette[index % colorPalette.length]
             } text-gray-700`}
           >
             <div>
-              <h2 className="font-bold">{team.teamName}</h2>
-              <p className="text-gray-600">{team.subjectCode}</p>
+              <h2 className="font-bold">{team.name}</h2>
+              <p className="text-gray-600">{team.code}</p>
             </div>
 
             <button
