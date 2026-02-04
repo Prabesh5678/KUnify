@@ -13,19 +13,13 @@ const Contact = () => {
           <div className="bg-white rounded-lg shadow p-6 flex flex-col gap-4">
             <h2 className="text-2xl font-semibold text-gray-700">Support & Admin</h2>
             <p>
-              <span className="font-medium">Technical Support:</span>{" "}
-              <a href="mailto:deekshyabadal@gmail.com" className="text-primary hover:underline">
-                deekshyabadal@gmail.com
-              </a>
-            </p>
-            <p>
               <span className="font-medium">Admin Office:</span>{" "}
               <a href="mailto:saugat.singh@ku.edu.np" className="text-primary hover:underline">
                 Saugat Singh (saugat.singh@ku.edu.np)
               </a>
             </p>
             <p>
-              <span className="font-medium">Phone:</span> +977000000000
+              <span className="font-medium">Office:</span> Lupic Lab
             </p>
             <p>
               <span className="font-medium">Address:</span> Kathmandu University, Dhulikhel, Kavre, Nepal
