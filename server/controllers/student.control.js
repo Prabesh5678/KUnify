@@ -182,7 +182,10 @@ export const profileUpdate = async (req, res) => {
 // Get all teachers //api/student/get-teachers
 export const getTeachers =async (_,res) => {
   try {
-    const teachers = await Teacher.find({ activeStatus:true},{name:1,specialization:1});
+    const teachers = await Teacher.find(
+      { activeStatus: true, isProfileCompleted :true},
+      { name: 1, specialization: 1 },
+    );
   if(teachers.length===0){
     return res.json({success:false,message:'No active teachers found!'})
   }

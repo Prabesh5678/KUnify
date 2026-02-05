@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { CheckCircle, Clock, Users, FileText, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function TeacherProjects() {
   const navigate = useNavigate();
@@ -22,23 +23,30 @@ export default function TeacherProjects() {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const { data } = await axios.get("/api/teacher/teams");
+        const { data } = await axios.get("/api/teacher/teams?get=all");
+        console.log(data)
+        if(data.success){
         const teamList = data?.teams || [];
-        setTeams(teamList);
-
-        const totalTeams = teamList.length;
-        const pendingProposals = teamList.filter(t => t.status === "pending").length;
-        const approvedProjects = teamList.filter(t => t.status === "approved").length;
-        const totalLogs = teamList.reduce((sum, t) => sum + t.logs, 0);
+        setTeams(teamList.assignedTeams);
+        const totalTeams = teamList.assignedTeams.length;
+        const pendingProposals = teamList.pendingTeams.length;
+        const approvedProjects = teamList.approvedTeams.length;
+        // const totalLogs = teamList.reduce((sum, t) => sum + t.logs, 0);
+        const totalLogs=1;
 
         setStats([
-          { label: "Total Teams", value: totalTeams, icon: Users, cardBg: "bg-blue-50", iconBg: "bg-blue-100", textColor: "text-blue-600" },
+          { label: "Total  Teams", value: totalTeams, icon: Users, cardBg: "bg-blue-50", iconBg: "bg-blue-100", textColor: "text-blue-600" },
           { label: "Pending Proposals", value: pendingProposals, icon: FileText, cardBg: "bg-orange-50", iconBg: "bg-orange-100", textColor: "text-orange-600" },
           { label: "Approved Projects", value: approvedProjects, icon: CheckCircle, cardBg: "bg-green-50", iconBg: "bg-green-100", textColor: "text-green-600" },
           { label: "Total Logsheet Entries", value: totalLogs, icon: Clock, cardBg: "bg-purple-50", iconBg: "bg-purple-100", textColor: "text-purple-600" },
-        ]);
+        ]);}
+        else{
+          toast.error('Unable to fetch teams!')
+          console.log('hi')
+          console.error(data?.message);
+        }
       } catch (err) {
-        console.error("Failed to fetch teams:", err);
+        console.error("Failed to fetch teams:", err.stack);
         setError("Failed to load teams. Please try again later.");
       } finally {
         setLoading(false);

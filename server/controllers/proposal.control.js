@@ -3,7 +3,6 @@ import Team from "../models/team.model.js";
 import cloudinary from "../configs/cloudinary.config.js";
 import Teacher from "../models/teacher.model.js";
 import mongoose from "mongoose";
-import proposalModel from "../models/proposal.model.js";
 
 // post /api/proposal/upload
 export const uploadProposal = async (req, res) => {
@@ -14,27 +13,19 @@ export const uploadProposal = async (req, res) => {
     const { title, abstract, keywords, supervisor } = req.body;
     const { teamId } = req.params;
     if (!teamId)
-      return res
-        .status(400)
-        .json({ success: false, message: "An error occured!" });
+     throw new Error("Unable to find teamId!")
     if (!title || !abstract || !keywords || !supervisor) {
-      return res
-        .status(400)
-        .json({ success: false, message: "All fields are required" });
+      throw new Error("All fields are required!");
     }
 
     if (!req.file) {
-      return res
-        .status(400)
-        .json({ success: false, message: "PDF file is required" });
+      throw new Error("PDF file is required!");
     }
 
     const team = await Team.findById(teamId);
 
     if (!team) {
-      return res
-        .status(403)
-        .json({ success: false, message: "You are not part of any team" });
+      throw new Error("You are not part of any team");
     }
 
     // if (team.leaderId.toString() !== studentId.toString()) {
@@ -45,15 +36,11 @@ export const uploadProposal = async (req, res) => {
 
     // if (req.query.edit!=='yes'&&team.proposal) {
     if (team.proposal) {
-      return res.json({
-        success: false,
-        message: "Proposal already submitted by your team",
-      });
+     throw new Error("Proposal already submitted by your team");
     }
     const teacher = await Teacher.findById(supervisor);
     if (!teacher)
-      return res.json({ success: false, message: "Unable to find teacher!" });
-
+throw new Error("Unable to find teacher!");
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: "kunify/proposals",
       resource_type: "raw",

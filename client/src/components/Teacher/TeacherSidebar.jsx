@@ -57,8 +57,8 @@ useEffect(() => {
 
   fetchTeamRequestsCount();
 
-  // Optional: poll every 10 seconds
-  const interval = setInterval(fetchTeamRequestsCount, 10000);
+  // Optional: poll every 6 seconds
+  const interval = setInterval(fetchTeamRequestsCount, 6000);
 
   return () => clearInterval(interval); // cleanup
 }, []);
