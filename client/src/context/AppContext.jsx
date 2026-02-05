@@ -36,6 +36,28 @@ export const AppContextProvider = ({ children }) => {
     try {
       setLoadingUser(true);
 
+      /* ===================== ADMIN AUTH ===================== */
+try {
+  const adminRes = await axios.get("/api/admin/dashboard", {
+    withCredentials: true,
+  });
+
+  // If token is valid, this route will not fail
+  if (adminRes.data) {
+    setUser({ role: "admin" });
+    setIsAdmin(true);
+    setIsTeacher(false);
+    setStudentProfile(null);
+    setSelectedSubject(null);
+    setProfileSetupDone(true);
+
+    setLoadingUser(false);
+    return;
+  }
+} catch (err) {
+  console.warn("Admin not authenticated");
+}
+
       /* ===================== TEACHER AUTH ===================== */
       /* ===================== TEACHER AUTH ===================== */
       try {

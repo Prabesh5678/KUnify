@@ -165,11 +165,12 @@ const App = () => {
           {/* Admin Routes */}
           <Route element={<AdminGuard />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/teachers" element={<TeachersManagement />} />
+            <Route path="/admin/admin_teachers" element={<TeachersManagement />} />
             <Route path="/admin/projects" element={<ProjectsManagement />} />
           <Route path="/admin/allteachers/:id" element={<AllTeachers />} />
-          <Route path="/admin/students" element={<StudentsManagement />} />
-<Route path="/admin/student-details" element={<StudentDetails />} />
+          <Route path="/admin/admin_std" element={<StudentsManagement />} />
+         
+<Route path="/admin/admin_std-details" element={<StudentDetails />} />
 
 
 

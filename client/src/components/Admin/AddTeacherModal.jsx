@@ -4,7 +4,12 @@ import axios from "axios";
 import { FaRegCopy } from "react-icons/fa";
 
 const AddTeacherModal = ({ isOpen, onClose, onAddTeacher }) => {
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    specialization: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,18 +24,25 @@ const AddTeacherModal = ({ isOpen, onClose, onAddTeacher }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.password) {
+
+    if (!form.name || !form.email || !form.password || !form.specialization) {
       toast.error("All fields are required");
       return;
     }
 
     setIsLoading(true);
     try {
-      const res = await axios.post("/api/teachers", form);
-      onAddTeacher(res.data);
-      toast.success("Visiting faculty added successfully!");
-      setForm({ name: "", email: "", password: "" });
-      onClose();
+      // Backend endpoint
+      const res = await axios.post("/api/admin/create-visiting-teacher", form);
+
+      if (res.data.success) {
+        onAddTeacher(res.data.teacher);   // add teacher to frontend list
+        toast.success("Visiting faculty added successfully!");
+        setForm({ name: "", email: "", password: "", specialization: "" });
+        onClose();
+      } else {
+        toast.error(res.data.message || "Failed to add teacher");
+      }
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || "Failed to add teacher");
@@ -64,6 +76,15 @@ const AddTeacherModal = ({ isOpen, onClose, onAddTeacher }) => {
             value={form.email}
             onChange={handleChange}
             placeholder="Email"
+            className="p-2 rounded border border-gray-300 focus:ring-indigo-300 focus:border-indigo-300 outline-none"
+          />
+
+          <input
+            type="text"
+            name="specialization"
+            value={form.specialization}
+            onChange={handleChange}
+            placeholder="Specialization"
             className="p-2 rounded border border-gray-300 focus:ring-indigo-300 focus:border-indigo-300 outline-none"
           />
 

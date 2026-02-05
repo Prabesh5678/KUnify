@@ -21,7 +21,7 @@ const AdminSidebar = () => {
     },
     {
       label: "Teachers",
-      path: "/admin/teachers",
+      path: "/admin/admin_teachers",
       icon: <FaChalkboardTeacher />,
     },
     {
@@ -31,7 +31,7 @@ const AdminSidebar = () => {
     },
     {
       label: "Students",
-      path: "/admin/students",
+      path: "/admin/admin_std",
       icon: <  FaUserGraduate />,
     },
   ];

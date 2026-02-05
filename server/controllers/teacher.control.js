@@ -163,8 +163,8 @@ export const teamRequest = async (req, res) => {
       return res.json({ success: true, teams: requests.pendingTeams });
     } else if (req.query.get === "assigned") {
       const requests = await Teacher.findById(teacherId)
-        .populate("assignedTeams")
-        .select("assignedTeams");
+      .select("assignedTeams")
+        .populate("assignedTeams");
       if (!requests)
         return res.json({ success: false, message: "Unable to find teacher!" });
       return res.json({ success: true, teams: requests.assignedTeams });
