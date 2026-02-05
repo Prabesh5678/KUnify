@@ -99,6 +99,7 @@ export const toggleTeacherStatus = async (req, res) => {
   }
 };
 
+
 // Create visiting faculty
 export const createVisitingTeacher = async (req, res) => {
   try {
@@ -124,6 +125,7 @@ export const createVisitingTeacher = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
 
 // Reset visiting faculty password 
 // POST /api/admin/teacher/reset-password
@@ -158,17 +160,17 @@ export const resetVisitingTeacherPassword = async (req, res) => {
 // Get students by semester
 export const getStudentsBySemester = async (req, res) => {
   try {
-    const semester = req.query.semester || "";   // <-- keep as string
+    const semester = req.query.semester || "";   
     const search = req.query.search || "";
 
     const students = await Student.find({
-      semester: semester,    // <-- string match
+      semester: semester,    
       $or: [
         { name: { $regex: search, $options: "i" } }, //regex=pattern matching search
         { email: { $regex: search, $options: "i" } },//option:i bhaneko chai case insensitive search 
       ],
     })
-      .select("name email semester rollNumber teamId department")
+      .select("name email semester department rollNumber teamId")
       .populate("teamId", "name");
 
     res.json({ success: true, students });
@@ -177,129 +179,90 @@ export const getStudentsBySemester = async (req, res) => {
   }
 };
 
-// Approve supervisor request (Admin)
+// Approve supervisor request
 // POST /api/admin/supervisor/approve
 export const approveSupervisorRequest = async (req, res) => {
   try {
     const { teamId } = req.body;
 
     const team = await Team.findById(teamId);
-    if (!team) return res.status(404).json({ success: false, message: "Team not found" });
+    if (!team)
+      return res.status(404).json({ success: false, message: "Team not found" });
 
-    const teacher = await Teacher.findById(team.requestedTeacher);
-    if (!teacher) return res.status(404).json({ success: false, message: "Teacher not found" });
-
-    // Update team status to pending teacher approval
-    team.supervisorStatus = "pendingTeacher";
-    await team.save();
-
-    // Add team to teacher.pendingTeams if not already present
-    if (!teacher.pendingTeams.includes(team._id)) {
-      teacher.pendingTeams.push(team._id);
-      await teacher.save();
+    
+    if (team.supervisorStatus !== "teacherApproved") {
+      return res.status(400).json({
+        success: false,
+        message: "Teacher has not approved yet",
+      });
     }
 
-    res.json({
-      success: true,
-      message: "Request approved by admin, now pending teacher approval",
-    });
+    const teacher = await Teacher.findById(team.requestedTeacher);
+    if (!teacher)
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+
+   
+    team.supervisor = teacher._id;
+    team.supervisorStatus = "adminApproved";
+
+    
+    if (!teacher.assignedTeams.includes(team._id)) {
+      teacher.assignedTeams.push(team._id);
+    }
+
+    
+    teacher.approvedTeams = teacher.approvedTeams.filter(
+      (id) => id.toString() !== team._id.toString()
+    );
+
+    await Promise.all([team.save(), teacher.save()]);
+
+    res.json({ success: true, message: "Supervisor assigned successfully!" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// Decline supervisor request (Admin)
+// Decline supervisor request 
 // POST /api/admin/supervisor/decline
 export const declineSupervisorRequest = async (req, res) => {
   try {
     const { teamId } = req.body;
 
     const team = await Team.findById(teamId);
-    if (!team) return res.status(404).json({ success: false, message: "Team not found" });
+    if (!team)
+      return res.status(404).json({ success: false, message: "Team not found" });
 
     const teacher = await Teacher.findById(team.requestedTeacher);
 
-    // Update team
+   
     team.supervisorStatus = "notApproved";
     team.requestedTeacher = null;
-    await team.save();
 
-    // Remove team from teacher.pendingTeams if exists
+    
     if (teacher) {
-      teacher.pendingTeams = teacher.pendingTeams.filter(id => id.toString() !== teamId);
-      await teacher.save();
+      teacher.approvedTeams = teacher.approvedTeams.filter(
+        (id) => id.toString() !== team._id.toString()
+      );
     }
+
+    await Promise.all([team.save(), teacher?.save()]);
 
     res.json({ success: true, message: "Request declined by admin" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-/*
-// sabbai team fetch garna
-export const getAllTeams = async (req, res) => {
-  try {
-    const teams = await Team.find()
-      .populate("leaderId", "name semester department email")  
-      .populate("members", "name email")   
-      .populate("supervisor", "name email")
-      .populate("proposal");              
 
-
-    const assignedTeams = teams.filter(team => team.supervisor);       
-    const unassignedTeams = teams.filter(team => !team.supervisor);    
-
-    res.json({
-      success: true,
-      assignedTeams,
-      unassignedTeams,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: "Unable to fetch teams" });
-  }
-};
-*/
-// GET all teams with supervisor status
-{/*
-export const getAllTeams = async (req, res) => {
-  try {
-
-    // fetch all teams
-    const teams = await Team.find()
-      .populate("leaderId", "name semester department")
-      .populate("supervisor", "name");
-
-    const assignedTeams = [];
-    const unassignedTeams = [];
-
-    teams.forEach((team) => {
-      if (team.supervisor) {
-        assignedTeams.push(team);
-      } else {
-        unassignedTeams.push(team);
-      }
-    });
-
-    res.json({
-      success: true,
-      assignedTeams,
-      unassignedTeams,
-    });
-
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-*/
-}
+//fetching team
 export const getAllTeams = async (req, res) => {
   try {
     const teams = await Team.find()
       .populate("leaderId", "name semester department")
       .populate("supervisor", "name")
       .populate("members", "name email semester rollNumber department")
-      .populate("proposal");
+      .populate("proposal")
+      .populate("leaderId","logsheets");
 
     const assignedTeams = [];
     const unassignedTeams = [];
