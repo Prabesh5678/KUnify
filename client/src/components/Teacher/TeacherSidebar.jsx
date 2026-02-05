@@ -20,6 +20,8 @@ export default function TeacherSidebar() {
   const location = useLocation();
 
   const navigate = useNavigate();
+  //const [teamRequestCount, setTeamRequestCount] = useState(0);
+  const teamRequestCount = 5;
 
 const handleLogout = async () => {
   try {
@@ -30,6 +32,26 @@ const handleLogout = async () => {
   }
 };
 
+  /*useEffect(() => {
+    const fetchTeamRequests = async () => {
+      if (!user || user.role !== "admin") return;
+
+      try {
+        const { data } = await axios.get(
+          "/api/team-requests/unread-count"
+        );
+        if (data.success) {
+          setTeamRequestCount(data.count);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchTeamRequests();
+
+    const interval = setInterval(fetchTeamRequests, 10000);
+    return () => clearInterval(interval);
+  }, [user]);*/
 
   // Hide sidebar on profile setup page
   if (location.pathname === "/teacher/profile-setup") {
@@ -85,8 +107,21 @@ const handleLogout = async () => {
               }
               title={item.label}  // tooltip
             >
-              {item.icon}
-              {!collapsed && <span className="text-sm">{item.label}</span>}
+              <div className="flex items-center gap-3">
+                <div className="relative">
+        {item.icon}
+        {item.label === "Team Requests" && teamRequestCount > 0 && (
+            <span
+              className={`absolute text-white text-xs font-semibold px-1.5 py-0.5 rounded-full bg-red-500 
+                ${collapsed ? "-top-2 -right-2" : "top-0 right-0 translate-x-[160px]"}`}
+            >
+              {teamRequestCount}
+            </span>
+          )}
+      </div>
+
+      {!collapsed && <span className="text-sm">{item.label}</span>}
+      </div>
             </NavLink>
           ))}
         </nav>
@@ -114,14 +149,14 @@ const handleLogout = async () => {
   {/* Logout Button */}
   <button
     onClick={handleLogout}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg
+    className={`flex items-center px-4 py-3 rounded-lg
                 bg-primary hover:bg-[#1b2334] transition-colors ${
-                  collapsed ? "justify-center " : "justify-start"
+                  collapsed ? "justify-center w-16 px-0" :  "justify-start  w-full px-4"
                 }`}
     title="Logout"
   >
     <LogOut size={20} />
-    {!collapsed && <span className="text-sm font-medium">Logout</span>}
+    {!collapsed && <span className="text-sm font-medium ml-3">Logout</span>}
   </button>
 </div>
 
