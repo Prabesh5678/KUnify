@@ -33,6 +33,8 @@ adminRouter.post("/teacher/reset-password", authAdmin, resetVisitingTeacherPassw
 adminRouter.get("/get-students", getStudentsBySemester);
 
 // Admin supervisor requests
+// Admin pending supervisor requests
+adminRouter.get("/supervisor/pending", authAdmin, getPendingSupervisorRequests);
 adminRouter.post("/supervisor/approve",  approveSupervisorRequest);
 adminRouter.post("/supervisor/decline",  declineSupervisorRequest);
 
