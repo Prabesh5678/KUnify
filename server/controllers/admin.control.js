@@ -99,6 +99,7 @@ export const toggleTeacherStatus = async (req, res) => {
   }
 };
 
+
 // Create visiting faculty
 export const createVisitingTeacher = async (req, res) => {
   try {
@@ -124,6 +125,7 @@ export const createVisitingTeacher = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
 
 // Reset visiting faculty password 
 // POST /api/admin/teacher/reset-password
