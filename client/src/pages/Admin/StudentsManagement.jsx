@@ -16,10 +16,11 @@ const StudentsManagement = () => {
 
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState("");
-  const [activeDepartment, setActiveDepartment] = useState(null);
+  const [activeDepartment, setActiveDepartment] = useState("CE"); // CE default
   const [activeSemester, setActiveSemester] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Fetch students from API
   const fetchStudents = async (department = "", semester = "", searchTerm = "") => {
     try {
       setLoading(true);
@@ -30,36 +31,40 @@ const StudentsManagement = () => {
       if (res.data.success) {
         setStudents(res.data.students || []);
       } else {
+        setStudents([]);
         toast.error("Failed to load students");
       }
     } catch (err) {
       console.error(err);
+      setStudents([]);
       toast.error("Failed to fetch students");
     } finally {
       setLoading(false);
     }
   };
 
-  // handle department tab click
+  // Fetch CE students on initial render
+  useEffect(() => {
+    fetchStudents("CE");
+  }, []);
+
   const handleDepartmentClick = (dept) => {
     setActiveDepartment(dept);
     setActiveSemester(null); // reset semester selection
-    setStudents([]); // clear old list
+    setStudents([]); // clear previous students
+    fetchStudents(dept); // fetch all students for department if no semester selected
   };
 
-  // handle semester click
   const handleSemesterClick = (sem) => {
     setActiveSemester(sem);
     fetchStudents(activeDepartment, sem, search);
   };
 
-  // handle global search
   const handleSearchChange = (value) => {
     setSearch(value);
     fetchStudents(activeDepartment || "", activeSemester || "", value);
   };
 
-  // filtered students for local search (optional)
   const filteredStudents = students.filter(
     (s) =>
       s.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -112,8 +117,7 @@ const StudentsManagement = () => {
                   activeDepartment === dept
                     ? "bg-primary text-white shadow-md scale-105"
                     : "bg-white text-gray-600 border border-gray-200 hover:bg-primary/10"
-                }
-              `}
+                }`}
             >
               {dept}
             </button>
@@ -132,8 +136,7 @@ const StudentsManagement = () => {
                     activeSemester === sem
                       ? "bg-primary text-white shadow-md scale-105"
                       : "bg-white text-gray-600 border border-gray-200 hover:bg-primary/10"
-                  }
-                `}
+                  }`}
               >
                 {sem} Semester
               </button>

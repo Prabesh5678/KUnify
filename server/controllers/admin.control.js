@@ -4,6 +4,7 @@ import Team from "../models/team.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+
 // Admin Login (with email + password)
 export const adminLogin = async (req, res) => {
   try {
@@ -179,7 +180,7 @@ export const getStudentsBySemester = async (req, res) => {
         { email: { $regex: search, $options: "i" } },
       ],
     })
-      .select("name email semester rollNumber department teamId")
+      .select("name email semester rollNumber department logsheets teamId")
       .populate("teamId", "name");
 
     res.json({ success: true, students });

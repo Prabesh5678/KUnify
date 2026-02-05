@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import AdminSidebar from "../../components/Admin/AdminSideBar";
 import AddTeacherModal from "../../components/Admin/AddTeacherModal";
+import ResetPasswordModal from "../../components/Admin/ResetPasswordModal";
 import { FaToggleOn, FaToggleOff } from "react-icons/fa";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
 
 const pastelColors = [
   { bg: "bg-indigo-50", border: "border-indigo-100" },
@@ -17,24 +17,23 @@ axios.defaults.withCredentials = true;
 const TeachersManagement = () => {
   const [teachers, setTeachers] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [resetModalOpen, setResetModalOpen] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [search, setSearch] = useState("");
-  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("regular"); // "regular" or "visiting"
 
-  // =====================
   // Fetch all teachers
-  // =====================
   const fetchTeachers = async () => {
     try {
       const res = await axios.get("/api/admin/get-teachers");
       if (res.data.success) {
-        // Force all teachers to be active initially
-        const activeTeachers = res.data.teachers.map((t) => ({
+        const updatedTeachers = res.data.teachers.map((t) => ({
           ...t,
           active: true,
         }));
-        setTeachers(activeTeachers);
+        setTeachers(updatedTeachers);
       } else {
-        setTeachers(res.data); // fallback
+        setTeachers([]);
       }
     } catch (err) {
       console.error(err);
@@ -49,19 +48,13 @@ const TeachersManagement = () => {
   // Toggle active/inactive
   const handleToggle = async (id) => {
     try {
-      const teacher = teachers.find((t) => t._id === id || t.id === id);
-      const res = await axios.patch(`/api/admin/get-teachers/${id}/status`, {
-        status: !teacher.active,
-      });
+      const teacher = teachers.find((t) => t._id === id);
+      const res = await axios.patch(`/api/admin/get-teachers/${id}/status`, { status: !teacher.active });
       if (res.data.success) {
         setTeachers((prev) =>
-          prev.map((t) =>
-            t._id === id || t.id === id ? { ...t, active: !t.active } : t
-          )
+          prev.map((t) => (t._id === id ? { ...t, active: !t.active } : t))
         );
-        toast.success(
-          `${teacher.name} is now ${!teacher.active ? "Active" : "Inactive"}`
-        );
+        toast.success(`${teacher.name} is now ${!teacher.active ? "Active" : "Inactive"}`);
       } else {
         toast.error("Status update failed");
       }
@@ -76,8 +69,9 @@ const TeachersManagement = () => {
     try {
       const res = await axios.post("/api/admin/create-visiting-teacher", teacherData);
       if (res.data.success) {
-        setTeachers((prev) => [...prev, { ...res.data.teacher, active: true }]);
+        setTeachers((prev) => [...prev, res.data.teacher]);
         toast.success("Visiting faculty added successfully!");
+        setModalOpen(false);
       } else {
         toast.error(res.data.message || "Failed to add teacher");
       }
@@ -87,17 +81,78 @@ const TeachersManagement = () => {
     }
   };
 
-  // Filter teachers by search
+  // Reset password
+  const handleResetPassword = async (newPassword) => {
+    try {
+      const res = await axios.post("/api/admin/teacher/reset-password", {
+        teacherId: selectedTeacher._id,
+        newPassword,
+      });
+      if (res.data.success) {
+        toast.success("Password reset successfully!");
+        setResetModalOpen(false);
+        setSelectedTeacher(null);
+      } else {
+        toast.error(res.data.message || "Failed to reset password");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to reset password");
+    }
+  };
+
+  // Filtered teachers
   const filteredTeachers = teachers.filter((t) => {
     const term = search.toLowerCase();
     return t.name.toLowerCase().includes(term) || t.email.toLowerCase().includes(term);
   });
+
+  // Separate into regular and visiting
+  const regularTeachers = filteredTeachers.filter((t) => !t.isVisiting);
+  const visitingTeachers = filteredTeachers.filter((t) => t.isVisiting);
+
+  const renderTable = (teacherList) =>
+    teacherList.map((t, idx) => {
+      const color = pastelColors[idx % pastelColors.length];
+      return (
+        <tr
+          key={t._id}
+          className={`${color.bg} ${color.border} border-b hover:bg-primary/20 cursor-pointer`}
+        >
+          <td className="p-3">{t.name}</td>
+          <td className="p-3">{t.email}</td>
+          <td className="p-3">
+            <button onClick={() => handleToggle(t._id)}>
+              {t.active ? (
+                <FaToggleOn className="text-green-500 text-2xl" />
+              ) : (
+                <FaToggleOff className="text-gray-400 text-2xl" />
+              )}
+            </button>
+          </td>
+          <td className="p-3">
+            {t.isVisiting && (
+              <button
+                onClick={() => {
+                  setSelectedTeacher(t);
+                  setResetModalOpen(true);
+                }}
+                className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+              >
+                Reset Password
+              </button>
+            )}
+          </td>
+        </tr>
+      );
+    });
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
       <div className="flex-1 p-8">
         <AdminHeader />
+
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Teachers Management</h2>
           <button
@@ -108,74 +163,98 @@ const TeachersManagement = () => {
           </button>
         </div>
 
-        <div className="mb-4">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name or email..."
-            className="w-full p-3 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300"
-          />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by name or email..."
+          className="w-full p-3 mb-4 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300"
+        />
+
+        {/* Tabs */}
+        <div className="flex border-b mb-4">
+          <button
+            className={`px-4 py-2 -mb-px font-semibold ${
+              activeTab === "regular"
+                ? "border-b-2 border-primary text-primary"
+                : "text-gray-500 hover:text-primary"
+            }`}
+            onClick={() => setActiveTab("regular")}
+          >
+            Regular Faculty
+          </button>
+          <button
+            className={`px-4 py-2 -mb-px font-semibold ${
+              activeTab === "visiting"
+                ? "border-b-2 border-primary text-primary"
+                : "text-gray-500 hover:text-primary"
+            }`}
+            onClick={() => setActiveTab("visiting")}
+          >
+            Visiting Faculty
+          </button>
         </div>
 
-        <div className="overflow-x-auto bg-white rounded-xl shadow p-4">
-          <table className="min-w-full text-left">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="p-3 text-gray-600">Name</th>
-                <th className="p-3 text-gray-600">Email</th>
-                <th className="p-3 text-gray-600">Status</th>
-                <th className="p-3 text-gray-600">Password</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTeachers.map((t, idx) => {
-                const color = pastelColors[idx % pastelColors.length];
-                return (
-                  <tr
-                    key={t._id || t.id}
-                    className={`${color.bg} ${color.border} border-b hover:bg-primary/20 cursor-pointer`}
-                  >
-                    <td className="p-3">
-                      <button
-                        onClick={() =>
-                          navigate("/admin/allteachers/:id", { state: { teacherId: t._id || t.id, teacher: t, projects: t.projects || [] } })
-                        }
-                        className="font-medium text-blue-700 hover:underline"
-                      >
-                        {t.name}
-                      </button>
-                    </td>
-                    <td className="p-3">{t.email}</td>
-                    <td className="p-3">
-                      <button onClick={() => handleToggle(t._id || t.id)}>
-                        {t.active ? (
-                          <FaToggleOn className="text-green-500 text-2xl" />
-                        ) : (
-                          <FaToggleOff className="text-gray-400 text-2xl" />
-                        )}
-                      </button>
-                    </td>
-                    <td className="p-3 font-mono">{t.isVisiting ? t.password : "-"}</td>
-                  </tr>
-                );
-              })}
-
-              {filteredTeachers.length === 0 && (
-                <tr>
-                  <td colSpan="4" className="p-3 text-center text-gray-500">
-                    No teachers found.
-                  </td>
+        {/* Tab content */}
+        {activeTab === "regular" && (
+          <div className="overflow-x-auto bg-white rounded-xl shadow p-4 mb-8">
+            <table className="min-w-full text-left">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="p-3 text-gray-600">Name</th>
+                  <th className="p-3 text-gray-600">Email</th>
+                  <th className="p-3 text-gray-600">Status</th>
+                  <th className="p-3 text-gray-600">Action</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {regularTeachers.length > 0 ? renderTable(regularTeachers) : (
+                  <tr>
+                    <td colSpan="4" className="p-3 text-center text-gray-500">
+                      No regular teachers found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {activeTab === "visiting" && (
+          <div className="overflow-x-auto bg-white rounded-xl shadow p-4 mb-8">
+            <table className="min-w-full text-left">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="p-3 text-gray-600">Name</th>
+                  <th className="p-3 text-gray-600">Email</th>
+                  <th className="p-3 text-gray-600">Status</th>
+                  <th className="p-3 text-gray-600">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visitingTeachers.length > 0 ? renderTable(visitingTeachers) : (
+                  <tr>
+                    <td colSpan="4" className="p-3 text-center text-gray-500">
+                      No visiting teachers found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         <AddTeacherModal
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
           onAddTeacher={handleAddTeacher}
+        />
+
+        <ResetPasswordModal
+          isOpen={resetModalOpen}
+          onClose={() => setResetModalOpen(false)}
+          teacher={selectedTeacher}
+          onReset={handleResetPassword}
         />
       </div>
     </div>
