@@ -73,52 +73,6 @@ export default function TeacherDashboard() {
         ))}
       </div>
 
-      {/* Recent Team Requests */}
-      <div className="bg-white rounded-2xl shadow-md">
-        <div className="flex justify-between items-center px-6 py-4 border-b">
-          <div>
-            <h2 className="font-semibold">Recent Team Requests</h2>
-            <p className="text-sm text-gray-500">
-              Team requests requiring your attention
-            </p>
-          </div>
-          <button onClick={() => navigate("/teacher/requests")} className="text-blue-600 text-sm font-medium">
-            View All →
-          </button>
-        </div>
-
-        {requests.map((req, index) => (
-          <div
-            key={index}
-            className="flex justify-between items-center px-6 py-4 border-b last:border-none"
-          >
-            <div className="flex gap-4 items-center">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                👥
-              </div>
-              <div>
-                <p className="font-medium">{req.team}</p>
-                <p className="text-sm text-gray-500">{req.desc}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-400">{req.time}</span>
-              <span
-                className={`px-3 py-1 text-xs rounded-full ${req.status === "reviewed"
-                    ? "bg-green-100 text-green-600"
-                    : "bg-orange-100 text-orange-600"
-                  }`}
-              >
-                {req.status}
-              </span>
-              <button onClick={() => navigate("/teacher/requests")} className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm">
-                Review
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
