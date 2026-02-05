@@ -4,6 +4,7 @@ import AdminSidebar from "../../components/Admin/AdminSideBar";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import ProjectDetailModal from "../../components/Admin/ProjectDetailModal";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const pastelColors = [
   { bg: "bg-sky-50", border: "border-sky-200" },
@@ -19,6 +20,7 @@ const ProjectsManagement = () => {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+   const navigate = useNavigate();
 
   // TEMP DATA UNTIL PROJECT API EXISTS
   const sampleProjects = [
@@ -116,7 +118,6 @@ const ProjectsManagement = () => {
       toast.error("Assignment failed");
     }
   };
-
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
@@ -138,7 +139,6 @@ const ProjectsManagement = () => {
             <tbody>
               {projects.map((p, idx) => {
                 const color = pastelColors[idx % pastelColors.length];
-
                 const count = p.assignedTeacher
                   ? countAssignedProjects(p.assignedTeacher.id)
                   : 0;
@@ -149,7 +149,16 @@ const ProjectsManagement = () => {
                     className={`${color.bg} ${color.border} border-b hover:shadow-md transition-all duration-200`}
                   >
                     <td className="p-3 font-medium text-gray-800">{p.title}</td>
-                    <td className="p-3 text-gray-600">{p.teamName}</td>
+
+                    {/* <-- Updated Team column */}
+                    <td
+                      className="p-3 text-blue-600 cursor-pointer hover:underline"
+                      onClick={() => navigate(`/admin/teamdetail/${p.teamName}`)}
+                      title="View Team Details"
+                    >
+                      {p.teamName}
+                    </td>
+
                     <td className="p-3 text-gray-700">
                       {p.assignedTeacher
                         ? `${p.assignedTeacher.name} (${count}/${MAX_PROJECTS_PER_TEACHER})`

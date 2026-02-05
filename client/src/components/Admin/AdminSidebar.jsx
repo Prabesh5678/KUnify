@@ -7,7 +7,8 @@ import {
   FaChalkboardTeacher,
   FaProjectDiagram,
   FaCog,
-    FaUserGraduate,
+  FaEnvelope,
+  FaUserGraduate,
 } from "react-icons/fa";
 
 const AdminSidebar = () => {
@@ -34,13 +35,17 @@ const AdminSidebar = () => {
       path: "/admin/admin_std",
       icon: <  FaUserGraduate />,
     },
+    {
+      label: "Requests",
+      path: "/admin/requestteacher",
+      icon: <  FaEnvelope />,
+    },
   ];
 
   return (
     <div
-      className={`${
-        open ? "w-64" : "w-20"
-      } bg-[#1F3556] min-h-screen p-4 transition-all duration-300 flex flex-col`}
+      className={`${open ? "w-64" : "w-20"
+        } bg-[#1F3556] min-h-screen p-4 transition-all duration-300 flex flex-col`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -65,10 +70,9 @@ const AdminSidebar = () => {
             key={link.path}
             to={link.path}
             className={({ isActive }) =>
-              `group relative flex items-center gap-4 p-3 rounded-lg transition ${
-                isActive
-                  ? "bg-white text-[#1F3556]"
-                  : "text-gray-200 hover:bg-white/10"
+              `group relative flex items-center gap-4 p-3 rounded-lg transition ${isActive
+                ? "bg-white text-[#1F3556]"
+                : "text-gray-200 hover:bg-white/10"
               }`
             }
           >

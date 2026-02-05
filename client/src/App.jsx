@@ -30,6 +30,8 @@ import WaitingPage from "./pages/Student/WaitingPage";
 import AllTeachers from "./pages/Admin/AllTeachers";
 import StudentsManagement from "./pages/Admin/StudentsManagement";
 import StudentDetails from "./pages/Admin/StudentDetails";
+import RequestTeacher from "./pages/Admin/RequestTeacher";
+import TeamDetail from "./pages/Admin/TeamDetail";
 
 //Teacher Pages
 import TeacherGuard from "./components/TeacherGuard";
@@ -70,44 +72,44 @@ const App = () => {
 
   // ✅ Global redirect logic
   useEffect(() => {
-  if (!user) return;
+    if (!user) return;
 
-  // Admin bypass
-  if (user.role === "admin") return;
+    // Admin bypass
+    if (user.role === "admin") return;
 
-  // Teacher profile check
- if (user.role === "teacher") {
-  const profileDone = !!user.isProfileCompleted;
+    // Teacher profile check
+    if (user.role === "teacher") {
+      const profileDone = !!user.isProfileCompleted;
 
-  if (!profileDone && pathname !== "/teacher/profilesetup") {
-    navigate("/teacher/profilesetup", { replace: true });
-  }
+      if (!profileDone && pathname !== "/teacher/profilesetup") {
+        navigate("/teacher/profilesetup", { replace: true });
+      }
 
-  if (profileDone && pathname === "/teacher/profilesetup") {
-    navigate("/teacher/dashboard", { replace: true });
-  }
-  return;
-}
-
-
-  // Student profile check
-  if (user.role === "student") {
-    const profileDone = !!(
-      user.department &&
-      user.semester &&
-      user.rollNumber &&
-      user.subjectCode
-    );
-
-    if (!profileDone && pathname !== "/setup-profile") {
-      navigate("/setup-profile", { replace: true });
+      if (profileDone && pathname === "/teacher/profilesetup") {
+        navigate("/teacher/dashboard", { replace: true });
+      }
+      return;
     }
 
-    if (profileDone && (pathname === "/setup-profile" || pathname === "/")) {
-      navigate("/student/home", { replace: true });
+
+    // Student profile check
+    if (user.role === "student") {
+      const profileDone = !!(
+        user.department &&
+        user.semester &&
+        user.rollNumber &&
+        user.subjectCode
+      );
+
+      if (!profileDone && pathname !== "/setup-profile") {
+        navigate("/setup-profile", { replace: true });
+      }
+
+      if (profileDone && (pathname === "/setup-profile" || pathname === "/")) {
+        navigate("/student/home", { replace: true });
+      }
     }
-  }
-}, [user, pathname, navigate]);
+  }, [user, pathname, navigate]);
 
   return (
     <>
@@ -167,11 +169,11 @@ const App = () => {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/admin_teachers" element={<TeachersManagement />} />
             <Route path="/admin/projects" element={<ProjectsManagement />} />
-          <Route path="/admin/allteachers/:id" element={<AllTeachers />} />
-          <Route path="/admin/admin_std" element={<StudentsManagement />} />
-         
-<Route path="/admin/admin_std-details" element={<StudentDetails />} />
-
+            <Route path="/admin/allteachers/:id" element={<AllTeachers />} />
+            <Route path="/admin/admin_std" element={<StudentsManagement />} />
+            <Route path="/admin/requestteacher" element={<RequestTeacher />} />
+            <Route path="/admin/admin_std-details" element={<StudentDetails />} />
+            <Route path="/admin/teamdetail/:teamId" element={<TeamDetail />} />
 
 
             {/* Add more admin routes here */}
@@ -188,6 +190,7 @@ const App = () => {
               <Route path="settings" element={<TeacherSettings />} />
               <Route path="profilesetup" element={<TeacherProfileSetup />} />
               <Route path="teamdetails/:id" element={<TeamDetails />} />
+
             </Route>
           </Route>
 

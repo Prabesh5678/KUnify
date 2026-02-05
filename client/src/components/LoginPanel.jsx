@@ -8,14 +8,6 @@ import axios from "axios";
 import { Eye, EyeOff } from "lucide-react";
 
 axios.defaults.withCredentials = true;
-//for admin use: admin@email.com and password: okay123
-const ADMIN_EMAIL = [
-  "ssubhechhakarkee@gmail.com",
-   "deekshyabadal@gmail.com",
-   "ranjitkarsajana@gmail.com",
-   'milannepal2023@gmail.com'
-];
-
 
 const TEACHER_EMAIL = [
   "grocerease6699@gmail.com",
