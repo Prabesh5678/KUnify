@@ -157,20 +157,29 @@ export const resetVisitingTeacherPassword = async (req, res) => {
   }
 };
 
-// Get students by semester
+// Get students by semester and department
 export const getStudentsBySemester = async (req, res) => {
   try {
     const semester = req.query.semester || "";   
+    const department = req.query.department || ""; // <-- new filter
     const search = req.query.search || "";
 
+    const filter = {
+      semester: semester,
+    };
+
+    if (department) {
+      filter.department = department; // add department filter only if provided
+    }
+
     const students = await Student.find({
-      semester: semester,    
+      ...filter,
       $or: [
-        { name: { $regex: search, $options: "i" } }, //regex=pattern matching search
-        { email: { $regex: search, $options: "i" } },//option:i bhaneko chai case insensitive search 
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
       ],
     })
-      .select("name email semester department rollNumber teamId")
+      .select("name email semester rollNumber department teamId")
       .populate("teamId", "name");
 
     res.json({ success: true, students });
