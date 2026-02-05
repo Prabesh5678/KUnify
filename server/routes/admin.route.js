@@ -29,8 +29,8 @@ adminRouter.post("/create-visiting-teacher", authAdmin, createVisitingTeacher);
 // Students (authAdmin removed here)
 adminRouter.get("/get-students", getStudentsBySemester);
 
-// Admin supervisor requests
-adminRouter.post("/supervisor/approve", authAdmin, approveSupervisorRequest);
-adminRouter.post("/supervisor/decline", authAdmin, declineSupervisorRequest);
+// Admin supervisor requests(authAdmin is removed here too)
+adminRouter.post("/supervisor/approve",  approveSupervisorRequest);
+adminRouter.post("/supervisor/decline",  declineSupervisorRequest);
 
 export default adminRouter;
