@@ -117,8 +117,13 @@ const ProjectsManagement = () => {
                     {team.name || team.projectTitle || "Unnamed Team"}
                   </td>
 
-                  <td className="p-3">{team.department || "N/A"}</td>
-                  <td className="p-3">{team.semester || "N/A"}</td>
+                  <td className="p-3">
+                    {team.department || team.leaderId?.department || team.members?.[0]?.department || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {team.semester || team.leaderId?.semester || team.members?.[0]?.semester || "N/A"}
+                  </td>
+
 
                   {isAssigned && (
                     <td className="p-3">
@@ -157,21 +162,19 @@ const ProjectsManagement = () => {
         {/* Toggle Buttons */}
         <div className="flex gap-4 mb-4">
           <button
-            className={`px-4 py-2 rounded ${
-              activeTab === "unassigned"
+            className={`px-4 py-2 rounded ${activeTab === "unassigned"
                 ? "bg-primary text-white"
                 : "bg-gray-200 text-gray-700"
-            }`}
+              }`}
             onClick={() => setActiveTab("unassigned")}
           >
             Unassigned Teams
           </button>
           <button
-            className={`px-4 py-2 rounded ${
-              activeTab === "assigned"
+            className={`px-4 py-2 rounded ${activeTab === "assigned"
                 ? "bg-primary text-white"
                 : "bg-gray-200 text-gray-700"
-            }`}
+              }`}
             onClick={() => setActiveTab("assigned")}
           >
             Assigned Teams

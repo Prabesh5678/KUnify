@@ -13,6 +13,7 @@ import {
   declineSupervisorRequest,
   resetVisitingTeacherPassword,
   getAllTeams,
+  getPendingSupervisorRequests,
 } from "../controllers/admin.control.js";
 
 const adminRouter = express.Router();

@@ -187,7 +187,7 @@ export const getPendingSupervisorRequests = async (req, res) => {
     const teams = await Team.find({ supervisorStatus: "teacherApproved" })
       .populate("leaderId", "name semester department email")
       .populate("supervisor", "name email") 
-      .populate("members", "name email semester rollNumber department")
+      .populate("members", "name email semester department rollNumber ")
       .populate("proposal")
       .populate("logsheets");
 
