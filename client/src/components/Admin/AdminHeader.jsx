@@ -1,17 +1,30 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { assets } from "../../assets/assets";
-import { useAppContext } from "../../context/AppContext";
+import { useAppContext } from "../../context/AppContext"; // <-- add this
 
 const AdminHeader = ({ adminName = "Admin" }) => {
   const navigate = useNavigate();
-  const { setUser } = useAppContext();
+  const { setUser } = useAppContext(); // <-- add this
 
   const handleLogout = async () => {
     try {
-      await axios.post("/api/admin/logout", {}, { withCredentials: true });
-      setUser(null);
-      navigate("/");
+      // Call backend logout endpoint
+      const { data } = await axios.get(
+        "/api/logout",
+        {},
+        { withCredentials: true },
+      );
+      if (data.success) {
+        // Clear user context
+        setUser(null);
+        toast.success('Logged out')
+        // Redirect to home/login page
+        navigate("/");
+      } else {
+        toast.error("Failed to logout");
+        console.error(data.message);
+      }
     } catch (error) {
       console.error("Logout failed:", error);
 

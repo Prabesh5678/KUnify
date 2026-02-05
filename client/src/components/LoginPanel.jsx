@@ -172,7 +172,7 @@ const handleVisitingFacultyLogin = async () => {
       "/api/admin/login",
       {
         email: vfEmail,
-        password: vfPassword,
+        password: vfPassword, 
       },
       { withCredentials: true }
     );

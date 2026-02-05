@@ -8,7 +8,7 @@ import jwt from "jsonwebtoken";
 export const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-
+console.log('hi')
     if (
       email !== process.env.ADMIN_EMAIL ||
       password !== process.env.ADMIN_PASSWORD
@@ -43,7 +43,7 @@ export const adminLogout = (req, res) => {
 };
 
 // Dashboard Stats
-export const getDashboardStats = async (req, res) => {
+export const getDashboardStats = async (_, res) => {
   try {
     const [totalTeachers, totalStudents, totalProjects, activeProjects] =
       await Promise.all([
