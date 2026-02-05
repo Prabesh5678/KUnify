@@ -23,7 +23,6 @@ const authTeacher = async (req, res, next) => {
 export default authTeacher;
 */
 import jwt from "jsonwebtoken";
-import Teacher from "../models/teacher.model.js";
 
 const authTeacher = async (req, res, next) => {
   const { teacherToken } = req.cookies;

@@ -15,7 +15,7 @@ export default function TeacherProjects() {
 
   const [stats, setStats] = useState([
     { label: "Total Teams", value: 0, icon: Users, cardBg: "bg-blue-50", iconBg: "bg-blue-100", textColor: "text-blue-600" },
-    { label: "Pending Proposals", value: 0, icon: FileText, cardBg: "bg-orange-50", iconBg: "bg-orange-100", textColor: "text-orange-600" },
+    { label: "Pending Teams", value: 0, icon: FileText, cardBg: "bg-orange-50", iconBg: "bg-orange-100", textColor: "text-orange-600" },
     { label: "Approved Projects", value: 0, icon: CheckCircle, cardBg: "bg-green-50", iconBg: "bg-green-100", textColor: "text-green-600" },
     { label: "Total Logsheet Entries", value: 0, icon: Clock, cardBg: "bg-purple-50", iconBg: "bg-purple-100", textColor: "text-purple-600" },
   ]);
@@ -36,7 +36,7 @@ export default function TeacherProjects() {
 
         setStats([
           { label: "Total  Teams", value: totalTeams, icon: Users, cardBg: "bg-blue-50", iconBg: "bg-blue-100", textColor: "text-blue-600" },
-          { label: "Pending Proposals", value: pendingProposals, icon: FileText, cardBg: "bg-orange-50", iconBg: "bg-orange-100", textColor: "text-orange-600" },
+          { label: "Pending Teams", value: pendingProposals, icon: FileText, cardBg: "bg-orange-50", iconBg: "bg-orange-100", textColor: "text-orange-600" },
           { label: "Approved Projects", value: approvedProjects, icon: CheckCircle, cardBg: "bg-green-50", iconBg: "bg-green-100", textColor: "text-green-600" },
           { label: "Total Logsheet Entries", value: totalLogs, icon: Clock, cardBg: "bg-purple-50", iconBg: "bg-purple-100", textColor: "text-purple-600" },
         ]);}
