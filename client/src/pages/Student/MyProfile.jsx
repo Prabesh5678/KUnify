@@ -38,7 +38,6 @@ const MyProfile = () => {
 
     if (dept === "CS") {
       const csMap = {
-        "1st": "ENGG101",
         "2nd": "ENGG102",
         "3rd": "COMP206",
         "4th": "COMP207",
@@ -49,7 +48,6 @@ const MyProfile = () => {
       subject = csMap[sem] || "";
     } else if (dept === "CE") {
       const ceMap = {
-        "1st": "ENGG101",
         "2nd": "ENGG102",
         "3rd": "COMP206",
         "4th": "COMP207",

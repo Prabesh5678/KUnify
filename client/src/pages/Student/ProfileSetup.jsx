@@ -6,7 +6,6 @@ import toast from "react-hot-toast";
 
 const subjectMap = {
   CE: {
-    "1st": "ENGG101",
     "2nd": "ENGG102",
     "3rd": "COMP206",
     "4th": "COMP207",
@@ -14,7 +13,6 @@ const subjectMap = {
     "6th": "COMP308",
   },
   CS: {
-    "1st": "ENGG101",
     "2nd": "ENGG102",
     "3rd": "COMP206",
     "4th": "COMP207",
@@ -137,7 +135,7 @@ const ProfileSetup = () => {
                 disabled={isLoading}
               >
                 <option value="">-- Select --</option>
-                {["1st", "2nd", "3rd", "4th", "5th", "6th"].map((s) => (
+                {["2nd", "3rd", "4th", "5th", "6th"].map((s) => (
                   <option key={s} value={s}>
                     {s}
                   </option>

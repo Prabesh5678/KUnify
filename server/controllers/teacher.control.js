@@ -161,7 +161,12 @@ export const teamRequest = async (req, res) => {
       if (!requests)
         return res.json({ success: false, message: "Unable to find teacher!" });
       return res.json({ success: true, teams: requests.pendingTeams });
-    } else if (req.query.get === "assigned") {
+    }else if (req.query.get === "request-count") {
+      const teacher = await Teacher.findById(teacherId).select("pendingTeams");
+      const count = teacher?.pendingTeams?.length || 0;
+      return res.json({ success: true, count });
+    }  
+    else if (req.query.get === "assigned") {
       const requests = await Teacher.findById(teacherId)
       .select("assignedTeams")
         .populate("assignedTeams");

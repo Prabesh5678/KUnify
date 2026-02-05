@@ -10,7 +10,7 @@ export default function TeamRequests() {
   const [error, setError] = useState("");
 
   // ---------- TEST DATA (replace with backend later) ----------
-  const testRequests = [
+  /*const testRequests = [
     {
       _id: "req1",
       teamName: "Team Alpha",
@@ -29,16 +29,14 @@ export default function TeamRequests() {
         "This project provides a secure online exam platform with live monitoring.",
       proposalFileUrl: "/pdf_image.png",
     },
-  ];
-  // ------------------------------------------------------------
+  ];*/
 
   const fetchTeamRequests = async () => {
     try {
-      // BACKEND (when ready)
       const {data} = await axios.get("/api/teacher/teams?get=request", { withCredentials: true });
       if(data.success)
       {
-      setRequests(data.teams);
+      setRequests(Array.isArray(data.teams) ? data.teams : []);
       }else{
         toast.error('Unable to get teams!')
         console.error(data.message)
@@ -62,7 +60,6 @@ export default function TeamRequests() {
 
   const handleAccept = async (reqId) => {
     try {
-      // BACKEND (when ready)
     const {data}=  await axios.post("/api/teacher/team-request?action=accept", { requestId: reqId }, { withCredentials: true });
       if(data.success){
     toast.success("Project accepted successfully!");
@@ -78,8 +75,8 @@ export default function TeamRequests() {
   };
 
   const handleReject = async () => {
+    if (!selected) return;
     try {
-      // BACKEND (when ready)
     const {data}=  await axios.post("/api/teacher/team-request?action=decline", { requestId: selected._id }, { withCredentials: true });
 if(data.success){
       setRequests((prev) => prev.filter((r) => r._id !== selected._id));
@@ -193,4 +190,4 @@ if(data.success){
       )}
     </div>
   );
-}
+} 
