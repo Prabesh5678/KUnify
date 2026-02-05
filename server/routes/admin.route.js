@@ -8,7 +8,6 @@ import {
   toggleTeacherStatus,
   createVisitingTeacher,
   getStudentsBySemester,
-  toggleStudentStatus,
 } from "../controllers/admin.control.js";
 
 const adminRouter = express.Router();
@@ -27,6 +26,5 @@ adminRouter.post("/create-visiting-teacher", authAdmin, createVisitingTeacher);
 
 // Students (authAdmin removed here)
 adminRouter.get("/get-students", getStudentsBySemester);
-adminRouter.patch("/get-students/:id/status", toggleStudentStatus);
 
 export default adminRouter;
