@@ -10,6 +10,7 @@ import {
   getStudentsBySemester,
   approveSupervisorRequest,
   declineSupervisorRequest,
+  resetVisitingTeacherPassword,
 } from "../controllers/admin.control.js";
 
 const adminRouter = express.Router();
@@ -25,6 +26,7 @@ adminRouter.get("/dashboard", authAdmin, getDashboardStats);
 adminRouter.get("/get-teachers", authAdmin, getAllTeachers);
 adminRouter.patch("/get-teachers/:id/status", authAdmin, toggleTeacherStatus);
 adminRouter.post("/create-visiting-teacher", authAdmin, createVisitingTeacher);
+adminRouter.post("/teacher/reset-password", authAdmin, resetVisitingTeacherPassword); 
 
 // Students (authAdmin removed here)
 adminRouter.get("/get-students", getStudentsBySemester);

@@ -125,6 +125,36 @@ export const createVisitingTeacher = async (req, res) => {
   }
 };
 
+// Reset visiting faculty password 
+// POST /api/admin/teacher/reset-password
+export const resetVisitingTeacherPassword = async (req, res) => {
+  try {
+    const { teacherId, newPassword } = req.body;
+
+    if (!teacherId || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Provide teacherId and newPassword",
+      });
+    }
+
+    const teacher = await Teacher.findById(teacherId);
+    if (!teacher) {
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+    }
+
+    // naya password hash garna
+    const hashedPassword = await bcrypt.hash(newPassword, 10);//10 bhaneko chai salt round ho (security level bhanna milcha yeslai)
+    teacher.password = hashedPassword;
+
+    await teacher.save();
+
+    res.json({ success: true, message: "Password reset successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // Get students by semester
 export const getStudentsBySemester = async (req, res) => {
   try {
