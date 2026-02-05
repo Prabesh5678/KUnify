@@ -3,7 +3,8 @@ import Student from "../models/student.model.js";
 import Team from "../models/team.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
+import LogEntry from "../models/logEntry.model.js";
+import MemberContribution from "../models/memberContribution.model.js";
 
 // Admin Login (with email + password)
 export const adminLogin = async (req, res) => {
@@ -281,7 +282,7 @@ export const declineSupervisorRequest = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
+/*
 //fetching team
 export const getAllTeams = async (req, res) => {
   try {
@@ -308,6 +309,139 @@ export const getAllTeams = async (req, res) => {
       assignedTeams,
       unassignedTeams,
     });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};*/
+export const getAllTeams = async (req, res) => {
+  try {
+    const teams = await Team.find()
+      .populate("leaderId", "name email semester rollNumber department")
+      .populate("supervisor", "name email")
+      .populate("members", "name email semester rollNumber department")
+      .populate("proposal");
+
+    const assignedTeams = [];
+    const unassignedTeams = [];
+
+    teams.forEach(team => {
+      if (team.supervisor && team.supervisorStatus === "adminApproved") {
+        assignedTeams.push(team);
+      } else {
+        unassignedTeams.push(team);
+      }
+    });
+
+    res.json({ success: true, assignedTeams, unassignedTeams });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Get a team with all members' logsheets (used if needed at team-level)
+export const getTeamWithMemberLogsheets = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+
+    const team = await Team.findById(teamId)
+      .populate("leaderId", "name email semester rollNumber department")
+      .populate("supervisor", "name email")
+      .populate("members", "name email semester rollNumber department")
+      .populate("proposal");
+
+    if (!team) return res.status(404).json({ success: false, message: "Team not found" });
+
+    // Get all log entries for the team
+    const logs = await LogEntry.find({ teamId })
+      .sort({ date: -1 });
+
+    // Get all contributions for team members
+    const contributions = await MemberContribution.find({
+      logId: { $in: logs.map(l => l._id) }
+    }).populate("memberId", "name email");
+
+    // Organize logs by member
+    const membersWithLogs = [
+      team.leaderId,
+      ...team.members
+    ].map(member => {
+      const memberLogs = contributions
+        .filter(c => c.memberId._id.toString() === member._id.toString())
+        .map(c => {
+          const log = logs.find(l => l._id.toString() === c.logId.toString());
+          return {
+            logId: log._id,
+            date: log.date,
+            week: log.week,
+            activity: c.activity,
+            outcome: c.outcome,
+            createdBy: log.createdBy,
+            createdAt: log.createdAt
+          };
+        });
+
+      return {
+        ...member.toObject(),
+        logsheets: memberLogs
+      };
+    });
+
+    res.json({ success: true, team: { ...team.toObject(), members: membersWithLogs } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Get individual member logsheets (admin clicks on a member)
+export const getMemberLogsheets = async (req, res) => {
+  try {
+    const { teamId, memberId } = req.params;
+
+    const team = await Team.findById(teamId)
+      .populate("leaderId", "name email")
+      .populate("members", "name email");
+
+    if (!team) return res.status(404).json({ success: false, message: "Team not found" });
+
+    // Check if member belongs to team
+    const isLeader = team.leaderId._id.toString() === memberId;
+    const isMember = team.members.some(m => m._id.toString() === memberId);
+    if (!isLeader && !isMember) {
+      return res.status(403).json({ success: false, message: "Member not in this team" });
+    }
+
+    // Get all log entries for team
+    const logs = await LogEntry.find({ teamId }).sort({ date: -1 });
+
+    // Get contributions by this member
+    const contributions = await MemberContribution.find({
+      logId: { $in: logs.map(l => l._id) },
+      memberId
+    }).populate("memberId", "name email");
+
+    // Format logsheets
+    const logsheets = contributions.map(c => {
+      const log = logs.find(l => l._id.toString() === c.logId.toString());
+      return {
+        logId: log._id,
+        date: log.date,
+        week: log.week,
+        activity: c.activity,
+        outcome: c.outcome,
+        createdBy: log.createdBy,
+        createdAt: log.createdAt
+      };
+    });
+
+    res.json({
+      success: true,
+      memberId,
+      teamId,
+      teamName: team.name,
+      totalLogs: logsheets.length,
+      logsheets
+    });
+
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
