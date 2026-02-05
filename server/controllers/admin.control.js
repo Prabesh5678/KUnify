@@ -235,3 +235,27 @@ export const declineSupervisorRequest = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// sabbai team fetch garna
+export const getAllTeams = async (req, res) => {
+  try {
+    const teams = await Team.find()
+      .populate("leaderId", "name email")  
+      .populate("members", "name email")   
+      .populate("supervisor", "name email")
+      .populate("proposal");              
+
+
+    const assignedTeams = teams.filter(team => team.supervisor);       
+    const unassignedTeams = teams.filter(team => !team.supervisor);    
+
+    res.json({
+      success: true,
+      assignedTeams,
+      unassignedTeams,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Unable to fetch teams" });
+  }
+};
