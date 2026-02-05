@@ -168,7 +168,7 @@ export const getStudentsBySemester = async (req, res) => {
         { email: { $regex: search, $options: "i" } },//option:i bhaneko chai case insensitive search 
       ],
     })
-      .select("name email semester rollNumber teamId")
+      .select("name email semester rollNumber teamId department")
       .populate("teamId", "name");
 
     res.json({ success: true, students });

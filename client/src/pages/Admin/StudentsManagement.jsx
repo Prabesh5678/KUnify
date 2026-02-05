@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AdminSidebar from "../../components/Admin/AdminSideBar";
 import AdminHeader from "../../components/Admin/AdminHeader";
@@ -11,18 +11,20 @@ axios.defaults.withCredentials = true;
 const StudentsManagement = () => {
   const navigate = useNavigate();
 
+  const departments = ["CE", "CS"];
   const semesters = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
 
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState("");
+  const [activeDepartment, setActiveDepartment] = useState(null);
   const [activeSemester, setActiveSemester] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchStudents = async (semester) => {
+  const fetchStudents = async (department = "", semester = "", searchTerm = "") => {
     try {
       setLoading(true);
       const res = await axios.get("/api/admin/get-students", {
-        params: { semester },
+        params: { department, semester, search: searchTerm },
       });
 
       if (res.data.success) {
@@ -38,11 +40,26 @@ const StudentsManagement = () => {
     }
   };
 
-  const handleSemesterClick = (sem) => {
-    setActiveSemester(sem);
-    fetchStudents(sem);
+  // handle department tab click
+  const handleDepartmentClick = (dept) => {
+    setActiveDepartment(dept);
+    setActiveSemester(null); // reset semester selection
+    setStudents([]); // clear old list
   };
 
+  // handle semester click
+  const handleSemesterClick = (sem) => {
+    setActiveSemester(sem);
+    fetchStudents(activeDepartment, sem, search);
+  };
+
+  // handle global search
+  const handleSearchChange = (value) => {
+    setSearch(value);
+    fetchStudents(activeDepartment || "", activeSemester || "", value);
+  };
+
+  // filtered students for local search (optional)
   const filteredStudents = students.filter(
     (s) =>
       s.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -50,7 +67,6 @@ const StudentsManagement = () => {
       s.rollNumber?.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Only yellow and orange pastel rows
   const pastelColors = [
     { bg: "bg-indigo-50", border: "border-indigo-100" },
     { bg: "bg-teal-50", border: "border-teal-100" },
@@ -79,108 +95,103 @@ const StudentsManagement = () => {
               type="text"
               placeholder="Search students..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-primary outline-none"
             />
           </div>
         </div>
 
-        {/* Semester Buttons */}
-        <div className="flex flex-wrap gap-3 mb-10">
-          {semesters.map((sem) => (
+        {/* Department Tabs */}
+        <div className="flex flex-wrap gap-3 mb-6">
+          {departments.map((dept) => (
             <button
-              key={sem}
-              onClick={() => handleSemesterClick(sem)}
+              key={dept}
+              onClick={() => handleDepartmentClick(dept)}
               className={`px-5 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer
                 ${
-                  activeSemester === sem
+                  activeDepartment === dept
                     ? "bg-primary text-white shadow-md scale-105"
                     : "bg-white text-gray-600 border border-gray-200 hover:bg-primary/10"
                 }
               `}
             >
-              {sem} Semester
+              {dept}
             </button>
           ))}
         </div>
 
-        {/* Semester List */}
-        {activeSemester && (
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <div className="h-6 w-1 bg-primary rounded-full"></div>
-              <h3 className="text-lg font-bold text-gray-700">
-                {activeSemester} Semester List
-              </h3>
-            </div>
-
-      <div className="bg-secondary rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-  <div className="overflow-x-auto">
-    <table className="w-full text-left">
-      {/* Table Head */}
-      <thead className="bg-secondary/70">
-        <tr>
-          <th className="px-6 py-4 text-xs font-bold text-primary uppercase">
-            Name
-          </th>
-          <th className="px-6 py-4 text-xs font-bold text-primary uppercase">
-            Email
-          </th>
-          <th className="px-6 py-4 text-xs font-bold text-primary uppercase">
-            Roll Number
-          </th>
-        </tr>
-      </thead>
-
-      {/* Table Body */}
-      <tbody className="divide-y divide-gray-100">
-        {loading ? (
-          <tr>
-            <td colSpan="3" className="px-6 py-10 text-center text-gray-400">
-              Loading students...
-            </td>
-          </tr>
-        ) : filteredStudents.length > 0 ? (
-          filteredStudents.map((s, index) => (
-            <tr
-              key={s._id}
-              className={`transition duration-200 hover:bg-primary/30 hover:text-white cursor-pointer ${
-                pastelColors[index % pastelColors.length].bg
-              }`}
-            >
-              <td className="px-6 py-4">
-                <button
-                  onClick={() =>
-                    navigate("/admin/admin_std-details", { state: { student: s } })
+        {/* Semester Tabs */}
+        {activeDepartment && (
+          <div className="flex flex-wrap gap-3 mb-6">
+            {semesters.map((sem) => (
+              <button
+                key={sem}
+                onClick={() => handleSemesterClick(sem)}
+                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer
+                  ${
+                    activeSemester === sem
+                      ? "bg-primary text-white shadow-md scale-105"
+                      : "bg-white text-gray-600 border border-gray-200 hover:bg-primary/10"
                   }
-                  className="font-semibold hover:underline cursor-pointer"
-                >
-                  {s.name}
-                </button>
-              </td>
-              <td className="px-6 py-4 text-sm">{s.email}</td>
-              <td className="px-6 py-4 text-sm">{s.rollNumber || "N/A"}</td>
-            </tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan="3" className="px-6 py-10 text-center text-gray-400 italic">
-              No students found.
-            </td>
-          </tr>
-        )}
-      </tbody>
-    </table>
-  </div>
-</div>
-</div>
+                `}
+              >
+                {sem} Semester
+              </button>
+            ))}
+          </div>
         )}
 
-        {!activeSemester && (
-          <p className="text-gray-400 text-center italic mt-20">
-            Select a semester to view students
-          </p>
-        )}
+        {/* Students Table */}
+        <div className="flex flex-col gap-4">
+          {loading ? (
+            <p className="text-center text-gray-400 py-6">Loading students...</p>
+          ) : filteredStudents.length > 0 ? (
+            <div className="bg-secondary rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-secondary/70">
+                    <tr>
+                      <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Name</th>
+                      <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Email</th>
+                      <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Roll Number</th>
+                      <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Department</th>
+                      <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Semester</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filteredStudents.map((s, index) => (
+                      <tr
+                        key={s._id}
+                        className={`transition duration-200 hover:bg-primary/30 hover:text-white cursor-pointer ${
+                          pastelColors[index % pastelColors.length].bg
+                        }`}
+                      >
+                        <td className="px-6 py-4">
+                          <button
+                            onClick={() =>
+                              navigate("/admin/admin_std-details", { state: { student: s } })
+                            }
+                            className="font-semibold hover:underline cursor-pointer"
+                          >
+                            {s.name}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 text-sm">{s.email}</td>
+                        <td className="px-6 py-4 text-sm">{s.rollNumber || "N/A"}</td>
+                        <td className="px-6 py-4 text-sm">{s.department || "N/A"}</td>
+                        <td className="px-6 py-4 text-sm">{s.semester || "N/A"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-400 text-center italic py-6">
+              No students found.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
