@@ -37,6 +37,6 @@ adminRouter.post("/supervisor/approve",  approveSupervisorRequest);
 adminRouter.post("/supervisor/decline",  declineSupervisorRequest);
 
 //fetching all teams
-adminRouter.get("/projects", authAdmin, getAllTeams);
+adminRouter.get("/teams", authAdmin, getAllTeams);
 
 export default adminRouter;
