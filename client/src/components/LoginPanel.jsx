@@ -8,18 +8,13 @@ import axios from "axios";
 import { Eye, EyeOff } from "lucide-react";
 
 axios.defaults.withCredentials = true;
-//for admin use: admin@email.com and password: okay123
-const ADMIN_EMAIL = [
-  "ssubhechhakarkee@gmail.com",
-   "deekshyabadal@gmail.com",
-   "ranjitkarsajana@gmail.com",
-   'milannepal2023@gmail.com'
-];
+
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 
 const TEACHER_EMAIL = [
   "grocerease6699@gmail.com",
-  "ddeekshyabadal@gmail.com",
+  "sdeekshyabadal@gmail.com",
   "subhechhakarkee@gmail.com",
   "sajanaranjitkar64@gmail.com"
 ];
@@ -177,7 +172,7 @@ const handleVisitingFacultyLogin = async () => {
       "/api/admin/login",
       {
         email: vfEmail,
-        password: vfPassword,
+        password: vfPassword, 
       },
       { withCredentials: true }
     );

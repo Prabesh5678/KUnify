@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
+import axios from "axios";
+import { ExternalLink } from "lucide-react";
 
 const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
   const [selectedTeacher, setSelectedTeacher] = useState("");
@@ -15,19 +16,16 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
       try {
         setLoading(true);
 
-        // API CALL
-        const res = await axios.get(
-          `/admin/projects/${project.id}/suggested-teachers`
-        );
+        // Fallback to project.teachers if backend API not available
+        let teachers = project.teachers || [];
 
-        // Sort by cosine similarity (highest first)
-        const sorted = res.data.sort(
-          (a, b) => b.similarityScore - a.similarityScore
-        );
+        // Uncomment if backend endpoint exists
+        // const res = await axios.get(`/api/admin/projects/${project._id}/suggested-teachers`);
+        // teachers = res.data;
 
-        setSuggestedTeachers(sorted);
-      } catch (error) {
-        console.error("Failed to fetch suggested teachers", error);
+        setSuggestedTeachers(teachers);
+      } catch (err) {
+        console.error("Failed to fetch suggested teachers", err);
         toast.error("Unable to load suggested teachers");
       } finally {
         setLoading(false);
@@ -46,61 +44,73 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
     }
 
     try {
-      await onAssignTeacher(selectedTeacher, project.id);
-      toast.success("Teacher assigned successfully!");
-      setSelectedTeacher("");
-      onClose();
-    } catch (error) {
-      console.error(error.stack)
-      toast.error("Assignment failed");
+      setLoading(true);
+      const res = await axios.post(
+        `/api/admin/projects/${project._id}/assign-teacher`,
+        { teacherId: selectedTeacher },
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        toast.success("Teacher assigned successfully!");
+        if (onAssignTeacher) {
+          onAssignTeacher(selectedTeacher, project._id, res.data.updatedProject);
+        }
+        setSelectedTeacher("");
+        onClose();
+      } else {
+        toast.error(res.data.message || "Assignment failed");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Assignment failed");
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleViewPDF = (url) => {
+    if (!url) return toast.error("PDF not found");
+    const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(
+      url
+    )}&embedded=true`;
+    window.open(viewerUrl, "_blank");
+  };
+
+  const teamName = project.team?.name || project.teamName || "N/A";
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
       <div className="relative bg-white rounded-xl p-6 w-full max-w-3xl overflow-y-auto max-h-[90vh] shadow-md">
+        {/* Project Title */}
         <h2 className="text-2xl font-bold mb-4 text-gray-800">
-          {project.title}
+          {project.proposal?.projectTitle || project.title || "Untitled Project"}
         </h2>
 
-        <p className="mb-2 text-gray-700">
-          <strong>Abstract:</strong> {project.abstract}
-        </p>
-        <p className="mb-2 text-gray-700">
-          <strong>Keywords:</strong> {project.keywords}
-        </p>
-        <p className="mb-2 text-gray-700">
-          <strong>Submitted By:</strong> {project.teamName}
-        </p>
-        <p className="mb-4 text-gray-700">
-          <strong>Proposal:</strong>{" "}
-          <a
-            href={project.pdfUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sky-600 underline hover:text-sky-700 transition-colors"
-          >
-            View PDF
-          </a>
-        </p>
+        {/* Project Proposal */}
+        {project.proposal && (
+          <div className="bg-white p-4 rounded-xl shadow mb-4 space-y-2">
+            <p><b>Abstract:</b> {project.proposal.abstract || "N/A"}</p>
+            <p><b>Keywords:</b> {project.proposal.projectKeyword || "N/A"}</p>
+            {project.proposal.proposalFile?.url && (
+              <button
+                onClick={() => handleViewPDF(project.proposal.proposalFile.url)}
+                className="mt-2 bg-green-600 text-white px-4 py-2 rounded inline-flex items-center gap-2"
+              >
+                <ExternalLink size={16} /> View PDF
+              </button>
+            )}
+          </div>
+        )}
 
-        {/* --------------------------
-             REQUESTED TEACHER SECTION
-        -------------------------- */}
-        <div className="mb-4 p-4 border rounded border-sky-200 bg-sky-50">
-          <p className="font-semibold text-gray-700">
-            Requested Teacher by Students:
+        {/* Requested Teacher */}
+        <div className="bg-white p-4 rounded-xl shadow mb-4 space-y-2">
+          <p>
+            {project.requestedTeacher?.name
+              ? project.requestedTeacher.name
+              : "No teacher requested"}
           </p>
-
-          {project.requestedTeacher ? (
-            <p className="text-gray-700">
-              {project.requestedTeacher.name}
-            </p>
-          ) : (
-            <p className="text-gray-700">No teacher requested</p>
-          )}
-
-          <p className="mt-2 text-gray-700">
+          <p>
             <strong>Teacher Acceptance Status:</strong>{" "}
             {project.teacherAccepted ? (
               <span className="text-green-600 font-semibold">Accepted</span>
@@ -110,39 +120,34 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
           </p>
         </div>
 
-        {/* Assign Teacher */}
+        {/* Suggested Teachers */}
         <div className="mt-4">
           <label className="block text-gray-700 font-semibold mb-2">
-            Suggested Teachers (Based on Cosine Similarity)
+            Suggested Teachers
           </label>
-
           <select
             className="w-full p-2 border rounded border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300"
             value={selectedTeacher}
             onChange={(e) => setSelectedTeacher(e.target.value)}
             disabled={loading}
           >
-            <option value="">
-              {loading ? "Loading suggestions..." : "-- Select Teacher --"}
-            </option>
-
-            {suggestedTeachers.map((teacher) => (
-              <option key={teacher.id} value={teacher.id}>
-                {teacher.name} ({(teacher.similarityScore * 100).toFixed(1)}%)
+            <option value="">{loading ? "Loading..." : "-- Select Teacher --"}</option>
+            {suggestedTeachers.map((t) => (
+              <option key={t._id} value={t._id}>
+                {t.name} ({t.currentProjects || 0}/5)
               </option>
             ))}
           </select>
-
           <button
             onClick={handleAssign}
-            className="mt-3 px-4 py-2 bg-primary text-white rounded
-                       hover:bg-primary/80 transition-colors"
+            disabled={loading}
+            className="mt-3 px-4 py-2 bg-primary text-white rounded hover:bg-primary/80 transition-colors"
           >
-            Assign
+            {loading ? "Assigning..." : "Assign"}
           </button>
         </div>
 
-        {/* Close */}
+        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 font-bold"
