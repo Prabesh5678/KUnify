@@ -179,6 +179,24 @@ export const getStudentsBySemester = async (req, res) => {
   }
 };
 
+
+// GET /api/admin/supervisor/pending
+export const getPendingSupervisorRequests = async (req, res) => {
+  try {
+   
+    const teams = await Team.find({ supervisorStatus: "teacherApproved" })
+      .populate("leaderId", "name semester department email")
+      .populate("supervisor", "name email") 
+      .populate("members", "name email semester department rollNumber ")
+      .populate("proposal")
+      .populate("logsheets");
+
+    res.json({ success: true, teams });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // Approve supervisor request
 // POST /api/admin/supervisor/approve
 export const approveSupervisorRequest = async (req, res) => {
