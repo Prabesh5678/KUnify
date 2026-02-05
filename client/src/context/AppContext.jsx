@@ -20,7 +20,7 @@ export const AppContextProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [profileSetupDone, setProfileSetupDone] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
-const [isStudent, setIsStudent] = useState(false);
+
   // UI states
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [showSignupPanel, setShowSignupPanel] = useState(false);
@@ -31,109 +31,111 @@ const [isStudent, setIsStudent] = useState(false);
   // Team code
   const [teamCode, setTeamCode] = useState(null);
 
- const fetchUser = async () => {
- // try {
-    setLoadingUser(true);
-try{
-    /* ===================== ADMIN AUTH ===================== */
+  // 3️⃣ Fetch logged-in user
+  const fetchUser = async () => {
     try {
-      const adminRes = await axios.get("/api/admin/dashboard");
-      if (adminRes.data?.success) {
-        setUser({ role: "admin" });
-        setIsAdmin(true);
-        setIsTeacher(false);
-        setIsStudent(false);
-        setStudentProfile(null);
-        setSelectedSubject(null);
-        setProfileSetupDone(true);
-        return;
-      }
-    } catch (err) {
-      console.warn("Admin not authenticated");
-    }
+      setLoadingUser(true);
 
-    /* ===================== TEACHER AUTH ===================== */
-    try {
-      const teacherRes = await axios.get("/api/teacher/is-auth");
-      if (teacherRes.data?.success && teacherRes.data?.user) {
-        const teacherUser = {
-          ...teacherRes.data.user,
-          role: "teacher",
-        };
-        setUser(teacherUser);
-        setIsTeacher(true);
-        setIsAdmin(false);
-        setIsStudent(false);
+      /* ===================== ADMIN AUTH ===================== */
+try {
+  const adminRes = await axios.get("/api/admin/dashboard", {
+    withCredentials: true,
+  });
 
-        setProfileSetupDone(teacherUser.isProfileCompleted === true);
-
-        setStudentProfile(null);
-        setSelectedSubject(null);
-        return;
-      }
-    } catch (err) {
-       if (err.response && err.response.status !== 401) {
-    console.warn("Admin auth error:", err.response?.data?.message || err.message);
-  }
-    }
-
-    /* ===================== STUDENT AUTH ===================== */
-  try {
-  const studentRes = await axios.get("/api/student/is-auth?populateTeam=true", { withCredentials: true });
-
-  if (studentRes.data?.success && studentRes.data?.student) {
-    const studentUser = { ...studentRes.data.student, role: "student" };
-
-    setUser(studentUser);
-    setIsStudent(true);
-    setIsAdmin(false);
+  // If token is valid, this route will not fail
+  if (adminRes.data) {
+    setUser({ role: "admin" });
+    setIsAdmin(true);
     setIsTeacher(false);
+    setStudentProfile(null);
+    setSelectedSubject(null);
+    setProfileSetupDone(true);
 
-    // Profile setup
-    const profileDone = !!(
-      studentUser.department &&
-      studentUser.semester &&
-      studentUser.rollNumber &&
-      studentUser.subjectCode
-    );
-    setProfileSetupDone(profileDone);
-
-    setStudentProfile({
-      department: studentUser.department,
-      semester: studentUser.semester,
-      rollNumber: studentUser.rollNumber,
-      subjectCode: studentUser.subjectCode,
-    });
-    setSelectedSubject(studentUser.subjectCode || null);
+    setLoadingUser(false);
     return;
   }
 } catch (err) {
-  console.warn("Student not authenticated:", err.response?.data?.message || err.message);
+  console.warn("Admin not authenticated");
 }
 
+      /* ===================== TEACHER AUTH ===================== */
+      /* ===================== TEACHER AUTH ===================== */
+      try {
+        const teacherRes = await axios.get("/api/teacher/is-auth");
 
-    // If no one is authenticated
-    setUser(null);
-    setIsAdmin(false);
-    setIsTeacher(false);
-    setIsStudent(false);
-    setStudentProfile(null);
-    setSelectedSubject(null);
-    setProfileSetupDone(false);
+        console.log("Teacher API response:", teacherRes.data);
 
-  } catch (err) {
-    console.error("Fetch user failed:", err);
-    setUser(null);
-     setIsAdmin(false);
-      setIsTeacher(false);
-      setIsStudent(false);
-      setStudentProfile(null);
-      setSelectedSubject(null);
-      setProfileSetupDone(false);
-  } finally {
-    setLoadingUser(false);
-  }
-};
+        if (teacherRes.data?.success && teacherRes.data?.user) {
+          const teacherUser = {
+            ...teacherRes.data.user,
+            role: "teacher",
+          };
+
+          // Compute profile completion
+          const profileDone = teacherUser.isProfileCompleted === true;
+
+          setUser(teacherUser);
+          setIsTeacher(true);
+          setIsAdmin(false);
+          setProfileSetupDone(profileDone);
+
+          // Clear student-specific state
+          setStudentProfile(null);
+          setSelectedSubject(null);
+
+          setLoadingUser(false);
+          return;
+        }
+      } catch (err) {
+        console.warn("Teacher not authenticated:", err.response?.data || err.message);
+      }
+
+
+
+      /* ===================== STUDENT AUTH ===================== */
+      try {
+        const studentRes = await axios.get("/api/student/is-auth?populateTeam=true", {
+          withCredentials: true,
+        });
+
+        if (studentRes.data?.student) {
+          const userData = { ...studentRes.data.student, role: "student" };
+          setUser(userData);
+
+          // Compute profile setup
+          const profileDone = !!(
+            userData.department &&
+            userData.semester &&
+            userData.rollNumber &&
+            userData.subjectCode
+          );
+          setProfileSetupDone(profileDone);
+
+          setStudentProfile({
+            department: userData.department,
+            semester: userData.semester,
+            rollNumber: userData.rollNumber,
+            subjectCode: userData.subjectCode,
+          });
+
+          setSelectedSubject(userData.subjectCode || null);
+
+          setIsTeacher(false);
+          setIsAdmin(false);
+        } else {
+          setUser(null);
+        }
+      } catch (err) {
+        console.error("Student auth failed:", err.response?.data || err.message);
+        setUser(null);
+      }
+    } catch (err) {
+      console.error("Fetch user failed:", err);
+      setUser(null);
+    } finally {
+      setLoadingUser(false);
+    }
+  };
 
 
   // 4️⃣ Refresh user helper
@@ -209,11 +211,7 @@ try{
     try {
       await axios.get("/api/logout", { withCredentials: true });
       setUser(null);
-      setIsAdmin(false);
       setIsTeacher(false);
-      setIsStudent(false);
-      setStudentProfile(null);
-      setSelectedSubject(null);
       setProfileSetupDone(false);
       toast.success("Logged out successfully!");
       navigate("/", { replace: true });
@@ -249,8 +247,6 @@ try{
     teamCode,
     setTeamCode,
     logout,
-    isStudent,
-    setIsStudent,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

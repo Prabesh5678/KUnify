@@ -10,9 +10,6 @@ import {
   getStudentsBySemester,
   approveSupervisorRequest,
   declineSupervisorRequest,
-  resetVisitingTeacherPassword,
-  getAllTeams,
-  getPendingSupervisorRequests,
 } from "../controllers/admin.control.js";
 
 const adminRouter = express.Router();
@@ -28,18 +25,12 @@ adminRouter.get("/dashboard", authAdmin, getDashboardStats);
 adminRouter.get("/get-teachers", authAdmin, getAllTeachers);
 adminRouter.patch("/get-teachers/:id/status", authAdmin, toggleTeacherStatus);
 adminRouter.post("/create-visiting-teacher", authAdmin, createVisitingTeacher);
-adminRouter.post("/teacher/reset-password", authAdmin, resetVisitingTeacherPassword); 
 
-// Students
+// Students (authAdmin removed here)
 adminRouter.get("/get-students", getStudentsBySemester);
 
 // Admin supervisor requests
-// Admin pending supervisor requests
-adminRouter.get("/supervisor/pending", authAdmin, getPendingSupervisorRequests);
-adminRouter.post("/supervisor/approve",  approveSupervisorRequest);
-adminRouter.post("/supervisor/decline",  declineSupervisorRequest);
-
-//fetching all teams
-adminRouter.get("/teams", authAdmin, getAllTeams);
+adminRouter.post("/supervisor/approve", authAdmin, approveSupervisorRequest);
+adminRouter.post("/supervisor/decline", authAdmin, declineSupervisorRequest);
 
 export default adminRouter;
