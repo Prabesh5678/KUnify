@@ -8,6 +8,7 @@ import {
   toggleTeacherStatus,
   createVisitingTeacher,
   getStudentsBySemester,
+  getPendingSupervisorRequests,
   approveSupervisorRequest,
   declineSupervisorRequest,
   resetVisitingTeacherPassword,
