@@ -263,6 +263,7 @@ export const getAllTeams = async (req, res) => {
 };
 */
 // GET all teams with supervisor status
+{/*
 export const getAllTeams = async (req, res) => {
   try {
 
@@ -288,6 +289,33 @@ export const getAllTeams = async (req, res) => {
       unassignedTeams,
     });
 
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+*/
+}
+export const getAllTeams = async (req, res) => {
+  try {
+    const teams = await Team.find()
+      .populate("leaderId", "name semester department")
+      .populate("supervisor", "name")
+      .populate("members", "name email semester rollNumber department")
+      .populate("proposal");
+
+    const assignedTeams = [];
+    const unassignedTeams = [];
+
+    teams.forEach((team) => {
+      if (team.supervisor) assignedTeams.push(team);
+      else unassignedTeams.push(team);
+    });
+
+    res.json({
+      success: true,
+      assignedTeams,
+      unassignedTeams,
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

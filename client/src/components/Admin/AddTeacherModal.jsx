@@ -1,149 +1,104 @@
-import React, { useState } from "react";
-import toast from "react-hot-toast";
-import axios from "axios";
-import { FaRegCopy } from "react-icons/fa";
+import React from "react";
+import { FaTimes } from "react-icons/fa";
+import { toast } from "react-hot-toast";
 
-const AddTeacherModal = ({ isOpen, onClose, onAddTeacher }) => {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    specialization: "",
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
+  if (!isOpen || !project) return null;
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleAssign = (teacherId) => {
+    if (!teacherId) return toast.error("Select a teacher first");
+    onAssignTeacher(teacherId, project._id);
   };
-
-  const handleCopyPassword = () => {
-    navigator.clipboard.writeText(form.password);
-    toast.success("Password copied to clipboard");
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!form.name || !form.email || !form.password || !form.specialization) {
-      toast.error("All fields are required");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Backend endpoint
-      const res = await axios.post("/api/admin/create-visiting-teacher", form);
-
-      if (res.data.success) {
-        onAddTeacher(res.data.teacher);   // add teacher to frontend list
-        toast.success("Visiting faculty added successfully!");
-        setForm({ name: "", email: "", password: "", specialization: "" });
-        onClose();
-      } else {
-        toast.error(res.data.message || "Failed to add teacher");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Failed to add teacher");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-white rounded-xl p-6 w-96 shadow-lg relative">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
-          Add Visiting Faculty
-        </h2>
+      <div className="bg-white rounded-xl p-6 w-11/12 max-w-3xl shadow-lg relative overflow-auto max-h-[90vh]">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-gray-800">
+            {project.name || "Team Details"}
+          </h2>
+          <button onClick={onClose} className="text-gray-600 hover:text-gray-900">
+            <FaTimes />
+          </button>
+        </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Full Name"
-            className="p-2 rounded border border-gray-300 focus:ring-indigo-300 focus:border-indigo-300 outline-none"
-          />
+        {/* Team info */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <p>
+            <span className="font-medium">Semester:</span> {project.semester || "N/A"}
+          </p>
+          <p>
+            <span className="font-medium">Department:</span> {project.department || "N/A"}
+          </p>
+          <p>
+            <span className="font-medium">Supervisor:</span> {project.supervisor?.name || "Not assigned"}
+          </p>
+          <p>
+            <span className="font-medium">Project Title:</span> {project.proposal?.projectTitle || "N/A"}
+          </p>
+        </div>
 
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-            className="p-2 rounded border border-gray-300 focus:ring-indigo-300 focus:border-indigo-300 outline-none"
-          />
-
-          <input
-            type="text"
-            name="specialization"
-            value={form.specialization}
-            onChange={handleChange}
-            placeholder="Specialization"
-            className="p-2 rounded border border-gray-300 focus:ring-indigo-300 focus:border-indigo-300 outline-none"
-          />
-
-          <div className="relative">
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder="Password"
-              className="p-2 rounded border border-gray-300 focus:ring-indigo-300 focus:border-indigo-300 outline-none w-full"
-            />
-
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-10 top-1/2 -translate-y-1/2 text-gray-500"
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleCopyPassword}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              title="Copy password"
-            >
-              <FaRegCopy size={16} />
-            </button>
+        {/* Proposal */}
+        {project.proposal && (
+          <div className="bg-gray-50 rounded-xl p-4 mb-4">
+            <p>
+              <span className="font-medium">Abstract:</span> {project.proposal.abstract || "N/A"}
+            </p>
+            <p>
+              <span className="font-medium">Keywords:</span> {project.proposal.keywords || "N/A"}
+            </p>
+            {project.proposal.proposalFile?.url && (
+              <button
+                onClick={() => window.open(project.proposal.proposalFile.url, "_blank")}
+                className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+              >
+                View PDF
+              </button>
+            )}
           </div>
+        )}
 
-          <div className="flex justify-end gap-2 mt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
-            >
-              Cancel
-            </button>
+        {/* Assigned Teacher info */}
+        <div className="mb-4">
+          <p className="font-medium mb-2">Assigned Teacher:</p>
+          {project.assignedTeacher ? (
+            <div className="p-2 bg-blue-50 rounded flex justify-between items-center">
+              <span>{project.assignedTeacher.name}</span>
+              <span className="text-sm text-gray-600">
+                Current Projects: {project.assignedTeacher.currentProjects || 0}
+              </span>
+            </div>
+          ) : (
+            <p className="text-gray-500">No teacher assigned</p>
+          )}
+        </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="px-4 py-2 rounded bg-primary text-white hover:bg-primary/80"
-            >
-              {isLoading ? "Adding..." : "Add"}
-            </button>
+        {/* Assign teacher dropdown */}
+        {project.teachers && project.teachers.length > 0 && (
+          <div className="mb-4">
+            <p className="font-medium mb-2">Assign Teacher:</p>
+            <div className="flex gap-2 flex-wrap">
+              {project.teachers.map((teacher) => (
+                <button
+                  key={teacher._id}
+                  onClick={() => handleAssign(teacher._id)}
+                  disabled={teacher.currentProjects >= 5} // max projects per teacher
+                  className={`px-3 py-1 rounded text-white transition ${
+                    teacher.currentProjects >= 5
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-primary hover:bg-primary/80"
+                  }`}
+                >
+                  {teacher.name} ({teacher.currentProjects || 0}/5)
+                </button>
+              ))}
+            </div>
           </div>
-        </form>
-
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 font-bold"
-        >
-          ✕
-        </button>
+        )}
       </div>
     </div>
   );
 };
 
-export default AddTeacherModal;
+export default ProjectDetailModal;
