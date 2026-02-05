@@ -146,3 +146,62 @@ export const getStudentsBySemester = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// Approve supervisor request (Admin)
+// POST /api/admin/supervisor/approve
+export const approveSupervisorRequest = async (req, res) => {
+  try {
+    const { teamId } = req.body;
+
+    const team = await Team.findById(teamId);
+    if (!team) return res.status(404).json({ success: false, message: "Team not found" });
+
+    const teacher = await Teacher.findById(team.requestedTeacher);
+    if (!teacher) return res.status(404).json({ success: false, message: "Teacher not found" });
+
+    // Update team status to pending teacher approval
+    team.supervisorStatus = "pendingTeacher";
+    await team.save();
+
+    // Add team to teacher.pendingTeams if not already present
+    if (!teacher.pendingTeams.includes(team._id)) {
+      teacher.pendingTeams.push(team._id);
+      await teacher.save();
+    }
+
+    res.json({
+      success: true,
+      message: "Request approved by admin, now pending teacher approval",
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Decline supervisor request (Admin)
+// POST /api/admin/supervisor/decline
+export const declineSupervisorRequest = async (req, res) => {
+  try {
+    const { teamId } = req.body;
+
+    const team = await Team.findById(teamId);
+    if (!team) return res.status(404).json({ success: false, message: "Team not found" });
+
+    const teacher = await Teacher.findById(team.requestedTeacher);
+
+    // Update team
+    team.supervisorStatus = "notApproved";
+    team.requestedTeacher = null;
+    await team.save();
+
+    // Remove team from teacher.pendingTeams if exists
+    if (teacher) {
+      teacher.pendingTeams = teacher.pendingTeams.filter(id => id.toString() !== teamId);
+      await teacher.save();
+    }
+
+    res.json({ success: true, message: "Request declined by admin" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
