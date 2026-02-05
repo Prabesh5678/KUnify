@@ -76,7 +76,7 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Teachers Management */}
           <button
-            onClick={() => navigate("/admin/teachers")}
+            onClick={() => navigate("/admin/admin_std")}
             className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center
                        bg-gradient-to-r from-purple-50 to-purple-100 transition transform hover:-translate-y-1"
           >
@@ -85,9 +85,9 @@ const AdminDashboard = () => {
                 <FaChalkboardTeacher className="text-purple-700" size={26} />
               </div>
               <div className="text-left">
-                <p className="font-semibold text-gray-800">Teachers Management</p>
+                <p className="font-semibold text-gray-800">Student Management</p>
                 <p className="text-sm text-gray-600">
-                  View all teachers and toggle status
+                  View all students based on semester
                 </p>
               </div>
             </div>
@@ -116,7 +116,7 @@ const AdminDashboard = () => {
 
           {/* All Teachers */}
           <button
-            onClick={() => navigate("/admin/allteachers")}
+            onClick={() => navigate("/admin/admin_teachers")}
             className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center
                        bg-gradient-to-r from-green-50 to-green-100 transition transform hover:-translate-y-1"
           >

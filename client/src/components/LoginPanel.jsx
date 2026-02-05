@@ -14,7 +14,7 @@ const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 const TEACHER_EMAIL = [
   "grocerease6699@gmail.com",
-  "ddeekshyabadal@gmail.com",
+  "sdeekshyabadal@gmail.com",
   "subhechhakarkee@gmail.com",
   "sajanaranjitkar64@gmail.com"
 ];
