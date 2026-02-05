@@ -289,14 +289,17 @@ export const getAllTeams = async (req, res) => {
       .populate("supervisor", "name")
       .populate("members", "name email semester rollNumber department")
       .populate("proposal")
-      .populate("leaderId","logsheets");
+      .populate("leaderId", "logsheets");
 
     const assignedTeams = [];
     const unassignedTeams = [];
 
     teams.forEach((team) => {
-      if (team.supervisor) assignedTeams.push(team);
-      else unassignedTeams.push(team);
+      if (team.supervisor && team.supervisorStatus === "adminApproved") {
+        assignedTeams.push(team);
+      } else {
+        unassignedTeams.push(team);
+      }
     });
 
     res.json({
