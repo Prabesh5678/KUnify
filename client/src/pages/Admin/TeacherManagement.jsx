@@ -8,8 +8,8 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 const pastelColors = [
-  { bg: "bg-yellow-50", border: "border-yellow-200" },
-  { bg: "bg-orange-50", border: "border-orange-200" },
+  { bg: "bg-indigo-50", border: "border-indigo-100" },
+  { bg: "bg-teal-50", border: "border-teal-100" },
 ];
 
 axios.defaults.withCredentials = true;
