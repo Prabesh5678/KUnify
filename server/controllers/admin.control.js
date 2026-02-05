@@ -126,29 +126,6 @@ export const createVisitingTeacher = async (req, res) => {
 };
 
 // Get students by semester
-/*
-export const getStudentsBySemester = async (req, res) => {
-  try {
-    const semester = Number(req.query.semester);
-    const search = req.query.search || "";
-
-    const students = await Student.find({
-      semester,
-      $or: [
-        { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-      ],
-    })
-      .select("name email semester activeStatus team")
-      .populate("team", "name");
-
-    res.json({ success: true, students });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-*/
-// Get students by semester
 export const getStudentsBySemester = async (req, res) => {
   try {
     const semester = req.query.semester || "";   // <-- keep as string
@@ -157,31 +134,14 @@ export const getStudentsBySemester = async (req, res) => {
     const students = await Student.find({
       semester: semester,    // <-- string match
       $or: [
-        { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
+        { name: { $regex: search, $options: "i" } }, //regex=pattern matching search
+        { email: { $regex: search, $options: "i" } },//option:i bhaneko chai case insensitive search 
       ],
     })
-      .select("name email semester activeStatus rollNumber teamId")
+      .select("name email semester rollNumber teamId")
       .populate("teamId", "name");
 
     res.json({ success: true, students });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-
-// Toggle student activeStatus
-export const toggleStudentStatus = async (req, res) => {
-  try {
-    const student = await Student.findById(req.params.id);
-    if (!student)
-      return res.status(404).json({ success: false, message: "Student not found" });
-
-    student.activeStatus = !student.activeStatus;
-    await student.save();
-
-    res.json({ success: true, activeStatus: student.activeStatus });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
