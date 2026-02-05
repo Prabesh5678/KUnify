@@ -160,11 +160,11 @@ export const resetVisitingTeacherPassword = async (req, res) => {
 // Get students by semester
 export const getStudentsBySemester = async (req, res) => {
   try {
-    const semester = req.query.semester || "";   // <-- keep as string
+    const semester = req.query.semester || "";   
     const search = req.query.search || "";
 
     const students = await Student.find({
-      semester: semester,    // <-- string match
+      semester: semester,    
       $or: [
         { name: { $regex: search, $options: "i" } }, //regex=pattern matching search
         { email: { $regex: search, $options: "i" } },//option:i bhaneko chai case insensitive search 
@@ -179,7 +179,7 @@ export const getStudentsBySemester = async (req, res) => {
   }
 };
 
-// Approve supervisor request (Admin final approval)
+// Approve supervisor request
 // POST /api/admin/supervisor/approve
 export const approveSupervisorRequest = async (req, res) => {
   try {
@@ -223,7 +223,7 @@ export const approveSupervisorRequest = async (req, res) => {
   }
 };
 
-// Decline supervisor request (Admin final decline)
+// Decline supervisor request 
 // POST /api/admin/supervisor/decline
 export const declineSupervisorRequest = async (req, res) => {
   try {
