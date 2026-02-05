@@ -14,64 +14,35 @@ const TeamDetail = () => {
   const [team, setTeam] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [isTeamOpen, setIsTeamOpen] = useState(false);
-  const [isProposalOpen, setIsProposalOpen] = useState(false);
-  const [isLogsheetOpen, setIsLogsheetOpen] = useState(false);
+  const [isTeamOpen, setIsTeamOpen] = useState(true);
+  const [isProposalOpen, setIsProposalOpen] = useState(true);
+  const [isLogsheetOpen, setIsLogsheetOpen] = useState(true);
 
   const [selectedStudent, setSelectedStudent] = useState("all");
   const [selectedWeek, setSelectedWeek] = useState("all");
 
-  const [existingProposal, setExistingProposal] = useState(null);
-  const [pdfPreviewUrl, setPdfPreviewUrl] = useState("");
-
-  // Fetch team, proposal and logs
+  // Fetch team, proposal, logs
   useEffect(() => {
     const fetchTeamData = async () => {
       try {
         setLoading(true);
 
-        // 1️⃣ Fetch basic team info
-        const { data: projectsData } = await axios.get("/api/admin/projects");
-        const allTeams = [
-          ...projectsData.assignedTeams,
-          ...projectsData.unassignedTeams,
-        ];
+        // Fetch all teams
+        const { data: teamsData } = await axios.get("/api/admin/teams");
+        const allTeams = [...teamsData.assignedTeams, ...teamsData.unassignedTeams];
         const foundTeam = allTeams.find((t) => t._id === teamId);
+
         if (!foundTeam) {
           toast.error("Team not found");
           setLoading(false);
           return;
         }
+
         setTeam(foundTeam);
 
-        // 2️⃣ Fetch proposal submitted by team
-        try {
-          const { data: proposalData } = await axios.get(
-            `/api/proposal/${teamId}`,
-            { withCredentials: true }
-          );
-          if (proposalData?.team?.proposal) {
-            setExistingProposal(proposalData.team.proposal);
-            if (proposalData.team.proposal.proposalFile?.url)
-              setPdfPreviewUrl(proposalData.team.proposal.proposalFile.url);
-          }
-        } catch (err) {
-          console.error("No proposal found for this team", err);
-        }
+        // Ensure logs array exists
+        if (!foundTeam.logsheet) foundTeam.logsheet = [];
 
-        // 3️⃣ Fetch team logsheet
-        try {
-          const { data: logsData } = await axios.get(
-            `/api/logsheet/${teamId}`,
-            { withCredentials: true }
-          );
-          setTeam((prev) => ({
-            ...prev,
-            logsheet: logsData.logs || [],
-          }));
-        } catch (err) {
-          console.error("No logs found for this team", err);
-        }
       } catch (err) {
         console.error(err);
         toast.error("Error loading team data");
@@ -84,17 +55,16 @@ const TeamDetail = () => {
   }, [teamId]);
 
   const handleViewPDF = (url) => {
-  if (!url) return toast.error("PDF not found");
-  // Use Google Docs Viewer to force inline viewing instead of download
-  const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
-  window.open(viewerUrl, "_blank");
-};
+    if (!url) return toast.error("PDF not found");
+    const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+    window.open(viewerUrl, "_blank");
+  };
 
   if (loading) return <p className="p-6 text-center">Loading...</p>;
   if (!team) return <p className="p-6 text-center">No team data found.</p>;
 
   const logsheet = team.logsheet || [];
-  const proposal = existingProposal;
+  const proposal = team.proposal || null;
 
   const filteredLogs = logsheet.filter(
     (log) =>
@@ -132,8 +102,11 @@ const TeamDetail = () => {
             <div className="bg-white p-6 rounded-xl shadow space-y-3">
               {team.members.map((m) => (
                 <div key={m._id} className="border p-3 rounded bg-blue-50">
-                  <p className="font-medium">{m.name}</p>
-                  <p className="text-sm">{m.email}</p>
+                  <p className="font-medium">{m.name || "Name not provided"}</p>
+                  <p className="text-sm">{m.email || "Email not provided"}</p>
+                  <p className="text-xs text-gray-500">
+                    Semester: {m.semester || "-"} | Department: {m.department || "-"}
+                  </p>
                 </div>
               ))}
             </div>
@@ -149,13 +122,13 @@ const TeamDetail = () => {
               />
               {isProposalOpen && (
                 <div className="bg-white p-6 rounded-xl shadow space-y-2">
-                  <p><b>Title:</b> {proposal.projectTitle}</p>
-                  <p><b>Abstract:</b> {proposal.abstract}</p>
-                  <p><b>Keywords:</b> {proposal.projectKeyword}</p>
+                  <p><b>Title:</b> {proposal.projectTitle || "N/A"}</p>
+                  <p><b>Abstract:</b> {proposal.abstract || "N/A"}</p>
+                  <p><b>Keywords:</b> {proposal.projectKeyword || "N/A"}</p>
 
-                  {pdfPreviewUrl && (
+                  {proposal.proposalFile?.url && (
                     <button
-                      onClick={() => handleViewPDF(pdfPreviewUrl)}
+                      onClick={() => handleViewPDF(proposal.proposalFile.url)}
                       className="mt-2 bg-green-600 text-white px-4 py-2 rounded inline-flex items-center gap-2"
                     >
                       <ExternalLink size={16} /> View PDF
@@ -176,6 +149,8 @@ const TeamDetail = () => {
               />
               {isLogsheetOpen && (
                 <div className="bg-white p-6 rounded-xl shadow space-y-3">
+
+                  {/* Filters */}
                   <div className="flex gap-4 mb-4">
                     <select
                       value={selectedStudent}
@@ -207,7 +182,7 @@ const TeamDetail = () => {
                       <div key={i} className="border p-3 rounded bg-yellow-50">
                         <p className="font-medium">{log.task}</p>
                         <p className="text-sm">
-                          {log.date} - {log.createdBy?.name}
+                          {log.date} - {log.createdBy?.name || "Unknown"}
                         </p>
                         {log.fileUrl && (
                           <button

@@ -27,7 +27,12 @@ const TeachersManagement = () => {
     try {
       const res = await axios.get("/api/admin/get-teachers");
       if (res.data.success) {
-        setTeachers(res.data.teachers);
+        // Force all teachers to be active initially
+        const activeTeachers = res.data.teachers.map((t) => ({
+          ...t,
+          active: true,
+        }));
+        setTeachers(activeTeachers);
       } else {
         setTeachers(res.data); // fallback
       }
@@ -71,7 +76,7 @@ const TeachersManagement = () => {
     try {
       const res = await axios.post("/api/admin/create-visiting-teacher", teacherData);
       if (res.data.success) {
-        setTeachers((prev) => [...prev, res.data.teacher]);
+        setTeachers((prev) => [...prev, { ...res.data.teacher, active: true }]);
         toast.success("Visiting faculty added successfully!");
       } else {
         toast.error(res.data.message || "Failed to add teacher");

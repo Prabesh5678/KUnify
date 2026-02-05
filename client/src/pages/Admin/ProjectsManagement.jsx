@@ -27,7 +27,7 @@ const ProjectsManagement = () => {
 
   const fetchTeams = async () => {
     try {
-      const res = await axios.get("/api/admin/projects");
+      const res = await axios.get("/api/admin/teams");
       setAssignedTeams(res.data.assignedTeams);
       setUnassignedTeams(res.data.unassignedTeams);
     } catch (err) {
