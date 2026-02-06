@@ -282,37 +282,8 @@ export const declineSupervisorRequest = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-/*
-//fetching team
-export const getAllTeams = async (req, res) => {
-  try {
-    const teams = await Team.find()
-      .populate("leaderId", "name semester department")
-      .populate("supervisor", "name")
-      .populate("members", "name email semester rollNumber department")
-      .populate("proposal")
-      .populate("leaderId", "logsheets");
 
-    const assignedTeams = [];
-    const unassignedTeams = [];
-
-    teams.forEach((team) => {
-      if (team.supervisor && team.supervisorStatus === "adminApproved") {
-        assignedTeams.push(team);
-      } else {
-        unassignedTeams.push(team);
-      }
-    });
-
-    res.json({
-      success: true,
-      assignedTeams,
-      unassignedTeams,
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};*/
+//fetching all teams
 export const getAllTeams = async (req, res) => {
   try {
     const teams = await Team.find()
@@ -338,111 +309,68 @@ export const getAllTeams = async (req, res) => {
   }
 };
 
-// Get a team with all members' logsheets (used if needed at team-level)
-export const getTeamWithMemberLogsheets = async (req, res) => {
+//fetching logsheets
+
+export const getLogsheets = async (req, res) => {
   try {
-    const { teamId } = req.params;
 
-    const team = await Team.findById(teamId)
-      .populate("leaderId", "name email semester rollNumber department")
-      .populate("supervisor", "name email")
-      .populate("members", "name email semester rollNumber department")
-      .populate("proposal");
+    const { studentId, week } = req.query;
 
-    if (!team) return res.status(404).json({ success: false, message: "Team not found" });
+    let contributions = [];
 
-    // Get all log entries for the team
-    const logs = await LogEntry.find({ teamId })
-      .sort({ date: -1 });
+    // ✅ Filter by student
+    if (studentId) {
 
-    // Get all contributions for team members
-    const contributions = await MemberContribution.find({
-      logId: { $in: logs.map(l => l._id) }
-    }).populate("memberId", "name email");
+      contributions = await MemberContribution.find({
+        memberId: studentId,
+      })
+      .populate("memberId")
+      .populate("logId");
 
-    // Organize logs by member
-    const membersWithLogs = [
-      team.leaderId,
-      ...team.members
-    ].map(member => {
-      const memberLogs = contributions
-        .filter(c => c.memberId._id.toString() === member._id.toString())
-        .map(c => {
-          const log = logs.find(l => l._id.toString() === c.logId.toString());
-          return {
-            logId: log._id,
-            date: log.date,
-            week: log.week,
-            activity: c.activity,
-            outcome: c.outcome,
-            createdBy: log.createdBy,
-            createdAt: log.createdAt
-          };
-        });
-
-      return {
-        ...member.toObject(),
-        logsheets: memberLogs
-      };
-    });
-
-    res.json({ success: true, team: { ...team.toObject(), members: membersWithLogs } });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-};
-
-// Get individual member logsheets (admin clicks on a member)
-export const getMemberLogsheets = async (req, res) => {
-  try {
-    const { teamId, memberId } = req.params;
-
-    const team = await Team.findById(teamId)
-      .populate("leaderId", "name email")
-      .populate("members", "name email");
-
-    if (!team) return res.status(404).json({ success: false, message: "Team not found" });
-
-    // Check if member belongs to team
-    const isLeader = team.leaderId._id.toString() === memberId;
-    const isMember = team.members.some(m => m._id.toString() === memberId);
-    if (!isLeader && !isMember) {
-      return res.status(403).json({ success: false, message: "Member not in this team" });
     }
 
-    // Get all log entries for team
-    const logs = await LogEntry.find({ teamId }).sort({ date: -1 });
+    // ✅ Filter by week
+    else if (week) {
 
-    // Get contributions by this member
-    const contributions = await MemberContribution.find({
-      logId: { $in: logs.map(l => l._id) },
-      memberId
-    }).populate("memberId", "name email");
+      // find logs of that week
+      const logs = await LogEntry.find({ week: week });
 
-    // Format logsheets
-    const logsheets = contributions.map(c => {
-      const log = logs.find(l => l._id.toString() === c.logId.toString());
-      return {
-        logId: log._id,
-        date: log.date,
-        week: log.week,
-        activity: c.activity,
-        outcome: c.outcome,
-        createdBy: log.createdBy,
-        createdAt: log.createdAt
-      };
-    });
+      // for each log find contributions
+      for (let i = 0; i < logs.length; i++) {
+
+        const data = await MemberContribution.find({
+          logId: logs[i]._id
+        })
+        .populate("memberId")
+        .populate("logId");
+
+        contributions.push(...data); // add to array
+      }
+
+    }
+
+    // ✅ No filter
+    else {
+
+      contributions = await MemberContribution.find()
+      .populate("memberId")
+      .populate("logId");
+
+    }
 
     res.json({
       success: true,
-      memberId,
-      teamId,
-      teamName: team.name,
-      totalLogs: logsheets.length,
-      logsheets
+      data: contributions
     });
 
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+
   }
 };
