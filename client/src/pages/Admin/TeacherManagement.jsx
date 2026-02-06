@@ -27,11 +27,20 @@ const TeachersManagement = () => {
     try {
       const res = await axios.get("/api/admin/get-teachers");
       if (res.data.success) {
-        const updatedTeachers = res.data.teachers.map((t) => ({
+        // Add flags for frontend
+        const regularTeachers = res.data.regularFaculty.map((t) => ({
           ...t,
-          active: true,
+          active: t.activeStatus,
+          isVisiting: false,
         }));
-        setTeachers(updatedTeachers);
+        const visitingTeachers = res.data.visitingFaculty.map((t) => ({
+          ...t,
+          active: t.activeStatus,
+          isVisiting: true,
+        }));
+
+        // Merge into one array for filtering
+        setTeachers([...regularTeachers, ...visitingTeachers]);
       } else {
         setTeachers([]);
       }
@@ -49,12 +58,16 @@ const TeachersManagement = () => {
   const handleToggle = async (id) => {
     try {
       const teacher = teachers.find((t) => t._id === id);
-      const res = await axios.patch(`/api/admin/get-teachers/${id}/status`, { status: !teacher.active });
+      if (!teacher) return;
+
+      const res = await axios.patch(`/api/admin/get-teachers/${id}/status`);
       if (res.data.success) {
         setTeachers((prev) =>
           prev.map((t) => (t._id === id ? { ...t, active: !t.active } : t))
         );
-        toast.success(`${teacher.name} is now ${!teacher.active ? "Active" : "Inactive"}`);
+        toast.success(
+          `${teacher.name} is now ${!teacher.active ? "Active" : "Inactive"}`
+        );
       } else {
         toast.error("Status update failed");
       }
@@ -69,7 +82,12 @@ const TeachersManagement = () => {
     try {
       const res = await axios.post("/api/admin/create-visiting-teacher", teacherData);
       if (res.data.success) {
-        setTeachers((prev) => [...prev, res.data.teacher]);
+        const newTeacher = {
+          ...res.data.teacher,
+          active: res.data.teacher.activeStatus,
+          isVisiting: true,
+        };
+        setTeachers((prev) => [...prev, newTeacher]);
         toast.success("Visiting faculty added successfully!");
         setModalOpen(false);
       } else {
@@ -101,7 +119,7 @@ const TeachersManagement = () => {
     }
   };
 
-  // Filtered teachers
+  // Filtered teachers by search
   const filteredTeachers = teachers.filter((t) => {
     const term = search.toLowerCase();
     return t.name.toLowerCase().includes(term) || t.email.toLowerCase().includes(term);
@@ -111,6 +129,7 @@ const TeachersManagement = () => {
   const regularTeachers = filteredTeachers.filter((t) => !t.isVisiting);
   const visitingTeachers = filteredTeachers.filter((t) => t.isVisiting);
 
+  // Render table rows
   const renderTable = (teacherList) =>
     teacherList.map((t, idx) => {
       const color = pastelColors[idx % pastelColors.length];

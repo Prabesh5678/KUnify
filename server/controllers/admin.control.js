@@ -69,15 +69,23 @@ export const getDashboardStats = async (_, res) => {
 export const getAllTeachers = async (req, res) => {
   try {
     const search = req.query.search || "";
+    const regularFaculty = await Teacher.find({
+      googleId: { $exists: true, $ne: null },
+      $or: [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+      ],
+    }).select("name email specialization activeStatus googleId");
 
-    const teachers = await Teacher.find({
+    const visitingFaculty = await Teacher.find({
+      googleId: { $in: [null, undefined] }, 
       $or: [
         { name: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
       ],
     }).select("name email specialization activeStatus");
 
-    res.json({ success: true, teachers });
+    res.json({ success: true, regularFaculty, visitingFaculty });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -118,6 +126,7 @@ export const createVisitingTeacher = async (req, res) => {
       specialization,
       visiting: true,
       activeStatus: true,
+      passwordChangedAt: Date.now(),
     });
 
     res.json({ success: true, teacher });
@@ -145,18 +154,17 @@ export const resetVisitingTeacherPassword = async (req, res) => {
       return res.status(404).json({ success: false, message: "Teacher not found" });
     }
 
-    // naya password hash garna
-    const hashedPassword = await bcrypt.hash(newPassword, 10);//10 bhaneko chai salt round ho (security level bhanna milcha yeslai)
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     teacher.password = hashedPassword;
-
+    teacher.passwordChangedAt = Date.now(); 
     await teacher.save();
-
     res.json({ success: true, message: "Password reset successfully" });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
 // Get students by semester and department
 export const getStudentsBySemester = async (req, res) => {
   try {
@@ -307,58 +315,28 @@ export const getAllTeams = async (req, res) => {
 };
 
 //fetching logsheets
-
-export const getLogsheets = async (req, res) => {
+export const getTeamLogsheets = async (req, res) => {
   try {
+    const { teamId } = req.params;
+    const { week } = req.query;
 
-    const { studentId, week } = req.query;
+    // find logs for this team
+    let logsQuery = { teamId };
+    if (week) logsQuery.week = week;
+
+    const logs = await LogEntry.find(logsQuery);
 
     let contributions = [];
-    if (studentId) {
-
-      contributions = await MemberContribution.find({
-        memberId: studentId,
-      })
-      .populate("memberId")
-      .populate("logId");
-
-    }
-    else if (week) {
-      const logs = await LogEntry.find({ week: week });
-      for (let i = 0; i < logs.length; i++) {
-
-        const data = await MemberContribution.find({
-          logId: logs[i]._id
-        })
+    for (let log of logs) {
+      const data = await MemberContribution.find({ logId: log._id })
         .populate("memberId")
         .populate("logId");
-
-        contributions.push(...data); 
-      }
-
+      contributions.push(...data);
     }
 
-    else {
-
-      contributions = await MemberContribution.find()
-      .populate("memberId")
-      .populate("logId");
-
-    }
-
-    res.json({
-      success: true,
-      data: contributions
-    });
-
+    res.json({ success: true, data: contributions });
   } catch (error) {
-
-    console.log(error);
-
-    res.status(500).json({
-      success: false,
-      message: "Server error"
-    });
-
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
