@@ -169,7 +169,7 @@ export const resetVisitingTeacherPassword = async (req, res) => {
 export const getStudentsBySemester = async (req, res) => {
   try {
     const semester = req.query.semester || "";   
-    const department = req.query.department || ""; // <-- new filter
+    const department = req.query.department || ""; 
     const search = req.query.search || "";
 
     const filter = {
@@ -177,7 +177,7 @@ export const getStudentsBySemester = async (req, res) => {
     };
 
     if (department) {
-      filter.department = department; // add department filter only if provided
+      filter.department = department; 
     }
 
     const students = await Student.find({

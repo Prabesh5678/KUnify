@@ -67,7 +67,7 @@ app.get('/api/logout', (_,res)=>{
 });
 
 
-// ✅ Start server
+//  Start server
 app.listen(port, () => {
   console.log(`🚀 Server is running on http://localhost:${port}`);
 });
