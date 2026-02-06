@@ -14,7 +14,7 @@ const TeamDetail = () => {
   const [team, setTeam] = useState(null);
   const [logsheets, setLogsheets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [allWeeks, setAllWeeks] = useState([]); // <-- new state for all weeks
+  const [allWeeks, setAllWeeks] = useState([]); 
 
   const [isTeamOpen, setIsTeamOpen] = useState(true);
   const [isProposalOpen, setIsProposalOpen] = useState(true);
