@@ -1,77 +1,120 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle, Clock, Users, FileText, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-const stats = [
-  {
-    label: "Total Teams",
-    value: 1,
-    icon: Users,
-    cardBg: "bg-blue-50",
-    iconBg: "bg-blue-100",
-    textColor: "text-blue-600",
-  },
-  {
-    label: "Pending Proposals",
-    value: 1,
-    icon: FileText,
-    cardBg: "bg-orange-50",
-    iconBg: "bg-orange-100",
-    textColor: "text-orange-600",
-  },
-  {
-    label: "Approved Projects",
-    value: 1,
-    icon: CheckCircle,
-    cardBg: "bg-green-50",
-    iconBg: "bg-green-100",
-    textColor: "text-green-600",
-  },
-  {
-    label: "Total Logsheet Entries",
-    value: 15,
-    icon: Clock,
-    cardBg: "bg-purple-50",
-    iconBg: "bg-purple-100",
-    textColor: "text-purple-600",
-  },
-];
-
-
-const teams = [
-  {
-    name: "Team Alpha",
-    project: "Smart Attendance System",
-    members: 5,
-    category: "Web Development",
-    logs: 15,
-    status: "pending",
-    proposed: "2025-12-28",
-    updated: "2025-12-30",
-  },
-  {
-    id: 2,
-    name: "Team Beta",
-    project: "Online Examination System",
-    members: 4,
-    category: "Software Engineering",
-    logs: 10,
-    status: "approved",
-    proposed: "2025-12-20",
-    updated: "2025-12-29",
-  },
-];
+import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function TeacherProjects() {
   const navigate = useNavigate();
-  const [selectedTeam, setSelectedTeam] = useState(null);
-  const [tab, setTab] = useState("teams");
+  //const [selectedTeam, setSelectedTeam] = useState(null);
+  //const [tab, setTab] = useState("teams");
   const [search, setSearch] = useState("");
+  const [error, setError] = useState("");
+  const [teams, setTeams] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [stats, setStats] = useState([
+    {
+      label: "Total Teams",
+      value: 0,
+      icon: Users,
+      cardBg: "bg-blue-50",
+      iconBg: "bg-blue-100",
+      textColor: "text-blue-600",
+    },
+    {
+      label: "Pending Teams",
+      value: 0,
+      icon: FileText,
+      cardBg: "bg-orange-50",
+      iconBg: "bg-orange-100",
+      textColor: "text-orange-600",
+    },
+    {
+      label: "Approved Projects",
+      value: 0,
+      icon: CheckCircle,
+      cardBg: "bg-green-50",
+      iconBg: "bg-green-100",
+      textColor: "text-green-600",
+    },
+    {
+      label: "Total Logsheet Entries",
+      value: 0,
+      icon: Clock,
+      cardBg: "bg-purple-50",
+      iconBg: "bg-purple-100",
+      textColor: "text-purple-600",
+    },
+  ]);
+
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const { data } = await axios.get("/api/teacher/teams?get=all");
+        console.log(data);
+        if (data.success) {
+          const teamList = data?.teams || [];
+          setTeams(teamList.assignedTeams);
+          const totalTeams = teamList.assignedTeams.length;
+          const pendingProposals = teamList.pendingTeams.length;
+          const approvedProjects = teamList.approvedTeams.length;
+          // const totalLogs = teamList.reduce((sum, t) => sum + t.logs, 0);
+          const totalLogs = 1;
+          setStats([
+            {
+              label: "Total  Teams",
+              value: totalTeams,
+              icon: Users,
+              cardBg: "bg-blue-50",
+              iconBg: "bg-blue-100",
+              textColor: "text-blue-600",
+            },
+            {
+              label: "Pending Teams",
+              value: pendingProposals,
+              icon: FileText,
+              cardBg: "bg-orange-50",
+              iconBg: "bg-orange-100",
+              textColor: "text-orange-600",
+            },
+            {
+              label: "Approved Projects",
+              value: approvedProjects,
+              icon: CheckCircle,
+              cardBg: "bg-green-50",
+              iconBg: "bg-green-100",
+              textColor: "text-green-600",
+            },
+            {
+              label: "Total Logsheet Entries",
+              value: totalLogs,
+              icon: Clock,
+              cardBg: "bg-purple-50",
+              iconBg: "bg-purple-100",
+              textColor: "text-purple-600",
+            },
+          ]);
+        } else {
+          toast.error("Unable to fetch teams!");
+          console.log("hi");
+          console.error(data?.message);
+        }
+      } catch (err) {
+        console.error("Failed to fetch teams:", err.stack);
+        setError("Failed to load teams. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeams();
+  }, []);
 
   const filteredTeams = teams.filter(
     (team) =>
       team.name.toLowerCase().includes(search.toLowerCase()) ||
-      team.project.toLowerCase().includes(search.toLowerCase())
+      team.project.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -100,14 +143,15 @@ export default function TeacherProjects() {
                 </h2>
               </div>
 
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.iconBg}`}>
+              <div
+                className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.iconBg}`}
+              >
                 <item.icon className={`${item.textColor} w-6 h-6`} />
               </div>
             </div>
           </div>
         ))}
       </div>
-
 
       {/* Search*/}
       <div className="flex justify-between items-center mt-8">
@@ -125,10 +169,10 @@ export default function TeacherProjects() {
 
       {/* Main content */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        {filteredTeams.length === 0 ? (
-          <p className="text-gray-500 col-span-2 text-center">
-            No teams found
-          </p>
+        {error ? (
+          <p className="text-center col-span-2 mt-10 text-red-500">{error}</p>
+        ) : filteredTeams.length === 0 ? (
+          <p className="text-gray-500 col-span-2 text-center">No teams found</p>
         ) : (
           filteredTeams.map((team) => (
             <div
@@ -140,8 +184,12 @@ export default function TeacherProjects() {
               <div className="flex justify-between items-center">
                 <h2 className="font-semibold text-lg">{team.name}</h2>
                 <span
-                  className={`px-3 py-1 text-sm rounded-full ${team.status === "approved" ? "bg-green-100 text-green-600" : "bg-orange-100 text-orange-600"
-                    }`}>
+                  className={`px-3 py-1 text-sm rounded-full ${
+                    team.status === "approved"
+                      ? "bg-green-100 text-green-600"
+                      : "bg-orange-100 text-orange-600"
+                  }`}
+                >
                   {team.status}
                 </span>
               </div>

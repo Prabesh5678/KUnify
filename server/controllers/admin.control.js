@@ -37,11 +37,9 @@ console.log('hi')
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-// Admin Logout
-export const adminLogout = (req, res) => {
-  res.clearCookie("adminToken");
-  res.json({ success: true, message: "Admin logged out" });
+//get admin auth
+export const isAuth = async (_,res) => {
+   return res.json({success:true,message:'Welcome Admin!'});
 };
 
 // Dashboard Stats
@@ -200,7 +198,6 @@ export const getPendingSupervisorRequests = async (req, res) => {
       .populate("supervisor", "name email") 
       .populate("members", "name email semester department rollNumber ")
       .populate("proposal")
-      .populate("logsheets");
 
     res.json({ success: true, teams });
   } catch (err) {
