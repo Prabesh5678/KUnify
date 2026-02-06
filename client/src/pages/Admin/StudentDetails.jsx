@@ -1,11 +1,12 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import AdminSidebar from "../../components/Admin/AdminSideBar";
 import { FaUserGraduate, FaEnvelope, FaUsers, FaLayerGroup } from "react-icons/fa";
 
 const StudentDetails = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { student } = location.state || {};
 
   if (!student) {
@@ -17,15 +18,16 @@ const StudentDetails = () => {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar />
-      <div className="flex-1 flex flex-col">
-        <AdminHeader />
+ <div className="flex min-h-screen bg-gray-50">
+  <AdminSidebar />
+  <div className="flex-1 p-8">
+    <AdminHeader />
+    <div className="flex justify-between items-center mb-6"></div>
 
-        <div className="p-6 md:p-10">
+        <div className="p-4 md:p-2">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="p-4 bg-primary/10 rounded-2xl">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="p-2 bg-primary/10 rounded-2xl">
               <FaUserGraduate className="text-primary text-3xl" />
             </div>
             <div>
@@ -41,7 +43,7 @@ const StudentDetails = () => {
           {/* Profile Card */}
           <div className="bg-white rounded-2xl shadow-md p-8 mb-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
+
               <InfoItem
                 icon={<FaUserGraduate />}
                 label="Full Name"
@@ -60,11 +62,28 @@ const StudentDetails = () => {
                 value={student.semester}
               />
 
+              {/* Clickable Team */}
               <InfoItem
                 icon={<FaUsers />}
                 label="Team"
-                value={student.teamId?.name || "Not Assigned"}
+                value={
+                  student.teamId ? (
+                    <span
+                      className="text-primary underline cursor-pointer hover:text-primary/80"
+                      onClick={() =>
+                        navigate(`/admin/teamdetail/${student.teamId._id}`, {
+                          state: { team: student.teamId },
+                        })
+                      }
+                    >
+                      {student.teamId.name}
+                    </span>
+                  ) : (
+                    "Not Assigned"
+                  )
+                }
               />
+
 
               <InfoItem
                 icon={<FaUserGraduate />}
@@ -74,32 +93,7 @@ const StudentDetails = () => {
             </div>
           </div>
 
-          {/* Contribution Logs */}
-          <div className="bg-white rounded-2xl shadow-md p-8">
-            <h3 className="text-xl font-bold mb-6 text-gray-800">
-              Contribution Log Sheets
-            </h3>
-
-            {student.logs && student.logs.length > 0 ? (
-              <div className="space-y-4">
-                {student.logs.map((log, idx) => (
-                  <div
-                    key={idx}
-                    className="border border-gray-200 rounded-xl p-4 bg-gray-50"
-                  >
-                    <p className="text-sm text-gray-500">{log.date}</p>
-                    <p className="font-semibold text-gray-700">
-                      {log.task}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400 italic">
-                No contribution logs available.
-              </p>
-            )}
-          </div>
+          {/* Logsheets removed */}
         </div>
       </div>
     </div>
@@ -114,7 +108,7 @@ const InfoItem = ({ icon, label, value }) => (
       <p className="text-xs uppercase text-gray-400 font-semibold">
         {label}
       </p>
-      <p className="text-gray-800 font-bold">{value}</p>
+      <div className="text-gray-800 font-bold">{value}</div>
     </div>
   </div>
 );

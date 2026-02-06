@@ -240,50 +240,64 @@ const handleVisitingFacultyLogin = async () => {
           </p>
         </div>
 
-        <div className="border-t border-gray-800 pt-6">
-          <h2 className="text-lg font-semibold mb-4 text-center">
-            Visiting Faculty Login
-          </h2>
+      <div className="border-t border-gray-800 pt-6">
+  <h2 className="text-lg font-semibold mb-4 text-center">
+    Visiting Faculty Login
+  </h2>
 
-          <div className="space-y-4">
-            <input
-              type="email"
-              placeholder="Email"
-              value={vfEmail}
-              onChange={handleEmailChange}
-              className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] border border-gray-700"
-            />
+  <div className="space-y-4">
+    <input
+      type="email"
+      placeholder="Email"
+      value={vfEmail}
+      onChange={handleEmailChange}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          // move focus to password input
+          document.getElementById("vfPasswordInput")?.focus();
+        }
+      }}
+      className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] border border-gray-700"
+    />
 
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={vfPassword}
-                onChange={(e) => setVfPassword(e.target.value)}
-                className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] border border-gray-700 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
+    <div className="relative">
+      <input
+        id="vfPasswordInput"
+        type={showPassword ? "text" : "password"}
+        placeholder="Password"
+        value={vfPassword}
+        onChange={(e) => setVfPassword(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            // trigger login on Enter
+            handleVisitingFacultyLogin();
+          }
+        }}
+        className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] border border-gray-700 pr-10"
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
+      >
+        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+      </button>
+    </div>
 
-            <button
-              onClick={handleVisitingFacultyLogin}
-              disabled={loadingVF}
-              className="w-full bg-primary text-white py-2 rounded-md"
-            >
-              {loadingVF ? "Logging in..." : "Login as Visiting Faculty"}
-            </button>
-          </div>
-        </div>
+    <button
+      onClick={handleVisitingFacultyLogin}
+      disabled={loadingVF}
+      className="w-full bg-primary text-white py-2 rounded-md cursor-pointer"
+    >
+      {loadingVF ? "Logging in..." : "Login as Visiting Faculty"}
+    </button>
+  </div>
+</div>
+
 
         <button
           onClick={() => setShowUserLogin(false)}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-lg"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-lg cursor-pointer"
         >
           ✕
         </button>

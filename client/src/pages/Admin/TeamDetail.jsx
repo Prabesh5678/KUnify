@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import AdminSidebar from "../../components/Admin/AdminSideBar";
@@ -14,6 +15,7 @@ const TeamDetail = () => {
   const [team, setTeam] = useState(null);
   const [logsheets, setLogsheets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [logsheetsLoading, setLogsheetsLoading] = useState(false);
   const [allWeeks, setAllWeeks] = useState([]); 
 
   const [isTeamOpen, setIsTeamOpen] = useState(true);
@@ -22,6 +24,20 @@ const TeamDetail = () => {
 
   const [selectedStudent, setSelectedStudent] = useState("all");
   const [selectedWeek, setSelectedWeek] = useState("all");
+
+  // Skeleton Components
+  const SkeletonLine = ({ width = "w-full" }) => (
+    <div className={`h-4 bg-gray-200 rounded animate-pulse ${width}`}></div>
+  );
+
+  const SkeletonCard = () => (
+    <div className="border p-4 rounded bg-gray-50 space-y-2">
+      <SkeletonLine width="w-1/4" />
+      <SkeletonLine width="w-3/4" />
+      <SkeletonLine width="w-full" />
+      <SkeletonLine width="w-2/3" />
+    </div>
+  );
 
   // Fetch team info
   useEffect(() => {
@@ -49,7 +65,7 @@ const TeamDetail = () => {
 
     const fetchLogsheets = async () => {
       try {
-        setLoading(true);
+        setLogsheetsLoading(true);
         const params = {};
         if (selectedStudent !== "all") params.studentId = selectedStudent;
         if (selectedWeek !== "all") params.week = selectedWeek;
@@ -70,7 +86,7 @@ const TeamDetail = () => {
       } catch (err) {
         toast.error(err.response?.data?.message || "Error fetching logsheets");
       } finally {
-        setLoading(false);
+        setLogsheetsLoading(false);
       }
     };
 
@@ -111,7 +127,26 @@ const TeamDetail = () => {
 
   const allMembers = team?.members || [];
 
-  if (loading) return <p className="p-6 text-center">Loading...</p>;
+  if (loading) {
+    return (
+      <div className="flex min-h-screen bg-gray-50">
+        <AdminSidebar />
+        <div className="flex-1 p-8 overflow-auto">
+          <AdminHeader />
+          <div className="max-w-5xl mx-auto space-y-4">
+            <div className="bg-white p-6 rounded-xl shadow space-y-3">
+              <SkeletonLine width="w-1/3" />
+              <SkeletonLine width="w-2/3" />
+            </div>
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!team) return <p className="p-6 text-center">No team data found.</p>;
 
   const SectionHeader = ({ title, isOpen, toggle }) => (
@@ -172,7 +207,7 @@ const TeamDetail = () => {
                   {team.proposal.proposalFile?.url && (
                     <button
                       onClick={() => handleViewPDF(team.proposal.proposalFile.url)}
-                      className="bg-green-600 text-white px-4 py-2 rounded mt-2 flex items-center gap-2"
+                      className="bg-primary text-white px-4 py-2 rounded mt-2 flex items-center gap-2 cursor-pointer"
                     >
                       <ExternalLink size={16} /> View Proposal PDF
                     </button>
@@ -198,7 +233,7 @@ const TeamDetail = () => {
                   <select
                     value={selectedStudent}
                     onChange={(e) => setSelectedStudent(e.target.value)}
-                    className="w-full border px-3 py-2 rounded"
+                    className="w-full border px-3 py-2 rounded cursor-pointer"
                   >
                     <option value="all">All Students</option>
                     {allMembers.map(m => (
@@ -211,7 +246,7 @@ const TeamDetail = () => {
                   <select
                     value={selectedWeek}
                     onChange={(e) => setSelectedWeek(e.target.value)}
-                    className="w-full border px-3 py-2 rounded"
+                    className="w-full border px-3 py-2 rounded cursor-pointer"
                   >
                     <option value="all">All Weeks</option>
                     {allWeeks.map(w => (
@@ -222,7 +257,13 @@ const TeamDetail = () => {
               </div>
 
               {/* Logs */}
-              {logsheets.length === 0 ? (
+              {logsheetsLoading ? (
+                <div className="space-y-4">
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                </div>
+              ) : logsheets.length === 0 ? (
                 <div className="text-center py-12 bg-gray-50 rounded">
                   <FileText size={48} className="mx-auto mb-3 text-gray-400" />
                   <p>No logs found</p>

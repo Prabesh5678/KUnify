@@ -6,6 +6,8 @@ import ResetPasswordModal from "../../components/Admin/ResetPasswordModal";
 import { FaToggleOn, FaToggleOff } from "react-icons/fa";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+
 
 const pastelColors = [
   { bg: "bg-indigo-50", border: "border-indigo-100" },
@@ -21,6 +23,8 @@ const TeachersManagement = () => {
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("regular"); // "regular" or "visiting"
+  const navigate = useNavigate();
+
 
   // Fetch all teachers
   const fetchTeachers = async () => {
@@ -55,6 +59,7 @@ const TeachersManagement = () => {
   }, []);
 
   // Toggle active/inactive
+  // Toggle active/inactive
   const handleToggle = async (id) => {
     try {
       const teacher = teachers.find((t) => t._id === id);
@@ -62,11 +67,14 @@ const TeachersManagement = () => {
 
       const res = await axios.patch(`/api/admin/get-teachers/${id}/status`);
       if (res.data.success) {
+        // Use the updated status from the backend response
+        const updatedStatus = res.data.teacher?.activeStatus ?? !teacher.active;
+
         setTeachers((prev) =>
-          prev.map((t) => (t._id === id ? { ...t, active: !t.active } : t))
+          prev.map((t) => (t._id === id ? { ...t, active: updatedStatus } : t))
         );
         toast.success(
-          `${teacher.name} is now ${!teacher.active ? "Active" : "Inactive"}`
+          `${teacher.name} is now ${updatedStatus ? "Active" : "Inactive"}`
         );
       } else {
         toast.error("Status update failed");
@@ -76,7 +84,6 @@ const TeachersManagement = () => {
       toast.error("Failed to update status");
     }
   };
-
   // Add visiting faculty
   const handleAddTeacher = async (teacherData) => {
     try {
@@ -138,7 +145,17 @@ const TeachersManagement = () => {
           key={t._id}
           className={`${color.bg} ${color.border} border-b hover:bg-primary/20 cursor-pointer`}
         >
-          <td className="p-3">{t.name}</td>
+          <td
+            className="p-3 text-primary underline cursor-pointer hover:text-primary/80"
+            onClick={() =>
+              navigate("/admin/allteachers/:id", {
+                state: { teacher: t, projects: [] },
+              })
+            }
+          >
+            {t.name}
+          </td>
+
           <td className="p-3">{t.email}</td>
           <td className="p-3">
             <button onClick={() => handleToggle(t._id)}>
@@ -176,7 +193,7 @@ const TeachersManagement = () => {
           <h2 className="text-2xl font-bold text-gray-800">Teachers Management</h2>
           <button
             onClick={() => setModalOpen(true)}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80 cursor-pointer"
           >
             Add Visiting Faculty
           </button>
@@ -187,27 +204,26 @@ const TeachersManagement = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name or email..."
-          className="w-full p-3 mb-4 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300"
+          className="w-full p-3 mb-4 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-300 "
         />
 
         {/* Tabs */}
         <div className="flex border-b mb-4">
           <button
-            className={`px-4 py-2 -mb-px font-semibold ${
-              activeTab === "regular"
-                ? "border-b-2 border-primary text-primary"
-                : "text-gray-500 hover:text-primary"
-            }`}
+            className={`px-4 py-2 -mb-px font-semibold cursor-pointer ${activeTab === "regular"
+              ? "border-b-2 border-primary text-primary"
+              : "text-gray-500 hover:text-primary"
+              }`}
             onClick={() => setActiveTab("regular")}
           >
             Regular Faculty
           </button>
+
           <button
-            className={`px-4 py-2 -mb-px font-semibold ${
-              activeTab === "visiting"
-                ? "border-b-2 border-primary text-primary"
-                : "text-gray-500 hover:text-primary"
-            }`}
+            className={`px-4 py-2 -mb-px font-semibold cursor-pointer ${activeTab === "visiting"
+              ? "border-b-2 border-primary text-primary"
+              : "text-gray-500 hover:text-primary"
+              }`}
             onClick={() => setActiveTab("visiting")}
           >
             Visiting Faculty

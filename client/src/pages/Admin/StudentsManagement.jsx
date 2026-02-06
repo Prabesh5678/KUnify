@@ -113,10 +113,9 @@ const StudentsManagement = () => {
               key={dept}
               onClick={() => handleDepartmentClick(dept)}
               className={`px-5 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer
-                ${
-                  activeDepartment === dept
-                    ? "bg-primary text-white shadow-md scale-105"
-                    : "bg-white text-gray-600 border border-gray-200 hover:bg-primary/10"
+                ${activeDepartment === dept
+                  ? "bg-primary text-white shadow-md scale-105"
+                  : "bg-white text-gray-600 border border-gray-200 hover:bg-primary/10"
                 }`}
             >
               {dept}
@@ -132,10 +131,9 @@ const StudentsManagement = () => {
                 key={sem}
                 onClick={() => handleSemesterClick(sem)}
                 className={`px-5 py-2 rounded-full text-sm font-semibold transition-all cursor-pointer
-                  ${
-                    activeSemester === sem
-                      ? "bg-primary text-white shadow-md scale-105"
-                      : "bg-white text-gray-600 border border-gray-200 hover:bg-primary/10"
+                  ${activeSemester === sem
+                    ? "bg-primary text-white shadow-md scale-105"
+                    : "bg-white text-gray-600 border border-gray-200 hover:bg-primary/10"
                   }`}
               >
                 {sem} Semester
@@ -165,10 +163,10 @@ const StudentsManagement = () => {
                     {filteredStudents.map((s, index) => (
                       <tr
                         key={s._id}
-                        className={`transition duration-200 hover:bg-primary/30 hover:text-white cursor-pointer ${
-                          pastelColors[index % pastelColors.length].bg
-                        }`}
+                        className={`transition duration-200 cursor-pointer ${pastelColors[index % pastelColors.length].bg
+                          } hover:bg-primary/30`}
                       >
+
                         <td className="px-6 py-4">
                           <button
                             onClick={() =>

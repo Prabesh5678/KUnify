@@ -135,7 +135,7 @@ const ProjectsManagement = () => {
                   <td className="p-3">
                     <button
                       onClick={() => openModal(team)}
-                      className="px-3 py-1 bg-primary text-white rounded hover:bg-primary/80 transition-colors"
+                      className="px-3 py-1 bg-primary text-white rounded hover:bg-primary/80 transition-colors cursor-pointer"
                     >
                       View / Assign
                     </button>
@@ -162,7 +162,7 @@ const ProjectsManagement = () => {
         {/* Toggle Buttons */}
         <div className="flex gap-4 mb-4">
           <button
-            className={`px-4 py-2 rounded ${activeTab === "unassigned"
+            className={`px-4 py-2 rounded cursor-pointer ${activeTab === "unassigned"
                 ? "bg-primary text-white"
                 : "bg-gray-200 text-gray-700"
               }`}
@@ -171,7 +171,7 @@ const ProjectsManagement = () => {
             Unassigned Teams
           </button>
           <button
-            className={`px-4 py-2 rounded ${activeTab === "assigned"
+            className={`px-4 py-2 rounded cursor-pointer ${activeTab === "assigned"
                 ? "bg-primary text-white"
                 : "bg-gray-200 text-gray-700"
               }`}
