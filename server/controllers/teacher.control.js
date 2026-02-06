@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import Teacher from "../models/teacher.model.js";
 import Team from "../models/team.model.js";
 import mongoose from "mongoose";
+import { GiThwomp } from "react-icons/gi";
 
 // POST /api/teacher/google-signin
 export const googleSignIn = async (req, res) => {
@@ -144,12 +145,13 @@ export const profileCompletion = async (req, res) => {
 export const teamRequest = async (req, res) => {
   try {
     const teacherId = req.teacherId;
-    if (!teacherId)
-      return res.json({
+    if (!teacherId) throw new Error("Couldnot find teacher id!");
+    if (!req.query.get) {
+      return res.status(400).json({
         success: false,
-        message: "Couldnot find teacher id. ",
+        message: "Query parameter 'get' is required",
       });
-
+    }
     if (req.query.get === "request") {
       const requests = await Teacher.findById(teacherId)
         .select("pendingTeams")
@@ -163,12 +165,23 @@ export const teamRequest = async (req, res) => {
       return res.json({ success: true, teams: requests.pendingTeams });
     } else if (req.query.get === "assigned") {
       const requests = await Teacher.findById(teacherId)
-      .select("assignedTeams")
+        .select("assignedTeams")
         .populate("assignedTeams");
       if (!requests)
         return res.json({ success: false, message: "Unable to find teacher!" });
       return res.json({ success: true, teams: requests.assignedTeams });
+    } else if (req.query.get === "all") {
+      const requests = await Teacher.findById(teacherId).select(
+        "assignedTeams approvedTeams pendingTeams -_id",
+      );
+      if (!requests)
+        return res.json({ success: false, message: "Unable to find teacher!" });
+      return res.json({ success: true, teams: requests });
     }
+    return res.status(400).json({
+      success: false,
+      message: "Query parameter 'get' is required or invalid",
+    });
   } catch (error) {
     console.error(error.stack);
     return res.json({ success: false, message: "Unable to get team data!" });
@@ -182,20 +195,14 @@ export const teamApprove = async (req, res) => {
     session = await mongoose.startSession();
     session.startTransaction();
     const teacherId = req.teacherId;
-    if (!teacherId)
-      return res.json({ success: false, message: "Unable to get teacher id!" });
+    if (!teacherId) throw new Error("Unable to get teacher id!");
     const { requestId } = req.body;
-    if (!requestId)
-      return res.json({ success: false, message: "Unable to get team id!" });
+    if (!requestId) throw new Error("Unable to get team id!");
     const team = await Team.findById(requestId);
-    if (!team)
-      return res.json({ success: false, message: "Unable to find team!" });
+    if (!team) throw new Error("Unable to find team!");
     const teacher = await Teacher.findById(teacherId);
     if (!teacher || !teacher.pendingTeams.map(String).includes(requestId))
-      return res.json({
-        success: false,
-        message: "Unable to find teacher or team is not in pending list!",
-      });
+      throw new Error("Unable to find teacher or team is not in pending list!");
 
     if (req.query.action === "accept") {
       teacher.approvedTeams.addToSet(requestId);
@@ -204,9 +211,7 @@ export const teamApprove = async (req, res) => {
       await Promise.all([teacher.save({ session }), team.save({ session })]);
       await session.commitTransaction();
       return res.json({ success: true, message: "Team accepted!" });
-    }
-
-    else if (req.query.action === "decline") {
+    } else if (req.query.action === "decline") {
       teacher.pendingTeams.pull(requestId);
       team.supervisorStatus = "notApproved";
       team.supervisor = null;
@@ -214,12 +219,13 @@ export const teamApprove = async (req, res) => {
       await session.commitTransaction();
       return res.json({ success: true, message: "Team declined!" });
     }
-        return res.json({ success: false, message: "Invalid action!" });
-
+    throw new Error("Invalid action!");
   } catch (error) {
     if (session) await session.abortTransaction();
     console.error(error.stack);
-    return res.status(500).json({ message: "Server error" });
+    return res
+      .status(500)
+      .json({ success: false, message: error.message || "Server error" });
   } finally {
     if (session) session.endSession();
   }
@@ -228,7 +234,6 @@ export const teamApprove = async (req, res) => {
 //visiting faculty login
 export const teacherLogin = async (req, res) => {
   try {
-
     const { email, password } = req.body;
 
     const teacher = await Teacher.findOne({ email });
@@ -236,7 +241,7 @@ export const teacherLogin = async (req, res) => {
     if (!teacher) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials"
+        message: "Invalid credentials",
       });
     }
 
@@ -245,8 +250,8 @@ export const teacherLogin = async (req, res) => {
 
     if (!isMatch) {
       return res.status(401).json({
-        success:false,
-        message:"Invalid credentials"
+        success: false,
+        message: "Invalid credentials",
       });
     }
 
@@ -254,22 +259,21 @@ export const teacherLogin = async (req, res) => {
     const token = jwt.sign(
       { id: teacher._id, role: "teacher" },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     // send cookie
     res.cookie("teacherToken", token, {
-      httpOnly:true,
-      sameSite:"lax",
-      secure: process.env.NODE_ENV === "production"
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
     });
 
     res.json({
-      success:true,
-      teacher
+      success: true,
+      teacher,
     });
-
-  } catch(err) {
-    res.status(500).json({ success:false, message: err.message });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

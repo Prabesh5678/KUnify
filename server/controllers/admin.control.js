@@ -37,11 +37,9 @@ console.log('hi')
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-// Admin Logout
-export const adminLogout = (req, res) => {
-  res.clearCookie("adminToken");
-  res.json({ success: true, message: "Admin logged out" });
+//get admin auth
+export const isAuth = async (_,res) => {
+   return res.json({success:true,message:'Welcome Admin!'});
 };
 
 // Dashboard Stats

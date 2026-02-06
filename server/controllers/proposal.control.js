@@ -13,29 +13,16 @@ export const uploadProposal = async (req, res) => {
     session.startTransaction();
     const { title, abstract, keywords, supervisor } = req.body;
     const { teamId } = req.params;
-    if (!teamId)
-      return res
-        .status(400)
-        .json({ success: false, message: "An error occured!" });
-    if (!title || !abstract || !keywords || !supervisor) {
-      return res
-        .status(400)
-        .json({ success: false, message: "All fields are required" });
-    }
+    if (!teamId) throw new Error("An error occured!");
 
-    if (!req.file) {
-      return res
-        .status(400)
-        .json({ success: false, message: "PDF file is required" });
-    }
+    if (!title || !abstract || !keywords || !supervisor)
+      throw new Error("All fields are required!");
+
+    if (!req.file) throw new Error("PDF file is required");
 
     const team = await Team.findById(teamId);
 
-    if (!team) {
-      return res
-        .status(403)
-        .json({ success: false, message: "You are not part of any team" });
-    }
+    if (!team) throw new Error("You are not part of any team!");
 
     // if (team.leaderId.toString() !== studentId.toString()) {
     //   return res.status(403).json({
@@ -45,15 +32,10 @@ export const uploadProposal = async (req, res) => {
 
     // if (req.query.edit!=='yes'&&team.proposal) {
     if (team.proposal) {
-      return res.json({
-        success: false,
-        message: "Proposal already submitted by your team",
-      });
+      throw new Error("Proposal already submitted by your team");
     }
     const teacher = await Teacher.findById(supervisor);
-    if (!teacher)
-      return res.json({ success: false, message: "Unable to find teacher!" });
-
+    if (!teacher) throw new Error("Unable to find teacher!");
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: "kunify/proposals",
       resource_type: "raw",
@@ -102,7 +84,9 @@ export const uploadProposal = async (req, res) => {
   } catch (error) {
     if (session) await session.abortTransaction();
     console.error(error.stack);
-    return res.status(500).json({ message: "Server error" });
+    return res
+      .status(500)
+      .json({ success: false, message: error.message || "Server error" });
   } finally {
     if (session) session.endSession();
   }
@@ -126,7 +110,6 @@ export const getProposal = async (req, res) => {
   }
 };
 
-
 export const uploadOrEditProposal = async (req, res) => {
   let session;
 
@@ -142,10 +125,7 @@ export const uploadOrEditProposal = async (req, res) => {
         .json({ success: false, message: "Invalid team id" });
 
     if (!title || !abstract || !keywords || !supervisor)
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
+      throw new Error("All fields are required");
 
     if (!isEdit && !req.file)
       return res

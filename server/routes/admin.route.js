@@ -2,7 +2,6 @@ import express from "express";
 import authAdmin from "../middlewares/admin.middleware.js";
 import {
   adminLogin,
-  adminLogout,
   getDashboardStats,
   getAllTeachers,
   toggleTeacherStatus,
@@ -13,16 +12,17 @@ import {
   resetVisitingTeacherPassword,
   getAllTeams,
   getPendingSupervisorRequests,
+  isAuth,
 } from "../controllers/admin.control.js";
 
 const adminRouter = express.Router();
 
 // Auth
 adminRouter.post("/login", adminLogin);
-adminRouter.post("/logout", authAdmin, adminLogout);
 
 // Dashboard
 adminRouter.get("/dashboard", authAdmin, getDashboardStats);
+adminRouter.get("/is-auth", authAdmin, isAuth);
 
 // Teachers
 adminRouter.get("/get-teachers", authAdmin, getAllTeachers);
