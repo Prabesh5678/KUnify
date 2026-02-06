@@ -86,11 +86,7 @@ const AllTeachers = () => {
             <InfoItem icon={<FaEnvelope />} label="Email">
               <input value={email} onChange={e => setEmail(e.target.value)} className="ml-2 p-2 border rounded w-full" />
             </InfoItem>
-
-            <InfoItem icon={<FaTools />} label="Expertise">
-              <input value={expertise} onChange={e => setExpertise(e.target.value)} className="ml-2 p-2 border rounded w-full" />
-            </InfoItem>
-
+            
             <InfoItem icon={<FaUserTie />} label="Designation">
               <select value={designation} onChange={e => setDesignation(e.target.value)} className="ml-2 p-2 border rounded w-full cursor-pointer">
                 <option>Lecturer</option>

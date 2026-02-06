@@ -109,7 +109,7 @@ const ProjectsManagement = () => {
                   className={`${color.bg} ${color.border} border-b hover:shadow-md transition-all duration-200`}
                 >
                   <td
-                    className="p-3 text-blue-600 cursor-pointer hover:underline"
+                    className="p-3 text-primary cursor-pointer"
                     onClick={() =>
                       navigate(`/admin/teamdetail/${team._id}`)
                     }

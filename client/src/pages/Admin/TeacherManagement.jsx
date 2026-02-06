@@ -146,7 +146,12 @@ const TeachersManagement = () => {
           className={`${color.bg} ${color.border} border-b hover:bg-primary/20`}
         >
           <td
-            className="p-3 text-primary"
+            className="p-3 text-primary underline cursor-pointer hover:text-primary/80"
+            onClick={() =>
+              navigate("/admin/allteachers/:id", {
+                state: { teacher: t, projects: [] },
+              })
+            }
           >
             {t.name}
           </td>
