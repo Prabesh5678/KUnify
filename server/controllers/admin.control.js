@@ -314,27 +314,22 @@ export const getAllTeams = async (req, res) => {
   }
 };
 
-//fetching logsheets
+// controllers/admin.control.js
 export const getTeamLogsheets = async (req, res) => {
   try {
     const { teamId } = req.params;
-    const { week } = req.query;
+    const { week, studentId } = req.query;
 
-    // find logs for this team
-    let logsQuery = { teamId };
-    if (week) logsQuery.week = week;
+    const query = { teamId };
 
-    const logs = await LogEntry.find(logsQuery);
+    if (week && week !== "all") query.week = week;
+    if (studentId && studentId !== "all") query.createdBy = studentId; // filter by student
 
-    let contributions = [];
-    for (let log of logs) {
-      const data = await MemberContribution.find({ logId: log._id })
-        .populate("memberId")
-        .populate("logId");
-      contributions.push(...data);
-    }
+    const logs = await LogEntry.find(query)
+      .populate("createdBy", "name email semester rollNumber department")
+      .lean();
 
-    res.json({ success: true, data: contributions });
+    res.json({ success: true, data: logs });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server error" });
