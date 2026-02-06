@@ -143,22 +143,20 @@ const TeachersManagement = () => {
       return (
         <tr
           key={t._id}
-          className={`${color.bg} ${color.border} border-b hover:bg-primary/20 cursor-pointer`}
+          className={`${color.bg} ${color.border} border-b hover:bg-primary/20`}
         >
           <td
-            className="p-3 text-primary underline cursor-pointer hover:text-primary/80"
-            onClick={() =>
-              navigate("/admin/allteachers/:id", {
-                state: { teacher: t, projects: [] },
-              })
-            }
+            className="p-3 text-primary"
           >
             {t.name}
           </td>
 
           <td className="p-3">{t.email}</td>
           <td className="p-3">
-            <button onClick={() => handleToggle(t._id)}>
+            <button
+              onClick={() => handleToggle(t._id)}
+              className="cursor-pointer rounded p-1 transition"
+            >
               {t.active ? (
                 <FaToggleOn className="text-green-500 text-2xl" />
               ) : (
@@ -166,6 +164,7 @@ const TeachersManagement = () => {
               )}
             </button>
           </td>
+
           <td className="p-3">
             {t.isVisiting && (
               <button
