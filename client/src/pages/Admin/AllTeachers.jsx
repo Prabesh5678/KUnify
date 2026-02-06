@@ -59,9 +59,9 @@ const AllTeachers = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 p-8">
         <AdminHeader />
-        <div className="p-8 md:p-10">
+        <div className="p-4 md:p-4">
           {/* Header */}
           <div className="flex items-center gap-4 mb-8">
             <div className="p-4 bg-primary/10 rounded-2xl">
@@ -76,23 +76,23 @@ const AllTeachers = () => {
           {/* Info Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <InfoItem icon={<FaUserGraduate />} label="Full Name">
-              <input value={name} onChange={e => setName(e.target.value)} className="ml-2 p-2 border rounded w-full"/>
+              <input value={name} onChange={e => setName(e.target.value)} className="ml-2 p-2 border rounded w-full" />
             </InfoItem>
 
             <InfoItem icon={<FaPhone />} label="Phone">
-              <input value={phone} onChange={e => setPhone(e.target.value)} className="ml-2 p-2 border rounded w-full"/>
+              <input value={phone} onChange={e => setPhone(e.target.value)} className="ml-2 p-2 border rounded w-full" />
             </InfoItem>
 
             <InfoItem icon={<FaEnvelope />} label="Email">
-              <input value={email} onChange={e => setEmail(e.target.value)} className="ml-2 p-2 border rounded w-full"/>
+              <input value={email} onChange={e => setEmail(e.target.value)} className="ml-2 p-2 border rounded w-full" />
             </InfoItem>
 
             <InfoItem icon={<FaTools />} label="Expertise">
-              <input value={expertise} onChange={e => setExpertise(e.target.value)} className="ml-2 p-2 border rounded w-full"/>
+              <input value={expertise} onChange={e => setExpertise(e.target.value)} className="ml-2 p-2 border rounded w-full" />
             </InfoItem>
 
             <InfoItem icon={<FaUserTie />} label="Designation">
-              <select value={designation} onChange={e => setDesignation(e.target.value)} className="ml-2 p-2 border rounded w-full">
+              <select value={designation} onChange={e => setDesignation(e.target.value)} className="ml-2 p-2 border rounded w-full cursor-pointer">
                 <option>Lecturer</option>
                 <option>Visiting Faculty</option>
                 <option>Assistant Professor</option>
@@ -102,12 +102,12 @@ const AllTeachers = () => {
 
             {teacher.isVisiting && (
               <InfoItem icon={<FaKey />} label="Password">
-                <input value={password} onChange={e => setPassword(e.target.value)} className="ml-2 p-2 border rounded w-full font-mono"/>
+                <input value={password} onChange={e => setPassword(e.target.value)} className="ml-2 p-2 border rounded w-full font-mono" />
               </InfoItem>
             )}
           </div>
 
-          <button onClick={handleSave} className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80 mb-8">
+          <button onClick={handleSave} className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80 mb-8 cursor-pointer">
             Save Changes
           </button>
 

@@ -173,7 +173,7 @@ const TeachersManagement = () => {
                   setSelectedTeacher(t);
                   setResetModalOpen(true);
                 }}
-                className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                className="px-3 py-1 bg-primary text-white rounded hover:bg-yellow-600 cursor-pointer"
               >
                 Reset Password
               </button>

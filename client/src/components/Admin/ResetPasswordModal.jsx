@@ -46,12 +46,12 @@ const ResetPasswordModal = ({ isOpen, onClose, teacher, onReset }) => {
         />
 
         <div className="flex justify-end gap-3">
-          <button onClick={onClose} className="px-4 py-2 rounded border hover:bg-gray-100">
+          <button onClick={onClose} className="px-4 py-2 rounded border hover:bg-gray-100 cursor-pointer">
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 rounded bg-yellow-500 text-white hover:bg-yellow-600"
+            className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 cursor-pointer"
             disabled={loading}
           >
             {loading ? "Resetting..." : "Reset Password"}
@@ -72,7 +72,7 @@ const ResetPasswordModal = ({ isOpen, onClose, teacher, onReset }) => {
                 </button>
                 <button
                   onClick={handleConfirmReset}
-                  className="px-4 py-2 rounded bg-yellow-500 text-white hover:bg-yellow-600"
+                  className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 cursor-pointer"
                 >
                   Yes, Reset
                 </button>
