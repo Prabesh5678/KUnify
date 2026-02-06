@@ -28,6 +28,7 @@ const teacherSchema = new mongoose.Schema({
     type:mongoose.Schema.Types.ObjectId,
     ref:'team'
   }],
+  password: { type: String, sparse: true } ,
 });
 
 const Teacher =

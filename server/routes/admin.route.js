@@ -13,7 +13,7 @@ import {
   declineSupervisorRequest,
   resetVisitingTeacherPassword,
   getAllTeams,
-  getLogsheets,
+  getTeamLogsheets,
 } from "../controllers/admin.control.js";
 
 const adminRouter = express.Router();
@@ -35,7 +35,6 @@ adminRouter.post("/teacher/reset-password", authAdmin, resetVisitingTeacherPassw
 adminRouter.get("/get-students", authAdmin, getStudentsBySemester);
 
 // Admin supervisor requests
-// Admin pending supervisor requests
 adminRouter.get("/supervisor/pending", authAdmin, getPendingSupervisorRequests);
 adminRouter.post("/supervisor/approve", authAdmin, approveSupervisorRequest);
 adminRouter.post("/supervisor/decline", authAdmin, declineSupervisorRequest);
@@ -43,7 +42,6 @@ adminRouter.post("/supervisor/decline", authAdmin, declineSupervisorRequest);
 //fetching all teams
 adminRouter.get("/teams", authAdmin, getAllTeams);
 
-//fetching logsheets 
-adminRouter.get("/logsheets", authAdmin, getLogsheets);
-
+//fetching logsheets of a team
+adminRouter.get("/teams/:teamId/logsheets", authAdmin, getTeamLogsheets);
 export default adminRouter;
