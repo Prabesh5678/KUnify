@@ -145,7 +145,7 @@ const Logsheet = () => {
               setEditLog(null);
               setOpen(true);
             }}
-            className="bg-primary hover:bg-primary/90 transition text-white px-6 py-2.5 rounded-xl shadow"
+            className="bg-primary hover:bg-primary/90 transition text-white px-6 py-2.5 rounded-xl shadow cursor-pointer"
           >
             + Add Log
           </button>
@@ -181,7 +181,7 @@ const Logsheet = () => {
             value={selectedUser}
             onChange={(e) => setSelectedUser(e.target.value)}
             className="ml-auto
-      bg-white px-4 py-2 rounded-xl shadow border text-gray-700"
+      bg-white px-4 py-2 rounded-xl shadow border text-gray-700 cursor-pointer"
           >
             <option value="all">All Users</option>
 

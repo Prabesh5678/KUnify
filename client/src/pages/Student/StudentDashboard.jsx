@@ -172,7 +172,7 @@ const StudentDashboard = () => {
           <button
             disabled={!teamId}
             onClick={() => navigate(`/student/member/${teamId}`)}
-            className={`bg-white rounded-2xl shadow-sm p-6 border flex items-center gap-4
+            className={`bg-white rounded-2xl shadow-sm p-6 border flex items-center gap-4 cursor-pointer
               ${teamId ? "hover:shadow-md transition" : "opacity-60 cursor-not-allowed"}`}
           >
             <div className="p-3 bg-blue-100 rounded-xl">
@@ -189,7 +189,7 @@ const StudentDashboard = () => {
           <button
             disabled={teamStatus !== "Joined"}
             onClick={() => navigate("/student/logsheet")}
-            className={`bg-white rounded-2xl shadow-sm p-6 border flex items-center gap-4  transition text-left
+            className={`bg-white rounded-2xl shadow-sm p-6 border flex items-center gap-4  transition text-left cursor-pointer
     ${teamStatus === "Joined"
                 ? "hover:shadow-md cursor-pointer"
                 : "opacity-60 cursor-not-allowed"
@@ -217,7 +217,7 @@ const StudentDashboard = () => {
             <button
               onClick={() => navigate("/student/guidelines")}
               className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center
-                         bg-gradient-to-r from-orange-50 to-amber-100 mb-4"
+                         bg-gradient-to-r from-orange-50 to-amber-100 mb-4 cursor-pointer"
             >
               <div className="flex gap-4">
                 <div className="p-3 bg-orange-200 rounded-xl">
@@ -237,7 +237,7 @@ const StudentDashboard = () => {
               <button
                 onClick={() => navigate(`/student/requestsupervisor/${teamId}`)}
                 className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center
-                           bg-gradient-to-r from-purple-50 to-lavender-100"
+                           bg-gradient-to-r from-purple-50 to-lavender-100 cursor-pointer"
               >
                 <div className="flex gap-4">
                   <div className="p-3 bg-purple-200 rounded-xl">
@@ -256,7 +256,7 @@ const StudentDashboard = () => {
               <button
                 onClick={() => navigate(`/student/logsheet`)}
                 className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center
-                           bg-gradient-to-r from-orange-50 to-amber-100"
+                           bg-gradient-to-r from-orange-50 to-amber-100 cursor-pointer"
               >
                 <div className="flex gap-4">
                   <div className="p-3 bg-orange-200 rounded-xl">
