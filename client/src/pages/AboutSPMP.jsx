@@ -1,10 +1,10 @@
 const AboutSPMP = () => {
   const teamMembers = [
-    { name: "Sushant Bhattari", role: "Backend Developer", image: "/avatar.png" },
-    { name: "Prabesh Acharya", role: "Backend Developer", image: "/avatar.png" },
-    { name: "Deekshya Badal", role: "Frontend Developer", image: "/avatar.png" },
-    { name: "Subhechha Karki", role: "Frontend Designer", image: "/avatar.png" },
-    { name: "Sajana Ranjitkar", role: "Backend Developer", image: "/avatar.png" },
+    { name: "Deekshya Badal", role: "Frontend Developer", image: "/deekshya.png" },
+    { name: "Subhechha Karki", role: "Frontend Designer", image: "/subekshya.png" },
+    { name: "Sajana Ranjitkar", role: "Backend Developer", image: "/sajana.png" },
+    { name: "Prabesh Acharya", role: "Backend Developer", image: "/prabesh.png" },
+    { name: "Sushant Bhattari", role: "Backend Developer", image: "/sushant.png" },
   ];
 
   return (
@@ -15,6 +15,35 @@ const AboutSPMP = () => {
           About Us
         </h2>
 
+        {/* Our Team - Just Circles */}
+        <div className="p-5 bg-gray-50 rounded-lg border-l-4 border-primary">
+          <h3 className="text-xl font-bold text-primary mb-6 text-center">
+            Our Team
+          </h3>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 justify-items-center">
+            {teamMembers.map((member, index) => (
+              <div
+                key={index}
+                className="text-center"
+              >
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg hover:shadow-xl transition-shadow"
+                />
+                <h4 className="text-base font-semibold text-gray-800 mt-3">
+                  {member.name}
+                </h4>
+                <p className="text-sm text-primary font-medium">
+                  {member.role}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Other Sections */}
         {[
           {
             title: "Our Platform",
@@ -67,34 +96,6 @@ const AboutSPMP = () => {
             )}
           </div>
         ))}
-
-        {/* Our Team */}
-        <div className="p-5 bg-gray-50 rounded-lg border-l-4 border-primary">
-          <h3 className="text-xl font-bold text-primary mb-6 text-center">
-            Our Team
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {teamMembers.map((member, index) => (
-              <div
-                key={index}
-                className="bg-white p-5 rounded-xl shadow-sm text-center border hover:shadow-md transition"
-              >
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-24 h-24 mx-auto rounded-full object-cover mb-4 border-4 border-primary/20"
-                />
-                <h4 className="text-lg font-semibold text-gray-800">
-                  {member.name}
-                </h4>
-                <p className="text-sm text-primary font-medium">
-                  {member.role}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
 
       </div>
     </div>
