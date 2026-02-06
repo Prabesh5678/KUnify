@@ -59,7 +59,7 @@ const Request = () => {
 
           setExistingProposal(p);
           setIsProposalSubmitted(true);
-        //  toast("Proposal has already been submitted by your team");
+          //  toast("Proposal has already been submitted by your team");
         }
       } catch (error) {
         console.error("Error fetching proposal:", error);
@@ -124,7 +124,7 @@ const Request = () => {
       toast.error("PDF file not found");
       return;
     }
-    
+
     // Open PDF viewer in new tab
     window.open(url, "_blank");
   };
@@ -133,7 +133,7 @@ const Request = () => {
       toast.error("PDF file not found");
       return;
     }
-    
+
     // Open PDF viewer in new tab
     const viewerUrl = `/view-pdf?url=${encodeURIComponent(url)}&title=${encodeURIComponent(filename || 'Proposal')}`;
     window.open(viewerUrl, "_blank");
@@ -253,11 +253,10 @@ const Request = () => {
               {/* Word Counter */}
               <div className="mt-1 text-right text-xs">
                 <span
-                  className={`font-medium ${
-                    abstractWordCount === 250
+                  className={`font-medium ${abstractWordCount === 250
                       ? "text-red-600"
                       : "text-gray-500"
-                  }`}
+                    }`}
                 >
                   {abstractWordCount}/250 words
                 </span>
@@ -290,23 +289,24 @@ const Request = () => {
                 <button
                   type="button"
                   disabled={isProposalSubmitted}
-                  onClick={() => setIsOpen(!isOpen)}
+                  onClick={() => {
+                    setIsOpen(!isOpen);
+                    if (isOpen) setHoveredSupervisor(null); // Clear tooltip when closing
+                  }}
                   className={`w-full flex items-center justify-between px-4 py-3 border rounded-lg bg-gray-100
-                    ${isProposalSubmitted ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-200"}
-                  `}
+      ${isProposalSubmitted ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-200"}
+    `}
                 >
                   <span>
                     {selectedSupervisor
-                      ? supervisors.find((s) => s._id === selectedSupervisor)
-                          ?.name
+                      ? supervisors.find((s) => s._id === selectedSupervisor)?.name
                       : "Select Supervisor"}
                   </span>
 
                   <ChevronDown
                     size={20}
-                    className={`text-gray-600 transition-transform duration-200 ${
-                      isOpen ? "rotate-180" : ""
-                    }`}
+                    className={`text-gray-600 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -319,25 +319,41 @@ const Request = () => {
                         onClick={() => {
                           setSelectedSupervisor(sup._id);
                           setIsOpen(false);
+                          setHoveredSupervisor(null); // Clear tooltip on selection
                         }}
-                        onMouseEnter={() => setHoveredSupervisor(sup)}
+                        onMouseEnter={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setHoveredSupervisor({
+                            ...sup,
+                            top: rect.top + rect.height / 2,
+                            left: rect.right + 10,
+                          });
+                        }}
                         onMouseLeave={() => setHoveredSupervisor(null)}
                         className="relative px-4 py-2 cursor-pointer hover:bg-blue-50"
                       >
                         {sup.name}
-
-                        {/* Hover Tooltip */}
-                        {hoveredSupervisor?._id === sup._id && (
-                          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 w-64 bg-black text-white text-xs rounded-lg px-3 py-2 shadow-lg z-50">
-                            <p className="font-semibold mb-1">Specialization</p>
-                            <p>{sup.specialization}</p>
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>
                 )}
+
+                {/* Tooltip rendered outside of dropdown item */}
+                {isOpen && hoveredSupervisor && (
+                  <div
+                    className="fixed w-64 bg-white text-black text-xs rounded-lg px-3 py-2 shadow-lg z-50 pointer-events-none"
+                    style={{
+                      top: hoveredSupervisor.top,
+                      left: hoveredSupervisor.left,
+                      transform: "translateY(-50%)",
+                    }}
+                  >
+                    <p className="font-semibold mb-1">Specialization</p>
+                    <p>{hoveredSupervisor.specialization}</p>
+                  </div>
+                )}
               </div>
+
 
               {/* PDF Upload */}
               <div>
@@ -345,11 +361,10 @@ const Request = () => {
                   Upload Proposal (PDF only, max 2MB)
                 </label>
                 <label
-                  className={`w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg ${
-                    isProposalSubmitted
+                  className={`w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg ${isProposalSubmitted
                       ? "opacity-50 cursor-not-allowed"
                       : "cursor-pointer hover:bg-gray-200"
-                  }`}
+                    }`}
                 >
                   Choose File
                   <input
@@ -422,10 +437,9 @@ const Request = () => {
                 type="submit"
                 disabled={isFormInvalid || isProposalSubmitted}
                 className={`bg-primary text-white font-bold py-3.5 px-12 rounded-xl shadow-lg transition
-                  ${
-                    isFormInvalid || isProposalSubmitted
-                      ? "opacity-50 cursor-not-allowed"
-                      : "hover:bg-primary/70 hover:scale-105"
+      ${isFormInvalid || isProposalSubmitted
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-primary/70 hover:scale-105 cursor-pointer"
                   }`}
               >
                 {uploadStatus === "uploading"
@@ -435,6 +449,7 @@ const Request = () => {
                     : "Submit Request"}
               </button>
             </div>
+
           </form>
 
           <Toaster position="top-right" />
