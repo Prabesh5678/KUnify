@@ -314,8 +314,6 @@ export const getLogsheets = async (req, res) => {
     const { studentId, week } = req.query;
 
     let contributions = [];
-
-    // ✅ Filter by student
     if (studentId) {
 
       contributions = await MemberContribution.find({
@@ -325,14 +323,8 @@ export const getLogsheets = async (req, res) => {
       .populate("logId");
 
     }
-
-    // ✅ Filter by week
     else if (week) {
-
-      // find logs of that week
       const logs = await LogEntry.find({ week: week });
-
-      // for each log find contributions
       for (let i = 0; i < logs.length; i++) {
 
         const data = await MemberContribution.find({
@@ -341,12 +333,11 @@ export const getLogsheets = async (req, res) => {
         .populate("memberId")
         .populate("logId");
 
-        contributions.push(...data); // add to array
+        contributions.push(...data); 
       }
 
     }
 
-    // ✅ No filter
     else {
 
       contributions = await MemberContribution.find()
