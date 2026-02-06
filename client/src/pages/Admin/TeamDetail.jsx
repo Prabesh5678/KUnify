@@ -13,7 +13,9 @@ const TeamDetail = () => {
 
   const [team, setTeam] = useState(null);
   const [logsheets, setLogsheets] = useState([]);
+  const [allLogsheets, setAllLogsheets] = useState([]); // Store all logsheets for debugging
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [isTeamOpen, setIsTeamOpen] = useState(true);
   const [isProposalOpen, setIsProposalOpen] = useState(true);
@@ -25,12 +27,26 @@ const TeamDetail = () => {
   // Fetch team info
   useEffect(() => {
     const fetchTeam = async () => {
+      if (!teamId) {
+        setError("No team ID provided");
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
+        setError(null);
         const { data } = await axios.get(`/api/admin/teams/${teamId}`);
-        if (data.success) setTeam(data.team);
+        if (data.success) {
+          setTeam(data.team);
+        } else {
+          setError("Team not found");
+        }
       } catch (err) {
-        toast.error(err.response?.data?.message || "Error fetching team");
+        console.error("Error fetching team:", err);
+        const errorMsg = err.response?.data?.message || "Error fetching team";
+        setError(errorMsg);
+        toast.error(errorMsg);
       } finally {
         setLoading(false);
       }
@@ -38,25 +54,53 @@ const TeamDetail = () => {
     fetchTeam();
   }, [teamId]);
 
-  // Fetch logsheets whenever filters change
+  // Fetch ALL logsheets and filter on client side
   useEffect(() => {
     const fetchLogsheets = async () => {
+      if (!team) return;
+
       try {
         setLoading(true);
-        const params = { teamId };
-        if (selectedStudent !== "all") params.studentId = selectedStudent;
-        if (selectedWeek !== "all") params.week = selectedWeek;
-
-        const { data } = await axios.get("/api/admin/logsheets", { params });
-        if (data.success) setLogsheets(data.data);
+        const { data } = await axios.get("/api/admin/logsheets");
+        
+        if (data.success) {
+          setAllLogsheets(data.data); // Store all logsheets
+          let filteredLogs = data.data;
+          
+          // Filter by team (only show logs from this team's members)
+          const teamMemberIds = team?.members?.map(m => m._id) || [];
+          
+          filteredLogs = filteredLogs.filter(log => {
+            const logMemberId = log.memberId?._id || log.memberId;
+            return teamMemberIds.includes(logMemberId);
+          });
+          
+          // Apply student filter
+          if (selectedStudent !== "all") {
+            filteredLogs = filteredLogs.filter(log => 
+              (log.memberId?._id || log.memberId) === selectedStudent
+            );
+          }
+          
+          // Apply week filter
+          if (selectedWeek !== "all") {
+            filteredLogs = filteredLogs.filter(log => 
+              log.logId?.week === parseInt(selectedWeek)
+            );
+          }
+          
+          setLogsheets(filteredLogs);
+        }
       } catch (err) {
+        console.error("Error fetching logsheets:", err);
         toast.error(err.response?.data?.message || "Error fetching logsheets");
       } finally {
         setLoading(false);
       }
     };
+    
     fetchLogsheets();
-  }, [teamId, selectedStudent, selectedWeek]);
+  }, [team, selectedStudent, selectedWeek]);
 
   const handleViewPDF = (url) => {
     if (!url) return toast.error("PDF not found");
@@ -70,7 +114,26 @@ const TeamDetail = () => {
     return [...new Set(weeks)].sort((a, b) => a - b);
   }, [logsheets]);
 
-  if (loading) return <p className="p-6 text-center">Loading...</p>;
+  if (loading && !team) return <p className="p-6 text-center">Loading...</p>;
+  
+  if (error) {
+    return (
+      <div className="flex min-h-screen bg-gray-50">
+        <AdminSidebar />
+        <div className="flex-1 p-8">
+          <AdminHeader />
+          <div className="max-w-5xl mx-auto">
+            <div className="bg-red-50 border border-red-200 p-6 rounded-xl">
+              <h2 className="text-xl font-semibold text-red-800 mb-2">Error</h2>
+              <p className="text-red-600">{error}</p>
+              <p className="text-sm text-gray-600 mt-2">Team ID: {teamId || "Not provided"}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   if (!team) return <p className="p-6 text-center">No team data found.</p>;
 
   const SectionHeader = ({ title, isOpen, toggle }) => (
@@ -93,9 +156,15 @@ const TeamDetail = () => {
           {/* Team Header */}
           <div className="bg-white p-6 rounded-xl shadow">
             <h1 className="text-2xl font-bold text-gray-800">{team.name}</h1>
+            <p className="text-sm text-gray-500 mt-1">Team Code: {team.code} | Subject: {team.subject}</p>
             {team.supervisor && (
               <p className="text-gray-600 mt-2">
                 <b>Supervisor:</b> {team.supervisor.name} ({team.supervisor.email})
+              </p>
+            )}
+            {!team.supervisor && (
+              <p className="text-amber-600 mt-2 text-sm">
+                ⚠️ No supervisor assigned yet
               </p>
             )}
           </div>
@@ -108,16 +177,21 @@ const TeamDetail = () => {
           />
           {isTeamOpen && (
             <div className="bg-white p-6 rounded-xl shadow space-y-3">
-              {allMembers.map(m => (
-                <div key={m._id} className="border p-4 rounded bg-blue-50 hover:bg-blue-100">
-                  <User size={18} className="text-blue-600" /> {m.name} ({m.email})
-                </div>
-              ))}
+              {allMembers.length === 0 ? (
+                <p className="text-center text-gray-500 py-4">No team members found</p>
+              ) : (
+                allMembers.map(m => (
+                  <div key={m._id} className="border p-4 rounded bg-blue-50 hover:bg-blue-100 flex items-center gap-2">
+                    <User size={18} className="text-blue-600" /> 
+                    <span><b>{m.name}</b> ({m.email})</span>
+                  </div>
+                ))
+              )}
             </div>
           )}
 
           {/* Proposal */}
-          {team.proposal && (
+          {team.proposal ? (
             <>
               <SectionHeader
                 title="Project Proposal"
@@ -131,7 +205,7 @@ const TeamDetail = () => {
                   {team.proposal.proposalFile?.url && (
                     <button
                       onClick={() => handleViewPDF(team.proposal.proposalFile.url)}
-                      className="bg-green-600 text-white px-4 py-2 rounded mt-2 flex items-center gap-2"
+                      className="bg-green-600 text-white px-4 py-2 rounded mt-2 flex items-center gap-2 hover:bg-green-700"
                     >
                       <ExternalLink size={16} /> View Proposal PDF
                     </button>
@@ -139,6 +213,12 @@ const TeamDetail = () => {
                 </div>
               )}
             </>
+          ) : (
+            <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl">
+              <p className="text-amber-800">
+                ⚠️ <b>No proposal submitted yet</b>
+              </p>
+            </div>
           )}
 
           {/* Logsheets */}
@@ -149,41 +229,73 @@ const TeamDetail = () => {
           />
           {isLogsheetOpen && (
             <div className="bg-white p-6 rounded-xl shadow space-y-4">
+              {/* Debug Info */}
+              {allLogsheets.length > 0 && logsheets.length === 0 && (
+                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-4">
+                  <p className="text-sm text-blue-800">
+                    ℹ️ There are {allLogsheets.length} total logsheet(s) in the system, but none belong to this team's members.
+                  </p>
+                </div>
+              )}
+
               {/* Filters */}
-              <div className="flex flex-wrap gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
-                <div className="flex-1 min-w-[200px]">
-                  <label>Filter by Student</label>
-                  <select value={selectedStudent} onChange={(e) => setSelectedStudent(e.target.value)} className="w-full border px-3 py-2 rounded">
-                    <option value="all">All Students</option>
-                    {allMembers.map(m => (
-                      <option key={m._id} value={m._id}>{m.name}</option>
-                    ))}
-                  </select>
+              {allMembers.length > 0 && (
+                <div className="flex flex-wrap gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="flex-1 min-w-[200px]">
+                    <label className="block text-sm font-medium mb-1">Filter by Student</label>
+                    <select 
+                      value={selectedStudent} 
+                      onChange={(e) => setSelectedStudent(e.target.value)} 
+                      className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="all">All Students</option>
+                      {allMembers.map(m => (
+                        <option key={m._id} value={m._id}>{m.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex-1 min-w-[200px]">
+                    <label className="block text-sm font-medium mb-1">Filter by Week</label>
+                    <select 
+                      value={selectedWeek} 
+                      onChange={(e) => setSelectedWeek(e.target.value)} 
+                      className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="all">All Weeks</option>
+                      {uniqueWeeks.map(w => <option key={w} value={w}>Week {w}</option>)}
+                    </select>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-[200px]">
-                  <label>Filter by Week</label>
-                  <select value={selectedWeek} onChange={(e) => setSelectedWeek(e.target.value)} className="w-full border px-3 py-2 rounded">
-                    <option value="all">All Weeks</option>
-                    {uniqueWeeks.map(w => <option key={w} value={w}>Week {w}</option>)}
-                  </select>
-                </div>
-              </div>
+              )}
 
               {/* Logs */}
               {logsheets.length === 0 ? (
                 <div className="text-center py-12 bg-gray-50 rounded">
                   <FileText size={48} className="mx-auto mb-3 text-gray-400" />
-                  <p>No logs found</p>
+                  <p className="text-gray-600 font-medium">No logsheets found</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    {allLogsheets.length === 0 
+                      ? "No team members have submitted logsheets yet."
+                      : "This team has no logsheets matching the selected filters."}
+                  </p>
                 </div>
-              ) : logsheets.map((log, i) => (
-                <div key={i} className="border p-4 rounded bg-yellow-50">
-                  <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">Week {log.logId?.week}</span>
-                  <p className="font-semibold mt-1">{log.memberId?.name}</p>
-                  <p className="text-sm">{log.logId?.activity || "No activity"}</p>
-                  <p className="text-sm">{log.logId?.outcome || "No outcome"}</p>
-                  <p className="text-xs text-gray-500 mt-1">Logged on: {new Date(log.createdAt).toLocaleString()}</p>
-                </div>
-              ))}
+              ) : (
+                logsheets.map((log, i) => (
+                  <div key={i} className="border p-4 rounded bg-yellow-50 hover:bg-yellow-100 transition-colors">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                        Week {log.logId?.week || 'N/A'}
+                      </span>
+                      <p className="font-semibold">{log.memberId?.name || 'Unknown Member'}</p>
+                    </div>
+                    <p className="text-sm mt-1"><b>Activity:</b> {log.logId?.activity || "No activity"}</p>
+                    <p className="text-sm"><b>Outcome:</b> {log.logId?.outcome || "No outcome"}</p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Logged on: {new Date(log.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                ))
+              )}
 
             </div>
           )}

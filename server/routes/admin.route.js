@@ -42,7 +42,6 @@ adminRouter.post("/supervisor/decline", authAdmin, declineSupervisorRequest);
 
 //fetching all teams
 adminRouter.get("/teams", authAdmin, getAllTeams);
-
 //fetching logsheets 
 adminRouter.get("/logsheets", authAdmin, getLogsheets);
 
