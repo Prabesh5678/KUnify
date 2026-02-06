@@ -220,7 +220,7 @@ const MyProfile = () => {
               {!editing ? (
                 <button
                   onClick={() => setEditing(true)}
-                  className="px-6 py-3 bg-primary text-white rounded-md font-medium hover:bg-primary/80 transition"
+                  className="px-6 py-3 bg-primary text-white rounded-md font-medium hover:bg-primary/80 transition cursor-pointer"
                 >
                   Edit
                 </button>
@@ -228,14 +228,14 @@ const MyProfile = () => {
                 <>
                   <button
                     onClick={() => setEditing(false)}
-                    className="px-6 py-3 bg-gray-400 text-white rounded-md font-medium hover:bg-gray-500 transition"
+                    className="px-6 py-3 bg-gray-400 text-white rounded-md font-medium hover:bg-gray-500 transition cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSave}
                     disabled={loading}
-                    className="px-6 py-3 bg-primary text-white rounded-md font-medium hover:bg-primary/80 transition disabled:opacity-50"
+                    className="px-6 py-3 bg-primary text-white rounded-md font-medium hover:bg-primary/80 transition disabled:opacity-50 cursor-pointer"
                   >
                     {loading ? "Saving..." : "Save"}
                   </button>

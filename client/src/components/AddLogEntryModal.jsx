@@ -17,7 +17,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
   const activityLimit = 500; 
   const outcomeLimit = 1000;
 
-  // Calculate weeks that are already added (excluding current edit if editing)
+  // Weeks already added (excluding current edit)
   const usedWeeks = myLogs
     .filter((log) => !editLog || log._id !== editLog._id)
     .map((log) => Number(log.week));
@@ -47,49 +47,47 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
       return;
     }
 
-    // Prevent duplicate week
+    // Prevent duplicate week for new logs
     if (!editLog && usedWeeks.includes(Number(week))) {
       setError(`Week ${week} has already been updated`);
       return;
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(true); // disable buttons
 
     try {
+      let res;
       if (editLog) {
-       const { data } = await axios.put(`/api/log/update/${editLog._id}`, {
-         date,
-         week,
-         activity,
-         outcome,
-       });
-       if(data.success)
-        toast.success("Log updated successfully");
-      else{
-        toast.error('Unable to update log!')
-        console.error(data.message)
-      }
-      } else {
-     const {data}=   await axios.post("/api/log/create", {
+        res = await axios.put(`/api/log/update/${editLog._id}`, {
           date,
           week,
           activity,
           outcome,
         });
-        if(data.success){
-        toast.success("Log added successfully");
-        onSuccess();
-        onClose();
-      }else{
-        toast.error('Unable to add log!')
-        console.error(data.message);
+      } else {
+        res = await axios.post("/api/log/create", {
+          date,
+          week,
+          activity,
+          outcome,
+        });
       }
+
+      if (res.data.success) {
+        toast.success(editLog ? "Log updated successfully" : "Log added successfully");
+
+        // Refresh parent logs
+        if (onSuccess) await onSuccess();
+
+        onClose(); // close modal
+      } else {
+        toast.error(res.data.message || "Unable to save log");
       }
     } catch (err) {
-      console.error(err.stack)
-      setError(err.message || "Failed to save log");
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to save log");
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false); // enable buttons
     }
   };
 
@@ -198,7 +196,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
                 className="px-5 py-2 bg-primary text-white cursor-pointer rounded-xl"
                 disabled={isSubmitting}
               >
-                {editLog ? "Update" : "Save"}
+                {isSubmitting ? (editLog ? "Updating..." : "Saving...") : editLog ? "Update" : "Save"}
               </button>
             </div>
           </form>

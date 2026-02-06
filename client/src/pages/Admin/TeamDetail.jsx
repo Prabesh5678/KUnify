@@ -16,7 +16,7 @@ const TeamDetail = () => {
   const [logsheets, setLogsheets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [logsheetsLoading, setLogsheetsLoading] = useState(false);
-  const [allWeeks, setAllWeeks] = useState([]); 
+  const [allWeeks, setAllWeeks] = useState([]);
 
   const [isTeamOpen, setIsTeamOpen] = useState(true);
   const [isProposalOpen, setIsProposalOpen] = useState(true);
@@ -160,9 +160,9 @@ const TeamDetail = () => {
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="flex-1 p-8 overflow-auto">
+      <div className="flex-1 p-8 overflow-auto h-full">
         <AdminHeader />
         <div className="max-w-5xl mx-auto space-y-4">
 

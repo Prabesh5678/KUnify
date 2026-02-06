@@ -10,8 +10,11 @@ import { useNavigate } from "react-router-dom";
 
 
 const pastelColors = [
-  { bg: "bg-indigo-50", border: "border-indigo-100" },
-  { bg: "bg-teal-50", border: "border-teal-100" },
+ { bg: "bg-sky-50", border: "border-sky-200" },
+  { bg: "bg-teal-50", border: "border-teal-200" },
+  { bg: "bg-indigo-50", border: "border-indigo-200" },
+  { bg: "bg-rose-50", border: "border-rose-200" },
+  { bg: "bg-amber-50", border: "border-amber-200" },
 ];
 
 axios.defaults.withCredentials = true;
@@ -146,7 +149,7 @@ const TeachersManagement = () => {
           className={`${color.bg} ${color.border} border-b hover:bg-primary/20`}
         >
           <td
-            className="p-3 text-primary underline cursor-pointer hover:text-primary/80"
+            className="p-3 text-primary cursor-pointer hover:underline hover:text-primary/80"
             onClick={() =>
               navigate("/admin/allteachers/:id", {
                 state: { teacher: t, projects: [] },
@@ -155,6 +158,7 @@ const TeachersManagement = () => {
           >
             {t.name}
           </td>
+
 
           <td className="p-3">{t.email}</td>
           <td className="p-3">
@@ -188,12 +192,11 @@ const TeachersManagement = () => {
     });
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 overflow-auto h-full">
         <AdminHeader />
-
-        <div className="flex justify-between items-center mb-6">
+        <div className="max-w-5xl mx-auto flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Teachers Management</h2>
           <button
             onClick={() => setModalOpen(true)}
@@ -202,6 +205,7 @@ const TeachersManagement = () => {
             Add Visiting Faculty
           </button>
         </div>
+
 
         <input
           type="text"

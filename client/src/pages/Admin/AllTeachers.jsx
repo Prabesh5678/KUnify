@@ -80,16 +80,6 @@ const AllTeachers = () => {
                 className="ml-2 p-2 border rounded w-full bg-gray-100 cursor-not-allowed"
               />
             </InfoItem>
-
-            {teacher.isVisiting && (
-              <InfoItem icon={<FaKey />} label="Password">
-                <input
-                  value={teacher.password || ""}
-                  readOnly
-                  className="ml-2 p-2 border rounded w-full font-mono bg-gray-100 cursor-not-allowed"
-                />
-              </InfoItem>
-            )}
           </div>
         </div>
       </div>

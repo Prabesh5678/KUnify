@@ -73,8 +73,11 @@ const StudentsManagement = () => {
   );
 
   const pastelColors = [
-    { bg: "bg-indigo-50", border: "border-indigo-100" },
-    { bg: "bg-teal-50", border: "border-teal-100" },
+   { bg: "bg-sky-50", border: "border-sky-200" },
+  { bg: "bg-teal-50", border: "border-teal-200" },
+  { bg: "bg-indigo-50", border: "border-indigo-200" },
+  { bg: "bg-rose-50", border: "border-rose-200" },
+  { bg: "bg-amber-50", border: "border-amber-200" },
   ];
 
   return (
