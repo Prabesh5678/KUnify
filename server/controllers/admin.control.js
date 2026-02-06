@@ -314,7 +314,7 @@ export const getAllTeams = async (req, res) => {
   }
 };
 
-// controllers/admin.control.js
+//fetching logsheet
 export const getTeamLogsheets = async (req, res) => {
   try {
     const { teamId } = req.params;
@@ -323,8 +323,7 @@ export const getTeamLogsheets = async (req, res) => {
     const query = { teamId };
 
     if (week && week !== "all") query.week = week;
-    if (studentId && studentId !== "all") query.createdBy = studentId; // filter by student
-
+    if (studentId && studentId !== "all") query.createdBy = studentId; 
     const logs = await LogEntry.find(query)
       .populate("createdBy", "name email semester rollNumber department")
       .lean();
