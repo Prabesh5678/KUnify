@@ -130,7 +130,7 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 hover:bg-gray-100 rounded-lg"
+                className="px-6 py-3 hover:bg-gray-100 rounded-lg cursor-pointer"
                 disabled={isLoading}
               >
                 Cancel
@@ -138,7 +138,7 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
               <button
                 type="submit"
                 disabled={!selectedSubject || isLoading}
-                className="px-8 py-3 bg-primary text-white rounded-lg"
+                className="px-8 py-3 bg-primary text-white rounded-lg cursor-pointer"
               >
                 {isLoading ? "Creating..." : "Create"}
               </button>

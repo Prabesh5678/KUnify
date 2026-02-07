@@ -157,7 +157,7 @@ const StudentsManagement = () => {
                     <tr>
                       <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Name</th>
                       <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Email</th>
-                      <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Roll Number</th>
+                      <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Registration Number</th>
                       <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Department</th>
                       <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Semester</th>
                     </tr>

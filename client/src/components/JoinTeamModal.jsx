@@ -105,7 +105,7 @@ const JoinTeamModal = ({ isOpen, onClose, selectedSubject }) => {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2 hover:bg-gray-100 rounded-lg"
+                className="px-6 py-2 hover:bg-gray-100 rounded-lg cursor-pointer"
                 disabled={isLoading}
               >
                 Cancel
@@ -113,7 +113,7 @@ const JoinTeamModal = ({ isOpen, onClose, selectedSubject }) => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="bg-primary text-white px-6 py-2 rounded-lg"
+                className="bg-primary text-white px-6 py-2 rounded-lg cursor-pointer" 
               >
                 {isLoading ? "Joining..." : "Join"}
               </button>

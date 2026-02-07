@@ -66,8 +66,16 @@ const ProfileSetup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const regPattern = /^\d{6}-\d{2}$/;
+
     if (!form.department || !form.semester || !form.rollNumber) {
       toast.error("Please fill all required fields");
+      return;
+    }
+
+    // ✅ Registration number strict validation
+    if (!regPattern.test(form.rollNumber)) {
+      toast.error("Registration number must be in format: 123456-78");
       return;
     }
 
@@ -116,7 +124,7 @@ const ProfileSetup = () => {
                 name="department"
                 value={form.department}
                 onChange={handleChange}
-                className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a]"
+                className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a] cursor-pointer"
                 disabled={isLoading}
               >
                 <option value="">-- Select --</option>
@@ -133,7 +141,7 @@ const ProfileSetup = () => {
                 name="semester"
                 value={form.semester}
                 onChange={handleChange}
-                className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a]"
+                className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a] cursor-pointer"
                 disabled={isLoading}
               >
                 <option value="">-- Select --</option>
@@ -187,7 +195,7 @@ const ProfileSetup = () => {
               <input
                 value={form.subjectCode}
                 disabled
-                className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a]"
+                className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a] disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -195,13 +203,14 @@ const ProfileSetup = () => {
           <button
             type="submit"
             disabled={
-              !form.rollNumber ||
+              !/^\d{6}-\d{2}$/.test(form.rollNumber) ||
+
               !form.department ||
               !form.semester ||
               !form.subjectCode ||
               isLoading
             }
-            className="w-full py-3 bg-primary text-white font-semibold rounded-md hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-primary text-white font-semibold rounded-md hover:opacity-90 transition cursor-pointer"
           >
             Save Profile
           </button>

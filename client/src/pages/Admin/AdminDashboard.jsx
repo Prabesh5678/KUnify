@@ -158,8 +158,9 @@ const AdminDashboard = () => {
     totalStudents: 0,
     totalTeachers: 0,
     totalProjects: 0,
+    totalRequests: 0, // total requests from API
   });
-  const [pendingRequests, setPendingRequests] = useState(0);
+
   const [loading, setLoading] = useState(true);
 
   // Fetch dashboard statistics
@@ -167,13 +168,16 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
 
-      // Main stats
-      const res = await axios.get("/api/admin/dashboard");
-      setStats(res.data);
+      // Fetch main stats including totalRequests
+      const res = await axios.get("/api/admin/dashboard", { withCredentials: true });
 
-      // Pending supervisor requests
-      const pendingRes = await axios.get("/api/admin/supervisor/pending");
-      setPendingRequests(pendingRes.data.length || 0); // assuming array returned
+      // Assuming API returns: { totalStudents, totalTeachers, totalProjects, totalRequests }
+      setStats({
+        totalStudents: res.data.totalStudents || 0,
+        totalTeachers: res.data.totalTeachers || 0,
+        totalProjects: res.data.totalProjects || 0,
+        totalRequests: res.data.totalRequests || 0,
+      });
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
     } finally {
@@ -214,7 +218,7 @@ const AdminDashboard = () => {
             />
             <StatsCard
               title="Pending Requests"
-              value={loading ? "..." : pendingRequests}
+              value={loading ? "..." : stats.totalRequests}
               icon={<FaTasks />}
               color="orange"
             />
