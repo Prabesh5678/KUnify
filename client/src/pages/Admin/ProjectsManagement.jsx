@@ -93,7 +93,7 @@ const ProjectsManagement = () => {
               <th className="p-3 text-gray-600">Department</th>
               <th className="p-3 text-gray-600">Semester</th>
               {isAssigned && <th className="p-3 text-gray-600">Supervisor</th>}
-              <th className="p-3 text-gray-600">Actions</th>
+              {!isAssigned && <th className="p-3 text-gray-600">Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -110,9 +110,7 @@ const ProjectsManagement = () => {
                 >
                   <td
                     className="p-3 text-primary cursor-pointer"
-                    onClick={() =>
-                      navigate(`/admin/teamdetail/${team._id}`)
-                    }
+                    onClick={() => navigate(`/admin/teamdetail/${team._id}`)}
                   >
                     {team.name || team.projectTitle || "Unnamed Team"}
                   </td>
@@ -120,10 +118,10 @@ const ProjectsManagement = () => {
                   <td className="p-3">
                     {team.department || team.leaderId?.department || team.members?.[0]?.department || "N/A"}
                   </td>
+
                   <td className="p-3">
                     {team.semester || team.leaderId?.semester || team.members?.[0]?.semester || "N/A"}
                   </td>
-
 
                   {isAssigned && (
                     <td className="p-3">
@@ -132,14 +130,17 @@ const ProjectsManagement = () => {
                         : "Not Assigned"}
                     </td>
                   )}
-                  <td className="p-3">
-                    <button
-                      onClick={() => openModal(team)}
-                      className="px-3 py-1 bg-primary text-white rounded hover:bg-primary/80 transition-colors cursor-pointer"
-                    >
-                      View / Assign
-                    </button>
-                  </td>
+
+                  {!isAssigned && (
+                    <td className="p-3">
+                      <button
+                        onClick={() => openModal(team)}
+                        className="px-3 py-1 bg-primary text-white rounded hover:bg-primary/80 transition-colors cursor-pointer"
+                      >
+                        Assign
+                      </button>
+                    </td>
+                  )}
                 </tr>
               );
             })}
@@ -148,6 +149,7 @@ const ProjectsManagement = () => {
       </div>
     );
   };
+
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -163,8 +165,8 @@ const ProjectsManagement = () => {
         <div className="flex gap-4 mb-4">
           <button
             className={`px-4 py-2 rounded cursor-pointer ${activeTab === "unassigned"
-                ? "bg-primary text-white"
-                : "bg-gray-200 text-gray-700"
+              ? "bg-primary text-white"
+              : "bg-gray-200 text-gray-700"
               }`}
             onClick={() => setActiveTab("unassigned")}
           >
@@ -172,8 +174,8 @@ const ProjectsManagement = () => {
           </button>
           <button
             className={`px-4 py-2 rounded cursor-pointer ${activeTab === "assigned"
-                ? "bg-primary text-white"
-                : "bg-gray-200 text-gray-700"
+              ? "bg-primary text-white"
+              : "bg-gray-200 text-gray-700"
               }`}
             onClick={() => setActiveTab("assigned")}
           >

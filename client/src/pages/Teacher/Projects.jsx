@@ -113,8 +113,8 @@ export default function TeacherProjects() {
 
   const filteredTeams = teams.filter(
     (team) =>
-      team.name.toLowerCase().includes(search.toLowerCase()) ||
-      team.project.toLowerCase().includes(search.toLowerCase()),
+      team.name?.toLowerCase().includes(search.toLowerCase()) ||
+      team.project?.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (

@@ -15,7 +15,6 @@ const RequestTeacher = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalData, setModalData] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
 
   const navigate = useNavigate();
 
@@ -24,38 +23,25 @@ const RequestTeacher = () => {
     fetchRequests();
   }, []);
 
-  const fetchRequests = async (isRefresh = false) => {
+  const fetchRequests = async () => {
     try {
-      if (isRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
-
-      const res = await axios.get("http://localhost:3000/api/admin/supervisor/pending"); 
-      console.log(res.data.teams)
+      setLoading(true);
+      const res = await axios.get("http://localhost:3000/api/admin/supervisor/pending");
       if (res.data.success) {
         setRequests(res.data.teams || []);
-        if (isRefresh) {
-          toast.success("Requests refreshed successfully");
-        }
       } else {
         toast.error(res.data.message || "Failed to fetch supervisor requests");
       }
     } catch (err) {
       console.error("Error fetching requests:", err);
-      const errorMessage = err.response?.data?.message || 
-                          err.message || 
-                          "Failed to fetch supervisor requests";
+      const errorMessage = err.response?.data?.message || err.message || "Failed to fetch supervisor requests";
       toast.error(errorMessage);
-      
-      // If unauthorized, redirect to login
+
       if (err.response?.status === 401) {
         navigate("/admin/login");
       }
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   };
 
@@ -65,46 +51,34 @@ const RequestTeacher = () => {
   };
 
   const confirmAction = async () => {
-  if (!modalData) return;
-  const { request, decision } = modalData;
-  setActionLoading(true);
+    if (!modalData) return;
+    const { request, decision } = modalData;
+    setActionLoading(true);
 
-  try {
-    // FIX: Make sure the strings match exactly what you pass from the buttons
-    const endpoint = decision === "APPROVED" ? "approve" : "decline";
-    const url = `http://localhost:3000/api/admin/supervisor/${endpoint}`;
+    try {
+      const endpoint = decision === "APPROVED" ? "approve" : "decline";
+      const url = `http://localhost:3000/api/admin/supervisor/${endpoint}`;
 
-    const response = await axios.post(url, { teamId: request._id });
+      const response = await axios.post(url, { teamId: request._id });
+
       if (response.data.success) {
-        // Update frontend state immediately
-        setRequests((prev) =>
-          prev.map((r) => {
-            if (r._id !== request._id) return r;
-            if (decision === "APPROVED") {
-              return { ...r, supervisorStatus: "adminApproved" };
-            } else {
-              return { ...r, supervisorStatus: "notApproved", requestedTeacher: null };
-            }
-          })
-        );
-
         toast.success(
           `Request for ${request.name || request.teamName} ${
             decision === "APPROVED" ? "approved" : "rejected"
           } successfully`
         );
+
+        // ✅ Reload the requests automatically
+        await fetchRequests();
       } else {
         throw new Error(response.data.message || "Failed to update request");
       }
     } catch (err) {
       console.error("Error updating request:", err.stack);
-      const errorMessage = err.response?.data?.message || 
-                          err.message || 
-                          "Failed to update request";
+      const errorMessage = err.response?.data?.message || err.message || "Failed to update request";
       toast.error(errorMessage);
-      
-      // Refresh the list in case of error to ensure data consistency
-      fetchRequests(true);
+
+      await fetchRequests();
     } finally {
       setActionLoading(false);
       setShowModal(false);
@@ -112,36 +86,19 @@ const RequestTeacher = () => {
     }
   };
 
-  const handleRefresh = () => {
-    fetchRequests(true);
-  };
-
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case "APPROVED":
-        return "text-green-600 font-semibold";
-      case "REJECTED":
-        return "text-red-600 font-semibold";
-      case "PENDING":
-        return "text-yellow-600 font-semibold";
+  const getStatusBadge = (supervisorStatus) => {
+    const baseClasses = "px-3 py-1 rounded-full text-xs font-semibold";
+    switch (supervisorStatus) {
+      case "teacherApproved":
+        return `${baseClasses} bg-yellow-100 text-yellow-700`;
+      case "adminApproved":
+        return `${baseClasses} bg-green-100 text-green-700`;
+      case "notApproved":
+        return `${baseClasses} bg-red-100 text-red-700`;
       default:
-        return "text-gray-600 font-semibold";
+        return `${baseClasses} bg-gray-100 text-gray-700`;
     }
   };
-
-  const getStatusBadge = (status) => {
-  const baseClasses = "px-3 py-1 rounded-full text-xs font-semibold";
-  switch (status) {
-    case "adminApproved": // Matches Backend
-      return `${baseClasses} bg-green-100 text-green-700`;
-    case "notApproved": // Matches Backend
-      return `${baseClasses} bg-red-100 text-red-700`;
-    case "teacherApproved": // Matches Backend
-      return `${baseClasses} bg-yellow-100 text-yellow-700`;
-    default:
-      return `${baseClasses} bg-gray-100 text-gray-700`;
-  }
-};
 
   if (loading) {
     return (
@@ -164,19 +121,9 @@ const RequestTeacher = () => {
       <div className="flex-1 p-8 overflow-auto">
         <AdminHeader adminName="Admin" />
 
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">
-            Project Teacher Requests
-          </h2>
-          <button
-            onClick={handleRefresh}
-            disabled={refreshing}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
-            {refreshing ? "Refreshing..." : "Refresh"}
-          </button>
-        </div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          Project Teacher Requests
+        </h2>
 
         <div className="bg-white rounded-xl shadow overflow-hidden">
           {requests.length > 0 ? (
@@ -214,25 +161,28 @@ const RequestTeacher = () => {
                         </button>
                       </td>
                       <td className="p-4 text-gray-700">
-                        {req.supervisor.name || "N/A"}
+                        {req.supervisor?.name || "N/A"}
                       </td>
                       <td className="p-4 text-center">
-                        <span className={getStatusBadge(req.status)}>
-                          {req.supervisorStatus}
+                        <span className={getStatusBadge(req.supervisorStatus)}>
+                          {req.supervisorStatus === "teacherApproved" && "Pending Admin"}
+                          {req.supervisorStatus === "adminApproved" && "Approved"}
+                          {req.supervisorStatus === "notApproved" && "Rejected"}
+                          {!["teacherApproved","adminApproved","notApproved"].includes(req.supervisorStatus) && "Pending"}
                         </span>
                       </td>
                       <td className="p-4">
                         {req.supervisorStatus === "teacherApproved" ? (
                           <div className="flex justify-center gap-2">
                             <button
-                              className="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition disabled:opacity-50 cursor-pointer"
                               onClick={() => handleDecision(req, "APPROVED")}
                               disabled={actionLoading}
                             >
                               APPROVE
                             </button>
                             <button
-                              className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition disabled:opacity-50 cursor-pointer"
                               onClick={() => handleDecision(req, "REJECTED")}
                               disabled={actionLoading}
                             >
@@ -261,7 +211,6 @@ const RequestTeacher = () => {
               <p className="text-gray-500 mb-4">
                 There are currently no supervisor requests to review.
               </p>
-            
             </div>
           )}
         </div>
@@ -285,24 +234,22 @@ const RequestTeacher = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                    {modalData.decision === "APPROVED"
-                      ? "Approve Request"
-                      : "Reject Request"}
+                    {modalData.decision === "APPROVED" ? "Approve Request" : "Reject Request"}
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 cursor-pointer">
                     Are you sure you want to{" "}
                     <span className="font-semibold">
                       {modalData.decision === "APPROVED" ? "approve" : "reject"}
                     </span>{" "}
                     the teacher request for team{" "}
                     <span className="font-semibold text-gray-800">
-                      {modalData.request.teamName}
+                      {modalData.request.name || modalData.request.teamName}
                     </span>
                     ?
                   </p>
-                  {modalData.request.teacherName && (
+                  {modalData.request.supervisor?.name && (
                     <p className="text-sm text-gray-500 mt-2">
-                      Teacher: <span className="font-medium">{modalData.request.teacherName}</span>
+                      Teacher: <span className="font-medium">{modalData.request.supervisor.name}</span>
                     </p>
                   )}
                 </div>
@@ -314,14 +261,14 @@ const RequestTeacher = () => {
                     setShowModal(false);
                     setModalData(null);
                   }}
-                  className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 cursor-pointer"
                   disabled={actionLoading}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmAction}
-                  className={`px-5 py-2.5 rounded-lg text-white font-medium transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${
+                  className={`px-5 py-2.5 rounded-lg text-white font-medium transition disabled:opacity-50 cursor-pointer flex items-center gap-2 ${
                     modalData.decision === "APPROVED"
                       ? "bg-green-600 hover:bg-green-700"
                       : "bg-red-600 hover:bg-red-700"
