@@ -182,7 +182,7 @@ const Request = () => {
         setPdfFile(null);
         setIsProposalSubmitted(true);
         setUploadStatus("uploaded");
-        toast.success("Proposal submitted successfully!");
+        toast.success("Proposal submitted ");
       } else {
         setUploadStatus("failed");
         toast.error(data.message);
