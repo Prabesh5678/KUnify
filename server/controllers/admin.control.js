@@ -44,7 +44,7 @@ export const isAuth = async (_,res) => {
 // Dashboard Stats
 export const getDashboardStats = async (_, res) => {
   try {
-    const [totalTeachers, totalStudents, totalProjects, activeProjects] =
+    const [totalTeachers, totalStudents, totalProjects, totalRequests] =
       await Promise.all([
         Teacher.countDocuments(),
         Student.countDocuments(),
@@ -57,7 +57,7 @@ export const getDashboardStats = async (_, res) => {
       totalTeachers,
       totalStudents,
       totalProjects,
-      activeProjects,
+      totalRequests,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

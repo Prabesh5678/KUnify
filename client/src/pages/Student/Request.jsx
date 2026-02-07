@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { NotebookPen, ExternalLink, ChevronDown } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
@@ -420,7 +419,7 @@ const Request = () => {
                             existingProposal.projectTitle || title || "Proposal"
                           )
                         }
-                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
                       >
                         <ExternalLink size={16} />
                         View

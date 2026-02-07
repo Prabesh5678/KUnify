@@ -4,7 +4,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 const MyProfile = () => {
-  const { user, refreshUser } = useAppContext();
+  const { user, fetchUser  } = useAppContext();
 
   const [form, setForm] = useState({
     name: "",
@@ -78,6 +78,9 @@ const MyProfile = () => {
 
   // Save profile
   const handleSave = async () => {
+     if (!form.department || !form.semester || !form.subjectCode) {
+    toast.error("Department, Semester, and Subject Code cannot be empty");
+    return ;}
     setLoading(true);
     try {
       const res = await axios.put(
@@ -95,7 +98,7 @@ const MyProfile = () => {
       if (res.data.success) {
         toast.success("Profile updated successfully!");
         setEditing(false);
-        refreshUser();
+        await fetchUser();
       } else {
         toast.error(res.data.message || "Failed to update profile.");
       }
