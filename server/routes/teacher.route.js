@@ -1,5 +1,5 @@
 import express from 'express';
-import { googleSignIn, isAuth, profileCompletion, teamApprove, teamRequest, teacherLogin } from '../controllers/teacher.control.js';
+import { googleSignIn, isAuth, profileCompletion, teamApprove, teamRequest, teacherLogin, getTeamLogsheets } from '../controllers/teacher.control.js';
 import authTeacher from '../middlewares/teacher.middleware.js';
 
 const teacherRouter= express.Router();
@@ -10,5 +10,6 @@ const teacherRouter= express.Router();
     teacherRouter.get("/teams", authTeacher, teamRequest );
     teacherRouter.put("/setup-profile", authTeacher, profileCompletion);
     teacherRouter.post("/login", teacherLogin);
+    teacherRouter.get("/teams/:teamId/logsheets", authTeacher, getTeamLogsheets);
     
     export default teacherRouter;

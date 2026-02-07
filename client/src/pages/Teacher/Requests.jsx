@@ -88,14 +88,14 @@ export default function TeamRequests() {
         setRequests((prev) => prev.filter((r) => r._id !== selected._id));
         triggerRequestRefetch();
       setDialogOpen(false);
-      toast.success("Project rejected successfully!");}
+      toast.success("Project decline successfully!");}
       else{
-        toast.error('Failed to reject team!')
+        toast.error('Failed to decline team!')
         console.error(data.message)
       }
     } catch (err) {
       console.error(err.stack);
-      toast.error("Failed to reject project.");
+      toast.error("Failed to decline project.");
     }
   };
 
