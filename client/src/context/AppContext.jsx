@@ -31,6 +31,12 @@ const [isStudent, setIsStudent] = useState(false);
   // Team code
   const [teamCode, setTeamCode] = useState(null);
 
+  const [requestRefetchTrigger, setRequestRefetchTrigger] = useState(0);
+
+const triggerRequestRefetch = () => {
+  setRequestRefetchTrigger(prev => prev + 1);
+};
+
  const fetchUser = async () => {
  // try {
     setLoadingUser(true);
@@ -251,6 +257,8 @@ try{
     logout,
     isStudent,
     setIsStudent,
+    requestRefetchTrigger,
+    triggerRequestRefetch,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -3,7 +3,7 @@ import Teacher from "../models/teacher.model.js";
 import Team from "../models/team.model.js";
 import mongoose from "mongoose";
 import { GiThwomp } from "react-icons/gi";
-
+import bcrypt from "bcryptjs";
 // POST /api/teacher/google-signin
 export const googleSignIn = async (req, res) => {
   try {
@@ -170,7 +170,12 @@ export const teamRequest = async (req, res) => {
       if (!requests)
         return res.json({ success: false, message: "Unable to find teacher!" });
       return res.json({ success: true, teams: requests.assignedTeams });
-    } else if (req.query.get === "all") {
+    } else if (req.query.get === "request-count") {
+      const teacher = await Teacher.findById(teacherId).select("pendingTeams");
+      const count = teacher?.pendingTeams?.length || 0;
+      return res.json({ success: true, count });
+    }
+     else if (req.query.get === "all") {
       const requests = await Teacher.findById(teacherId).select(
         "assignedTeams approvedTeams pendingTeams -_id",
       );
@@ -180,7 +185,7 @@ export const teamRequest = async (req, res) => {
     }
     return res.status(400).json({
       success: false,
-      message: "Query parameter 'get' is required or invalid",
+      message: "Query parameter 'get' is invalid",
     });
   } catch (error) {
     console.error(error.stack);
@@ -235,13 +240,15 @@ export const teamApprove = async (req, res) => {
 export const teacherLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
+  if(!email||!password)
+    return res.json({success:false,message:"Please provide all feilds!"})
 
-    const teacher = await Teacher.findOne({ email });
+    const teacher = await Teacher.findOne({ email }).select('+password').lean();
 
     if (!teacher) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Teacher not found!",
       });
     }
 
@@ -251,7 +258,7 @@ export const teacherLogin = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Invalidd credentials",
       });
     }
 
@@ -268,12 +275,20 @@ export const teacherLogin = async (req, res) => {
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
     });
-
+delete teacher.password;
+console.log(teacher)
     res.json({
       success: true,
-      teacher,
+       user: {
+        id: teacher._id,
+        name: teacher.name,
+        email: teacher.email,
+        avatar: teacher.avatar,
+        role: "teacher",
+        isProfileCompleted: teacher.isProfileCompleted,
+      },
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: err.message||'Something wrong!' });
   }
 };

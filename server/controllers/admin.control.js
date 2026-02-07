@@ -111,6 +111,8 @@ export const toggleTeacherStatus = async (req, res) => {
 export const createVisitingTeacher = async (req, res) => {
   try {
     const { name, email, password, specialization } = req.body;
+    if(!name||!email||!password)
+      return res.json({success:false,message:'Something is missing!'})
 
     const existing = await Teacher.findOne({ email });
     if (existing)
@@ -121,11 +123,10 @@ export const createVisitingTeacher = async (req, res) => {
     const teacher = await Teacher.create({
       name,
       email,
-      password: hashedPassword,
+      password:hashedPassword,
       specialization,
       visiting: true,
       activeStatus: true,
-      passwordChangedAt: Date.now(),
     });
 
     res.json({ success: true, teacher });

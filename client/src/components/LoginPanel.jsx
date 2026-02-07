@@ -194,16 +194,37 @@ const handleVisitingFacultyLogin = async () => {
 
   // If not admin, fallback to Visiting Faculty login
   try {
+    console.log('1')
+     const { data } = await axios.post(
+       "/api/teacher/login",
+       {
+         email: vfEmail,
+         password: vfPassword,
+       },
+       { withCredentials: true },
+     );
+         console.log("2");
+
+     if(data.success){
     setUser({
       name: vfEmail,
       role: "teacher",
       type: "visiting",
     });
+    console.log("3");
 
     setShowUserLogin(false);
     navigate("/teacher/dashboard", { replace: true });
-    toast.success("Visiting faculty login successful");
+    toast.success("Visiting faculty login successful");}
+    else{
+          console.log("4");
+
+      toast.error('Unable to login!')
+      console.error(data.message||'errored')
+    }
   } catch (err) {
+        console.log("5");
+console.error(err)
     toast.error("Login failed");
   } finally {
     setLoadingVF(false);

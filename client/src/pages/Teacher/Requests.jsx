@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-
+import { useAppContext } from "../../context/AppContext";
 
 export default function TeamRequests() {
   const [requests, setRequests] = useState([]);
   const [selected, setSelected] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [error, setError] = useState("");
+
+  const { triggerRequestRefetch } = useAppContext();
 
   // ---------- TEST DATA (replace with backend later) ----------
   const testRequests = [
@@ -63,10 +65,11 @@ export default function TeamRequests() {
   const handleAccept = async (reqId) => {
     try {
       // BACKEND (when ready)
-    const {data}=  await axios.post("/api/teacher/team-request?action=accept", { requestId: reqId }, { withCredentials: true });
+      const {data}=  await axios.post("/api/teacher/team-request?action=accept", { requestId: reqId }, { withCredentials: true });
       if(data.success){
-    toast.success("Project accepted successfully!");
-      setRequests((prev) => prev.filter((r) => r._id !== reqId));}
+        toast.success("Project accepted successfully!");
+        triggerRequestRefetch();
+        setRequests((prev) => prev.filter((r) => r._id !== reqId));}
       else{
         toast.error('Unable to accept team')
         console.error(data.message)
@@ -80,9 +83,10 @@ export default function TeamRequests() {
   const handleReject = async () => {
     try {
       // BACKEND (when ready)
-    const {data}=  await axios.post("/api/teacher/team-request?action=decline", { requestId: selected._id }, { withCredentials: true });
-if(data.success){
-      setRequests((prev) => prev.filter((r) => r._id !== selected._id));
+      const {data}=  await axios.post("/api/teacher/team-request?action=decline", { requestId: selected._id }, { withCredentials: true });
+      if(data.success){
+        setRequests((prev) => prev.filter((r) => r._id !== selected._id));
+        triggerRequestRefetch();
       setDialogOpen(false);
       toast.success("Project rejected successfully!");}
       else{
