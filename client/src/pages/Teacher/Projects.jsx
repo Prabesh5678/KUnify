@@ -52,7 +52,7 @@ export default function TeacherProjects() {
     const fetchTeams = async () => {
       try {
         const { data } = await axios.get("/api/teacher/teams?get=all");
-        console.log(data);
+        console.log(data.teams.assignedTeams);
         if (data.success) {
           const teamList = data?.teams || [];
           setTeams(teamList.assignedTeams);
@@ -97,7 +97,6 @@ export default function TeacherProjects() {
           ]);
         } else {
           toast.error("Unable to fetch teams!");
-          console.log("hi");
           console.error(data?.message);
         }
       } catch (err) {
@@ -113,8 +112,8 @@ export default function TeacherProjects() {
 
   const filteredTeams = teams.filter(
     (team) =>
-      team.name.toLowerCase().includes(search.toLowerCase()) ||
-      team.project.toLowerCase().includes(search.toLowerCase()),
+      team?.name?.toLowerCase().includes(search?.toLowerCase()) ||
+      team?.project?.toLowerCase().includes(search?.toLowerCase()),
   );
 
   return (
@@ -176,8 +175,8 @@ export default function TeacherProjects() {
         ) : (
           filteredTeams.map((team) => (
             <div
-              key={team.id}
-              onClick={() => navigate(`/teacher/teamdetails/${team.id}`)}
+              key={team._id}
+              onClick={() => navigate(`/teacher/teamdetails/${team._id}`)}
               className="cursor-pointer bg-white rounded-2xl p-5 
            shadow-md hover:shadow-lg transition-shadow"
             >
@@ -190,20 +189,16 @@ export default function TeacherProjects() {
                       : "bg-orange-100 text-orange-600"
                   }`}
                 >
-                  {team.status}
+                  {team.supervisorStatus}
                 </span>
               </div>
-              <p className="text-gray-500 text-sm">{team.project}</p>
+              <p className="text-gray-500 text-sm">{team.subject}</p>
 
               <div className="mt-3 text-sm text-gray-600 space-y-1">
-                <p>👥 {team.members} members</p>
-                <p>📄 {team.category}</p>
-                <p>⏱ {team.logs} logsheet entries</p>
               </div>
 
               <div className="mt-3 text-xs flex justify-between text-gray-400">
-                <span>Proposed: {team.proposed}</span>
-                <span>Last update: {team.updated}</span>
+                <span>Proposed: {team.supervisor.name}</span>
               </div>
             </div>
           ))

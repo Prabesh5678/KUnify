@@ -59,6 +59,7 @@ const fetchTeams = async () => {
     const { data } = await axios.get("/api/teacher/teams?get=assigned", {
       withCredentials: true,
     });
+    console.log(data)
     if (data.success) {
       setTeams(data.teams);
     } else {
@@ -79,7 +80,7 @@ useEffect(() => {
   const [search, setSearch] = useState("");
 
   const filteredTeams = teams.filter((team) =>
-    team.name.toLowerCase().includes(search.toLowerCase())
+    team?.name?.toLowerCase().includes(search?.toLowerCase())
   );
 
   return (
