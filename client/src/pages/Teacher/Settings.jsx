@@ -12,7 +12,7 @@ export default function TeacherSettings() {
     email: "",
     phone: "",
     specialization: "",
-    role: "", // Visiting or Regular
+    role: "",
   });
 
   const [passwordForm, setPasswordForm] = useState({
@@ -37,7 +37,7 @@ export default function TeacherSettings() {
         email: user.email || "",
         phone: user.phone || "",
         specialization: user.specialization || "",
-        role: user.role || "Teacher", // assuming role exists
+        role: user.role || "Teacher", 
       });
     } catch (err) {
       console.error(err);

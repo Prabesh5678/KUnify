@@ -213,6 +213,8 @@ export const teamApprove = async (req, res) => {
       teacher.approvedTeams.addToSet(requestId);
       teacher.pendingTeams.pull(requestId);
       team.supervisorStatus = "teacherApproved";
+      // mark which teacher requested/approved this team so admin can assign later
+      team.requestedTeacher = teacherId;
       await Promise.all([teacher.save({ session }), team.save({ session })]);
       await session.commitTransaction();
       return res.json({ success: true, message: "Team accepted!" });
@@ -220,6 +222,7 @@ export const teamApprove = async (req, res) => {
       teacher.pendingTeams.pull(requestId);
       team.supervisorStatus = "notApproved";
       team.supervisor = null;
+      team.requestedTeacher = null;
       await Promise.all([teacher.save({ session }), team.save({ session })]);
       await session.commitTransaction();
       return res.json({ success: true, message: "Team declined!" });
@@ -292,3 +295,4 @@ console.log(teacher)
     res.status(500).json({ success: false, message: err.message||'Something wrong!' });
   }
 };
+ 
