@@ -17,7 +17,7 @@ import { assets } from "../../assets/assets";
 import axios from "axios";
 
 export default function TeacherSidebar() {
-  const { user, logout } = useAppContext();
+  const { user, logout, requestRefetchTrigger } = useAppContext();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const location = useLocation();
 
@@ -59,17 +59,12 @@ export default function TeacherSidebar() {
     };
 
     fetchTeamRequestsCount();
-
-    // Optional: poll every 6 seconds
-    const interval = setInterval(fetchTeamRequestsCount, 6000);
-
-    return () => clearInterval(interval); // cleanup
-  }, []);
+  }, [requestRefetchTrigger]);
 
   // Hide sidebar on profile setup page
-  if (location.pathname === "/teacher/profile-setup") {
-    return null;
-  }
+  // if (location.pathname === "/teacher/profile-setup") { // don't hide this 🙏🏿
+  //   return null;
+  // }
 
   const [collapsed, setCollapsed] = useState(false);
 

@@ -8,7 +8,7 @@ import {
   toggleTeacherStatus,
   createVisitingTeacher,
   getStudentsBySemester,
-  getPendingSupervisorRequests,
+  getSupervisorRequests,
   approveSupervisorRequest,
   declineSupervisorRequest,
   resetVisitingTeacherPassword,
@@ -35,7 +35,7 @@ adminRouter.post("/teacher/reset-password", authAdmin, resetVisitingTeacherPassw
 adminRouter.get("/get-students", authAdmin, getStudentsBySemester);
 
 // Admin supervisor requests
-adminRouter.get("/supervisor/pending", authAdmin, getPendingSupervisorRequests);
+adminRouter.get("/supervisor/pending", authAdmin, getSupervisorRequests);
 adminRouter.post("/supervisor/approve", authAdmin, approveSupervisorRequest);
 adminRouter.post("/supervisor/decline", authAdmin, declineSupervisorRequest);
 

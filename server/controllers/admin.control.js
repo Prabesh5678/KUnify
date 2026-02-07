@@ -111,6 +111,8 @@ export const toggleTeacherStatus = async (req, res) => {
 export const createVisitingTeacher = async (req, res) => {
   try {
     const { name, email, password, specialization } = req.body;
+    if(!name||!email||!password)
+      return res.json({success:false,message:'Something is missing!'})
 
     const existing = await Teacher.findOne({ email });
     if (existing)
@@ -121,11 +123,10 @@ export const createVisitingTeacher = async (req, res) => {
     const teacher = await Teacher.create({
       name,
       email,
-      password: hashedPassword,
+      password:hashedPassword,
       specialization,
       visiting: true,
       activeStatus: true,
-      passwordChangedAt: Date.now(),
     });
 
     res.json({ success: true, teacher });
@@ -197,7 +198,7 @@ export const getStudentsBySemester = async (req, res) => {
 
 
 // GET /api/admin/supervisor/pending
-export const getPendingSupervisorRequests = async (req, res) => {
+export const getSupervisorRequests = async (req, res) => {
   try {
    
     const teams = await Team.find({ supervisorStatus: "teacherApproved" })
@@ -205,9 +206,11 @@ export const getPendingSupervisorRequests = async (req, res) => {
       .populate("supervisor", "name email") 
       .populate("members", "name email semester department rollNumber ")
       .populate("proposal")
-
+if(!teams)
+  throw new Error('No Teams Found!');
     res.json({ success: true, teams });
   } catch (err) {
+    console.error(err.stack);
     res.status(500).json({ success: false, message: err.message });
   }
 };

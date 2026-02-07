@@ -2,34 +2,31 @@ import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { assets } from "../../assets/assets";
 import { useAppContext } from "../../context/AppContext"; // <-- add this
+import { toast } from "react-toastify";
 
 const AdminHeader = ({ adminName = "Admin" }) => {
   const navigate = useNavigate();
   const { setUser } = useAppContext(); // <-- add this
 
-  const handleLogout = async () => {
-    try {
-      // Call backend logout endpoint
-      const { data } = await axios.get(
-        "/api/logout",
-        {},
-        { withCredentials: true },
-      );
-      if (data.success) {
-        // Clear user context
-        setUser(null);
-        toast.success('Logged out')
-        // Redirect to home/login page
-        navigate("/");
-      } else {
-        toast.error("Failed to logout");
-        console.error(data.message);
-      }
-    } catch (error) {
-      console.error("Logout failed:", error);
+ const handleLogout = async () => {
+  try {
+    const { data } = await axios.get("/api/logout", {
+      withCredentials: true,
+    });
 
+    if (data.success) {
+      setUser(null);
+      toast.success("Logged out");
+
+      window.location.href = "/home";
+    } else {
+      toast.error("Failed to logout");
     }
-  };
+  } catch (error) {
+    console.error("Logout failed:", error);
+    toast.error("Logout failed");
+  }
+};
 
   return (
     <div className="flex justify-between items-center bg-primary p-5 rounded-xl shadow-md mb-8">

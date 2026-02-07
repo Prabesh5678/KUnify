@@ -90,18 +90,20 @@ const TeachersManagement = () => {
   // Add visiting faculty
   const handleAddTeacher = async (teacherData) => {
     try {
+      console.log(teacherData)
       const res = await axios.post("/api/admin/create-visiting-teacher", teacherData);
       if (res.data.success) {
+        toast.success("Visiting faculty added successfully!");
         const newTeacher = {
           ...res.data.teacher,
           active: res.data.teacher.activeStatus,
           isVisiting: true,
         };
         setTeachers((prev) => [...prev, newTeacher]);
-        toast.success("Visiting faculty added successfully!");
         setModalOpen(false);
       } else {
-        toast.error(res.data.message || "Failed to add teacher");
+        console.error(res?.data?.message||'errored' );
+        toast.error("Failed to add teacher");
       }
     } catch (err) {
       console.error(err);
@@ -181,7 +183,7 @@ const TeachersManagement = () => {
                   setSelectedTeacher(t);
                   setResetModalOpen(true);
                 }}
-                className="px-3 py-1 bg-primary text-white rounded hover:bg-yellow-600 cursor-pointer"
+                className="px-3 py-1 bg-primary text-white rounded hover:bg-primary cursor-pointer"
               >
                 Reset Password
               </button>
