@@ -217,21 +217,30 @@ import Contact from "./pages/Contact";
 import AboutSPMP from "./pages/AboutSPMP";
 import ProfileSetup from "./pages/Student/ProfileSetup";
 import StudentDashboard from "./pages/Student/StudentDashboard";
+import GuidelinesPage from "./pages/Student/Guidelinespage";
+import Request from "./pages/Student/Request";
+import Logsheet from "./pages/Student/Logsheet";
+import MyProfile from "./pages/Student/MyProfile";
+import StudentGuard from "./components/StudentGuard";
 import StudentHome from "./pages/Student/StudentHome";
-import WaitingPage from "./pages/Student/WaitingPage";
-
-// Admin Pages
+import TeamMembers from "./pages/Student/TeamMembers";
+import StudentTeamMembers from "./pages/Student/TeamMembers";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import TeachersManagement from "./pages/Admin/TeacherManagement";
+import AddTeacherModal from "./components/Admin/AddTeacherModal";
+import AdminGuard from "./components/AdminGuard";
 import ProjectsManagement from "./pages/Admin/ProjectsManagement";
+import WaitingPage from "./pages/Student/WaitingPage";
 import AllTeachers from "./pages/Admin/AllTeachers";
 import StudentsManagement from "./pages/Admin/StudentsManagement";
 import StudentDetails from "./pages/Admin/StudentDetails";
 import RequestTeacher from "./pages/Admin/RequestTeacher";
 import TeamDetail from "./pages/Admin/TeamDetail";
 
-// Teacher Pages
+//Teacher Pages
+import TeacherGuard from "./components/TeacherGuard";
 import TeacherLayout from "./components/TeacherLayout";
+import TeacherSidebar from "./components/Teacher/TeacherSidebar";
 import TeacherDashboard from "./pages/Teacher/Dashboard";
 import TeacherProjects from "./pages/Teacher/Projects";
 import TeacherRequests from "./pages/Teacher/Requests";
@@ -239,15 +248,9 @@ import TeacherTeams from "./pages/Teacher/Teams";
 import TeacherDeficits from "./pages/Teacher/Deficits";
 import TeacherSettings from "./pages/Teacher/Settings";
 import TeacherProfileSetup from "./pages/Teacher/TeacherProfileSetup";
+import TeacherHeader from "./components/Teacher/TeacherHeader";
 import TeamDetails from "./pages/Teacher/TeamDetail";
-
-// Guards
-import AdminGuard from "./components/AdminGuard";
-import TeacherGuard from "./components/TeacherGuard";
-import StudentGuard from "./components/StudentGuard";
-
 import PDFViewer from "./components/PDFViewer";
-
 const App = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -330,40 +333,51 @@ const App = () => {
                   )
                 }
               />
+ <Route element={<StudentGuard />}>
+            <Route path="/student/waiting" element={<WaitingPage />} />
+            <Route path="/student/home" element={<StudentHome />} />
+            <Route
+              path="/student/team-members"
+              element={<StudentTeamMembers />}
+            />
+            <Route path="/student/dashboard" element={<StudentDashboard />} />
+            <Route path="/student/guidelines" element={<GuidelinesPage />} />
+            <Route path="/view-pdf" element={<PDFViewer />} />
+            <Route
+              path="/student/requestsupervisor/:teamId"
+              element={<Request />}
+            />
+            <Route path="/student/logsheet" element={<Logsheet />} />
+            <Route path="/student/profile" element={<MyProfile />} />
+            <Route path="/student/member/:teamId" element={<TeamMembers />} />
+          </Route>
 
-              {/* Student Routes */}
-              <Route element={<StudentGuard />}>
-                <Route path="/student/home" element={<StudentHome />} />
-                <Route path="/student/dashboard" element={<StudentDashboard />} />
-                <Route path="/student/waiting" element={<WaitingPage />} />
-                <Route path="/view-pdf" element={<PDFViewer />} />
-              </Route>
+          <Route element={<AdminGuard />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/admin_teachers" element={<TeachersManagement />} />
+            <Route path="/admin/projects" element={<ProjectsManagement />} />
+            <Route path="/admin/allteachers/:id" element={<AllTeachers />} />
+            <Route path="/admin/admin_std" element={<StudentsManagement />} />
+            <Route path="/admin/requestteacher" element={<RequestTeacher />} />
+            <Route path="/admin/admin_std-details" element={<StudentDetails />} />
+            <Route path="/admin/teamdetail/:teamId" element={<TeamDetail />} />
 
-              {/* Admin Routes */}
-              <Route element={<AdminGuard />}>
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/admin/admin_teachers" element={<TeachersManagement />} />
-                <Route path="/admin/projects" element={<ProjectsManagement />} />
-                <Route path="/admin/allteachers/:id" element={<AllTeachers />} />
-                <Route path="/admin/admin_std" element={<StudentsManagement />} />
-                <Route path="/admin/requestteacher" element={<RequestTeacher />} />
-                <Route path="/admin/admin_std-details" element={<StudentDetails />} />
-                <Route path="/admin/teamdetail/:teamId" element={<TeamDetail />} />
-              </Route>
+          </Route>
 
-              {/* Teacher Routes */}
-              <Route element={<TeacherGuard />}>
-                <Route path="/teacher" element={<TeacherLayout />}>
-                  <Route path="dashboard" element={<TeacherDashboard />} />
-                  <Route path="projects" element={<TeacherProjects />} />
-                  <Route path="requests" element={<TeacherRequests />} />
-                  <Route path="teams" element={<TeacherTeams />} />
-                  <Route path="deficits" element={<TeacherDeficits />} />
-                  <Route path="settings" element={<TeacherSettings />} />
-                  <Route path="profilesetup" element={<TeacherProfileSetup />} />
-                  <Route path="teamdetails/:id" element={<TeamDetails />} />
-                </Route>
-              </Route>
+    
+          <Route element={<TeacherGuard />}>
+            <Route path="/teacher" element={<TeacherLayout />}>
+              <Route path="dashboard" element={<TeacherDashboard />} />
+              <Route path="projects" element={<TeacherProjects />} />
+              <Route path="requests" element={<TeacherRequests />} />
+              <Route path="teams" element={<TeacherTeams />} />
+              <Route path="deficits" element={<TeacherDeficits />} />
+              <Route path="settings" element={<TeacherSettings />} />
+              <Route path="profilesetup" element={<TeacherProfileSetup />} />
+              <Route path="teamdetails/:id" element={<TeamDetails />} />
+
+            </Route>
+          </Route>
 
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
