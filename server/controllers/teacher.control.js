@@ -176,9 +176,14 @@ export const teamRequest = async (req, res) => {
       return res.json({ success: true, count });
     }
      else if (req.query.get === "all") {
-      const requests = await Teacher.findById(teacherId).select(
-        "assignedTeams approvedTeams pendingTeams -_id",
-      );
+      const requests = await Teacher.findById(teacherId)
+        .select("assignedTeams approvedTeams pendingTeams -_id")
+        .populate({
+          path: "assignedTeams",
+          populate: {
+            path: "supervisor"
+          },
+        });
       if (!requests)
         return res.json({ success: false, message: "Unable to find teacher!" });
       return res.json({ success: true, teams: requests });
