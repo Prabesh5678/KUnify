@@ -197,7 +197,7 @@ export const getStudentsBySemester = async (req, res) => {
 
 
 // GET /api/admin/supervisor/pending
-export const getPendingSupervisorRequests = async (req, res) => {
+export const getSupervisorRequests = async (req, res) => {
   try {
    
     const teams = await Team.find({ supervisorStatus: "teacherApproved" })
@@ -205,9 +205,11 @@ export const getPendingSupervisorRequests = async (req, res) => {
       .populate("supervisor", "name email") 
       .populate("members", "name email semester department rollNumber ")
       .populate("proposal")
-
+if(!teams)
+  throw new Error('No Teams Found!');
     res.json({ success: true, teams });
   } catch (err) {
+    console.error(err.stack);
     res.status(500).json({ success: false, message: err.message });
   }
 };
