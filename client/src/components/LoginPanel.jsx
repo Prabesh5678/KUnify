@@ -414,8 +414,8 @@ const LoginPanel = () => {
 
   // ---- Visiting Faculty / Admin login ----
   const handleEmailChange = (e) => {
-  setVfEmail(e.target.value);
-};
+    setVfEmail(e.target.value);
+  };
 
   const handleVisitingFacultyLogin = async () => {
     if (!vfEmail || !vfPassword) return toast.error("Please enter email and password");
@@ -429,7 +429,10 @@ const LoginPanel = () => {
         setUser({ email: vfEmail, role: "admin" });
         setShowUserLogin(false);
         navigate("/admin/dashboard", { replace: true });
+        setVfEmail("");
+        setVfPassword("");
         toast.success("Admin login successful!");
+        setLoadingVF(false);
         return;
       }
     } catch (err) {
@@ -441,6 +444,8 @@ const LoginPanel = () => {
       setUser({ email: vfEmail, role: "teacher", type: "visiting" });
       setShowUserLogin(false);
       navigate("/teacher/dashboard", { replace: true });
+      setVfEmail("");           // reset email
+      setVfPassword("");
       toast.success("Visiting faculty login successful!");
     } catch (err) {
       toast.error("Login failed");
@@ -449,7 +454,7 @@ const LoginPanel = () => {
     }
   };
 
- return (
+  return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <div className="w-full max-w-xl rounded-xl bg-[#111] text-gray-100 shadow-2xl border border-gray-800 px-10 py-10 relative">
         <h1 className="text-center text-2xl font-semibold mb-6">
@@ -478,63 +483,68 @@ const LoginPanel = () => {
           </p>
         </div>
 
-      <div className="border-t border-gray-800 pt-6">
-  <h2 className="text-lg font-semibold mb-4 text-center">
-    Visiting Faculty Login
-  </h2>
+        <div className="border-t border-gray-800 pt-6">
+          <h2 className="text-lg font-semibold mb-4 text-center">
+            Visiting Faculty Login
+          </h2>
 
-  <div className="space-y-4">
-    <input
-      type="email"
-      placeholder="Email"
-      value={vfEmail}
-      onChange={handleEmailChange}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          // move focus to password input
-          document.getElementById("vfPasswordInput")?.focus();
-        }
-      }}
-      className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] border border-gray-700"
-    />
+          <div className="space-y-4">
+            <input
+              type="email"
+              placeholder="Email"
+              value={vfEmail}
+              onChange={handleEmailChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  // move focus to password input
+                  document.getElementById("vfPasswordInput")?.focus();
+                }
+              }}
+              className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] border border-gray-700"
+            />
 
-    <div className="relative">
-      <input
-        id="vfPasswordInput"
-        type={showPassword ? "text" : "password"}
-        placeholder="Password"
-        value={vfPassword}
-        onChange={(e) => setVfPassword(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            // trigger login on Enter
-            handleVisitingFacultyLogin();
-          }
-        }}
-        className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] border border-gray-700 pr-10"
-      />
-      <button
-        type="button"
-        onClick={() => setShowPassword(!showPassword)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
-      >
-        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-      </button>
-    </div>
+            <div className="relative">
+              <input
+                id="vfPasswordInput"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={vfPassword}
+                onChange={(e) => setVfPassword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    // trigger login on Enter
+                    handleVisitingFacultyLogin();
+                  }
+                }}
+                className="w-full px-4 py-2 rounded-md bg-[#1a1a1a] border border-gray-700 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
 
-    <button
-      onClick={handleVisitingFacultyLogin}
-      disabled={loadingVF}
-      className="w-full bg-primary text-white py-2 rounded-md cursor-pointer"
-    >
-      {loadingVF ? "Logging in..." : "Login as Visiting Faculty"}
-    </button>
-  </div>
-</div>
+            <button
+              onClick={handleVisitingFacultyLogin}
+              disabled={loadingVF}
+              className="w-full bg-primary text-white py-2 rounded-md cursor-pointer"
+            >
+              {loadingVF ? "Logging in..." : "Login as Visiting Faculty"}
+            </button>
+          </div>
+        </div>
 
 
         <button
-          onClick={() => setShowUserLogin(false)}
+          onClick={() => {
+            setShowUserLogin(false)
+            setVfEmail("");
+            setVfPassword("");
+          }
+          }
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-lg cursor-pointer"
         >
           ✕

@@ -17,9 +17,7 @@ const AdminHeader = ({ adminName = "Admin" }) => {
       if (data.success) {
         setUser(null);
         toast.success("Logged out");
-        window.location.href = "/home";
-      } else {
-        toast.error("Failed to logout");
+       navigate("/home", { replace: true });
       }
     } catch (error) {
       console.error("Logout failed:", error);
