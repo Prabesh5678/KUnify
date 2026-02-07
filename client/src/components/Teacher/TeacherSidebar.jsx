@@ -62,9 +62,9 @@ export default function TeacherSidebar() {
   }, [requestRefetchTrigger]);
 
   // Hide sidebar on profile setup page
-  if (location.pathname === "/teacher/profilesetup") {
-    return null;
-  }
+  // if (location.pathname === "/teacher/profile-setup") { // don't hide this 🙏🏿
+  //   return null;
+  // }
 
   const [collapsed, setCollapsed] = useState(false);
 
