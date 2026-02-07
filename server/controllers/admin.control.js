@@ -226,14 +226,17 @@ export const approveSupervisorRequest = async (req, res) => {
       return res.status(404).json({ success: false, message: "Team not found" });
 
     
-    if (team.supervisorStatus !== "teacherApproved") {
-      return res.status(400).json({
-        success: false,
-        message: "Teacher has not approved yet",
-      });
-    }
+    if (
+  team.supervisorStatus !== "teacherApproved" &&
+  team.supervisorStatus !== "APPROVED"
+) {
+  return res.status(400).json({
+    success: false,
+    message: "Teacher has not approved yet",
+  });
+}
 
-    const teacher = await Teacher.findById(team.requestedTeacher);
+    const teacher = await Teacher.findById(team.supervisor);
     if (!teacher)
       return res.status(404).json({ success: false, message: "Teacher not found" });
 

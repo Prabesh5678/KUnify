@@ -54,7 +54,7 @@ const StudentGuard = () => {
   if (isTeamProtectedRoute) {
     // No team at all? Redirect to home to join/create one
     if (!hasTeam) {
-      toast.error("You need to join or create a team first!");
+      toast.error("join or create a team first");
       return <Navigate to="/student/home" replace />;
     }
     // Has team but waiting for approval? Redirect to waiting page

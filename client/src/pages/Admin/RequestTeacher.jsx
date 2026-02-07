@@ -32,7 +32,7 @@ const RequestTeacher = () => {
         setLoading(true);
       }
 
-      const res = await axios.get("/api/admin/supervisor/pending"); 
+      const res = await axios.get("http://localhost:3000/api/admin/supervisor/pending"); 
       console.log(res.data.teams)
       if (res.data.success) {
         setRequests(res.data.teams || []);
@@ -65,29 +65,33 @@ const RequestTeacher = () => {
   };
 
   const confirmAction = async () => {
-    if (!modalData) return;
+  if (!modalData) return;
+  const { request, decision } = modalData;
+  setActionLoading(true);
 
-    const { request, decision } = modalData;
-    setActionLoading(true);
+  try {
+    // FIX: Make sure the strings match exactly what you pass from the buttons
+    const endpoint = decision === "APPROVED" ? "approve" : "decline";
+    const url = `http://localhost:3000/api/admin/supervisor/${endpoint}`;
 
-    try {
-      const url =
-        decision === "APPROVED"
-          ? "/api/admin/supervisor/approve"
-          : "/api/admin/supervisor/decline";
-
-      const response = await axios.post(url, { teamId: request.id });
-
+    const response = await axios.post(url, { teamId: request._id });
       if (response.data.success) {
         // Update frontend state immediately
         setRequests((prev) =>
-          prev.map((r) =>
-            r.id === request.id ? { ...r, status: decision } : r
-          )
+          prev.map((r) => {
+            if (r._id !== request._id) return r;
+            if (decision === "APPROVED") {
+              return { ...r, supervisorStatus: "adminApproved" };
+            } else {
+              return { ...r, supervisorStatus: "notApproved", requestedTeacher: null };
+            }
+          })
         );
 
         toast.success(
-          `Request for ${request.teamName} ${decision.toLowerCase()} successfully`
+          `Request for ${request.name || request.teamName} ${
+            decision === "APPROVED" ? "approved" : "rejected"
+          } successfully`
         );
       } else {
         throw new Error(response.data.message || "Failed to update request");
@@ -126,18 +130,18 @@ const RequestTeacher = () => {
   };
 
   const getStatusBadge = (status) => {
-    const baseClasses = "px-3 py-1 rounded-full text-xs font-semibold";
-    switch (status) {
-      case "APPROVED":
-        return `${baseClasses} bg-green-100 text-green-700`;
-      case "REJECTED":
-        return `${baseClasses} bg-red-100 text-red-700`;
-      case "PENDING":
-        return `${baseClasses} bg-yellow-100 text-yellow-700`;
-      default:
-        return `${baseClasses} bg-gray-100 text-gray-700`;
-    }
-  };
+  const baseClasses = "px-3 py-1 rounded-full text-xs font-semibold";
+  switch (status) {
+    case "adminApproved": // Matches Backend
+      return `${baseClasses} bg-green-100 text-green-700`;
+    case "notApproved": // Matches Backend
+      return `${baseClasses} bg-red-100 text-red-700`;
+    case "teacherApproved": // Matches Backend
+      return `${baseClasses} bg-yellow-100 text-yellow-700`;
+    default:
+      return `${baseClasses} bg-gray-100 text-gray-700`;
+  }
+};
 
   if (loading) {
     return (
@@ -225,14 +229,14 @@ const RequestTeacher = () => {
                               onClick={() => handleDecision(req, "APPROVED")}
                               disabled={actionLoading}
                             >
-                              Accept
+                              APPROVE
                             </button>
                             <button
                               className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                               onClick={() => handleDecision(req, "REJECTED")}
                               disabled={actionLoading}
                             >
-                              Reject
+                              DECLINE
                             </button>
                           </div>
                         ) : (
