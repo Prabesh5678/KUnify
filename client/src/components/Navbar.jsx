@@ -83,7 +83,7 @@ const Navbar = () => {
 
         {/* Mobile menu button */}
         <button
-          className="md:hidden"
+          className="md:hidden cursor-pointer"
           onClick={() => setOpen((prev) => !prev)}
           aria-label="Toggle menu"
         >
@@ -127,7 +127,7 @@ const Navbar = () => {
               setOpen(false);
               setShowUserLogin(true);
             }}
-            className="py-1 text-left w-full"
+            className="py-1 text-left w-full cursor-pointer"
           >
             Login
           </button>
@@ -137,7 +137,7 @@ const Navbar = () => {
               setOpen(false);
               logout();
             }}
-            className="py-1 text-left w-full"
+            className="py-1 text-left w-full cursor-pointer"
           >
             Logout
           </button>

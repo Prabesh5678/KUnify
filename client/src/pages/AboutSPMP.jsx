@@ -30,7 +30,7 @@ const AboutSPMP = () => {
                 <img
                   src={member.image}
                   alt={member.name}
-                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg hover:shadow-xl transition-shadow"
+                  className="w-36 h-36 rounded-full object-cover border-4 border-white shadow-lg hover:shadow-xl transition-shadow"
                 />
                 <h4 className="text-base font-semibold text-gray-800 mt-3">
                   {member.name}

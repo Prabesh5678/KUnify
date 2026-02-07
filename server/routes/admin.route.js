@@ -17,7 +17,6 @@ import {
 } from "../controllers/admin.control.js";
 
 const adminRouter = express.Router();
-
 // Auth
 adminRouter.post("/login", adminLogin);
 

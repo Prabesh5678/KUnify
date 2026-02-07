@@ -119,7 +119,7 @@ const StudentDashboard = () => {
             <span className="font-mono tracking-wider">{teamCode}</span>
             <button
               onClick={handleCopy}
-              className="hover:bg-blue-200 p-1 rounded transition"
+              className="hover:bg-blue-200 p-1 rounded transition cursor-pointer"
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
             </button>

@@ -16,10 +16,9 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
       try {
         setLoading(true);
 
-        // Fallback to project.teachers if backend API not available
+        // Use project.teachers as fallback
         let teachers = project.teachers || [];
 
-        // Uncomment if backend endpoint exists
         // const res = await axios.get(`/api/admin/projects/${project._id}/suggested-teachers`);
         // teachers = res.data;
 
@@ -77,45 +76,43 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
     window.open(viewerUrl, "_blank");
   };
 
-  const teamName = project.team?.name || project.teamName || "N/A";
+  const teamName = project.team?.name || project.teamName || "Untitled Project";
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="relative bg-white rounded-xl p-6 w-full max-w-3xl overflow-y-auto max-h-[90vh] shadow-md">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
+      <div className="relative bg-white rounded-2xl p-6 w-full max-w-3xl overflow-y-auto max-h-[90vh] shadow-lg">
+        
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 font-bold text-lg cursor-pointer"
+        >
+          ✕
+        </button>
+
         {/* Project Title */}
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">
-          {project.proposal?.projectTitle || project.title || "Untitled Project"}
+        <h2 className="text-3xl font-bold mb-4 text-gray-800 border-b pb-2">
+          {project.proposal?.projectTitle || project.title || teamName}
         </h2>
 
-        {/* Project Proposal */}
-        {project.proposal && (
-          <div className="bg-white p-4 rounded-xl shadow mb-4 space-y-2">
-            <p><b>Abstract:</b> {project.proposal.abstract || "N/A"}</p>
-            <p><b>Keywords:</b> {project.proposal.projectKeyword || "N/A"}</p>
-            {project.proposal.proposalFile?.url && (
-              <button
-                onClick={() => handleViewPDF(project.proposal.proposalFile.url)}
-                className="mt-2 bg-green-600 text-white px-4 py-2 rounded inline-flex items-center gap-2"
-              >
-                <ExternalLink size={16} /> View PDF
-              </button>
-            )}
-          </div>
-        )}
-
         {/* Requested Teacher */}
-        <div className="bg-white p-4 rounded-xl shadow mb-4 space-y-2">
-          <p>
-            {project.requestedTeacher?.name
-              ? project.requestedTeacher.name
-              : "No teacher requested"}
+        <div className="bg-gray-50 p-4 rounded-xl shadow mb-4 space-y-1">
+          <p className="font-medium">
+            Requested Teacher:{" "}
+            <span className="text-gray-700">
+              {project.requestedTeacher?.name || "None"}
+            </span>
           </p>
-          <p>
-            <strong>Teacher Acceptance Status:</strong>{" "}
+          <p className="font-medium">
+            Teacher Acceptance Status:{" "}
             {project.teacherAccepted ? (
-              <span className="text-green-600 font-semibold">Accepted</span>
+              <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-semibold">
+                Accepted
+              </span>
             ) : (
-              <span className="text-red-600 font-semibold">Not Accepted</span>
+              <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-semibold">
+                Not Accepted
+              </span>
             )}
           </p>
         </div>
@@ -126,12 +123,14 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
             Suggested Teachers
           </label>
           <select
-            className="w-full p-2 border rounded border-sky-200 focus:outline-none focus:ring-2 focus:ring-sky-300"
+            className="w-full p-2 border rounded border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-300"
             value={selectedTeacher}
             onChange={(e) => setSelectedTeacher(e.target.value)}
             disabled={loading}
           >
-            <option value="">{loading ? "Loading..." : "-- Select Teacher --"}</option>
+            <option value="">
+              {loading ? "Loading..." : "-- Select Teacher --"}
+            </option>
             {suggestedTeachers.map((t) => (
               <option key={t._id} value={t._id}>
                 {t.name} ({t.currentProjects || 0}/5)
@@ -141,19 +140,11 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
           <button
             onClick={handleAssign}
             disabled={loading}
-            className="mt-3 px-4 py-2 bg-primary text-white rounded hover:bg-primary/80 transition-colors"
+            className="mt-3 w-full px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-lg font-medium transition cursor-pointer"
           >
-            {loading ? "Assigning..." : "Assign"}
+            {loading ? "Assigning..." : "Assign Teacher"}
           </button>
         </div>
-
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 font-bold"
-        >
-          ✕
-        </button>
       </div>
     </div>
   );
