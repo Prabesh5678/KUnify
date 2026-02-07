@@ -374,7 +374,7 @@ const App = () => {
               <Route path="deficits" element={<TeacherDeficits />} />
               <Route path="settings" element={<TeacherSettings />} />
               <Route path="profilesetup" element={<TeacherProfileSetup />} />
-              <Route path="teamdetails/:id" element={<TeamDetails />} />
+              <Route path="teamdetails" element={<TeamDetails />} />
 
             </Route>
           </Route>

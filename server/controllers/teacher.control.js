@@ -4,6 +4,8 @@ import Team from "../models/team.model.js";
 import mongoose from "mongoose";
 import { GiThwomp } from "react-icons/gi";
 import bcrypt from "bcryptjs";
+import LogEntry from "../models/logentry.model.js"; 
+
 // POST /api/teacher/google-signin
 export const googleSignIn = async (req, res) => {
   try {

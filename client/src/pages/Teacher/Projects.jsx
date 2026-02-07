@@ -176,18 +176,22 @@ export default function TeacherProjects() {
           filteredTeams.map((team) => (
             <div
               key={team._id}
-              onClick={() => navigate(`/teacher/teamdetails/${team._id}`)}
+              onClick={() =>
+                navigate("/teacher/teamdetails", {
+                  state: { team },
+                })
+              }
+
               className="cursor-pointer bg-white rounded-2xl p-5 
            shadow-md hover:shadow-lg transition-shadow"
             >
               <div className="flex justify-between items-center">
                 <h2 className="font-semibold text-lg">{team.name}</h2>
                 <span
-                  className={`px-3 py-1 text-sm rounded-full ${
-                    team.status === "approved"
+                  className={`px-3 py-1 text-sm rounded-full ${team.status === "approved"
                       ? "bg-green-100 text-green-600"
                       : "bg-orange-100 text-orange-600"
-                  }`}
+                    }`}
                 >
                   {team.supervisorStatus}
                 </span>
