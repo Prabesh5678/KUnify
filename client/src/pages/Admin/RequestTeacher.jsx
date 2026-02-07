@@ -218,7 +218,7 @@ const RequestTeacher = () => {
                         </span>
                       </td>
                       <td className="p-4">
-                        {req.supervisorStatus === "pending" ? (
+                        {req.supervisorStatus === "teacherApproved" ? (
                           <div className="flex justify-center gap-2">
                             <button
                               className="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"

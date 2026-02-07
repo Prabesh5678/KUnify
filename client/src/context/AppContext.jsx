@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -30,6 +29,10 @@ export const AppContextProvider = ({ children }) => {
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [teamCode, setTeamCode] = useState(null);
 
+  // Refetch trigger
+  const [requestRefetchTrigger, setRequestRefetchTrigger] = useState(0);
+  const triggerRequestRefetch = () => setRequestRefetchTrigger(prev => prev + 1);
+
   // ===== fetchUser - refresh-safe auth =====
   const fetchUser = async () => {
     setLoadingUser(true);
@@ -48,6 +51,7 @@ export const AppContextProvider = ({ children }) => {
           return;
         }
       } catch (err) {
+        // ignore 401
         if (err.response?.status && err.response.status !== 401) {
           console.warn("Admin auth error:", err.response?.data?.message || err.message);
         }
@@ -63,13 +67,12 @@ export const AppContextProvider = ({ children }) => {
           setIsAdmin(false);
           setIsTeacher(false);
 
-          const profileDone =
-            !!(
-              studentUser.department &&
-              studentUser.semester &&
-              studentUser.rollNumber &&
-              studentUser.subjectCode
-            );
+          const profileDone = !!(
+            studentUser.department &&
+            studentUser.semester &&
+            studentUser.rollNumber &&
+            studentUser.subjectCode
+          );
           setProfileSetupDone(profileDone);
 
           setStudentProfile({
@@ -78,6 +81,8 @@ export const AppContextProvider = ({ children }) => {
             rollNumber: studentUser.rollNumber,
             subjectCode: studentUser.subjectCode,
           });
+
+          // Sync selectedSubject
           setSelectedSubject(studentUser.subjectCode || null);
           return;
         }
@@ -85,7 +90,7 @@ export const AppContextProvider = ({ children }) => {
         console.warn("Student not authenticated:", err.response?.data?.message || err.message);
       }
 
-      // ---- TEACHER (optional, if needed) ----
+      // ---- TEACHER ----
       try {
         const teacherRes = await axios.get("/api/teacher/is-auth");
         if (teacherRes.data?.success && teacherRes.data?.user) {
@@ -160,17 +165,17 @@ export const AppContextProvider = ({ children }) => {
   const saveSelectedSubject = async (subject) => {
     try {
       setSelectedSubject(subject);
-      setStudentProfile((prev) => ({ ...prev, subjectCode: subject }));
+      setStudentProfile(prev => ({ ...prev, subjectCode: subject }));
       await axios.put("/api/student/profile-update", { subjectCode: subject });
     } catch (err) {
       console.error("Failed to save selected subject:", err);
     }
   };
 
-  // ===== Fetch user on mount =====
+  // ===== Fetch user on mount or when refetch triggered =====
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [requestRefetchTrigger]);
 
   // ===== Context value =====
   const value = {
@@ -200,10 +205,11 @@ export const AppContextProvider = ({ children }) => {
     navigate,
     teamCode,
     setTeamCode,
+    requestRefetchTrigger,
+    triggerRequestRefetch,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
 export const useAppContext = () => useContext(AppContext);
-
