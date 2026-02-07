@@ -76,7 +76,7 @@ export default function TeamDetails() {
             week: log.week?.toString() || "1",
             activity: log.activity || "No activity",
             outcome: log.outcome || "No outcome",
-            createdBy: log.memberId || { name: "Unknown" },
+            createdBy: log.createdBy || log.memberId,
             createdAt: log.createdAt,
           }));
 
