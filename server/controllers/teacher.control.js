@@ -301,3 +301,23 @@ console.log(teacher)
   }
 };
  
+// fetching logsheet
+export const getTeamLogsheets = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const { week, studentId } = req.query;
+
+    const query = { teamId };
+
+    if (week && week !== "all") query.week = week;
+    if (studentId && studentId !== "all") query.createdBy = studentId; 
+    const logs = await LogEntry.find(query)
+      .populate("createdBy", "name email semester rollNumber department")
+      .lean();
+
+    res.json({ success: true, data: logs });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
