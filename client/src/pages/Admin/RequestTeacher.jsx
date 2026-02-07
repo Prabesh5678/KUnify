@@ -100,20 +100,7 @@ const RequestTeacher = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen bg-gray-50">
-        <AdminSidebar />
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">Loading requests...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+ 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
