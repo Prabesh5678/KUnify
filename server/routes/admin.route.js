@@ -14,6 +14,7 @@ import {
   resetVisitingTeacherPassword,
   getAllTeams,
   getTeamLogsheets,
+  getTeacherSimilarity ,
 } from "../controllers/admin.control.js";
 
 const adminRouter = express.Router();
@@ -42,4 +43,6 @@ adminRouter.post("/supervisor/decline", authAdmin, declineSupervisorRequest);
 adminRouter.get("/teams", authAdmin, getAllTeams);
 //fetching logsheets of a team
 adminRouter.get("/teams/:teamId/logsheets", authAdmin, getTeamLogsheets);
+
+adminRouter.get("/teacher-similarity", getTeacherSimilarity);
 export default adminRouter;

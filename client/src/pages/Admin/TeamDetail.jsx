@@ -166,15 +166,23 @@ const TeamDetail = () => {
         <AdminHeader />
         <div className="max-w-5xl mx-auto space-y-4">
 
+          
           {/* Team Header */}
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h1 className="text-2xl font-bold text-gray-800">{team.name}</h1>
-            {team.supervisor && (
-              <p className="text-gray-600 mt-2">
-                <b>Supervisor:</b> {team.supervisor.name} ({team.supervisor.email})
-              </p>
-            )}
-          </div>
+<div className="bg-white p-6 rounded-xl shadow">
+  <h1 className="text-2xl font-bold text-gray-800">{team.name}</h1>
+  
+  {team.supervisor && team.supervisorStatus === "adminApproved" ? (
+    <p className="text-gray-600 mt-2">
+      <b>Supervisor:</b> {team.supervisor.name} ({team.supervisor.email})
+    </p>
+  ) : team.supervisor ? (
+    <p className="text-red-600 mt-2 italic">
+      <b>Requested Supervisor:</b> {team.supervisor.name} (Pending Approval)
+    </p>
+  ) : (
+    <p className="text-gray-500 mt-2 italic">No supervisor assigned</p>
+  )}
+</div>
 
           {/* Members */}
           <SectionHeader
