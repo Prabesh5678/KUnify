@@ -28,12 +28,9 @@ const teamSchema = new mongoose.Schema(
       ref: "proposal",
       default: null,
     },
-    keywords: {
-  type: [String],
-  required: true
-},
+    members: [{ type: mongoose.Schema.Types.ObjectId, ref: "student" }],
     supervisorStatus: { type: String, default: "pending" }, // notapproved,pending,teacherApproved,adminApproved
-    supervisor: { type: mongoose.Schema.Types.ObjectId ,ref:'teacher',default:null},
+    supervisor: { type: mongoose.Schema.Types.ObjectId, ref: 'teacher', default: null },
   },
   { timestamps: true },
 );
