@@ -92,11 +92,10 @@ const TeacherProfileSetup = () => {
         throw new Error(data.message || "Failed to complete profile");
       }
 
-      // ✅ FIX: map role, picture, and _id
       const updatedUser = {
         ...data.user,
-        role: "teacher",                  // force teacher role
-        picture: data.user.avatar || "",  // map avatar -> picture
+        role: "teacher",                  
+        picture: data.user.avatar || "",  
         _id: data.user._id || data.user.id
       };
 

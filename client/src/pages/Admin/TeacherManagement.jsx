@@ -30,6 +30,7 @@ const TeachersManagement = () => {
 
 
   // Fetch all teachers
+  
   const fetchTeachers = async () => {
     try {
       const res = await axios.get("/api/admin/get-teachers");

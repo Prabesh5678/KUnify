@@ -91,6 +91,7 @@ export const getAllTeachers = async (req, res) => {
   }
 };
 
+
 // Toggle teacher activeStatus
 export const toggleTeacherStatus = async (req, res) => {
   try {
@@ -301,7 +302,7 @@ export const getAllTeams = async (req, res) => {
       .populate("leaderId", "name email semester rollNumber department")
       .populate("supervisor", "name email")
       .populate("members", "name email semester rollNumber department")
-      .populate("proposal");
+      .populate("proposal", "keywords");
 
     const assignedTeams = [];
     const unassignedTeams = [];
