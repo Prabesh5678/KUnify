@@ -392,3 +392,40 @@ export const getTeacherSimilarity = async (req, res) => {
   }
 };
 
+
+// PUT /api/admin/assign-supervisor
+export const assignSupervisorManually = async (req, res) => {
+  try {
+    const { teamId, teacherId } = req.body;
+
+    if (!teamId || !teacherId) {
+      return res.status(400).json({ success: false, message: "Provide teamId and teacherId" });
+    }
+
+   
+    const team = await Team.findById(teamId);
+    if (!team) return res.status(404).json({ success: false, message: "Team not found" });
+
+    const teacher = await Teacher.findById(teacherId);
+    if (!teacher) return res.status(404).json({ success: false, message: "Teacher not found" });
+
+    team.supervisor = teacher._id;
+    team.supervisorStatus = "adminApproved"; 
+    await team.save();
+
+    if (!teacher.assignedTeams.includes(team._id)) {
+      teacher.assignedTeams.push(team._id);
+      await teacher.save();
+    }
+
+    res.json({
+      success: true,
+      message: `Supervisor ${teacher.name} assigned to ${team.name} successfully!`,
+      teamId: team._id,
+      supervisorId: teacher._id,
+    });
+  } catch (err) {
+    console.error("Error assigning supervisor manually:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

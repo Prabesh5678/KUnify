@@ -15,6 +15,7 @@ import {
   getAllTeams,
   getTeamLogsheets,
   getTeacherSimilarity ,
+  assignSupervisorManually,
 } from "../controllers/admin.control.js";
 
 const adminRouter = express.Router();
@@ -45,4 +46,6 @@ adminRouter.get("/teams", authAdmin, getAllTeams);
 adminRouter.get("/teams/:teamId/logsheets", authAdmin, getTeamLogsheets);
 
 adminRouter.get("/teacher-similarity", getTeacherSimilarity);
+
+adminRouter.put("/assign-supervisor", assignSupervisorManually);
 export default adminRouter;
