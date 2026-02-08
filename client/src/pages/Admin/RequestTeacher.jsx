@@ -9,6 +9,7 @@ import { toast } from "react-hot-toast";
 
 axios.defaults.withCredentials = true;
 
+
 const RequestTeacher = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,8 +64,7 @@ const RequestTeacher = () => {
 
       if (response.data.success) {
         toast.success(
-          `Request for ${request.name || request.teamName} ${
-            decision === "APPROVED" ? "approved" : "rejected"
+          `Request for ${request.name || request.teamName} ${decision === "APPROVED" ? "approved" : "rejected"
           } successfully`
         );
 
@@ -140,21 +140,39 @@ const RequestTeacher = () => {
                       <td className="p-4">
                         <button
                           onClick={() => navigate(`/admin/teamdetail/${req._id}`)}
-                          className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                          className="text-blue-600 hover:text-blue-800 hover:underline font-medium cursor-pointer"
                           title="View Team Details"
                         >
                           {req.name}
                         </button>
                       </td>
                       <td className="p-4 text-gray-700">
-                        {req.supervisor?.name || "N/A"}
+                        {req.supervisor ? (
+                          <button
+                            onClick={() =>
+                              navigate(`/admin/allteachers/${req.supervisor._id}`, {
+                                state: { teacher: req.supervisor },
+                              })
+                            }
+                            className="text-blue-600 hover:text-blue-800 hover:underline font-medium cursor-pointer"
+                            title="View Teacher Profile"
+                          >
+                            {req.supervisor.name}
+                          </button>
+                        ) : (
+                          "N/A"
+                        )}
                       </td>
+
+
+
+
                       <td className="p-4 text-center">
                         <span className={getStatusBadge(req.supervisorStatus)}>
                           {req.supervisorStatus === "teacherApproved" && "Pending Admin"}
                           {req.supervisorStatus === "adminApproved" && "Approved"}
                           {req.supervisorStatus === "notApproved" && "Rejected"}
-                          {!["teacherApproved","adminApproved","notApproved"].includes(req.supervisorStatus) && "Pending"}
+                          {!["teacherApproved", "adminApproved", "notApproved"].includes(req.supervisorStatus) && "Pending"}
                         </span>
                       </td>
                       <td className="p-4">
@@ -207,9 +225,8 @@ const RequestTeacher = () => {
             <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl transform transition-all">
               <div className="flex items-start gap-4 mb-4">
                 <div
-                  className={`p-3 rounded-full flex-shrink-0 ${
-                    modalData.decision === "APPROVED" ? "bg-green-100" : "bg-red-100"
-                  }`}
+                  className={`p-3 rounded-full flex-shrink-0 ${modalData.decision === "APPROVED" ? "bg-green-100" : "bg-red-100"
+                    }`}
                 >
                   <AlertCircle
                     size={24}
@@ -240,7 +257,7 @@ const RequestTeacher = () => {
                   )}
                 </div>
               </div>
-              
+
               <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => {
@@ -254,11 +271,10 @@ const RequestTeacher = () => {
                 </button>
                 <button
                   onClick={confirmAction}
-                  className={`px-5 py-2.5 rounded-lg text-white font-medium transition disabled:opacity-50 cursor-pointer flex items-center gap-2 ${
-                    modalData.decision === "APPROVED"
-                      ? "bg-green-600 hover:bg-green-700"
-                      : "bg-red-600 hover:bg-red-700"
-                  }`}
+                  className={`px-5 py-2.5 rounded-lg text-white font-medium transition disabled:opacity-50 cursor-pointer flex items-center gap-2 ${modalData.decision === "APPROVED"
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-red-600 hover:bg-red-700"
+                    }`}
                   disabled={actionLoading}
                 >
                   {actionLoading && <Loader2 className="w-4 h-4 animate-spin" />}

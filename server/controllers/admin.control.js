@@ -341,9 +341,10 @@ export const getTeamLogsheets = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
+{/*
 //cosine similarity
 function getCosineSimilarity(text1, text2) {
+   if (!text1 || !text2) return 0; 
   const tokenizer = new natural.WordTokenizer();
   const tokens1 = tokenizer.tokenize(text1.toLowerCase());
   const tokens2 = tokenizer.tokenize(text2.toLowerCase());
@@ -388,5 +389,135 @@ export const getTeacherSimilarity = async (req, res) => {
   } catch (err) {
     console.error("Error calculating similarity:", err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+*/ }
+
+//cosine similarity with better matching
+function getCosineSimilarity(text1, text2) {
+  // Handle null/undefined/empty cases
+  if (!text1 || !text2) {
+    console.log("Empty text detected:", { text1, text2 });
+    return 0;
+  }
+  
+  // Convert to string and clean up
+  const cleanText1 = String(text1).trim().toLowerCase();
+  const cleanText2 = String(text2).trim().toLowerCase();
+  
+  if (!cleanText1 || !cleanText2) {
+    console.log("Empty after cleaning:", { cleanText1, cleanText2 });
+    return 0;
+  }
+
+  console.log(`Comparing: "${cleanText1}" vs "${cleanText2}"`);
+  
+  const tokenizer = new natural.WordTokenizer();
+  const tokens1 = tokenizer.tokenize(cleanText1);
+  const tokens2 = tokenizer.tokenize(cleanText2);
+
+  console.log("Tokens1:", tokens1);
+  console.log("Tokens2:", tokens2);
+
+  // Handle empty token arrays
+  if (!tokens1 || tokens1.length === 0 || !tokens2 || tokens2.length === 0) {
+    console.log("No tokens found");
+    return 0;
+  }
+
+  const allTokens = Array.from(new Set([...tokens1, ...tokens2]));
+  const vec1 = allTokens.map((t) => tokens1.filter((x) => x === t).length);
+  const vec2 = allTokens.map((t) => tokens2.filter((x) => x === t).length);
+
+  const dotProduct = vec1.reduce((sum, val, i) => sum + val * vec2[i], 0);
+  const magnitude1 = Math.sqrt(vec1.reduce((sum, val) => sum + val * val, 0));
+  const magnitude2 = Math.sqrt(vec2.reduce((sum, val) => sum + val * val, 0));
+
+  if (magnitude1 === 0 || magnitude2 === 0) {
+    console.log("Zero magnitude");
+    return 0;
+  }
+  
+  const similarity = dotProduct / (magnitude1 * magnitude2);
+  console.log(`Similarity score: ${similarity}`);
+  
+  return similarity;
+}
+
+export const getTeacherSimilarity = async (req, res) => {
+  try {
+    console.log("=== STARTING TEACHER SIMILARITY CALCULATION ===");
+    
+    const teams = await Team.find().lean();
+    const teachers = await Teacher.find().lean();
+
+    console.log(`Found ${teams.length} teams and ${teachers.length} teachers`);
+
+    if (!teams || teams.length === 0) {
+      console.log("No teams found");
+      return res.json([]);
+    }
+
+    if (!teachers || teachers.length === 0) {
+      console.log("No teachers found");
+      return res.json([]);
+    }
+
+    const results = teams.map((team) => {
+      // Get keywords - handle various possible field names
+      const teamKeywords = team.keywords || team.keyword || team.projectKeywords || "";
+      
+      console.log(`\n--- Team: ${team.name} (${team._id}) ---`);
+      console.log(`Keywords: "${teamKeywords}"`);
+
+      const teacherScores = teachers
+        .filter(teacher => {
+          // Only include active teachers
+          const isActive = teacher.activeStatus !== false;
+          if (!isActive) {
+            console.log(`Skipping inactive teacher: ${teacher.name}`);
+          }
+          return isActive;
+        })
+        .map((teacher) => {
+          const teacherSpec = teacher.specialization || teacher.expertise || "";
+          
+          console.log(`\nTeacher: ${teacher.name}`);
+          console.log(`Specialization: "${teacherSpec}"`);
+          
+          const score = getCosineSimilarity(teamKeywords, teacherSpec);
+          
+          return {
+            teacherId: teacher._id,
+            teacherName: teacher.name || "Unknown",
+            specialization: teacherSpec,
+            similarityScore: parseFloat(score.toFixed(4)), // More precision for debugging
+          };
+        })
+        .sort((a, b) => b.similarityScore - a.similarityScore);
+
+      console.log(`\nTop 3 matches for ${team.name}:`);
+      teacherScores.slice(0, 3).forEach((t, i) => {
+        console.log(`${i+1}. ${t.teacherName}: ${(t.similarityScore * 100).toFixed(2)}%`);
+      });
+
+      return {
+        teamId: team._id,
+        teamName: team.name || "Untitled Team",
+        keywords: teamKeywords,
+        teacherScores: teacherScores,
+      };
+    });
+
+    console.log("\n=== SIMILARITY CALCULATION COMPLETE ===");
+    res.json(results);
+  } catch (err) {
+    console.error("Error calculating similarity:", err);
+    console.error(err.stack);
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error while calculating similarity",
+      error: err.message 
+    });
   }
 };
