@@ -20,18 +20,15 @@ console.log('hi')
         message: "Invalid credentials",
       });
     }
-
     const token = jwt.sign({ role: "admin" }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
-
     res.cookie("adminToken", token, {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production", // HTTPS only in production
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-
     res.json({ success: true, message: "Admin logged in" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -52,7 +49,6 @@ export const getDashboardStats = async (_, res) => {
         Team.countDocuments(),
         Team.countDocuments({ supervisorStatus: "adminApproved" }),
       ]);
-
     res.json({
       success: true,
       totalTeachers,
@@ -76,7 +72,6 @@ export const getAllTeachers = async (req, res) => {
         { email: { $regex: search, $options: "i" } },
       ],
     }).select("name email specialization phone activeStatus googleId");
-
     const visitingFaculty = await Teacher.find({
       googleId: { $in: [null, undefined] }, 
       $or: [
@@ -84,13 +79,11 @@ export const getAllTeachers = async (req, res) => {
         { email: { $regex: search, $options: "i" } },
       ],
     }).select("name email specialization phone activeStatus");
-
     res.json({ success: true, regularFaculty, visitingFaculty });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
 
 // Toggle teacher activeStatus
 export const toggleTeacherStatus = async (req, res) => {
@@ -98,16 +91,13 @@ export const toggleTeacherStatus = async (req, res) => {
     const teacher = await Teacher.findById(req.params.id);
     if (!teacher)
       return res.status(404).json({ success: false, message: "Teacher not found" });
-
     teacher.activeStatus = !teacher.activeStatus;
     await teacher.save();
-
     res.json({ success: true, activeStatus: teacher.activeStatus });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
 
 // Create visiting faculty
 export const createVisitingTeacher = async (req, res) => {
@@ -115,13 +105,10 @@ export const createVisitingTeacher = async (req, res) => {
     const { name, email, password, specialization } = req.body;
     if(!name||!email||!password)
       return res.json({success:false,message:'Something is missing!'})
-
     const existing = await Teacher.findOne({ email });
     if (existing)
       return res.status(400).json({ success: false, message: "Teacher already exists" });
-
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const teacher = await Teacher.create({
       name,
       email,
@@ -130,32 +117,26 @@ export const createVisitingTeacher = async (req, res) => {
       visiting: true,
       activeStatus: true,
     });
-
     res.json({ success: true, teacher });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-
-// Reset visiting faculty password 
 // POST /api/admin/teacher/reset-password
 export const resetVisitingTeacherPassword = async (req, res) => {
   try {
     const { teacherId, newPassword } = req.body;
-
     if (!teacherId || !newPassword) {
       return res.status(400).json({
         success: false,
         message: "Provide teacherId and newPassword",
       });
     }
-
     const teacher = await Teacher.findById(teacherId);
     if (!teacher) {
       return res.status(404).json({ success: false, message: "Teacher not found" });
     }
-
     // Hash the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     teacher.password = hashedPassword;
@@ -173,15 +154,12 @@ export const getStudentsBySemester = async (req, res) => {
     const semester = req.query.semester || "";   
     const department = req.query.department || ""; 
     const search = req.query.search || "";
-
     const filter = {
       semester: semester,
     };
-
     if (department) {
       filter.department = department; 
     }
-
     const students = await Student.find({
       ...filter,
       $or: [
@@ -191,18 +169,15 @@ export const getStudentsBySemester = async (req, res) => {
     })
       .select("name email semester rollNumber department logsheets teamId")
       .populate("teamId", "name");
-
     res.json({ success: true, students });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-
 // GET /api/admin/supervisor/pending
 export const getSupervisorRequests = async (req, res) => {
   try {
-   
     const teams = await Team.find({ supervisorStatus: "teacherApproved" })
       .populate("leaderId", "name semester department email")
       .populate("supervisor", "name email") 
@@ -217,17 +192,13 @@ if(!teams)
   }
 };
 
-// Approve supervisor request
 // POST /api/admin/supervisor/approve
 export const approveSupervisorRequest = async (req, res) => {
   try {
     const { teamId } = req.body;
-
     const team = await Team.findById(teamId);
     if (!team)
-      return res.status(404).json({ success: false, message: "Team not found" });
-
-    
+      return res.status(404).json({ success: false, message: "Team not found" });    
     if (
   team.supervisorStatus !== "teacherApproved" &&
   team.supervisorStatus !== "APPROVED"
@@ -237,58 +208,40 @@ export const approveSupervisorRequest = async (req, res) => {
     message: "Teacher has not approved yet",
   });
 }
-
     const teacher = await Teacher.findById(team.supervisor);
     if (!teacher)
       return res.status(404).json({ success: false, message: "Teacher not found" });
-
-   
     team.supervisor = teacher._id;
     team.supervisorStatus = "adminApproved";
-
-    
     if (!teacher.assignedTeams.includes(team._id)) {
       teacher.assignedTeams.push(team._id);
     }
-
-    
     teacher.approvedTeams = teacher.approvedTeams.filter(
       (id) => id.toString() !== team._id.toString()
     );
-
     await Promise.all([team.save(), teacher.save()]);
-
     res.json({ success: true, message: "Supervisor assigned successfully!" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
 
-// Decline supervisor request 
 // POST /api/admin/supervisor/decline
 export const declineSupervisorRequest = async (req, res) => {
   try {
     const { teamId } = req.body;
-
     const team = await Team.findById(teamId);
     if (!team)
       return res.status(404).json({ success: false, message: "Team not found" });
-
     const teacher = await Teacher.findById(team.requestedTeacher);
-
-   
     team.supervisorStatus = "notApproved";
     team.requestedTeacher = null;
-
-    
     if (teacher) {
       teacher.approvedTeams = teacher.approvedTeams.filter(
         (id) => id.toString() !== team._id.toString()
       );
     }
-
     await Promise.all([team.save(), teacher?.save()]);
-
     res.json({ success: true, message: "Request declined by admin" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -303,17 +256,13 @@ export const getAllTeams = async (req, res) => {
       .populate("supervisor", "name email")
       .populate("members", "name email semester rollNumber department")
       .populate("proposal");
-
     const assignedTeams = [];
     const unassignedTeams = [];
-
     teams.forEach(team => {
-      //if team. supervisor samma thapeko 
        const proposal = team.proposal || {};
-
       const teamData = {
         ...team.toObject(),
-        proposal, // will be {} if missing
+        proposal,
         keywords: proposal.projectKeyword || "", 
       };
       if (team.supervisor && team.supervisorStatus === "adminApproved") {
@@ -322,7 +271,6 @@ export const getAllTeams = async (req, res) => {
         unassignedTeams.push(team);
       }
     });
-
     res.json({ success: true, assignedTeams, unassignedTeams });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -334,15 +282,12 @@ export const getTeamLogsheets = async (req, res) => {
   try {
     const { teamId } = req.params;
     const { week, studentId } = req.query;
-
     const query = { teamId };
-
     if (week && week !== "all") query.week = week;
     if (studentId && studentId !== "all") query.createdBy = studentId; 
     const logs = await LogEntry.find(query)
       .populate("createdBy", "name email semester rollNumber department")
       .lean();
-
     res.json({ success: true, data: logs });
   } catch (error) {
     console.error(error);
@@ -356,24 +301,19 @@ function getCosineSimilarity(text1, text2) {
   const tokenizer = new natural.WordTokenizer();
   const tokens1 = tokenizer.tokenize(text1.toLowerCase());
   const tokens2 = tokenizer.tokenize(text2.toLowerCase());
-
   const allTokens = Array.from(new Set([...tokens1, ...tokens2]));
   const vec1 = allTokens.map((t) => tokens1.filter((x) => x === t).length);
   const vec2 = allTokens.map((t) => tokens2.filter((x) => x === t).length);
-
   const dotProduct = vec1.reduce((sum, val, i) => sum + val * vec2[i], 0);
   const magnitude1 = Math.sqrt(vec1.reduce((sum, val) => sum + val * val, 0));
   const magnitude2 = Math.sqrt(vec2.reduce((sum, val) => sum + val * val, 0));
-
   if (magnitude1 === 0 || magnitude2 === 0) return 0;
   return dotProduct / (magnitude1 * magnitude2);
 }
 export const getTeacherSimilarity = async (req, res) => {
   try {
-    
     const teams = await Team.find().populate("proposal", "projectKeyword");
     const teachers = await Teacher.find();
-
     const results = teams.map((team) => {
       const teacherScores = teachers.map((teacher) => {
         const score = getCosineSimilarity(team.proposal?.projectKeyword || "", teacher.specialization);
@@ -384,7 +324,6 @@ export const getTeacherSimilarity = async (req, res) => {
           similarityScore: parseFloat(score.toFixed(2)),
         };
       });
-
       return {
         teamId: team._id,
         teamName: team.name,
@@ -392,14 +331,12 @@ export const getTeacherSimilarity = async (req, res) => {
         teacherScores: teacherScores.sort((a, b) => b.similarityScore - a.similarityScore),
       };
     });
-
     res.json(results);
   } catch (err) {
     console.error("Error calculating similarity:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 // PUT /api/admin/assign-supervisor
 export const assignSupervisorManually = async (req, res) => {
