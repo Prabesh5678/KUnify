@@ -22,6 +22,8 @@ const ProjectsManagement = () => {
   const [activeTab, setActiveTab] = useState("unassigned"); // default
   const [selectedTeam, setSelectedTeam] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [refreshFlag, setRefreshFlag] = useState(false);
+
 
   const navigate = useNavigate();
 
@@ -38,7 +40,10 @@ const ProjectsManagement = () => {
 
   useEffect(() => {
     fetchTeams();
-  }, []);
+  },  [refreshFlag]);
+  const handleModalClose = () => {
+  setRefreshFlag((prev) => !prev); // toggle to trigger useEffect
+};
 
   const countAssignedProjects = (teacherId) => {
     const allTeams = [...assignedTeams, ...unassignedTeams];
@@ -192,7 +197,9 @@ const ProjectsManagement = () => {
         {selectedTeam && (
           <ProjectDetailModal
             isOpen={modalOpen}
-            onClose={() => setModalOpen(false)}
+            onClose={() =>{ setModalOpen(false),
+               handleModalClose();
+            }}
             project={selectedTeam}
             onAssignTeacher={handleAssignTeacher}
           />

@@ -569,4 +569,3 @@ googleId:decoded.sub,
 };
 
 export default LoginPanel;
-
