@@ -1,5 +1,6 @@
 import Teacher from "../models/teacher.model.js";
 import Student from "../models/student.model.js";
+import natural from "natural";
 import Team from "../models/team.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -340,3 +341,51 @@ export const getTeamLogsheets = async (req, res) => {
   }
 };
 
+//cosine similarity
+function getCosineSimilarity(text1, text2) {
+  const tokenizer = new natural.WordTokenizer();
+  const tokens1 = tokenizer.tokenize(text1.toLowerCase());
+  const tokens2 = tokenizer.tokenize(text2.toLowerCase());
+
+  const allTokens = Array.from(new Set([...tokens1, ...tokens2]));
+  const vec1 = allTokens.map((t) => tokens1.filter((x) => x === t).length);
+  const vec2 = allTokens.map((t) => tokens2.filter((x) => x === t).length);
+
+  const dotProduct = vec1.reduce((sum, val, i) => sum + val * vec2[i], 0);
+  const magnitude1 = Math.sqrt(vec1.reduce((sum, val) => sum + val * val, 0));
+  const magnitude2 = Math.sqrt(vec2.reduce((sum, val) => sum + val * val, 0));
+
+  if (magnitude1 === 0 || magnitude2 === 0) return 0;
+  return dotProduct / (magnitude1 * magnitude2);
+}
+export const getTeacherSimilarity = async (req, res) => {
+  try {
+    
+    const teams = await Team.find();
+    const teachers = await Teacher.find();
+
+    const results = teams.map((team) => {
+      const teacherScores = teachers.map((teacher) => {
+        const score = getCosineSimilarity(team.keywords, teacher.specialization);
+        return {
+          teacherId: teacher._id,
+          teacherName: teacher.name,
+          specialization: teacher.specialization,
+          similarityScore: score.toFixed(2),
+        };
+      });
+
+      return {
+        teamId: team._id,
+        teamName: team.name,
+        keywords: team.keywords,
+        teacherScores: teacherScores.sort((a, b) => b.similarityScore - a.similarityScore),
+      };
+    });
+
+    res.json(results);
+  } catch (err) {
+    console.error("Error calculating similarity:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
