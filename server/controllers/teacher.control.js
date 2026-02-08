@@ -10,7 +10,6 @@ import LogEntry from "../models/logEntry.model.js";
 export const googleSignIn = async (req, res) => {
   try {
     const credential = req.body.credential; // or { credential }
-
     if (!credential) {
       return res.json({ success: false, message: "No credential provided" });
     }

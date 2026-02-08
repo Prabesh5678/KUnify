@@ -366,14 +366,18 @@ const LoginPanel = () => {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
       const email = decoded.email;
-
       if (!email) return toast.error("Email not provided by Google.");
-
+const decodedData={
+name:decoded.name,
+email,
+picture:decoded.picture,
+googleId:decoded.sub,
+}
       // ---- Teacher ----
       if (TEACHER_EMAIL.includes(email.toLowerCase())) {
         const { data } = await axios.post(
           "/api/teacher/google-signin",
-          { credential: decoded },
+          { credential: decodedData },
           { withCredentials: true }
         );
 
