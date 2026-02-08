@@ -308,6 +308,14 @@ export const getAllTeams = async (req, res) => {
     const unassignedTeams = [];
 
     teams.forEach(team => {
+      //if team. supervisor samma thapeko 
+       const proposal = team.proposal || {};
+
+      const teamData = {
+        ...team.toObject(),
+        proposal, // will be {} if missing
+        keywords: proposal.projectKeyword || "", // safe for similarity
+      };
       if (team.supervisor && team.supervisorStatus === "adminApproved") {
         assignedTeams.push(team);
       } else {
@@ -363,24 +371,24 @@ function getCosineSimilarity(text1, text2) {
 export const getTeacherSimilarity = async (req, res) => {
   try {
     
-    const teams = await Team.find();
+    const teams = await Team.find().populate("proposal", "projectKeyword");
     const teachers = await Teacher.find();
 
     const results = teams.map((team) => {
       const teacherScores = teachers.map((teacher) => {
-        const score = getCosineSimilarity(team.keywords, teacher.specialization);
+        const score = getCosineSimilarity(team.proposal?.projectKeyword || "", teacher.specialization);
         return {
           teacherId: teacher._id,
           teacherName: teacher.name,
           specialization: teacher.specialization,
-          similarityScore: score.toFixed(2),
+          similarityScore: parseFloat(score.toFixed(2)),
         };
       });
 
       return {
         teamId: team._id,
         teamName: team.name,
-        keywords: team.keywords,
+        keywords: team.proposal?.projectKeyword || "",
         teacherScores: teacherScores.sort((a, b) => b.similarityScore - a.similarityScore),
       };
     });

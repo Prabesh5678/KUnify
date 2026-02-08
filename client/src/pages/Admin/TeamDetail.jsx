@@ -212,6 +212,7 @@ const TeamDetail = () => {
                 <div className="bg-white p-6 rounded-xl shadow space-y-2">
                   <p><b>Title:</b> {team.proposal.projectTitle}</p>
                   <p><b>Abstract:</b> {team.proposal.abstract}</p>
+                  <p><b>Keywords:</b>{team.proposal.projectKeyword}</p>
                   {team.proposal.proposalFile?.url && (
                     <button
                       onClick={() => handleViewPDF(team.proposal.proposalFile.url)}
