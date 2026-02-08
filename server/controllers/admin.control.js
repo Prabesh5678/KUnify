@@ -5,12 +5,13 @@ import Team from "../models/team.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import LogEntry from "../models/logEntry.model.js";
+import mongoose from "mongoose";
 
 // Admin Login (with email + password)
 export const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-console.log('hi')
+    console.log("hi");
     if (
       email !== process.env.ADMIN_EMAIL ||
       password !== process.env.ADMIN_PASSWORD
@@ -38,8 +39,8 @@ console.log('hi')
   }
 };
 //get admin auth
-export const isAuth = async (_,res) => {
-   return res.json({success:true,message:'Welcome Admin!'});
+export const isAuth = async (_, res) => {
+  return res.json({ success: true, message: "Welcome Admin!" });
 };
 
 // Dashboard Stats
@@ -78,7 +79,7 @@ export const getAllTeachers = async (req, res) => {
     }).select("name email specialization phone activeStatus googleId");
 
     const visitingFaculty = await Teacher.find({
-      googleId: { $in: [null, undefined] }, 
+      googleId: { $in: [null, undefined] },
       $or: [
         { name: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
@@ -91,13 +92,14 @@ export const getAllTeachers = async (req, res) => {
   }
 };
 
-
 // Toggle teacher activeStatus
 export const toggleTeacherStatus = async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
     if (!teacher)
-      return res.status(404).json({ success: false, message: "Teacher not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Teacher not found" });
 
     teacher.activeStatus = !teacher.activeStatus;
     await teacher.save();
@@ -108,24 +110,25 @@ export const toggleTeacherStatus = async (req, res) => {
   }
 };
 
-
 // Create visiting faculty
 export const createVisitingTeacher = async (req, res) => {
   try {
     const { name, email, password, specialization } = req.body;
-    if(!name||!email||!password)
-      return res.json({success:false,message:'Something is missing!'})
+    if (!name || !email || !password)
+      return res.json({ success: false, message: "Something is missing!" });
 
     const existing = await Teacher.findOne({ email });
     if (existing)
-      return res.status(400).json({ success: false, message: "Teacher already exists" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Teacher already exists" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const teacher = await Teacher.create({
       name,
       email,
-      password:hashedPassword,
+      password: hashedPassword,
       specialization,
       visiting: true,
       activeStatus: true,
@@ -137,8 +140,7 @@ export const createVisitingTeacher = async (req, res) => {
   }
 };
 
-
-// Reset visiting faculty password 
+// Reset visiting faculty password
 // POST /api/admin/teacher/reset-password
 export const resetVisitingTeacherPassword = async (req, res) => {
   try {
@@ -153,13 +155,15 @@ export const resetVisitingTeacherPassword = async (req, res) => {
 
     const teacher = await Teacher.findById(teacherId);
     if (!teacher) {
-      return res.status(404).json({ success: false, message: "Teacher not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Teacher not found" });
     }
 
     // Hash the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     teacher.password = hashedPassword;
-    teacher.passwordChangedAt = Date.now(); 
+    teacher.passwordChangedAt = Date.now();
     await teacher.save();
     res.json({ success: true, message: "Password reset successfully" });
   } catch (err) {
@@ -170,8 +174,8 @@ export const resetVisitingTeacherPassword = async (req, res) => {
 // Get students by semester and department
 export const getStudentsBySemester = async (req, res) => {
   try {
-    const semester = req.query.semester || "";   
-    const department = req.query.department || ""; 
+    const semester = req.query.semester || "";
+    const department = req.query.department || "";
     const search = req.query.search || "";
 
     const filter = {
@@ -179,7 +183,7 @@ export const getStudentsBySemester = async (req, res) => {
     };
 
     if (department) {
-      filter.department = department; 
+      filter.department = department;
     }
 
     const students = await Student.find({
@@ -198,18 +202,15 @@ export const getStudentsBySemester = async (req, res) => {
   }
 };
 
-
 // GET /api/admin/supervisor/pending
 export const getSupervisorRequests = async (req, res) => {
   try {
-   
     const teams = await Team.find({ supervisorStatus: "teacherApproved" })
       .populate("leaderId", "name semester department email")
-      .populate("supervisor", "name email") 
+      .populate("supervisor", "name email")
       .populate("members", "name email semester department rollNumber ")
-      .populate("proposal")
-if(!teams)
-  throw new Error('No Teams Found!');
+      .populate("proposal");
+    if (!teams) throw new Error("No Teams Found!");
     res.json({ success: true, teams });
   } catch (err) {
     console.error(err.stack);
@@ -225,35 +226,35 @@ export const approveSupervisorRequest = async (req, res) => {
 
     const team = await Team.findById(teamId);
     if (!team)
-      return res.status(404).json({ success: false, message: "Team not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Team not found" });
 
-    
     if (
-  team.supervisorStatus !== "teacherApproved" &&
-  team.supervisorStatus !== "APPROVED"
-) {
-  return res.status(400).json({
-    success: false,
-    message: "Teacher has not approved yet",
-  });
-}
+      team.supervisorStatus !== "teacherApproved" &&
+      team.supervisorStatus !== "APPROVED"
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Teacher has not approved yet",
+      });
+    }
 
     const teacher = await Teacher.findById(team.supervisor);
     if (!teacher)
-      return res.status(404).json({ success: false, message: "Teacher not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Teacher not found" });
 
-   
     team.supervisor = teacher._id;
     team.supervisorStatus = "adminApproved";
 
-    
     if (!teacher.assignedTeams.includes(team._id)) {
       teacher.assignedTeams.push(team._id);
     }
 
-    
     teacher.approvedTeams = teacher.approvedTeams.filter(
-      (id) => id.toString() !== team._id.toString()
+      (id) => id.toString() !== team._id.toString(),
     );
 
     await Promise.all([team.save(), teacher.save()]);
@@ -264,7 +265,7 @@ export const approveSupervisorRequest = async (req, res) => {
   }
 };
 
-// Decline supervisor request 
+// Decline supervisor request
 // POST /api/admin/supervisor/decline
 export const declineSupervisorRequest = async (req, res) => {
   try {
@@ -272,18 +273,18 @@ export const declineSupervisorRequest = async (req, res) => {
 
     const team = await Team.findById(teamId);
     if (!team)
-      return res.status(404).json({ success: false, message: "Team not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Team not found" });
 
-    const teacher = await Teacher.findById(team.requestedTeacher);
+    const teacher = await Teacher.findById(team.supervisor);
 
-   
-    team.supervisorStatus = "notApproved";
+    team.supervisorStatus = "pending";
     team.requestedTeacher = null;
 
-    
     if (teacher) {
       teacher.approvedTeams = teacher.approvedTeams.filter(
-        (id) => id.toString() !== team._id.toString()
+        (id) => id.toString() !== team._id.toString(),
       );
     }
 
@@ -307,9 +308,9 @@ export const getAllTeams = async (req, res) => {
     const assignedTeams = [];
     const unassignedTeams = [];
 
-    teams.forEach(team => {
-      //if team. supervisor samma thapeko 
-       const proposal = team.proposal || {};
+    teams.forEach((team) => {
+      //if team. supervisor samma thapeko
+      const proposal = team.proposal || {};
 
       const teamData = {
         ...team.toObject(),
@@ -338,7 +339,7 @@ export const getTeamLogsheets = async (req, res) => {
     const query = { teamId };
 
     if (week && week !== "all") query.week = week;
-    if (studentId && studentId !== "all") query.createdBy = studentId; 
+    if (studentId && studentId !== "all") query.createdBy = studentId;
     const logs = await LogEntry.find(query)
       .populate("createdBy", "name email semester rollNumber department")
       .lean();
@@ -352,7 +353,7 @@ export const getTeamLogsheets = async (req, res) => {
 
 //cosine similarity
 function getCosineSimilarity(text1, text2) {
-   if (!text1 || !text2) return 0; 
+  if (!text1 || !text2) return 0;
   const tokenizer = new natural.WordTokenizer();
   const tokens1 = tokenizer.tokenize(text1.toLowerCase());
   const tokens2 = tokenizer.tokenize(text2.toLowerCase());
@@ -368,15 +369,21 @@ function getCosineSimilarity(text1, text2) {
   if (magnitude1 === 0 || magnitude2 === 0) return 0;
   return dotProduct / (magnitude1 * magnitude2);
 }
-export const getTeacherSimilarity = async (req, res) => {
+export const getTeacherSimilarity = async (_, res) => {
   try {
-    
     const teams = await Team.find().populate("proposal", "projectKeyword");
-    const teachers = await Teacher.find();
+    const teachers = await Teacher.find({
+      activeStatus: true,
+      isProfileCompleted: true,
+    });
+    
 
     const results = teams.map((team) => {
       const teacherScores = teachers.map((teacher) => {
-        const score = getCosineSimilarity(team.proposal?.projectKeyword || "", teacher.specialization);
+        const score = getCosineSimilarity(
+          team.proposal?.projectKeyword || "",
+          teacher.specialization,
+        );
         return {
           teacherId: teacher._id,
           teacherName: teacher.name,
@@ -389,7 +396,9 @@ export const getTeacherSimilarity = async (req, res) => {
         teamId: team._id,
         teamName: team.name,
         keywords: team.proposal?.projectKeyword || "",
-        teacherScores: teacherScores.sort((a, b) => b.similarityScore - a.similarityScore),
+        teacherScores: teacherScores.sort(
+          (a, b) => b.similarityScore - a.similarityScore,
+        ),
       };
     });
 
@@ -400,31 +409,38 @@ export const getTeacherSimilarity = async (req, res) => {
   }
 };
 
-
 // PUT /api/admin/assign-supervisor
 export const assignSupervisorManually = async (req, res) => {
+  let session;
   try {
+    session = await mongoose.startSession();
+    session.startTransaction();
+    console.log(req.body)
     const { teamId, teacherId } = req.body;
-
     if (!teamId || !teacherId) {
-      return res.status(400).json({ success: false, message: "Provide teamId and teacherId" });
+      throw new Error("Provide teamId and teacherId");
     }
 
-   
     const team = await Team.findById(teamId);
-    if (!team) return res.status(404).json({ success: false, message: "Team not found" });
-
+    if (!team) throw new Error("Team not found!");
     const teacher = await Teacher.findById(teacherId);
-    if (!teacher) return res.status(404).json({ success: false, message: "Teacher not found" });
+    if (!teacher) throw new Error("Teacher not found!");
 
     team.supervisor = teacher._id;
-    team.supervisorStatus = "adminApproved"; 
-    await team.save();
+    team.supervisorStatus = "adminApproved";
+    await team.save({ session });
 
     if (!teacher.assignedTeams.includes(team._id)) {
       teacher.assignedTeams.push(team._id);
-      await teacher.save();
     }
+    if (teacher.pendingTeams.includes(team._id)) {
+      teacher.pendingTeams.pull(team._id);
+    }
+    if (teacher.approvedTeams.includes(team._id)) {
+      teacher.approvedTeams.pull(team._id);
+    }
+    await teacher.save({ session });
+await session.commitTransaction();
 
     res.json({
       success: true,
@@ -433,7 +449,13 @@ export const assignSupervisorManually = async (req, res) => {
       supervisorId: teacher._id,
     });
   } catch (err) {
+    if (session) await session.abortTransaction();
+
     console.error("Error assigning supervisor manually:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+    res
+      .status(500)
+      .json({ success: false, message: err.message || "Server error" });
+  } finally {
+    if (session) session.endSession();
   }
 };

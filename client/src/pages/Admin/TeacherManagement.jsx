@@ -91,7 +91,6 @@ const TeachersManagement = () => {
   // Add visiting faculty
   const handleAddTeacher = async (teacherData) => {
     try {
-      console.log(teacherData)
       const res = await axios.post("/api/admin/create-visiting-teacher", teacherData);
       if (res.data.success) {
         toast.success("Visiting faculty added successfully!");

@@ -23,7 +23,8 @@ export const createTeam = async (req, res) => {
 
     const { name, subject } = req.body;
     const studentId = req.studentId;
-
+if(!studentId)
+throw new Error('StudentId Error!')
     if (!name || !subject) {
       throw new Error("All fields required!");
     }
@@ -45,7 +46,7 @@ export const createTeam = async (req, res) => {
       ],
       { session },
     );
-
+console.log(team[0])
     leader.teamId = team[0]._id;
     leader.isTeamLeader = true;
     leader.isApproved = true;

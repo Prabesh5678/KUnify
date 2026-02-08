@@ -36,7 +36,7 @@ export const googleSignIn = async (req, res) => {
       student = new Student({
         name: credential.name || "KU Student",
         email: credential.email,
-        googleId: credential.googleId,
+        googleId: credential.sub,
         avatar: credential.picture,
       });
       await student.save();

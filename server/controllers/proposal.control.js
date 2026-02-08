@@ -34,6 +34,9 @@ export const uploadProposal = async (req, res) => {
     if (team.proposal) {
       throw new Error("Proposal already submitted by your team");
     }
+    if (team.supervisorStatus==='adminApproved') {
+      throw new Error("Superviosr Already Assigned!");
+    }
     const teacher = await Teacher.findById(supervisor);
     if (!teacher) throw new Error("Unable to find teacher!");
     const result = await cloudinary.uploader.upload(req.file.path, {

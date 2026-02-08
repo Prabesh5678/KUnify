@@ -17,7 +17,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
 
     const fetchSuggestedTeachers = async () => {
       setLoading(true);
-      
+      console.log('project',project)
       let teachersLoaded = false;
 
       // Attempt 1: Try cosine similarity API
@@ -139,12 +139,12 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
       toast.error("Please select a teacher to assign");
       return;
     }
-
+console.log(selectedTeacher,project._id)
     try {
       setLoading(true);
-      const res = await axios.post(
-        `/api/admin/projects/${project._id}/assign-teacher`,
-        { teacherId: selectedTeacher },
+      const res = await axios.put(
+        `/api/admin/assign-supervisor`,
+        { teacherId: selectedTeacher,teamId:project._id },
         { withCredentials: true }
       );
 
@@ -198,12 +198,12 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
           <p className="font-medium">
             Requested Teacher:{" "}
             <span className="text-gray-700">
-              {project.requestedTeacher?.name || "None"}
+              {project.supervisor?.name || "None"}
             </span>
           </p>
           <p className="font-medium">
             Teacher Acceptance Status:{" "}
-            {project.teacherAccepted ? (
+            {project.supervisorStatus==='teacherApproved' ? (
               <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-semibold">
                 Accepted
               </span>

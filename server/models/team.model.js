@@ -23,13 +23,23 @@ const teamSchema = new mongoose.Schema(
       ref: "student",
       required: true,
     },
+    members: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "student",
+      },
+    ],
     proposal: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "proposal",
       default: null,
     },
     supervisorStatus: { type: String, default: "pending" }, // notapproved,pending,teacherApproved,adminApproved
-    supervisor: { type: mongoose.Schema.Types.ObjectId, ref: 'teacher', default: null },
+    supervisor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "teacher",
+      default: null,
+    },
   },
   { timestamps: true },
 );

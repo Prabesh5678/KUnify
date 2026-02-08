@@ -445,12 +445,22 @@ googleId:decoded.sub,
 
     // Visiting Faculty fallback
     try {
-      setUser({ email: vfEmail, role: "teacher", type: "visiting" });
+            const { data } = await axios.post("/api/teacher/login", {
+              email: vfEmail,
+              password: vfPassword,
+            });
+
+     if(data.success) {setUser({ email: vfEmail, role: "teacher", type: "visiting" });
       setShowUserLogin(false);
       navigate("/teacher/dashboard", { replace: true });
       setVfEmail("");           // reset email
       setVfPassword("");
-      toast.success("Visiting faculty login successful!");
+      toast.success("Visiting faculty login successful!");}
+      else
+      {
+        toast.error('Unable to login');
+        console.error(data?.messge)
+      }
     } catch (err) {
       toast.error("Login failed");
     } finally {

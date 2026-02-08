@@ -55,8 +55,8 @@ const ProjectsManagement = () => {
   const handleAssignTeacher = async (teacherId, teamId) => {
     try {
       // call backend to assign teacher
-      await axios.post(`/api/admin/projects/${teamId}/assign-teacher`, {
-        teacherId,
+      await axios.put(`/api/admin/assign-supervisor`, {
+        teacherId,teamId,
       });
 
       // update frontend state
