@@ -17,7 +17,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
 
     const fetchSuggestedTeachers = async () => {
       setLoading(true);
-      
+
       let teachersLoaded = false;
 
       // Attempt 1: Try cosine similarity API
@@ -51,15 +51,15 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
             if (teamData?.teacherScores?.length > 0) {
               console.log("=== TEAM KEYWORDS ===");
               console.log(teamData.keywords);
-              
+
               const teachers = teamData.teacherScores.map((score) => {
                 console.log(`Teacher: ${score.teacherName}, Spec: "${score.specialization}", Score: ${score.similarityScore}`);
-                
+
                 return {
                   _id: score.teacherId?.toString() || score.teacherId,
                   name: score.teacherName || "Unknown",
                   specialization: score.specialization || "N/A",
-                 similarityScore: parseFloat(score.similarityScore) || 0,
+                  similarityScore: parseFloat(score.similarityScore) || 0,
                   displayName: `${score.teacherName} (Match: ${Math.round(parseFloat(score.similarityScore) * 100)}%)`,
                 };
               });
@@ -133,6 +133,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
   }, [isOpen, project]);
 
   if (!isOpen || !project) return null;
+  {/*
 
   const handleAssign = async () => {
     if (!selectedTeacher) {
@@ -142,9 +143,12 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
 
     try {
       setLoading(true);
-      const res = await axios.post(
-        `/api/admin/projects/${project._id}/assign-teacher`,
-        { teacherId: selectedTeacher },
+      const res = await axios.put(
+  "/api/admin/assign-supervisor",
+  {
+    teamId: project._id,
+    teacherId: selectedTeacher,
+  },
         { withCredentials: true }
       );
 
@@ -165,6 +169,57 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
       setLoading(false);
     }
   };
+*/
+  }
+ const handleAssign = async () => {
+  if (!selectedTeacher) {
+    toast.error("Please select a teacher to assign");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const res = await axios.put(
+      "/api/admin/assign-supervisor",
+      {
+        teamId: project._id,
+        teacherId: selectedTeacher,
+      },
+      { withCredentials: true }
+    );
+
+    // ✅ Handle backend response
+    if (res.data.success) {
+      // Update UI state if needed (example: mark teacher as assigned)
+      setSuggestedTeachers((prev) =>
+        prev.map((t) =>
+          t._id === selectedTeacher ? { ...t, assigned: true } : t
+        )
+      );
+
+      toast.success("Teacher assigned successfully!");
+      
+      setSelectedTeacher(""); // reset selection
+       onClose?.(); 
+    } else {
+      // Backend returned success: false
+      toast.error(res.data.message || "Assignment failed");
+    }
+  } catch (err) {
+    console.error("Assign error:", err);
+
+    // Only show toast if there really was a network or server error
+    const msg =
+      err.response?.data?.message ||
+      err.message ||
+      "Assignment failed due to server error";
+    toast.error(msg);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleViewPDF = (url) => {
     if (!url) return toast.error("PDF not found");
@@ -179,7 +234,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
       <div className="relative bg-white rounded-2xl p-6 w-full max-w-4xl overflow-y-auto max-h-[90vh] shadow-lg">
-        
+
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -194,11 +249,26 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
         </h2>
 
         {/* Requested Teacher */}
+        {/* Requested Teacher */}
         <div className="bg-gray-50 p-4 rounded-xl shadow mb-4 space-y-1">
           <p className="font-medium">
             Requested Teacher:{" "}
             <span className="text-gray-700">
-              {project.requestedTeacher?.name || "None"}
+              {(() => {
+                // Case 1: Full object with name
+                if (project.requestedTeacher?.name) return project.requestedTeacher.name;
+
+                // Case 2: ID only, find in suggestedTeachers
+                if (typeof project.requestedTeacher === "string") {
+                  const teacher = suggestedTeachers.find(
+                    (t) => t._id === project.requestedTeacher
+                  );
+                  if (teacher) return teacher.name;
+                }
+
+                // Fallback
+                return "None";
+              })()}
             </span>
           </p>
           <p className="font-medium">
@@ -215,6 +285,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
           </p>
         </div>
 
+
         {/* Team Keywords */}
         {(project.keywords || similarityData?.keywords) && (
           <div className="bg-blue-50 p-4 rounded-xl shadow mb-4">
@@ -230,7 +301,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
           <label className="block text-gray-700 font-semibold mb-2">
             Suggested Teachers (Ranked by Similarity)
           </label>
-          
+
           {suggestedTeachers.length === 0 && !loading ? (
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
               <p className="text-yellow-800">
@@ -307,13 +378,12 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
                   {suggestedTeachers.slice(0, 5).map((teacher, index) => {
                     const score = teacher.similarityScore || 0;
                     const percentage = Math.round(score * 100);
-                    
+
                     return (
-                      <tr 
+                      <tr
                         key={teacher._id}
-                        className={`hover:bg-gray-50 ${
-                          index === 0 ? 'bg-green-50' : ''
-                        }`}
+                        className={`hover:bg-gray-50 ${index === 0 ? 'bg-green-50' : ''
+                          }`}
                       >
                         <td className="px-4 py-2 border font-medium">
                           {index + 1}
