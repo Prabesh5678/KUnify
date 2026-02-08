@@ -23,13 +23,6 @@ const teamSchema = new mongoose.Schema(
       ref: "student",
       required: true,
     },
-     keywords: { type: String },
-    members: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "student",
-      },
-    ],
     proposal: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "proposal",
