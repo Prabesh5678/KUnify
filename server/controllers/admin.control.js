@@ -314,7 +314,7 @@ export const getAllTeams = async (req, res) => {
       const teamData = {
         ...team.toObject(),
         proposal, // will be {} if missing
-        keywords: proposal.projectKeyword || "", // safe for similarity
+        keywords: proposal.projectKeyword || "", 
       };
       if (team.supervisor && team.supervisorStatus === "adminApproved") {
         assignedTeams.push(team);
@@ -405,27 +405,24 @@ export const getTeacherSimilarity = async (req, res) => {
 export const assignSupervisorManually = async (req, res) => {
   try {
     const { teamId, teacherId } = req.body;
-
     if (!teamId || !teacherId) {
       return res.status(400).json({ success: false, message: "Provide teamId and teacherId" });
     }
-
-   
     const team = await Team.findById(teamId);
     if (!team) return res.status(404).json({ success: false, message: "Team not found" });
-
     const teacher = await Teacher.findById(teacherId);
     if (!teacher) return res.status(404).json({ success: false, message: "Teacher not found" });
-
+    if (teacher.assignedTeams.length >= 5) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot assign ${teacher.name}. Already supervising 5 teams.`,
+      });
+    }
     team.supervisor = teacher._id;
     team.supervisorStatus = "adminApproved"; 
     await team.save();
-
-    if (!teacher.assignedTeams.includes(team._id)) {
-      teacher.assignedTeams.push(team._id);
-      await teacher.save();
-    }
-
+    teacher.assignedTeams.push(team._id);
+    await teacher.save();
     res.json({
       success: true,
       message: `Supervisor ${teacher.name} assigned to ${team.name} successfully!`,
