@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
+import { ExternalLink } from "lucide-react";
+
 
 export default function TeamRequests() {
   const [requests, setRequests] = useState([]);
@@ -11,37 +13,13 @@ export default function TeamRequests() {
 
   const { triggerRequestRefetch } = useAppContext();
 
-  // ---------- TEST DATA (replace with backend later) ----------
-  const testRequests = [
-    {
-      _id: "req1",
-      teamName: "Team Alpha",
-      projectTitle: "Smart Attendance System",
-      keywords: "AI, Attendance, Face Recognition",
-      abstract:
-        "This project aims to automate attendance using face recognition and machine learning.",
-      proposalFileUrl: "/pdf_image.png",
-    },
-    {
-      _id: "req2",
-      teamName: "Team Beta",
-      projectTitle: "Online Examination System",
-      keywords: "Web, Security, Proctoring",
-      abstract:
-        "This project provides a secure online exam platform with live monitoring.",
-      proposalFileUrl: "/pdf_image.png",
-    },
-  ];
-  // ------------------------------------------------------------
-
   const fetchTeamRequests = async () => {
     try {
       // BACKEND (when ready)
-      const {data} = await axios.get("/api/teacher/teams?get=request", { withCredentials: true });
-      if(data.success)
-      {
-      setRequests(data.teams);
-      }else{
+      const { data } = await axios.get("/api/teacher/teams?get=request", { withCredentials: true });
+      if (data.success) {
+        setRequests(data.teams);
+      } else {
         toast.error('Unable to get teams!')
         console.error(data.message)
       }
@@ -50,12 +28,18 @@ export default function TeamRequests() {
     } catch (err) {
       setError("Failed to load requests");
       console.error(err.stack);
-    } 
+    }
   };
 
   useEffect(() => {
     fetchTeamRequests();
   }, []);
+
+  const handleViewPDF = (url) => {
+    if (!url) return toast.error("PDF not found");
+    const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+    window.open(viewerUrl, "_blank");
+  };
 
   const openRejectDialog = (req) => {
     setSelected(req);
@@ -65,12 +49,13 @@ export default function TeamRequests() {
   const handleAccept = async (reqId) => {
     try {
       // BACKEND (when ready)
-      const {data}=  await axios.post("/api/teacher/team-request?action=accept", { requestId: reqId }, { withCredentials: true });
-      if(data.success){
+      const { data } = await axios.post("/api/teacher/team-request?action=accept", { requestId: reqId }, { withCredentials: true });
+      if (data.success) {
         toast.success("Project accepted successfully!");
         triggerRequestRefetch();
-        setRequests((prev) => prev.filter((r) => r._id !== reqId));}
-      else{
+        setRequests((prev) => prev.filter((r) => r._id !== reqId));
+      }
+      else {
         toast.error('Unable to accept team')
         console.error(data.message)
       }
@@ -83,13 +68,14 @@ export default function TeamRequests() {
   const handleReject = async () => {
     try {
       // BACKEND (when ready)
-      const {data}=  await axios.post("/api/teacher/team-request?action=decline", { requestId: selected._id }, { withCredentials: true });
-      if(data.success){
+      const { data } = await axios.post("/api/teacher/team-request?action=decline", { requestId: selected._id }, { withCredentials: true });
+      if (data.success) {
         setRequests((prev) => prev.filter((r) => r._id !== selected._id));
         triggerRequestRefetch();
-      setDialogOpen(false);
-      toast.success("Project decline successfully!");}
-      else{
+        setDialogOpen(false);
+        toast.success("Project decline successfully!");
+      }
+      else {
         toast.error('Failed to decline team!')
         console.error(data.message)
       }
@@ -102,7 +88,7 @@ export default function TeamRequests() {
 
   return (
     <div className="min-h-screen bg-primary/10">
-      
+
       {/* MAIN CONTENT */}
       <div className="p-6 max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Team Requests</h1>
@@ -131,13 +117,13 @@ export default function TeamRequests() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleAccept(req._id)}
-                      className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition"
+                      className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition cursor-pointer"
                     >
                       Accept
                     </button>
                     <button
                       onClick={() => openRejectDialog(req)}
-                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
+                      className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition cursor-pointer"
                     >
                       Decline
                     </button>
@@ -150,15 +136,16 @@ export default function TeamRequests() {
 
                 <div className="mt-2 text-gray-700">
                   <strong>Proposal PDF:</strong>{" "}
-                  <a
-                    href={req.proposal.proposalFile.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    View PDF
-                  </a>
+                  {req.proposal?.proposalFile?.url && (
+                    <button
+                      onClick={() => handleViewPDF(req.proposal.proposalFile.url)}
+                      className="bg-primary text-white px-4 py-2 rounded mt-2 flex items-center gap-2 cursor-pointer"
+                    >
+                      <ExternalLink size={16} /> View Proposal PDF
+                    </button>
+                  )}
                 </div>
+
               </div>
             ))}
           </div>
@@ -178,19 +165,23 @@ export default function TeamRequests() {
               <span className="font-bold">{selected.proposal.projectTitle}</span>?
             </p>
 
-            <div className="flex justify-end gap-4">
+            <div className="flex justify-end gap-4 cursor-pointer">
               <button
                 onClick={() => setDialogOpen(false)}
+                style={{ cursor: "pointer" }}
                 className="px-4 py-2 border rounded-md hover:bg-gray-100 transition"
               >
                 Cancel
               </button>
+
               <button
                 onClick={handleReject}
+                style={{ cursor: "pointer" }}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"
               >
                 Yes, Reject
               </button>
+
             </div>
           </div>
         </div>
