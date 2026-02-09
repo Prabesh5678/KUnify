@@ -59,8 +59,7 @@ export default function TeacherProjects() {
           const totalTeams = teamList.assignedTeams.length;
           const pendingProposals = teamList.pendingTeams.length;
           const approvedProjects = teamList.approvedTeams.length;
-          // const totalLogs = teamList.reduce((sum, t) => sum + t.logs, 0);
-          const totalLogs = 1;
+          const totalLogs = data.totalLogEntries || 0;
           setStats([
             {
               label: "Total  Teams",
