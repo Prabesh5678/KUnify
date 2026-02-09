@@ -320,59 +320,67 @@ export const getTeamLogsheets = async (req, res) => {
   }
 };
 
-//cosine similarity
+const tokenizer = new natural.WordTokenizer();
 function getCosineSimilarity(text1, text2) {
   if (!text1 || !text2) return 0;
-  const tokenizer = new natural.WordTokenizer();
   const tokens1 = tokenizer.tokenize(text1.toLowerCase());
   const tokens2 = tokenizer.tokenize(text2.toLowerCase());
   const allTokens = Array.from(new Set([...tokens1, ...tokens2]));
-  const vec1 = allTokens.map((t) => tokens1.filter((x) => x === t).length);
-  const vec2 = allTokens.map((t) => tokens2.filter((x) => x === t).length);
+  const vec1 = allTokens.map(t => tokens1.filter(x => x === t).length);
+  const vec2 = allTokens.map(t => tokens2.filter(x => x === t).length);
   const dotProduct = vec1.reduce((sum, val, i) => sum + val * vec2[i], 0);
   const magnitude1 = Math.sqrt(vec1.reduce((sum, val) => sum + val * val, 0));
   const magnitude2 = Math.sqrt(vec2.reduce((sum, val) => sum + val * val, 0));
   if (magnitude1 === 0 || magnitude2 === 0) return 0;
   return dotProduct / (magnitude1 * magnitude2);
 }
-export const getTeacherSimilarity = async (_, res) => {
+export const getTeacherSimilarity = async (req, res) => {
   try {
-    const teams = await Team.find().populate("proposal", "projectKeyword");
+    const { teamId } = req.params;
+    const team = await Team.findById(teamId)
+      .populate("proposal", "projectKeyword");
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+    if (team.supervisor || team.requestedSupervisor) {
+      return res.status(400).json({
+        message: "Similarity only for teams without requested/assigned supervisor"
+      });
+    }
     const teachers = await Teacher.find({
       activeStatus: true,
       isProfileCompleted: true,
     });
-    
-
-    const results = teams.map((team) => {
-      const teacherScores = teachers.map((teacher) => {
-        const score = getCosineSimilarity(
-          team.proposal?.projectKeyword || "",
-          teacher.specialization,
-        );
-        return {
-          teacherId: teacher._id,
-          teacherName: teacher.name,
-          specialization: teacher.specialization,
-          similarityScore: parseFloat(score.toFixed(2)),
-        };
-      });
+    const teacherScores = teachers.map((teacher) => {
+      const score = getCosineSimilarity(
+        team.proposal?.projectKeyword || "",
+        teacher.specialization
+      );
       return {
-        teamId: team._id,
-        teamName: team.name,
-        keywords: team.proposal?.projectKeyword || "",
-        teacherScores: teacherScores.sort(
-          (a, b) => b.similarityScore - a.similarityScore,
-        ),
+        teacherId: teacher._id,
+        teacherName: teacher.name,
+        specialization: teacher.specialization,
+        similarityScore: parseFloat(score.toFixed(2)),
       };
     });
-    res.json(results);
+    const result = {
+      teamId: team._id,
+      teamName: team.name,
+      keywords: team.proposal?.projectKeyword || "",
+      teacherScores: teacherScores.sort(
+        (a, b) => b.similarityScore - a.similarityScore
+      ),
+    };
+   return res.status(200).json({
+  success: true,
+  message: "Teacher similarity calculated successfully",
+  data: result,
+});
   } catch (err) {
     console.error("Error calculating similarity:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 // PUT /api/admin/assign-supervisor
 export const assignSupervisorManually = async (req, res) => {
   let session;
@@ -384,18 +392,16 @@ export const assignSupervisorManually = async (req, res) => {
     if (!teamId || !teacherId) {
       throw new Error("Provide teamId and teacherId");
     }
-
     const team = await Team.findById(teamId);
     if (!team) throw new Error("Team not found!");
     const teacher = await Teacher.findById(teacherId);
     if (!teacher) throw new Error("Teacher not found!");
-
     team.supervisor = teacher._id;
     team.supervisorStatus = "adminApproved";
     await team.save({ session });
-
     if (!teacher.assignedTeams.includes(team._id)) {
       teacher.assignedTeams.push(team._id);
+      await teacher.save();
     }
     if (teacher.pendingTeams.includes(team._id)) {
       teacher.pendingTeams.pull(team._id);
@@ -405,7 +411,6 @@ export const assignSupervisorManually = async (req, res) => {
     }
     await teacher.save({ session });
 await session.commitTransaction();
-
     res.json({
       success: true,
       message: `Supervisor ${teacher.name} assigned to ${team.name} successfully!`,
