@@ -45,7 +45,7 @@ adminRouter.get("/teams", authAdmin, getAllTeams);
 //fetching logsheets of a team
 adminRouter.get("/teams/:teamId/logsheets", authAdmin, getTeamLogsheets);
 
-adminRouter.get("/teacher-similarity", getTeacherSimilarity);
+adminRouter.get("/teacher-similarity/:teamId", getTeacherSimilarity);
 
 adminRouter.put("/assign-supervisor", assignSupervisorManually);
 export default adminRouter;

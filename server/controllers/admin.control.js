@@ -323,8 +323,8 @@ export const getTeamLogsheets = async (req, res) => {
 const tokenizer = new natural.WordTokenizer();
 function getCosineSimilarity(text1, text2) {
   if (!text1 || !text2) return 0;
-  const tokens1 = tokenizer.tokenize(text1.toLowerCase());
-  const tokens2 = tokenizer.tokenize(text2.toLowerCase());
+  const tokens1 = text1.toLowerCase().split(/[\s,]+/).filter(t => t.trim() !== "");
+  const tokens2 = text2.toLowerCase().split(/[\s,]+/).filter(t => t.trim() !== "");
   const allTokens = Array.from(new Set([...tokens1, ...tokens2]));
   const vec1 = allTokens.map(t => tokens1.filter(x => x === t).length);
   const vec2 = allTokens.map(t => tokens2.filter(x => x === t).length);

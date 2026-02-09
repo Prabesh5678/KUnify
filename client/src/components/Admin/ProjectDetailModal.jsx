@@ -12,166 +12,55 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
   const [debugInfo, setDebugInfo] = useState(null);
 
   // Fetch suggested teachers using cosine similarity when modal opens
-  useEffect(() => {
+ useEffect(() => {
     if (!isOpen || !project) return;
 
     const fetchSuggestedTeachers = async () => {
       setLoading(true);
-      let teachersLoaded = false;
+      try {
+        const teamId = project._id || project.teamId;
+        const res = await axios.get(`/api/admin/teacher-similarity/${teamId}`, {
+          withCredentials: true,
+        });
 
-      // Attempt 1: Try cosine similarity API
-      if (!teachersLoaded) {
-        try {
-          console.log("Attempting to fetch cosine similarity data...");
-          const res = await axios.get("/api/admin/teacher-similarity", {
-            withCredentials: true,
-            timeout: 10000,
-          });
+        if (res.data?.success && res.data.data) {
+          const teamData = res.data.data;
+          
+          const teachers = teamData.teacherScores.map((score) => ({
+            _id: score.teacherId?.toString(),
+            name: score.teacherName || "Unknown",
+            specialization: score.specialization || "N/A",
+            similarityScore: parseFloat(score.similarityScore) || 0,
+            displayName: `${score.teacherName} (Match: ${Math.round(parseFloat(score.similarityScore) * 100)}%)`,
+          }));
 
-          console.log("=== FULL SIMILARITY API RESPONSE ===");
-          console.log(JSON.stringify(res.data, null, 2));
-
-          // Store debug info
-          setDebugInfo(res.data);
-
-         const similarityList = res.data?.data;
-
-if (similarityList && Array.isArray(similarityList) && similarityList.length > 0) {
-            const projectTeamId = (project._id || project.teamId)?.toString();
-            console.log("Looking for team ID:", projectTeamId);
-
-           const teamData = similarityList.find((item) => {
-              const itemTeamId = item.teamId?.toString();
-              console.log(`Comparing: "${itemTeamId}" === "${projectTeamId}"`);
-              return itemTeamId === projectTeamId;
-            });
-
-            console.log("=== FOUND TEAM DATA ===");
-            console.log(JSON.stringify(teamData, null, 2));
-
-            if (teamData?.teacherScores?.length > 0) {
-              console.log("=== TEAM KEYWORDS ===");
-              console.log(teamData.keywords);
-
-              const teachers = teamData.teacherScores.map((score) => {
-                console.log(`Teacher: ${score.teacherName}, Spec: "${score.specialization}", Score: ${score.similarityScore}`);
-
-                return {
-                  _id: score.teacherId?.toString() || score.teacherId,
-                  name: score.teacherName || "Unknown",
-                  specialization: score.specialization || "N/A",
-                  similarityScore: parseFloat(score.similarityScore) || 0,
-                  displayName: `${score.teacherName} (Match: ${Math.round(parseFloat(score.similarityScore) * 100)}%)`,
-                };
-              });
-
-              setSuggestedTeachers(teachers);
-              setSimilarityData(teamData);
-              teachersLoaded = true;
-              console.log("✓ Cosine similarity loaded successfully");
-            }
-          }
-        } catch (error) {
-          console.warn("⚠ Cosine similarity failed:", error.message);
+          setSuggestedTeachers(teachers);
+          setSimilarityData(teamData);
         }
-      }
-
-      // Attempt 2: Fetch all teachers from the teachers endpoint
-      if (!teachersLoaded) {
-        try {
-          console.log("Fetching all teachers as fallback...");
-          const teachersRes = await axios.get("/api/admin/get-teachers", {
-            withCredentials: true,
-            timeout: 5000,
-          });
-
-          if (teachersRes.data?.success) {
-            const allTeachers = [
-              ...(teachersRes.data.regularFaculty || []),
-              ...(teachersRes.data.visitingFaculty || [])
-            ];
-
-            const activeTeachers = allTeachers
-              .filter(t => t.activeStatus !== false)
-              .map(t => ({
-                _id: t._id?.toString() || t._id,
-                name: t.name || "Unknown",
-                specialization: t.specialization || "N/A",
-                displayName: t.name,
-              }));
-
-            if (activeTeachers.length > 0) {
-              setSuggestedTeachers(activeTeachers);
-              teachersLoaded = true;
-              toast.info("Showing all teachers (smart matching temporarily unavailable)");
-              console.log("✓ All teachers loaded successfully");
-            }
-          }
-        } catch (error) {
-          console.warn("⚠ Failed to fetch all teachers:", error.message);
+      } catch (error) {
+        console.error("Smart matching failed, loading all teachers:", error);
+      
+        const teachersRes = await axios.get("/api/admin/get-teachers", { withCredentials: true });
+        if (teachersRes.data?.success) {
+          const all = [...(teachersRes.data.regularFaculty || []), ...(teachersRes.data.visitingFaculty || [])];
+          setSuggestedTeachers(all.map(t => ({ 
+            _id: t._id, 
+            name: t.name, 
+            specialization: t.specialization, 
+            displayName: t.name,
+            similarityScore: 0 
+          })));
         }
+      } finally {
+        setLoading(false);
       }
-
-      // Attempt 3: Use project.teachers if provided
-      if (!teachersLoaded && project.teachers?.length > 0) {
-        console.log("Using project.teachers as fallback...");
-        setSuggestedTeachers(project.teachers);
-        teachersLoaded = true;
-        console.log("✓ Project teachers loaded");
-      }
-
-      // Final state: Show message if no teachers loaded
-      if (!teachersLoaded) {
-        setSuggestedTeachers([]);
-        toast.warning("No teachers available. Please contact administrator.");
-        console.log("✗ No teachers could be loaded");
-      }
-
-      setLoading(false);
     };
 
     fetchSuggestedTeachers();
   }, [isOpen, project]);
 
   if (!isOpen || !project) return null;
-  {/*
-
-  const handleAssign = async () => {
-    if (!selectedTeacher) {
-      toast.error("Please select a teacher to assign");
-      return;
-    }
-console.log(selectedTeacher,project._id)
-    try {
-      setLoading(true);
-      const res = await axios.put(
-  "/api/admin/assign-supervisor",
-  {
-    teamId: project._id,
-    teacherId: selectedTeacher,
-  },
-        { withCredentials: true }
-      );
-
-      if (res.data.success) {
-        toast.success("Teacher assigned successfully!");
-        if (onAssignTeacher) {
-          onAssignTeacher(selectedTeacher, project._id, res.data.updatedProject);
-        }
-        setSelectedTeacher("");
-        onClose();
-      } else {
-        toast.error(res.data.message || "Assignment failed");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Assignment failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-*/
-  }
+ 
  const handleAssign = async () => {
   if (!selectedTeacher) {
     toast.error("Please select a teacher to assign");
@@ -189,8 +78,6 @@ console.log(selectedTeacher,project._id)
       },
       { withCredentials: true }
     );
-
-    // ✅ Handle backend response
     if (res.data.success) {
       // Update UI state if needed (example: mark teacher as assigned)
       setSuggestedTeachers((prev) =>
