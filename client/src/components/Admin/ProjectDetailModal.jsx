@@ -34,11 +34,13 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
           // Store debug info
           setDebugInfo(res.data);
 
-          if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+         const similarityList = res.data?.data;
+
+if (similarityList && Array.isArray(similarityList) && similarityList.length > 0) {
             const projectTeamId = (project._id || project.teamId)?.toString();
             console.log("Looking for team ID:", projectTeamId);
 
-            const teamData = res.data.find((item) => {
+           const teamData = similarityList.find((item) => {
               const itemTeamId = item.teamId?.toString();
               console.log(`Comparing: "${itemTeamId}" === "${projectTeamId}"`);
               return itemTeamId === projectTeamId;
@@ -78,7 +80,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
       if (!teachersLoaded) {
         try {
           console.log("Fetching all teachers as fallback...");
-          const teachersRes = await axios.get("/api/admin/teachers", {
+          const teachersRes = await axios.get("/api/admin/get-teachers", {
             withCredentials: true,
             timeout: 5000,
           });
@@ -337,7 +339,7 @@ console.log(selectedTeacher,project._id)
                 disabled={loading || !selectedTeacher}
                 className="mt-3 w-full px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-lg font-medium transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Assigning..." : "Assign Teacher"}
+                {loading ? "Loading..." : "Assign Teacher"}
               </button>
             </>
           )}

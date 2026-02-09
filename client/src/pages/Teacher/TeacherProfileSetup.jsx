@@ -17,6 +17,7 @@ const TeacherProfileSetup = () => {
   const [loading, setLoading] = useState(false);
 
   // Wait for user context and set initial name
+
   useEffect(() => {
     if (user === undefined) return; // wait for context
 
@@ -40,6 +41,7 @@ const TeacherProfileSetup = () => {
       name: user.name || "",
     }));
   }, [user, navigate]);
+
 
   // show loading if user context not ready
   if (user === undefined || !user) {
@@ -69,7 +71,7 @@ const TeacherProfileSetup = () => {
     const { phone, specialization } = form;
     const phoneRegex = /^\d{10}$/;
 
-    if (!phone || !specialization) {
+    if ( !phone || !specialization) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -128,12 +130,12 @@ const TeacherProfileSetup = () => {
               Full Name
             </label>
             <input
-              type="text"
-              name="name"
-              value={form.name}
-              readOnly
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-black cursor-not-allowed bg-gray-100"
-            />
+  type="text"
+  name="name"
+  value={form.name}
+  readOnly
+  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black cursor-not-allowed bg-gray-100"
+/>
           </div>
 
           {/* Phone */}

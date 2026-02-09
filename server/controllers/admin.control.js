@@ -319,7 +319,7 @@ export const getTeamLogsheets = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-
+//cosine similarity
 const tokenizer = new natural.WordTokenizer();
 function getCosineSimilarity(text1, text2) {
   if (!text1 || !text2) return 0;
