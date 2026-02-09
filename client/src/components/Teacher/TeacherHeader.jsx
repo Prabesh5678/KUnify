@@ -1,14 +1,16 @@
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { useAppContext } from "../../context/AppContext";
 
-const TeacherHeader = ({ teacherName = "Teacher" }) => {
+const TeacherHeader = () => {
   const navigate = useNavigate();
-  const { logout } = useAppContext(); // central logout
+  const { logout, user } = useAppContext();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = async () => {
     try {
-      await logout(); // API + state cleanup
+      await logout();
       navigate("/teacher/login");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -16,32 +18,59 @@ const TeacherHeader = ({ teacherName = "Teacher" }) => {
   };
 
   return (
-    <div className="flex justify-between items-center bg-primary p-5 shadow-md mb-8 rounded-none">
+    <div className="flex justify-between items-center bg-primary p-5 mt-4 px-8 shadow-md rounded-none">
+
+
       {/* Left Section */}
       <NavLink to="/teacher/dashboard" className="flex items-center gap-4">
         <img src={assets.ku_logo} alt="ku_logo" className="h-12" />
-
         <div className="text-white">
           <div className="text-xl font-semibold">
-            Welcome, {teacherName}
+            Welcome, {user?.name || "Teacher"}
           </div>
-          <div className="text-lg font-semibold">
-            Kathmandu University
-          </div>
-          <div className="text-sm">
-            Student Project Management Platform
-          </div>
+          <div className="text-lg font-semibold">Kathmandu University</div>
+          <div className="text-sm">Student Project Management Platform</div>
         </div>
       </NavLink>
 
       {/* Logout Button */}
       <button
-        onClick={handleLogout}
-        className="bg-primary text-secondary font-semibold px-5 py-2 rounded-lg
-                   hover:bg-primary/80 transition-all duration-200 cursor-pointer"
+        onClick={() => setShowLogoutModal(true)}
+        className="bg-primary text-white font-semibold px-5 py-2 rounded-lg hover:bg-primary transition-all duration-200 cursor-pointer"
       >
         Logout
       </button>
+
+      {/* Logout Modal */}
+      {showLogoutModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]"
+          onClick={() => setShowLogoutModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl p-6 w-96 text-center shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-semibold mb-4">
+              Are you sure you want to logout?
+            </h3>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 cursor-pointer rounded-lg font-semibold"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 cursor-pointer rounded-lg font-semibold"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

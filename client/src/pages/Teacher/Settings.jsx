@@ -228,7 +228,7 @@ export default function TeacherSettings() {
           <button
             type="submit"
             disabled={saving}
-            className="w-full md:w-auto px-6 py-2 bg-primary text-white font-semibold rounded-md hover:bg-primary/90 transition"
+            className="w-full md:w-auto px-6 py-2 bg-primary text-white font-semibold rounded-md hover:bg-primary/90 transition cursor-pointer"
           >
             {saving ? "Saving..." : "Save Changes"}
           </button>
