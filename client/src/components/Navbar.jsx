@@ -7,29 +7,29 @@ import axios from "axios";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-  
+
   const {
     user,
     setUser,
-    navigate,        
+    navigate,
     showUserLogin,
     setShowUserLogin
   } = useAppContext();
-  
- const logout = async () => {
-   try {
-     const { data } = await axios.get("/api/logout");
-     if (data.success) {
-       toast.success(data.message);
-       setUser(null);
-       navigate("/");
-     } else {
-       toast.error(data.message);
-     }
-   } catch (error) {
-     toast.error(error.message);
-   }
- };
+
+  const logout = async () => {
+    try {
+      const { data } = await axios.get("/api/logout");
+      if (data.success) {
+        toast.success(data.message);
+        setUser(null);
+        navigate("/");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
   return (
     <nav className="fixed top-0 w-full z-50 transition-all duration-300 bg-primary text-secondary backdrop-blur-sm">
       <div className="flex items-center justify-between px-6 md:px-16 py-3  ">
@@ -61,6 +61,7 @@ const Navbar = () => {
             )}
           </NavLink>
           <NavLink to="/about-spmp">About</NavLink>
+          <NavLink to="/user-manual">User Manual</NavLink>
           <NavLink to="/contact">Contact</NavLink>
 
           {/* Login / Logout button */}
@@ -103,9 +104,8 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden bg-primary text-secondary px-6 pb-3 flex flex-col gap-2 ${
-          open ? "block" : "hidden"
-        }`}
+        className={`md:hidden bg-primary text-secondary px-6 pb-3 flex flex-col gap-2 ${open ? "block" : "hidden"
+          }`}
       >
         <NavLink to="/" onClick={() => setOpen(false)} className="py-1">
           Home
@@ -116,6 +116,13 @@ const Navbar = () => {
           className="py-1"
         >
           About
+        </NavLink>
+        <NavLink
+          to="/user-manual"
+          onClick={() => setOpen(false)}
+          className="py-1"
+        >
+          User Manual
         </NavLink>
         <NavLink to="/contact" onClick={() => setOpen(false)} className="py-1">
           Contact

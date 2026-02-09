@@ -215,6 +215,7 @@ import LoginPanel from "./components/LoginPanel";
 import Home from "./pages/Home";
 import Contact from "./pages/Contact";
 import AboutSPMP from "./pages/AboutSPMP";
+import UserManual from "./pages/UserManual";
 import ProfileSetup from "./pages/Student/ProfileSetup";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import GuidelinesPage from "./pages/Student/Guidelinespage";
@@ -321,6 +322,7 @@ const App = () => {
               <Route path="/" element={<Home />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about-SPMP" element={<AboutSPMP />} />
+              <Route path="/user-manual" element={<UserManual />} />
 
               {/* Student setup */}
               <Route
@@ -333,51 +335,51 @@ const App = () => {
                   )
                 }
               />
- <Route element={<StudentGuard />}>
-            <Route path="/student/waiting" element={<WaitingPage />} />
-            <Route path="/student/home" element={<StudentHome />} />
-            <Route
-              path="/student/team-members"
-              element={<StudentTeamMembers />}
-            />
-            <Route path="/student/dashboard" element={<StudentDashboard />} />
-            <Route path="/student/guidelines" element={<GuidelinesPage />} />
-            <Route path="/view-pdf" element={<PDFViewer />} />
-            <Route
-              path="/student/requestsupervisor/:teamId"
-              element={<Request />}
-            />
-            <Route path="/student/logsheet" element={<Logsheet />} />
-            <Route path="/student/profile" element={<MyProfile />} />
-            <Route path="/student/member/:teamId" element={<TeamMembers />} />
-          </Route>
+              <Route element={<StudentGuard />}>
+                <Route path="/student/waiting" element={<WaitingPage />} />
+                <Route path="/student/home" element={<StudentHome />} />
+                <Route
+                  path="/student/team-members"
+                  element={<StudentTeamMembers />}
+                />
+                <Route path="/student/dashboard" element={<StudentDashboard />} />
+                <Route path="/student/guidelines" element={<GuidelinesPage />} />
+                <Route path="/view-pdf" element={<PDFViewer />} />
+                <Route
+                  path="/student/requestsupervisor/:teamId"
+                  element={<Request />}
+                />
+                <Route path="/student/logsheet" element={<Logsheet />} />
+                <Route path="/student/profile" element={<MyProfile />} />
+                <Route path="/student/member/:teamId" element={<TeamMembers />} />
+              </Route>
 
-          <Route element={<AdminGuard />}>
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/admin_teachers" element={<TeachersManagement />} />
-            <Route path="/admin/projects" element={<ProjectsManagement />} />
-            <Route path="/admin/allteachers/:id" element={<AllTeachers />} />
-            <Route path="/admin/admin_std" element={<StudentsManagement />} />
-            <Route path="/admin/requestteacher" element={<RequestTeacher />} />
-            <Route path="/admin/admin_std-details" element={<StudentDetails />} />
-            <Route path="/admin/teamdetail/:teamId" element={<TeamDetail />} />
+              <Route element={<AdminGuard />}>
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/admin_teachers" element={<TeachersManagement />} />
+                <Route path="/admin/projects" element={<ProjectsManagement />} />
+                <Route path="/admin/allteachers/:id" element={<AllTeachers />} />
+                <Route path="/admin/admin_std" element={<StudentsManagement />} />
+                <Route path="/admin/requestteacher" element={<RequestTeacher />} />
+                <Route path="/admin/admin_std-details" element={<StudentDetails />} />
+                <Route path="/admin/teamdetail/:teamId" element={<TeamDetail />} />
 
-          </Route>
+              </Route>
 
-    
-          <Route element={<TeacherGuard />}>
-            <Route path="/teacher" element={<TeacherLayout />}>
-              <Route path="dashboard" element={<TeacherDashboard />} />
-              <Route path="projects" element={<TeacherProjects />} />
-              <Route path="requests" element={<TeacherRequests />} />
-              <Route path="teams" element={<TeacherTeams />} />
-              <Route path="deficits" element={<TeacherDeficits />} />
-              <Route path="settings" element={<TeacherSettings />} />
-              <Route path="profilesetup" element={<TeacherProfileSetup />} />
-              <Route path="teamdetails" element={<TeamDetails />} />
 
-            </Route>
-          </Route>
+              <Route element={<TeacherGuard />}>
+                <Route path="/teacher" element={<TeacherLayout />}>
+                  <Route path="dashboard" element={<TeacherDashboard />} />
+                  <Route path="projects" element={<TeacherProjects />} />
+                  <Route path="requests" element={<TeacherRequests />} />
+                  <Route path="teams" element={<TeacherTeams />} />
+                  <Route path="deficits" element={<TeacherDeficits />} />
+                  <Route path="settings" element={<TeacherSettings />} />
+                  <Route path="profilesetup" element={<TeacherProfileSetup />} />
+                  <Route path="teamdetails" element={<TeamDetails />} />
+
+                </Route>
+              </Route>
 
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUnify - User Manual</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            color: #2c3e50;
+        }
+
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+
+        code {
+            background-color: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: Consolas, monospace;
+        }
+
+        blockquote {
+            background-color: #eefec2;
+            /* Light yellow-green for placeholders */
+            border-left: 5px solid #8bc34a;
+            margin: 10px 0;
+            padding: 10px 20px;
+            font-style: italic;
+        }
+
+        ul,
+        ol {
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        .header-info {
+            text-align: center;
+            margin-bottom: 40px;
+            font-style: italic;
+            color: #666;
+        }
+
+        .toc {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+        }
+
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            margin-bottom: 5px;
+        }
+
+        .toc a {
+            text-decoration: none;
+            color: #3498db;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>KUnify - Student Project Management Platform</h1>
+
+    <div class="header-info">
+        <p><strong>User Manual</strong></p>
+        <p>Version: 1.0<br>Date: February 2026</p>
+    </div>
+
+    <div class="no-print" style="text-align: center; margin-bottom: 20px;">
+        <button onclick="window.print()"
+            style="background-color: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;">
+            Download / Print as PDF
+        </button>
+    </div>
+
+    <div class="toc">
+        <h3>Table of Contents</h3>
+        <ul>
+            <li><a href="#introduction">1. Introduction</a></li>
+            <li><a href="#getting-started">2. Getting Started</a></li>
+            <li><a href="#student-guide">3. Student Guide</a></li>
+            <li><a href="#teacher-guide">4. Teacher Guide</a></li>
+            <li><a href="#admin-guide">5. Admin Guide</a></li>
+            <li><a href="#troubleshooting">6. Troubleshooting</a></li>
+        </ul>
+    </div>
+
+    <h2 id="introduction">1. Introduction</h2>
+    <p>KUnify is a comprehensive Student Project Management Platform designed to streamline the project lifecycle for
+        students, teachers, and administrators at Kathmandu University. It facilitates team formation, proposal
+        submission, supervisor allocation, and progress tracking through weekly logs.</p>
+
+    <h3>Key Features</h3>
+    <ul>
+        <li><strong>Role-based Access Control</strong>: Dedicated portals for Students, Teachers, and Admins.</li>
+        <li><strong>Team Management</strong>: Easy team creation and joining via unique codes.</li>
+        <li><strong>Project Workflow</strong>: Seamless proposal submission and supervisor request system.</li>
+        <li><strong>Progress Tracking</strong>: Weekly logsheets for continuous monitoring.</li>
+        <li><strong>Notifications</strong>: Real-time updates on requests and status changes.</li>
+    </ul>
+
+    <h2 id="getting-started">2. Getting Started</h2>
+
+    <h3>Accessing the Platform</h3>
+    <p>Open your web browser and navigate to the application URL (e.g., <code>http://spmp.ku.edu.np</code>).</p>
+
+    <h3>Login</h3>
+    <img src="images/usermanual/login.png" alt="Login Screen"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+
+    <ul>
+        <li><strong>Students</strong>: Click "Sign in with Google" using your <code>@student.ku.edu.np</code> email.
+        </li>
+        <li><strong>Teachers</strong>: Click "Sign in with Google" using your <code>@ku.edu.np</code> email.</li>
+        <li><strong>Admins / Visiting Faculty</strong>: Use the email/password login form.</li>
+    </ul>
+
+    <h2 id="student-guide">3. Student Guide</h2>
+
+    <h3>3.1 Profile Setup</h3>
+    <p>Upon your first login, you must complete your profile.</p>
+    <img src="images/usermanual/3.1%20profile%20setup.png" alt="Profile Setup Screen"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+    <ol>
+        <li><strong>Department</strong>: Select your department (e.g., Computer Science).</li>
+        <li><strong>Semester</strong>: Choose your current semester.</li>
+        <li><strong>Registration Number</strong>: Enter your university registration number.</li>
+        <li><strong>Subject Code</strong>: Enter the relevant project subject code.</li>
+        <li>Click <strong>Submit</strong> to save your profile.</li>
+    </ol>
+
+    <h3>3.2 Dashboard Overview</h3>
+    <p>Your dashboard is the central hub for all your project activities.</p>
+    <img src="images/usermanual/3.2%20Dashboard%20Overview.png" alt="Student Dashboard Overview"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+
+    <h3>3.3 Team Formation</h3>
+    <p>You cannot work alone; you must be part of a team.</p>
+
+    <h4>Creating a Team</h4>
+    <ol>
+        <li>Click the <strong>+ (Plus)</strong> icon in the top navigation bar.</li>
+        <li>Select <strong>Create Team</strong>.</li>
+        <li>Enter a <strong>Team Name</strong>.</li>
+        <li>You will receive a unique <strong>Team Code</strong>. Share this with your teammates.</li>
+    </ol>
+    <img src="images/usermanual/3.3%20Team%20Formation.png" alt="Team Formation Modal"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+
+    <h4>Joining a Team</h4>
+    <ol>
+        <li>Click the <strong>+ (Plus)</strong> icon.</li>
+        <li>Select <strong>Join Team</strong>.</li>
+        <li>Enter the <strong>Team Code</strong> provided by your team leader.</li>
+        <li>Click <strong>Join</strong>.</li>
+    </ol>
+
+    <h3>3.4 Submitting a Proposal & Requesting Supervisor</h3>
+    <p>Once your team is formed, you can submit a project proposal and request a supervisor in a single step.</p>
+    <ol>
+        <li>Navigate to the <strong>Dashboard</strong>.</li>
+        <li>Click <strong>Submit Proposal</strong>.</li>
+        <li>Fill in the <strong>Title</strong>, <strong>Description</strong> (Abstract), and <strong>Keywords</strong>.
+        </li>
+        <li>Select a <strong>Supervisor</strong> from the dropdown list.</li>
+        <li>Upload any necessary files (PDFs, max 2MB).</li>
+        <li>Click <strong>Submit Request</strong>.</li>
+    </ol>
+    <img src="images/usermanual/3.4%20Submitting%20a%20Proposal%20&%20Requesting%20Supervisor.png"
+        alt="Proposal Submission" style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+
+    <h3>3.5 Weekly Logs</h3>
+    <p>Once you have an approved project and supervisor:</p>
+    <ol>
+        <li>Go to the <strong>Logsheet</strong> tab.</li>
+        <li>Click <strong>Add New Log</strong>.</li>
+        <li>Enter the details of your work for the week.</li>
+        <li>Submit for supervisor review.</li>
+    </ol>
+    <img src="images/usermanual/3.5%20Weekly%20log.png" alt="Weekly Logs"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+
+    <h2 id="teacher-guide">4. Teacher Guide</h2>
+
+    <p>The Teacher Portal is designed to help faculty members manage student projects, review proposals, and track
+        progress. The sidebar navigation provides access to the following key sections:</p>
+
+    <h3>4.1 Profile Setup</h3>
+    <p>Before accessing the dashboard, new teachers must complete their profile.</p>
+    <img src="images/usermanual/4.1%20Profile%20Setup.png" alt="Profile Setup"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+
+    <ul>
+        <li><strong>Full Name</strong>: View your name as registered in the system.</li>
+        <li><strong>Phone Number</strong>: Enter your contact number.</li>
+        <li><strong>Specialization</strong>: Provide details about your expertise.</li>
+    </ul>
+
+    <h3>4.2 Dashboard</h3>
+    <p>The <strong>Dashboard</strong> serves as the landing page, offering a high-level overview of your supervision
+        activities.</p>
+    <img src="images/usermanual/4.2%20Dashboard.png" alt="Dashboard"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+    <ul>
+        <li><strong>Quick Stats</strong>: View the total number of active teams, pending requests, and alerts.</li>
+        <li><strong>Recent Activity</strong>: See the latest updates from your supervised teams.</li>
+    </ul>
+
+    <h3>4.3 Team Projects</h3>
+    <p>View a comprehensive list of all teams under your supervision. The table displays key details such as Team Name,
+        Project Title, and current Status.</p>
+    <img src="images/usermanual/4.3 team project.png" alt="Team Projects"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+    <ul>
+        <li><strong>My Teams</strong>: Browse the list of teams assigned to you.</li>
+        <li><strong>Project Details</strong>: Click on a team to view their detailed workspace, members, and progress.
+        </li>
+        <li><strong>Weekly Logs</strong>: Access and grade weekly progress logs submitted by students.</li>
+    </ul>
+
+    <h3>4.4 Team Requests</h3>
+    <p>Manage incoming supervision requests from student teams here.</p>
+    <img src="images/usermanual/4.4 Team Request.png" alt="Team Requests"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+    <ul>
+        <li><strong>Pending Proposals</strong>: Review project proposals that have requested you as a supervisor.</li>
+        <li><strong>Action</strong>: Accept or Reject proposals based on your interest and capacity.</li>
+        <li><strong>History</strong>: View a history of your accepted and rejected requests.</li>
+    </ul>
+
+    <h3>4.5 Team Deficits</h3>
+    <p>Quickly identify teams that are falling behind. This section highlights teams with missing weekly logs or pending
+        deliverables.</p>
+    <img src="images/usermanual/4.5 team deficit.png" alt="Team Deficits"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+    <ul>
+        <li><strong>Missing Logs</strong>: See which teams haven't submitted their required weekly updates.</li>
+        <li><strong>Performance Alerts</strong>: Get notified about teams that need immediate attention.</li>
+        <li><strong>Intervention</strong>: Use this information to follow up with students directly.</li>
+    </ul>
+
+    <h3>4.6 Settings</h3>
+    <p>Manage your account and profile preferences.</p>
+    <img src="images/usermanual/4.6 setting.png" alt="Settings"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+    <ul>
+        <li><strong>Profile</strong>: Update your contact information, specialization, and availability.</li>
+        <li><strong>Account</strong>: Change your password or manage notification preferences.</li>
+    </ul>
+
+    <h2 id="admin-guide">5. Admin Guide</h2>
+    <p>The Admin Panel provides comprehensive control over the platform's users and projects. The sidebar navigation
+        includes:</p>
+
+    <h3>5.1 Dashboard</h3>
+    <p>The <strong>Dashboard</strong> provides a high-level overview of the system's current status. Key metrics include
+        the total number of registered Students, Teachers, and Active Projects.</p>
+    <img src="images/usermanual/5.1 Dashboard.png" alt="Dashboard"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+    <ul>
+        <li><strong>Overview</strong>: Visual summary of platform usage and user growth.</li>
+        <li><strong>System Health</strong>: Monitor the overall activity and status of the project management system.
+        </li>
+    </ul>
+
+    <h3>5.2 Teachers</h3>
+    <p>Manage the faculty members registered in the system.</p>
+    <img src="images/usermanual/5.2 Teachers.png" alt="Teachers"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+    <ul>
+        <li><strong>View All</strong>: See a complete list of registered teachers.</li>
+        <li><strong>Verification</strong>: Approve new teacher accounts.</li>
+        <li><strong>Management</strong>: Deactivate or update teacher profiles if necessary.</li>
+    </ul>
+
+    <h4>Visiting Faculty Management</h4>
+    <p>Admins can specifically manage visiting faculty members who may not have standard university credentials.</p>
+    <ul>
+        <li><strong>Add Visiting Faculty</strong>: Click the "Add Visiting Faculty" button to register external
+            supervisors.</li>
+        <li><strong>Tabs</strong>: Switch between "Regular Faculty" and "Visiting Faculty" tabs to view respective
+            lists.</li>
+    </ul>
+    <img src="images/usermanual/5.2.1 switch regular and visting.png" alt="Teachers"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+
+    <img src="images/usermanual/5.2.2 Add visiting faculty.png" alt="Teachers"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+
+
+    <h3>5.3 Teams Management</h3>
+    <p>Admins can oversee all student teams and manage project assignments directly.</p>
+
+    <h4>Unassigned Teams</h4>
+    <p>View teams that have formed but do not yet have a supervisor assigned.</p>
+    <ul>
+        <li><strong>List View</strong>: Shows Team Name, Department, and Semester.</li>
+        <li><strong>Actions</strong>: Click the "Assign" button to manually assign a supervisor to a team.</li>
+    </ul>
+    <img src="images/usermanual/5.3.2 Unassigned team.png" alt="Teachers"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+
+    <h4>Assigned Teams</h4>
+    <p>View teams that have already been assigned a supervisor.</p>
+    <ul>
+        <li><strong>Project Details</strong>: Displays the project title and assigned supervisor.</li>
+        <li><strong>Monitoring</strong>: informational view to track adequate supervision coverage.</li>
+    </ul>
+    <img src="images/usermanual/5.3.1 Assigned Teams.png" alt="Teachers"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+
+    <h3>5.4 Students</h3>
+    <p>Manage student accounts and details.</p>
+    <img src="images/usermanual/5.4 Students.png" alt="Teachers"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+    <ul>
+        <li><strong>Student List</strong>: View all students filtered by batch or department.</li>
+        <li><strong>Account Status</strong>: Verify or manage student access.</li>
+    </ul>
+
+    <h3>5.5 Requests</h3>
+    <p>Handle system-level requests and notifications.</p>
+    <img src="images/usermanual/5.5 Requests.png" alt="Teachers"
+        style="max-width: 100%; border: 1px solid #ddd; margin: 10px 0; border-radius: 8px;">
+
+    <ul>
+        <li><strong>Pending Actions</strong>: Review requests that require administrative approval.</li>
+        <li><strong>Notifications</strong>: Check the badge count (e.g., "1") for urgent items.</li>
+    </ul>
+
+    <h2 id="troubleshooting">6. Troubleshooting</h2>
+
+    <h3>Login Issues</h3>
+    <ul>
+        <li>Ensure you are using the correct university email domain.</li>
+        <li>Clear your browser cookies/cache if you get a "Session Expired" error.</li>
+        <li>Contact the system administrator if the issue persists.</li>
+    </ul>
+
+    <h3>Team Issues</h3>
+    <ul>
+        <li>If you cannot join a team, check if the Team Code is correct.</li>
+        <li>Ensure the team is not already full (max 4 members).</li>
+    </ul>
+
+</body>
+
+</html>
