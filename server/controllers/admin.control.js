@@ -48,7 +48,7 @@ export const getDashboardStats = async (_, res) => {
         Teacher.countDocuments(),
         Student.countDocuments(),
         Team.countDocuments(),
-        Team.countDocuments({ supervisorStatus: "adminApproved" }),
+        Team.countDocuments({ supervisorStatus: "teacherApproved" }),
       ]);
     res.json({
       success: true,
@@ -188,7 +188,7 @@ export const getSupervisorRequests = async (req, res) => {
   try {
     const teams = await Team.find({ supervisorStatus: "teacherApproved" })
       .populate("leaderId", "name semester department email")
-      .populate("supervisor", "name email")
+      .populate("supervisor", "name email phone specialization")
       .populate("members", "name email semester department rollNumber ")
       .populate("proposal");
     if (!teams) throw new Error("No Teams Found!");
@@ -331,6 +331,7 @@ function getCosineSimilarity(text1, text2) {
   const dotProduct = vec1.reduce((sum, val, i) => sum + val * vec2[i], 0);
   const magnitude1 = Math.sqrt(vec1.reduce((sum, val) => sum + val * val, 0));
   const magnitude2 = Math.sqrt(vec2.reduce((sum, val) => sum + val * val, 0));
+
   if (magnitude1 === 0 || magnitude2 === 0) return 0;
   return dotProduct / (magnitude1 * magnitude2);
 }

@@ -187,7 +187,10 @@ export const teamRequest = async (req, res) => {
         });
       if (!requests)
         return res.json({ success: false, message: "Unable to find teacher!" });
-      return res.json({ success: true, teams: requests });
+      const totalLogs = await LogEntry.countDocuments({ 
+    teamId: { $in: requests.assignedTeams } 
+  });
+      return res.json({ success: true, teams: requests, totalLogEntries: totalLogs });
     }
     return res.status(400).json({
       success: false,
