@@ -1,7 +1,7 @@
 const AboutSPMP = () => {
   const teamMembers = [
     { name: "Deekshya Badal", role: "Frontend Developer", image: "/deekshya.png" },
-    { name: "Subhechha Karki", role: "Frontend Designer", image: "/subekshya.png" },
+    { name: "Subhechha Karki", role: "Frontend Developer", image: "/subekshya.png" },
     { name: "Sajana Ranjitkar", role: "Backend Developer", image: "/sajana.png" },
     { name: "Prabesh Acharya", role: "Backend Developer", image: "/prabesh.png" },
     { name: "Sushant Bhattari", role: "Backend Developer", image: "/sushant.png" },

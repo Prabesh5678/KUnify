@@ -11,9 +11,9 @@ const UserManual = () => {
   const sections = [
     {
       title: "For Students",
-      icon: <Users className="w-6 h-6 text-primary" />,
+      icon: <Users className="w-6 h-6 text-primary cursor-pointer" />,
       content: (
-        <div className="space-y-4 text-gray-700">
+        <div className="space-y-4 text-gray-700 ">
           <div>
             <h4 className="font-semibold text-lg text-gray-800">1. Registration & Login</h4>
             <p className="ml-4">
@@ -53,7 +53,7 @@ const UserManual = () => {
     },
     {
       title: "For Teachers",
-      icon: <UserCheck className="w-6 h-6 text-primary" />,
+      icon: <UserCheck className="w-6 h-6 text-primary cursor-pointer" />,
       content: (
         <div className="space-y-4 text-gray-700">
           <div>
@@ -82,7 +82,7 @@ const UserManual = () => {
     },
     {
       title: "For Admins",
-      icon: <Shield className="w-6 h-6 text-primary" />,
+      icon: <Shield className="w-6 h-6 text-primary cursor-pointer" />,
       content: (
         <div className="space-y-4 text-gray-700">
           <div>
@@ -110,7 +110,7 @@ const UserManual = () => {
     },
     {
       title: "For Visiting Faculty",
-      icon: <BookOpen className="w-6 h-6 text-primary" />,
+      icon: <BookOpen className="w-6 h-6 text-primary cursor-pointer" />,
       content: (
         <div className="space-y-4 text-gray-700">
           <div>
@@ -155,14 +155,14 @@ const UserManual = () => {
                   <div className="p-2 bg-primary/10 rounded-lg">
                     {section.icon}
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-800">
+                  <h3 className="text-xl font-semibold text-gray-800 cursor-pointer">
                     {section.title}
                   </h3>
                 </div>
                 {openSection === index ? (
-                  <ChevronUp className="w-5 h-5 text-gray-500" />
+                  <ChevronUp className="w-5 h-5 text-gray-500 cursor-pointer" />
                 ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                  <ChevronDown className="w-5 h-5 text-gray-500 cursor-pointer" />
                 )}
               </button>
 
