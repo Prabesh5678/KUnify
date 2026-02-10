@@ -374,24 +374,30 @@ picture:decoded.picture,
 googleId:decoded.sub,
 }
       // ---- Teacher ----
-      if (TEACHER_EMAIL.includes(email.toLowerCase())) {
-        const { data } = await axios.post(
-          "/api/teacher/google-signin",
-          { credential: decodedData },
-          { withCredentials: true }
-        );
+    if (TEACHER_EMAIL.includes(email.toLowerCase())) {
+  const { data } = await axios.post(
+    "/api/teacher/google-signin",
+    { credential: decodedData },
+    { withCredentials: true }
+  );
 
-        if (!data?.success || !data.user) return toast.error("Teacher login failed");
+  if (!data?.success || !data.user) return toast.error("Teacher login failed");
 
-        setUser({ ...data.user, role: "teacher" });
-        setShowUserLogin(false);
+  setShowUserLogin(false);
 
-        navigate(
-          data.user.isProfileCompleted ? "/teacher/dashboard" : "/teacher/profilesetup",
-          { replace: true }
-        );
-        return;
-      }
+  // fetch the real DB user into context
+  const freshUser = await fetchUser();
+
+  // Navigate based on actual user in context
+  if (freshUser?.isProfileCompleted) {
+    navigate("/teacher/dashboard", { replace: true });
+  } else {
+    navigate("/teacher/profilesetup", { replace: true });
+  }
+
+  return;
+}
+
 
       // ---- Student ----
       if (!email.endsWith("@student.ku.edu.np")) return toast.error("Only KU student emails allowed");
@@ -450,12 +456,25 @@ googleId:decoded.sub,
               password: vfPassword,
             });
 
-     if(data.success) {setUser({ email: vfEmail, role: "teacher", type: "visiting" });
-      setShowUserLogin(false);
-      navigate("/teacher/dashboard", { replace: true });
-      setVfEmail("");           // reset email
-      setVfPassword("");
-      toast.success("Visiting faculty login successful!");}
+   if(data.success) {
+  setShowUserLogin(false);
+
+  // fetch the real DB user from backend and populate context
+  const freshUser = await fetchUser();
+
+  // navigate based on actual profile completion
+  if(freshUser?.isProfileCompleted) {
+    navigate("/teacher/dashboard", { replace: true });
+  } else {
+    navigate("/teacher/profilesetup", { replace: true });
+  }
+
+  // reset login form
+  setVfEmail("");
+  setVfPassword("");
+  toast.success("Visiting faculty login successful!");
+}
+
       else
       {
         toast.error('Unable to login');
