@@ -61,6 +61,8 @@ export default function TeacherSidebar() {
     { id: 4, label: "Team Deficits", icon: <AlertCircle size={20} />, to: "/teacher/deficits" },
     { id: 5, label: "Settings", icon: <Settings size={20} />, to: "/teacher/settings" },
   ];
+  if(location.pathname==='/teacher/profilesetup')
+    return null;
 
   return (
     <>

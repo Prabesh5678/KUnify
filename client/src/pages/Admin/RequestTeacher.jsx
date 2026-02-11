@@ -93,7 +93,7 @@ const RequestTeacher = () => {
         return `${baseClasses} bg-yellow-100 text-yellow-700`;
       case "adminApproved":
         return `${baseClasses} bg-green-100 text-green-700`;
-      case "notApproved":
+      case "rejected":
         return `${baseClasses} bg-red-100 text-red-700`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-700`;
@@ -171,8 +171,8 @@ const RequestTeacher = () => {
                         <span className={getStatusBadge(req.supervisorStatus)}>
                           {req.supervisorStatus === "teacherApproved" && "Pending Admin"}
                           {req.supervisorStatus === "adminApproved" && "Approved"}
-                          {req.supervisorStatus === "notApproved" && "Rejected"}
-                          {!["teacherApproved", "adminApproved", "notApproved"].includes(req.supervisorStatus) && "Pending"}
+                          {req.supervisorStatus === "rejected" && "Rejected"}
+                          {!["teacherApproved", "adminApproved", "rejected"].includes(req.supervisorStatus) && "Pending"}
                         </span>
                       </td>
                       <td className="p-4">

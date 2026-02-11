@@ -115,7 +115,8 @@ const TeamMembers = () => {
       if (res.data.success) {
         toast.success("Team deleted successfully");
         navigate("/student/dashboard");
-      }
+      }else
+        toast.error(res.data.message||"Unable to delete team!")
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete team");
@@ -134,6 +135,10 @@ const TeamMembers = () => {
           Supervisor:{" "}
           <span className="font-medium">
             {team.supervisor?.name || "Not assigned yet"}
+          </span><br></br>
+          Email:
+          <span className="font-medium">
+            {team.supervisor?.email || "Not assigned yet"}
           </span>
         </p>
       </div>

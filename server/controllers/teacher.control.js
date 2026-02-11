@@ -229,7 +229,7 @@ export const teamApprove = async (req, res) => {
       return res.json({ success: true, message: "Team accepted!" });
     } else if (req.query.action === "decline") {
       teacher.pendingTeams.pull(requestId);
-      team.supervisorStatus = "notApproved";
+      team.supervisorStatus = "rejected";
       team.supervisor = null;
       team.requestedTeacher = null;
       await Promise.all([teacher.save({ session }), team.save({ session })]);

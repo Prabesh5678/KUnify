@@ -169,13 +169,13 @@ export const teamInfo = async (req, res) => {
     const { teamId } = req.params;
 
     const team = await Team.findById(teamId)
-      .populate("leaderId", "name email")
+      .populate("leaderId supervisor", "name email")
       .populate("members", "name email isApproved");
 
     if (!team) {
       return res.json({ success: false, message: "Team not found!" });
     }
-
+console.log(team)
     return res.json({ success: true, team });
   } catch (err) {
     console.error(err);

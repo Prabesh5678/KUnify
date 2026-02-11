@@ -255,7 +255,7 @@ export const declineSupervisorRequest = async (req, res) => {
 
     const teacher = await Teacher.findById(team.supervisor);
 
-    team.supervisorStatus = "pending";
+    team.supervisorStatus = "rejected";
     team.requestedTeacher = null;
 
     if (teacher) {

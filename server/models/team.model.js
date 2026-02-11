@@ -35,7 +35,7 @@ const teamSchema = new mongoose.Schema(
       default: null,
     },
       members: [{ type: mongoose.Schema.Types.ObjectId, ref: "student" }],
-    supervisorStatus: { type: String, default: "pending" }, // notapproved,pending,teacherApproved,adminApproved
+    supervisorStatus: { type: String, default: "notRequested" }, //notRequested, rejected,pending,teacherApproved,adminApproved
     supervisor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "teacher",
