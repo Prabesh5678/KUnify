@@ -127,8 +127,6 @@ export const createVisitingTeacher = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-// Reset visiting faculty password
 // POST /api/admin/teacher/reset-password
 export const resetVisitingTeacherPassword = async (req, res) => {
   try {
@@ -241,8 +239,6 @@ export const approveSupervisorRequest = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-// Decline supervisor request
 // POST /api/admin/supervisor/decline
 export const declineSupervisorRequest = async (req, res) => {
   try {

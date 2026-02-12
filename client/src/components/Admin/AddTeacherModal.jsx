@@ -50,10 +50,10 @@ const AddTeacherModal = ({ isOpen, onClose, onAddTeacher }) => {
           className="w-full mb-4 border rounded px-3 py-2"
         />
         <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="px-3 py-1 bg-gray-300 rounded">
+          <button onClick={onClose} className="px-3 py-1 bg-gray-300 rounded cursor-pointer">
             Cancel
           </button>
-          <button onClick={handleSubmit} className="px-3 py-1 bg-primary text-white rounded">
+          <button onClick={handleSubmit} className="px-3 py-1 bg-primary text-white rounded cursor-pointer">
             Add
           </button>
         </div>

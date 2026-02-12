@@ -83,7 +83,7 @@ const TeacherProfileSetup = () => {
 
     try {
       setLoading(true);
-
+console.log(form)
       const { data } = await axios.put(
         "/api/teacher/setup-profile",
         { phone, specialization },
