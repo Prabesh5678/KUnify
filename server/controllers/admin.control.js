@@ -284,7 +284,7 @@ export const getAllTeams = async (req, res) => {
       const teamData = {
         ...team.toObject(),
         proposal,
-        keywords: proposal.projectKeyword || "", 
+        keywords: proposal.projectKeyword || "",
       };
       if (team.supervisor && team.supervisorStatus === "adminApproved") {
         assignedTeams.push(team);
@@ -315,15 +315,55 @@ export const getTeamLogsheets = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-//cosine similarity
+// improved cosine similarity with synonyms & stemming
 const tokenizer = new natural.WordTokenizer();
+
+// 1. Synonym Map (Expand this as needed)
+const synonymMap = {
+  "ml": "ai",
+  "machine learning": "ai",
+  "artificial intelligence": "ai",
+  "deep learning": "ai",
+  "nlp": "ai",
+  "reactjs": "react",
+  "react.js": "react",
+  "frontend": "web",
+  "backend": "web",
+  "fullstack": "web",
+  "app": "mobile",
+  "android": "mobile",
+  "ios": "mobile",
+  "flutter": "mobile",
+  "website": "web",
+  "webapp": "web"
+};
+
 function getCosineSimilarity(text1, text2) {
   if (!text1 || !text2) return 0;
-  const tokens1 = text1.toLowerCase().split(/[\s,]+/).filter(t => t.trim() !== "");
-  const tokens2 = text2.toLowerCase().split(/[\s,]+/).filter(t => t.trim() !== "");
+
+  // Helper to process text: lowercase -> replace synonyms -> tokenize -> stem
+  const processText = (text) => {
+    let processed = text.toLowerCase();
+
+    // Replace synonyms (basic string replacement for single words/phrases)
+    Object.keys(synonymMap).forEach(key => {
+      const regex = new RegExp(`\\b${key}\\b`, 'g'); // match whole words only
+      processed = processed.replace(regex, synonymMap[key]);
+    });
+
+    // Tokenize & Stem
+    return tokenizer.tokenize(processed)
+      .map(token => natural.PorterStemmer.stem(token)) // Stemming (develop -> develop, developer -> develop)
+      .filter(t => t.trim() !== "");
+  };
+
+  const tokens1 = processText(text1);
+  const tokens2 = processText(text2);
+
   const allTokens = Array.from(new Set([...tokens1, ...tokens2]));
   const vec1 = allTokens.map(t => tokens1.filter(x => x === t).length);
   const vec2 = allTokens.map(t => tokens2.filter(x => x === t).length);
+
   const dotProduct = vec1.reduce((sum, val, i) => sum + val * vec2[i], 0);
   const magnitude1 = Math.sqrt(vec1.reduce((sum, val) => sum + val * val, 0));
   const magnitude2 = Math.sqrt(vec2.reduce((sum, val) => sum + val * val, 0));
@@ -339,11 +379,11 @@ export const getTeacherSimilarity = async (req, res) => {
     if (!team) {
       return res.status(404).json({ message: "Team not found" });
     }
-    if (team.supervisor || team.requestedSupervisor) {
-      return res.status(400).json({
-        message: "Similarity only for teams without requested/assigned supervisor"
-      });
-    }
+    // if (team.supervisor || team.requestedSupervisor) {
+    //  return res.status(400).json({
+    //   message: "Similarity only for teams without requested/assigned supervisor"
+    //  });
+    // }
     const teachers = await Teacher.find({
       activeStatus: true,
       isProfileCompleted: true,
@@ -368,11 +408,11 @@ export const getTeacherSimilarity = async (req, res) => {
         (a, b) => b.similarityScore - a.similarityScore
       ),
     };
-   return res.status(200).json({
-  success: true,
-  message: "Teacher similarity calculated successfully",
-  data: result,
-});
+    return res.status(200).json({
+      success: true,
+      message: "Teacher similarity calculated successfully",
+      data: result,
+    });
   } catch (err) {
     console.error("Error calculating similarity:", err);
     res.status(500).json({ message: "Server error" });
@@ -407,7 +447,7 @@ export const assignSupervisorManually = async (req, res) => {
       teacher.approvedTeams.pull(team._id);
     }
     await teacher.save({ session });
-await session.commitTransaction();
+    await session.commitTransaction();
     res.json({
       success: true,
       message: `Supervisor ${teacher.name} assigned to ${team.name} successfully!`,
