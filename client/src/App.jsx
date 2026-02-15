@@ -246,7 +246,7 @@ import TeacherDashboard from "./pages/Teacher/Dashboard";
 import TeacherProjects from "./pages/Teacher/Projects";
 import TeacherRequests from "./pages/Teacher/Requests";
 import TeacherTeams from "./pages/Teacher/Teams";
-import TeacherDeficits from "./pages/Teacher/Deficits";
+//import TeacherDeficits from "./pages/Teacher/Deficits";
 import TeacherSettings from "./pages/Teacher/Settings";
 import TeacherProfileSetup from "./pages/Teacher/TeacherProfileSetup";
 import TeacherHeader from "./components/Teacher/TeacherHeader";
@@ -373,7 +373,7 @@ const App = () => {
                   <Route path="projects" element={<TeacherProjects />} />
                   <Route path="requests" element={<TeacherRequests />} />
                   <Route path="teams" element={<TeacherTeams />} />
-                  <Route path="deficits" element={<TeacherDeficits />} />
+                  {/*<Route path="deficits" element={<TeacherDeficits />} />*/}
                   <Route path="settings" element={<TeacherSettings />} />
                   <Route path="profilesetup" element={<TeacherProfileSetup />} />
                   <Route path="teamdetails" element={<TeamDetails />} />

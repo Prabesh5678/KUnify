@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react";
+/*import { useState, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, FileText } from "lucide-react";
 import axios from "axios";
@@ -49,6 +49,7 @@ export default function TeamDeficit() {
     fetchTeams();
   }, []);
   */
+ /*
 
   const totalMissingLogs = deficitTeams.reduce(
     (sum, team) => sum + team.missingCount,
@@ -186,3 +187,4 @@ export default function TeamDeficit() {
     </div>
   );
 }
+*/
