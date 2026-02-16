@@ -315,10 +315,10 @@ export const getTeamLogsheets = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-// improved cosine similarity with synonyms & stemming
+
 const tokenizer = new natural.WordTokenizer();
 
-// 1. Synonym Map (Expand this as needed)
+
 const synonymMap = {
   "ml": "ai",
   "machine learning": "ai",
@@ -341,19 +341,18 @@ const synonymMap = {
 function getCosineSimilarity(text1, text2) {
   if (!text1 || !text2) return 0;
 
-  // Helper to process text: lowercase -> replace synonyms -> tokenize -> stem
   const processText = (text) => {
     let processed = text.toLowerCase();
 
-    // Replace synonyms (basic string replacement for single words/phrases)
+   
     Object.keys(synonymMap).forEach(key => {
-      const regex = new RegExp(`\\b${key}\\b`, 'g'); // match whole words only
+      const regex = new RegExp(`\\b${key}\\b`, 'g'); 
       processed = processed.replace(regex, synonymMap[key]);
     });
 
     // Tokenize & Stem
     return tokenizer.tokenize(processed)
-      .map(token => natural.PorterStemmer.stem(token)) // Stemming (develop -> develop, developer -> develop)
+      .map(token => natural.PorterStemmer.stem(token))
       .filter(t => t.trim() !== "");
   };
 
