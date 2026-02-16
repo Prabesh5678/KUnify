@@ -1,15 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { FileText, CheckCircle } from "lucide-react";
+import toast from "react-hot-toast";
 
 const SupervisorCard = ({
+
   teamStatus,
-  supervisors = [],
   selectedSupervisor,
   setSelectedSupervisor,
   handleRequestSupervisor,
 }) => {
+  const [supervisors, setSupervisors] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredSupervisor, setHoveredSupervisor] = useState(null);
+
+  // Fetch teachers on component mount
+  useEffect(() => {
+    const fetchSupervisors = async () => {
+      try {
+        const { data } = await axios.get("/api/student/get-teachers");
+        if (data.success) {
+          setSupervisors(data.teachers); // assuming the API returns { success: true, teachers: [...] }
+        } else {
+          toast.error(data.message || "Failed to fetch supervisors");
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Error fetching supervisors");
+      }
+    };
+
+    fetchSupervisors();
+  }, []);
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-4 border border-black-200 hover:shadow-md transition-shadow relative">
@@ -24,7 +46,6 @@ const SupervisorCard = ({
             Supervisor
           </p>
 
-          {/* Dropdown for selecting supervisor */}
           {(teamStatus === "notRequested" || teamStatus === "rejected") && (
             <div className="mb-2 relative">
               <button
@@ -66,7 +87,6 @@ const SupervisorCard = ({
                 </div>
               )}
 
-              {/* Tooltip showing specialization */}
               {hoveredSupervisor && (
                 <div
                   className="fixed w-40 bg-white text-xs text-black border rounded-md shadow-lg p-2 z-50 pointer-events-none"

@@ -26,6 +26,7 @@ const StudentDashboard = () => {
     return;
   }
   const userId = user._id;
+   
 
   const [teamStatus, setTeamStatus] = useState("Not Joined");
   const [teamName, setTeamName] = useState("");
@@ -90,14 +91,14 @@ const StudentDashboard = () => {
       }
 
       const { data } = await axios.post("/api/team/req-supervisor", {
-        teamId: team._id,
+        teamId: teamId,
         teacherId: selectedSupervisor,
       });
 
       if (data.success) {
         toast.success("Supervisor request sent successfully");
         setTeamStatus("pending");
-        setIsOpen(false);
+       // setIsOpen(false);
       } else {
         toast.error(data.message);
       }
@@ -193,6 +194,7 @@ const StudentDashboard = () => {
           </div>
 
           <SupervisorCard
+          
             teamStatus={teamStatus}
             supervisors={supervisors}
             selectedSupervisor={selectedSupervisor}
