@@ -116,7 +116,7 @@ export default function TeacherDashboard() {
                     </div>
                     <span className="text-xl text-purple-700">→</span>
                   </button>
-        
+        {/*
                   <button
                     onClick={() => navigate("/teacher/deficits")}
                     className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center
@@ -135,7 +135,7 @@ export default function TeacherDashboard() {
                     </div>
                     <span className="text-xl text-green-700">→</span>
                   </button>
-        
+        */}
                   <button
                     onClick={() => navigate("/teacher/requests")}
                     className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center

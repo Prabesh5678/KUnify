@@ -129,7 +129,7 @@ const TeamMembers = () => {
   return (
     <div className="max-w-4xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-sm">
       {/* Header */}
-      <div className="border-b pb-4 mb-6">
+    {/*  <div className="border-b pb-4 mb-6">
         <h2 className="text-3xl font-bold text-gray-800">{team.name}</h2>
         <p className="text-gray-500 mt-1">
           Supervisor:{" "}
@@ -142,6 +142,28 @@ const TeamMembers = () => {
           </span>
         </p>
       </div>
+      */ }
+      <div className="text-gray-500 mt-1">
+  {team.supervisor && team.supervisorStatus === "adminApproved" ? (
+    <>
+      <p>
+        <b className="text-gray-700">Supervisor:</b>{" "}
+        <span className="font-medium">{team.supervisor.name}</span>
+      </p>
+      <p>
+        <b className="text-gray-700">Email:</b>{" "}
+        <span className="font-medium">{team.supervisor.email}</span>
+      </p>
+    </>
+  ) : team.supervisor ? (
+    <p className="text-yellow-600 italic">
+      <b>Requested Supervisor:</b> {team.supervisor.name} (Pending Approval)
+    </p>
+  ) : (
+    <p className="italic text-gray-400">No supervisor assigned yet</p>
+  )}
+</div>
+
 
       {/* DELETE TEAM — ONLY CREATOR & ONLY SINGLE MEMBER */}
       {isLeader && team.members.length === 1 && (

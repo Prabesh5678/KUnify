@@ -58,7 +58,7 @@ export default function TeacherSidebar() {
     { id: 1, label: "Dashboard", icon: <LayoutGrid size={20} />, to: "/teacher/dashboard" },
     { id: 2, label: "Team Projects", icon: <FolderKanban size={20} />, to: "/teacher/projects" },
     { id: 3, label: "Team Requests", icon: <Bell size={20} />, to: "/teacher/requests" },
-    { id: 4, label: "Team Deficits", icon: <AlertCircle size={20} />, to: "/teacher/deficits" },
+    //{ id: 4, label: "Team Deficits", icon: <AlertCircle size={20} />, to: "/teacher/deficits" },
     { id: 5, label: "Settings", icon: <Settings size={20} />, to: "/teacher/settings" },
   ];
   if(location.pathname==='/teacher/profilesetup')
