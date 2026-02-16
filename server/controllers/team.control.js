@@ -293,3 +293,63 @@ export const deleteTeam = async (req, res) => {
     if (session) session.endSession();
   }
 };
+
+// put //api/team/req-supervisor
+export const requestSupervisor = async (req, res) => {
+  let session;
+  try {
+    session = await mongoose.startSession();
+    session.startTransaction();
+
+    const { teamId, teacherId } = req.body;
+
+    if (!teamId || !teacherId) {
+      throw new Error("Team and Teacher are required");
+    }
+
+    const team = await Team.findById(teamId)
+      .populate("proposal")
+      .session(session);
+
+    if (!team) {
+      throw new Error("Team not found");
+    }
+
+    if (!team.proposal || !team.proposal.abstract) {
+      throw new Error("Team must submit proposal first");
+    }
+
+    if (!["rejected", "notRequested"].includes(team.supervisorStatus)) {
+      throw new Error("Supervisor request not allowed at this stage");
+    }
+
+    const teacher = await Teacher.findById(teacherId).session(session);
+
+    if (!teacher) {
+      throw new Error("Teacher not found");
+    }
+
+    team.supervisorStatus = "pending";
+    team.supervisor = teacherId;
+
+    teacher.pendingTeams.addToSet(teamId);
+
+    await Promise.all([team.save({ session }), teacher.save({ session })]);
+
+    await session.commitTransaction();
+
+    return res.status(200).json({
+      success: true,
+      message: "Supervisor request sent successfully",
+    });
+  } catch (error) {
+    if (session) await session.abortTransaction();
+    console.error(error);
+    return res.status(400).json({
+      success: false,
+      message: error.message || "Server error",
+    });
+  } finally {
+    if (session) session.endSession();
+  }
+};

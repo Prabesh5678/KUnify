@@ -379,6 +379,12 @@ export const getTeacherSimilarity = async (req, res) => {
     if (!team) {
       return res.status(404).json({ message: "Team not found" });
     }
+    if (!team.proposal || !team.proposal.projectKeyword) {
+      return res.status(400).json({success:false,
+        message: "Team does not have proposal keywords",
+      });
+    }
+
     // if (team.supervisor || team.requestedSupervisor) {
     //  return res.status(400).json({
     //   message: "Similarity only for teams without requested/assigned supervisor"
@@ -391,7 +397,7 @@ export const getTeacherSimilarity = async (req, res) => {
     const teacherScores = teachers.map((teacher) => {
       const score = getCosineSimilarity(
         team.proposal?.projectKeyword || "",
-        teacher.specialization
+        teacher.specialization||""
       );
       return {
         teacherId: teacher._id,

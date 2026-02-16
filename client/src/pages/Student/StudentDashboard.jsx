@@ -81,6 +81,9 @@ const StudentDashboard = () => {
       toast.error("Failed to copy team code");
     }
   };
+  const handleRequestSupervisor=async () => {
+    alert('hi')
+  }
   useEffect(() => {
     if (user?.teamId && user?.isApproved === false) {
       navigate("/student/waiting");
@@ -181,7 +184,7 @@ const statusStyles = {
 
                 {teamStatus === "notRequested" && (
                   <button
-                    // onClick={handleRequestSupervisor}
+                    onClick={handleRequestSupervisor}
                     className="w-full bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-all shadow-sm cursor-pointer"
                   >
                     Request Supervisor
@@ -211,7 +214,7 @@ const statusStyles = {
                       </span>
                     </div>
                     <button
-                      // onClick={handleRequestSupervisor}
+                      onClick={handleRequestSupervisor}
                       className="w-full bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-[10px] font-semibold py-1.5 px-1.7 rounded-lg transition-all shadow-sm cursor-pointer"
                     >
                       Request Again
