@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import SupervisorCard from "../../components/SupervisorCard";
 import {
   Users,
   FileText,
@@ -18,10 +19,10 @@ import { useAppContext } from "../../context/AppContext";
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { selectedSubject, user } = useAppContext();
-  console.log(user._id)
+  console.log(user._id);
   if (!user || !user._id) {
-    toast.error('user not found')
-    console.error('nothing')
+    toast.error("user not found");
+    console.error("nothing");
     return;
   }
   const userId = user._id;
@@ -33,19 +34,20 @@ const StudentDashboard = () => {
   const [teamCode, setTeamCode] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [supervisors, setSupervisors] = useState([]);
+  const [selectedSupervisor, setSelectedSupervisor] = useState(null);
 
   const fetchTeamStatus = async () => {
     try {
-      const res = await axios.get(
-        "/api/student/is-auth?populateTeam=true",
-        { withCredentials: true }
-      );
+      const res = await axios.get("/api/student/is-auth?populateTeam=true", {
+        withCredentials: true,
+      });
 
       if (res.data.success) {
         const team = res.data.student.teamId;
 
         if (team) {
-          setTeamStatus(team.supervisorStatus||"Joined");
+          setTeamStatus(team.supervisorStatus || "Joined");
           setTeamName(team.name);
           setTeamId(team._id);
           setTeamMembers(team.members || []);
@@ -81,28 +83,49 @@ const StudentDashboard = () => {
       toast.error("Failed to copy team code");
     }
   };
-  const handleRequestSupervisor=async () => {
-    alert('hi')
-  }
+  const handleRequestSupervisor = async () => {
+    try {
+      if (!selectedSupervisor) {
+        return toast.error("Please select a supervisor first");
+      }
+
+      const { data } = await axios.post("/api/team/req-supervisor", {
+        teamId: team._id,
+        teacherId: selectedSupervisor,
+      });
+
+      if (data.success) {
+        toast.success("Supervisor request sent successfully");
+        setTeamStatus("pending");
+        setIsOpen(false);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong");
+    }
+  };
+
   useEffect(() => {
     if (user?.teamId && user?.isApproved === false) {
       navigate("/student/waiting");
     }
   }, [user, navigate]);
-const statusLabels = {
-  notRequested:"Not Requested",
-  pending: "Pending Approval",
-  teacherApproved: "Approved by Teacher",
-  adminApproved: "Approved by Admin",
-  rejected: "Rejected",
-};
+  const statusLabels = {
+    notRequested: "Not Requested",
+    pending: "Pending Approval",
+    teacherApproved: "Approved by Teacher",
+    adminApproved: "Approved by Admin",
+    rejected: "Rejected",
+  };
 
-const statusStyles = {
-  pending: "text-yellow-600",
-  teacherApproved: "text-blue-600",
-  adminApproved: "text-green-600",
-  rejected: "text-red-600",
-};
+  const statusStyles = {
+    pending: "text-yellow-600",
+    teacherApproved: "text-blue-600",
+    adminApproved: "text-green-600",
+    rejected: "text-red-600",
+  };
 
   const getTeamStatusInfo = () => {
     if (teamStatus !== "Not Joined") {
@@ -122,8 +145,6 @@ const statusStyles = {
   };
 
   const teamInfo = getTeamStatusInfo();
-  
-
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -171,118 +192,13 @@ const statusStyles = {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-100 rounded-xl shrink-0">
-                <FileText className="text-purple-600" size={28} />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-400 font-medium uppercase tracking-widest mb-1.5">
-                  Supervisor
-                </p>
-
-                {teamStatus === "notRequested" && (
-                  <button
-                    onClick={handleRequestSupervisor}
-                    className="w-full bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition-all shadow-sm cursor-pointer"
-                  >
-                    Request Supervisor
-                  </button>
-                )}
-
-                {teamStatus === "pending" && (
-                  <div className="flex items-center gap-2">
-                    <span className="relative flex h-2 w-2 shrink-0">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
-                    </span>
-                    <span className="text-sm font-semibold text-amber-600">
-                      Reviewing..
-                    </span>
-                  </div>
-                )}
-
-                {teamStatus === "rejected" && (
-                  <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center gap-2">
-                      <span className="relative flex h-2 w-2 shrink-0">
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
-                      </span>
-                      <span className="text-sm font-semibold text-red-600">
-                        Rejected
-                      </span>
-                    </div>
-                    <button
-                      onClick={handleRequestSupervisor}
-                      className="w-full bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-[10px] font-semibold py-1.5 px-1.7 rounded-lg transition-all shadow-sm cursor-pointer"
-                    >
-                      Request Again
-                    </button>
-                  </div>
-                )}
-
-                {teamStatus === "teacherApproved" && (
-                  <div className="flex items-center gap-2">
-                    <span className="relative flex h-2 w-2 shrink-0">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75" />
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-500" />
-                    </span>
-                    <span className="text-sm font-semibold text-violet-600">
-                      Approved
-                    </span>
-                  </div>
-                )}
-
-                {teamStatus === "adminApproved" && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle
-                      size={15}
-                      className="text-emerald-500 shrink-0"
-                    />
-                    <span className="text-sm font-semibold text-emerald-600">
-                      Assigned
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {teamStatus === "notRequested" && (
-              <div className="mt-4 -mx-5 -mb-5 px-5 py-2 rounded-b-2xl bg-amber-50 border-t border-amber-100">
-                <p className="text-xs text-amber-500">
-Request your Supervisor                </p>
-              </div>
-            )}
-            {teamStatus === "pending" && (
-              <div className="mt-4 -mx-5 -mb-5 px-5 py-2 rounded-b-2xl bg-amber-50 border-t border-amber-100">
-                <p className="text-xs text-amber-500">
-                  Your request is being reviewed by your teacher.
-                </p>
-              </div>
-            )}
-            {teamStatus === "rejected" && (
-              <div className="mt-4 -mx-5 -mb-5 px-5 py-2 rounded-b-2xl bg-red-50 border-t border-red-100">
-                <p className="text-xs text-red-400">
-                  Rejected by Teacher or Admin..
-                </p>
-              </div>
-            )}
-            {teamStatus === "teacherApproved" && (
-              <div className="mt-4 -mx-5 -mb-5 px-5 py-2 rounded-b-2xl bg-violet-50 border-t border-violet-100">
-                <p className="text-xs text-violet-500">
-                  Approved by teacher- pending admin's approval.
-                </p>
-              </div>
-            )}
-            {teamStatus === "adminApproved" && (
-              <div className="mt-4 -mx-5 -mb-5 px-5 py-2 rounded-b-2xl bg-emerald-50 border-t border-emerald-100">
-                <p className="text-xs text-emerald-500">
-                  Supervisor assigned. Team can no longer be deleted.
-                </p>
-              </div>
-            )}
-          </div>
+          <SupervisorCard
+            teamStatus={teamStatus}
+            supervisors={supervisors}
+            selectedSupervisor={selectedSupervisor}
+            setSelectedSupervisor={setSelectedSupervisor}
+            handleRequestSupervisor={handleRequestSupervisor}
+          />
 
           <button
             disabled={!teamId}
