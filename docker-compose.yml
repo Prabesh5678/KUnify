@@ -1,8 +1,7 @@
-version: '3.8'
 
 services:
   mongodb:
-    image: mongo:latest
+    image: mongo:8
     container_name: spmp_mongodb
     restart: always
     ports:
@@ -13,6 +12,43 @@ services:
       MONGO_INITDB_DATABASE: spmp
     volumes:
       - mongodb_data:/data/db
+    healthcheck:
+        test: ["CMD-SHELL", "mongosh --eval \"db.adminCommand('ping')\" --quiet"]
+        interval: 10s
+        timeout: 10s
+        retries: 10
+        start_period: 40s
+
+  server:
+    build:
+      context: ./server
+    container_name: spmp_server
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+       mongodb:
+        condition: service_healthy
+    env_file:
+      - ./server/.env
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+
+  client:
+    build:
+      context: ./client
+    container_name: spmp_client
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - server
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
 
 volumes:
   mongodb_data:

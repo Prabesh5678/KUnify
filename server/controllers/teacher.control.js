@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import Teacher from "../models/teacher.model.js";
 import Team from "../models/team.model.js";
 import mongoose from "mongoose";
-import { GiThwomp } from "react-icons/gi";
 import bcrypt from "bcryptjs";
 import LogEntry from "../models/logEntry.model.js"; 
 

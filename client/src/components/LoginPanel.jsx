@@ -406,7 +406,7 @@ googleId:decoded.sub,
         credential: decoded,
       });
 
-      if (!data?.success || !data?.student) return toast.error("Student login failed");
+      if (!data?.success || !data?.student) return toast.error(data.message || "Student login failed");
 
       setUser({ ...data.student, role: "student" });
       setShowUserLogin(false);
