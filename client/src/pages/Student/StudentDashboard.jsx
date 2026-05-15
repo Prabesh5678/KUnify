@@ -62,14 +62,14 @@ const StudentDashboard = () => {
         }
       }
     } catch (err) {
-      console.error("Failed to fetch team status:", err);
+    //  console.error("Failed to fetch team status:", err);
       setTeamStatus("Error");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // ✅ FIXED: run once
+  
   useEffect(() => {
     fetchTeamStatus();
   }, []);
@@ -103,7 +103,7 @@ const StudentDashboard = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      console.error(error);
+    //  console.error(error);
       toast.error("Something went wrong");
     }
   };

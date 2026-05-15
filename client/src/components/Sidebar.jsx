@@ -37,7 +37,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       }
     } catch (error) {
       toast.error(error.message||'Failed to logout');
-      console.error(error.stack);
+     // console.error(error.stack);
     }
   };
 

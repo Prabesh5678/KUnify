@@ -34,7 +34,7 @@ const RequestTeacher = () => {
         toast.error(res.data.message || "Failed to fetch supervisor requests");
       }
     } catch (err) {
-      console.error("Error fetching requests:", err);
+     // console.error("Error fetching requests:", err);
       const errorMessage = err.response?.data?.message || err.message || "Failed to fetch supervisor requests";
       toast.error(errorMessage);
 

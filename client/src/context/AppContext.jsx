@@ -53,7 +53,7 @@ export const AppContextProvider = ({ children }) => {
       } catch (err) {
         // ignore 401
         if (err.response?.status && err.response.status !== 401) {
-          console.warn("Admin auth error:", err.response?.data?.message || err.message);
+        //  console.warn("Admin auth error:", err.response?.data?.message || err.message);
         }
       }
 
@@ -157,7 +157,7 @@ export const AppContextProvider = ({ children }) => {
       toast.success("Profile completed successfully!");
     } catch (err) {
       console.error("Failed to complete profile:", err);
-      throw err;
+   //   throw err;
     }
   };
 
@@ -168,7 +168,7 @@ export const AppContextProvider = ({ children }) => {
       setStudentProfile(prev => ({ ...prev, subjectCode: subject }));
       await axios.put("/api/student/profile-update", { subjectCode: subject });
     } catch (err) {
-      console.error("Failed to save selected subject:", err);
+    //  console.error("Failed to save selected subject:", err);
     }
   };
 

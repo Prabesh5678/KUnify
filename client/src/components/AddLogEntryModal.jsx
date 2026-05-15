@@ -84,7 +84,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
         toast.error(res.data.message || "Unable to save log");
       }
     } catch (err) {
-      console.error(err);
+     // console.error(err);
       toast.error(err.response?.data?.message || "Failed to save log");
     } finally {
       setIsSubmitting(false); // enable buttons

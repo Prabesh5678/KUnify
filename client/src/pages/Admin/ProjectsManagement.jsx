@@ -33,7 +33,7 @@ const ProjectsManagement = () => {
       setAssignedTeams(res.data.assignedTeams);
       setUnassignedTeams(res.data.unassignedTeams);
     } catch (err) {
-      console.error(err);
+     // console.error(err);
       toast.error("Failed to load teams");
     }
   };
@@ -80,7 +80,7 @@ const ProjectsManagement = () => {
       toast.success("Teacher assigned successfully");
       setModalOpen(false);
     } catch (err) {
-      console.error(err);
+     // console.error(err);
       toast.error("Failed to assign teacher");
     }
   };

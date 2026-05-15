@@ -60,7 +60,7 @@ const CreateTeamModal = ({ isOpen, onClose, selectedSubject }) => {
         toast.error(res.data.message || "Failed to create team");
       }
     } catch (err) {
-      console.error("Create team error:", err);
+      //console.error("Create team error:", err);
       toast.error("Failed to create team. Please try again.");
     } finally {
       setIsLoading(false);

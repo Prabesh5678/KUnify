@@ -112,7 +112,7 @@ const TeamDetail = () => {
           setAllWeeks(weeks);
         }
       } catch (err) {
-        console.error("Error fetching all weeks:", err);
+       // console.error("Error fetching all weeks:", err);
       }
     };
 

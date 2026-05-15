@@ -41,11 +41,11 @@ const JoinTeamModal = ({ isOpen, onClose, selectedSubject }) => {
         }
       } else {
         toast.error(res.data.message || "Failed to join team");
-        console.error(res.data.message);
+       // console.error(res.data.message);
         
       }
     } catch (err) {
-      console.error("Join team error:", err);
+      //console.error("Join team error:", err);
       toast.error("Failed to join team. Please try again.");
     } finally {
       setIsLoading(false);

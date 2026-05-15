@@ -33,7 +33,7 @@ const StudentHome = () => {
         setTeam(teamRes.data.team);
       }
     } catch (err) {
-      console.error("Failed to fetch student/team", err);
+  //    console.error("Failed to fetch student/team", err);
     } finally {
       setLoading(false);
     }

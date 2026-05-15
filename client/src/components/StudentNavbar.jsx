@@ -37,7 +37,7 @@ const StudentNavbar = () => {
       }
     } catch (error) {
       toast.error("Failed to logout");
-      console.error(error);
+    //  console.error(error);
     }
   };
 

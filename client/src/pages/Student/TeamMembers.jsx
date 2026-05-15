@@ -129,20 +129,7 @@ const TeamMembers = () => {
   return (
     <div className="max-w-4xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-sm">
       {/* Header */}
-    {/*  <div className="border-b pb-4 mb-6">
-        <h2 className="text-3xl font-bold text-gray-800">{team.name}</h2>
-        <p className="text-gray-500 mt-1">
-          Supervisor:{" "}
-          <span className="font-medium">
-            {team.supervisor?.name || "Not assigned yet"}
-          </span><br></br>
-          Email:
-          <span className="font-medium">
-            {team.supervisor?.email || "Not assigned yet"}
-          </span>
-        </p>
-      </div>
-      */ }
+    
       <div className="text-gray-500 mt-1">
   {team.supervisor && team.supervisorStatus === "adminApproved" ? (
     <>

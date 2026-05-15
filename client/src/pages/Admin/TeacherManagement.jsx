@@ -53,7 +53,7 @@ const TeachersManagement = () => {
         setTeachers([]);
       }
     } catch (err) {
-      console.error(err);
+      //console.error(err);
       toast.error("Failed to fetch teachers");
     }
   };
@@ -84,7 +84,7 @@ const TeachersManagement = () => {
         toast.error("Status update failed");
       }
     } catch (err) {
-      console.error(err);
+      //console.error(err);
       toast.error("Failed to update status");
     }
   };
@@ -102,11 +102,11 @@ const TeachersManagement = () => {
         setTeachers((prev) => [...prev, newTeacher]);
         setModalOpen(false);
       } else {
-        console.error(res?.data?.message||'errored' );
+       // console.error(res?.data?.message||'errored' );
         toast.error("Failed to add teacher");
       }
     } catch (err) {
-      console.error(err);
+     // console.error(err);
       toast.error(err.response?.data?.message || "Failed to add teacher");
     }
   };
@@ -126,7 +126,7 @@ const TeachersManagement = () => {
         toast.error(res.data.message || "Failed to reset password");
       }
     } catch (err) {
-      console.error(err);
+    //  console.error(err);
       toast.error(err.response?.data?.message || "Failed to reset password");
     }
   };

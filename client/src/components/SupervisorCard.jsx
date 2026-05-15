@@ -20,12 +20,12 @@ const SupervisorCard = ({
       try {
         const { data } = await axios.get("/api/student/get-teachers");
         if (data.success) {
-          setSupervisors(data.teachers); // assuming the API returns { success: true, teachers: [...] }
+          setSupervisors(data.teachers); 
         } else {
           toast.error(data.message || "Failed to fetch supervisors");
         }
       } catch (err) {
-        console.error(err);
+      //  console.error(err);
         toast.error("Error fetching supervisors");
       }
     };

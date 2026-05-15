@@ -179,7 +179,7 @@ console.log(form)
             className={`w-full py-2 rounded-md font-medium transition ${
               !isFormValid || loading
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-primary hover:bg-primary/90 text-white"
+                : "bg-primary hover:bg-primary/90 text-white cursor-pointer"
             }`}
           >
             {loading ? "Saving..." : "Save & Continue"}

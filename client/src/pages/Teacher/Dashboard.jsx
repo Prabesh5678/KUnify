@@ -116,26 +116,7 @@ export default function TeacherDashboard() {
                     </div>
                     <span className="text-xl text-purple-700">→</span>
                   </button>
-        {/*
-                  <button
-                    onClick={() => navigate("/teacher/deficits")}
-                    className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center
-                               bg-gradient-to-r from-green-50 to-green-100 transition transform hover:-translate-y-1 cursor-pointer"
-                  >
-                    <div className="flex gap-4 items-center">
-                      <div className="p-3 bg-green-200 rounded-xl">
-                        <AlertCircle className="text-green-700" size={26} />
-                      </div>
-                      <div className="text-left">
-                        <p className="font-semibold text-gray-800">Team Deficits</p>
-                        <p className="text-sm text-gray-600">
-                          Teams with missing logsheets or rejected proposals.
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-xl text-green-700">→</span>
-                  </button>
-        */}
+       
                   <button
                     onClick={() => navigate("/teacher/requests")}
                     className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center

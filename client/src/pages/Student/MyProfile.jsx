@@ -103,7 +103,7 @@ const MyProfile = () => {
         toast.error(res.data.message || "Failed to update profile.");
       }
     } catch (err) {
-      console.error(err);
+    //  console.error(err);
       toast.error("Failed to update profile. Try again.");
     } finally {
       setLoading(false);

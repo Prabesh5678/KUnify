@@ -60,7 +60,7 @@ const PDFViewer = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Download failed:", error);
+      //console.error("Download failed:", error);
       // Fallback to direct download
       window.open(pdfUrl, "_blank");
     }
