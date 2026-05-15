@@ -21,8 +21,8 @@ const AdminSidebar = () => {
   const fetchPendingCount = async () => {
     try {
       const res = await axios.get(
-        "https://spmp.ku.edu.np/api/admin/supervisor/pending",
-        { withCredentials: true }
+        `${import.meta.env.VITE_BACKEND_URL}/api/admin/supervisor/pending`,
+        { withCredentials: true },
       );
       if (res.data.success) {
         const count = res.data.teams.filter(

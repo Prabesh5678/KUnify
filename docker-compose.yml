@@ -4,7 +4,7 @@ services:
     image: mongo:8
     container_name: spmp_mongodb
     restart: always
-    command: ["--replSet", "rs0", "--bind_ip_all", "--keyFile", "/etc/mongodb-keyfile"]
+    entrypoint: ["/bin/bash", "/setup.sh"]
     ports:
       - "27017:27017"
     environment:
@@ -13,14 +13,13 @@ services:
       MONGO_INITDB_DATABASE: spmp
     volumes:
       - mongodb_data:/data/db
-      - /etc/mongodb-keyfile:/etc/mongodb-keyfile:ro
+      - ./mongo-init/setup.sh:/setup.sh
     healthcheck:
-        test: ["CMD-SHELL", "mongosh --eval \"db.adminCommand('ping')\" --quiet"]
-        interval: 10s
-        timeout: 10s
-        retries: 10
-        start_period: 40s
-
+      test: ["CMD-SHELL", "mongosh -u admin -p password123 --authenticationDatabase admin --eval \"db.adminCommand('ping')\" --quiet"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
   server:
     build:
       context: ./server

@@ -27,7 +27,10 @@ const RequestTeacher = () => {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("https://spmp.ku.edu.np/api/admin/supervisor/pending");
+      const res = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/admin/supervisor/pending`,
+      );
+;
       if (res.data.success) {
         setRequests(res.data.teams || []);
       } else {
@@ -58,8 +61,7 @@ const RequestTeacher = () => {
 
     try {
       const endpoint = decision === "APPROVED" ? "approve" : "decline";
-      const url = `https://spmp.ku.edu.np/api/admin/supervisor/${endpoint}`;
-
+const url = `${import.meta.env.VITE_BACKEND_URL}/api/admin/supervisor/${endpoint}`;
       const response = await axios.post(url, { teamId: request._id });
 
       if (response.data.success) {
