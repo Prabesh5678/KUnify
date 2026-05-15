@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { FaChalkboardTeacher, FaProjectDiagram, FaUsers, FaTasks } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import AdminSidebar from "../../components/Admin/AdminSideBar";
+import AdminSidebar from "../../components/Admin/AdminSidebar";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import StatsCard from "../../components/Admin/StatsCard";
 

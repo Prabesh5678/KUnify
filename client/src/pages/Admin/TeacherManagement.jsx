@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AdminHeader from "../../components/Admin/AdminHeader";
-import AdminSidebar from "../../components/Admin/AdminSideBar";
+import AdminSidebar from "../../components/Admin/AdminSidebar";
 import AddTeacherModal from "../../components/Admin/AddTeacherModal";
 import ResetPasswordModal from "../../components/Admin/ResetPasswordModal";
 import { FaToggleOn, FaToggleOff } from "react-icons/fa";

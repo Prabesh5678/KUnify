@@ -80,7 +80,7 @@ export const uploadProposal = async (req, res) => {
 
   } catch (error) {
     if (session) await session.abortTransaction();
-    console.error(error.stack);
+    console.error("Full error: ",error);
     return res.status(500).json({
       success: false,
       message: error.message || "Server error",

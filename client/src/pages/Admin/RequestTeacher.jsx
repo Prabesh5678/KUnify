@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AdminSidebar from "../../components/Admin/AdminSideBar";
+import AdminSidebar from "../../components/Admin/AdminSidebar";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import { AlertCircle, Loader2, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +27,7 @@ const RequestTeacher = () => {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:3000/api/admin/supervisor/pending");
+      const res = await axios.get("https://spmp.ku.edu.np/api/admin/supervisor/pending");
       if (res.data.success) {
         setRequests(res.data.teams || []);
       } else {
@@ -58,7 +58,7 @@ const RequestTeacher = () => {
 
     try {
       const endpoint = decision === "APPROVED" ? "approve" : "decline";
-      const url = `http://localhost:3000/api/admin/supervisor/${endpoint}`;
+      const url = `https://spmp.ku.edu.np/api/admin/supervisor/${endpoint}`;
 
       const response = await axios.post(url, { teamId: request._id });
 

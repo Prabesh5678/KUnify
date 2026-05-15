@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AdminSidebar from "../../components/Admin/AdminSideBar";
+import AdminSidebar from "../../components/Admin/AdminSidebar";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import ProjectDetailModal from "../../components/Admin/ProjectDetailModal";
 import { toast } from "react-hot-toast";

@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import AdminHeader from "../../components/Admin/AdminHeader";
-import AdminSidebar from "../../components/Admin/AdminSideBar";
+import AdminSidebar from "../../components/Admin/AdminSidebar";
 import { FaUserGraduate, FaEnvelope, FaUsers, FaLayerGroup } from "react-icons/fa";
 
 const StudentDetails = () => {
