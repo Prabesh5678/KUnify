@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Trash2
 } from "lucide-react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
@@ -60,6 +61,7 @@ export default function TeacherSidebar() {
     { id: 3, label: "Team Requests", icon: <Bell size={20} />, to: "/teacher/requests" },
     //{ id: 4, label: "Team Deficits", icon: <AlertCircle size={20} />, to: "/teacher/deficits" },
     { id: 5, label: "Settings", icon: <Settings size={20} />, to: "/teacher/settings" },
+    { id: 6, label: "Delete Requests", icon: <Trash2 size={20} />, to: "/teacher/deleterequests" },
   ];
   if(location.pathname==='/teacher/profilesetup')
     return null;

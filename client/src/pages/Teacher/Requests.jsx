@@ -10,7 +10,8 @@ export default function TeamRequests() {
   const [selected, setSelected] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [error, setError] = useState("");
-
+  const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
+  const [selectedAccept, setSelectedAccept] = useState(null);
   const { triggerRequestRefetch } = useAppContext();
 
   const fetchTeamRequests = async () => {
@@ -46,6 +47,11 @@ export default function TeamRequests() {
     setDialogOpen(true);
   };
 
+  const openAcceptDialog = (req) => {
+    setSelectedAccept(req);
+    setAcceptDialogOpen(true);
+  };
+
   const handleAccept = async (reqId) => {
     try {
       // BACKEND (when ready)
@@ -54,13 +60,14 @@ export default function TeamRequests() {
         toast.success("Project accepted successfully!");
         triggerRequestRefetch();
         setRequests((prev) => prev.filter((r) => r._id !== reqId));
+        setAcceptDialogOpen(false);
       }
       else {
         toast.error('Unable to accept team')
-        console.error(data.message)
+        // console.error(data.message)
       }
     } catch (err) {
-      console.error(err.stack);
+      //  console.error(err.stack);
       toast.error("Failed to accept project.");
     }
   };
@@ -106,17 +113,17 @@ export default function TeamRequests() {
                 className="bg-white rounded-xl shadow-md border border-gray-200 p-5"
               >
                 <div className="flex justify-between items-start gap-4">
-                  <div>
-                    <h2 className="font-bold text-lg">{req.proposal.projectTitle}</h2>
-                    <p className="text-gray-600">Team: {req.name}</p>
-                    <p className="text-gray-500 text-sm mt-1">
+                  <div className="min-w-0">
+                    <h2 className="font-bold text-lg break-words">{req.proposal.projectTitle}</h2>
+                    <p className="text-gray-600 break-words">Team: {req.name}</p>
+                    <p className="text-gray-500 text-sm mt-1 break-words">
                       Keywords: {req.proposal.projectKeyword}
                     </p>
                   </div>
 
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleAccept(req._id)}
+                      onClick={() => openAcceptDialog(req)}
                       className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition cursor-pointer"
                     >
                       Accept
@@ -130,7 +137,7 @@ export default function TeamRequests() {
                   </div>
                 </div>
 
-                <div className="mt-4 text-gray-700">
+                <div className="mt-4 text-gray-700 break-words">
                   <strong>Abstract:</strong> {req.proposal.abstract}
                 </div>
 
@@ -160,7 +167,7 @@ export default function TeamRequests() {
               Confirm Rejection
             </h2>
 
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 mb-4 break-words">
               Are you sure you want to reject the project{" "}
               <span className="font-bold">{selected.proposal.projectTitle}</span>?
             </p>
@@ -182,6 +189,39 @@ export default function TeamRequests() {
                 Yes, Reject
               </button>
 
+
+              {acceptDialogOpen && selectedAccept && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+                  <div className="bg-white rounded-2xl shadow-xl border border-gray-200 max-w-lg w-full p-6">
+                    <h2 className="text-xl font-semibold mb-2">
+                      Confirm Acceptance
+                    </h2>
+
+                    <p className="text-gray-600 mb-4 break-words">
+                      Are you sure you want to accept the project{" "}
+                      <span className="font-bold">{selectedAccept.proposal.projectTitle}</span>?
+                    </p>
+
+                    <div className="flex justify-end gap-4">
+                      <button
+                        onClick={() => setAcceptDialogOpen(false)}
+                        style={{ cursor: "pointer" }}
+                        className="px-4 py-2 border rounded-md hover:bg-gray-100 transition"
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        onClick={handleAccept}
+                        style={{ cursor: "pointer" }}
+                        className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition"
+                      >
+                        Yes, Accept
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

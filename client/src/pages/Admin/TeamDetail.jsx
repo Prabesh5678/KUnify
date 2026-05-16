@@ -169,7 +169,7 @@ const TeamDetail = () => {
           
           {/* Team Header */}
 <div className="bg-white p-6 rounded-xl shadow">
-  <h1 className="text-2xl font-bold text-gray-800">{team.name}</h1>
+  <h1 className="text-2xl font-bold text-gray-800  break-words">{team.name}</h1>
   
   {team.supervisor && team.supervisorStatus === "adminApproved" ? (
     <p className="text-gray-600 mt-2">
@@ -210,9 +210,9 @@ const TeamDetail = () => {
               />
               {isProposalOpen && (
                 <div className="bg-white p-6 rounded-xl shadow space-y-2">
-                  <p><b>Title:</b> {team.proposal.projectTitle}</p>
-                  <p><b>Abstract:</b> {team.proposal.abstract}</p>
-                  <p><b>Keywords:</b>{team.proposal.projectKeyword}</p>
+                  <p className="break-words"><b>Title:</b> {team.proposal.projectTitle}</p>
+                  <p className="break-words"><b>Abstract:</b> {team.proposal.abstract}</p>
+                  <p className="break-words"><b>Keywords:</b>{team.proposal.projectKeyword}</p>
                   {team.proposal.proposalFile?.url && (
                     <button
                       onClick={() => handleViewPDF(team.proposal.proposalFile.url)}
@@ -281,8 +281,8 @@ const TeamDetail = () => {
                 <div key={i} className="border p-4 rounded bg-yellow-50">
                   <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">Week {log.week}</span>
                   <p className="font-semibold mt-1">{log.createdBy?.name || "Unknown"}</p>
-                  <p className="text-sm">{log.activity}</p>
-                  <p className="text-sm">{log.outcome}</p>
+                  <p className="text-sm break-words">{log.activity}</p>
+                  <p className="text-sm break-words">{log.outcome}</p>
                   <p className="text-xs text-gray-500 mt-1">Logged on: {new Date(log.createdAt).toLocaleString()}</p>
                 </div>
               ))}

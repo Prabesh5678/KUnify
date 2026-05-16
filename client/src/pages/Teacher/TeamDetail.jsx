@@ -160,11 +160,11 @@ export default function TeamDetails() {
                   <div className="rounded-xl border border-purple-200 p-5 shadow-sm">
                     <h2 className="font-bold text-lg text-blue-700">Project Details</h2>
                     <div className="mt-4">
-                      <h3 className="font-semibold text-gray-600">Project Title</h3>
-                      <p className="text-gray-700">{proposal?.projectTitle || "N/A"}</p>
+                      <h3 className="font-semibold text-gray-600 truncate">Project Title</h3>
+                      <p className="text-gray-700 break-words">{proposal?.projectTitle || "N/A"}</p>
                     </div>
                     <div className="mt-4">
-                      <h3 className="font-semibold text-gray-600">Abstract</h3>
+                      <h3 className="font-semibold text-gray-600 break-words">Abstract</h3>
                       <p className="text-gray-700">{proposal?.abstract || "N/A"}</p>
                     </div>
                     {proposal?.proposalFile?.url && (
@@ -242,8 +242,8 @@ export default function TeamDetails() {
                         <div key={index} className="border p-4 rounded bg-yellow-50 mb-3">
                           <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">Week {log.week}</span>
                           <p className="font-semibold mt-1">{log.createdBy?.name || "Unknown"}</p>
-                          <p className="text-sm">{log.activity}</p>
-                          <p className="text-sm">{log.outcome}</p>
+                          <p className="text-sm break-words">{log.activity}</p>
+                          <p className="text-sm break-words">{log.outcome}</p>
                           <p className="text-xs text-gray-500 mt-1">Logged on: {new Date(log.createdAt).toLocaleString()}</p>
                         </div>
                       ))

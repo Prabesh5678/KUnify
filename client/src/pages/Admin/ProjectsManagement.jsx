@@ -114,13 +114,13 @@ const ProjectsManagement = () => {
                   className={`${color.bg} ${color.border} border-b hover:shadow-md transition-all duration-200`}
                 >
                   <td
-                    className="p-3 text-primary cursor-pointer"
+                    className="p-3 text-primary cursor-pointer break-words max-w-[150px]"
                     onClick={() => navigate(`/admin/teamdetail/${team._id}`)}
                   >
                     {team.name || team.projectTitle || "Unnamed Team"}
                   </td>
 
-                  <td className="p-3">
+                  <td className="p-3 break-words max-w-[150px]">
                     {team.department || team.leaderId?.department || team.members?.[0]?.department || "N/A"}
                   </td>
 
