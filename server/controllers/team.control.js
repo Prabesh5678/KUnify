@@ -29,7 +29,7 @@ throw new Error('StudentId Error!')
       throw new Error("All fields required!");
     }
 
-    const leader = await Student.findById(studentId);
+    const leader = await Student.findById(studentId).session(session);
     if (leader.teamId) {
       throw new Error("Already in a team!");
     }
@@ -86,12 +86,12 @@ export const joinTeam = async (req, res) => {
       throw new Error("Something is missing");
     }
 
-    const student = await Student.findById(studentId);
+    const student = await Student.findById(studentId).session(session);
     if (student.teamId || student.isTeamLeader) {
       throw new Error("Already in a team!");
     }
 
-    const team = await Team.findOne({ code, subject });
+    const team = await Team.findOne({ code, subject }).session(session);
     if (!team) {
       throw new Error("Invalid team code or select the valid subject!");
     }
@@ -132,13 +132,13 @@ export const leaveTeam = async (req, res) => {
     session.startTransaction();
 
     const studentId = req.studentId;
-    const student = await Student.findById(studentId);
+    const student = await Student.findById(studentId).session(session);
 
     if (!student || !student.teamId) {
       throw new Error("Not in any team!");
     }
 
-    const team = await Team.findById(student.teamId);
+    const team = await Team.findById(student.teamId).session(session);
 
     team.members.pull(studentId);
 
@@ -193,7 +193,7 @@ export const memberApprove = async (req, res) => {
     const { teamId } = req.params;
     const { memberId, action, memberCount } = req.body;
 
-    const team = await Team.findById(teamId);
+    const team = await Team.findById(teamId).session(session);
     if (!team) {
       throw new Error("Team not found!");
     }
@@ -202,7 +202,7 @@ export const memberApprove = async (req, res) => {
       throw new Error("Only leader can approve members!");
     }
 
-    const member = await Student.findById(memberId);
+    const member = await Student.findById(memberId).session(session);
     if (!member || member.teamId?.toString() !== teamId) {
       throw new Error("Invalid member!");
     }
@@ -246,13 +246,13 @@ export const deleteTeam = async (req, res) => {
     session.startTransaction();
 
     const studentId = req.studentId;
-    const student = await Student.findById(studentId);
+    const student = await Student.findById(studentId).session(session);
 
     if (!student || !student.teamId || !student.isTeamLeader) {
       throw new Error("Not in any team or isn't a teamleader!");
     }
 
-    const team = await Team.findById(student.teamId);
+    const team = await Team.findById(student.teamId).session(session);
     if (!team) throw new Error("Team not found!");
     if (team.supervisorStatus === "adminApproved")
       throw new Error("Supervisor already allocated so unable to delete team!");
@@ -261,7 +261,7 @@ export const deleteTeam = async (req, res) => {
       throw new Error("Not a leader or more team members!");
     }
     if (team.supervisor) {
-      const teacher = await Teacher.findById(team.supervisor);
+      const teacher = await Teacher.findById(team.supervisor).session(session);
       if (teacher) {
         teacher.pendingTeams.pull(student.teamId);
         teacher.approvedTeams.pull(student.teamId);

@@ -428,9 +428,9 @@ export const assignSupervisorManually = async (req, res) => {
     if (!teamId || !teacherId) {
       throw new Error("Provide teamId and teacherId");
     }
-    const team = await Team.findById(teamId);
+    const team = await Team.findById(teamId).session(session);
     if (!team) throw new Error("Team not found!");
-    const teacher = await Teacher.findById(teacherId);
+    const teacher = await Teacher.findById(teacherId).session(session);
     if (!teacher) throw new Error("Teacher not found!");
     team.supervisor = teacher._id;
     team.supervisorStatus = "adminApproved";
