@@ -383,12 +383,6 @@ export const getTeacherSimilarity = async (req, res) => {
         message: "Team does not have proposal keywords",
       });
     }
-
-    // if (team.supervisor || team.requestedSupervisor) {
-    //  return res.status(400).json({
-    //   message: "Similarity only for teams without requested/assigned supervisor"
-    //  });
-    // }
     const teachers = await Teacher.find({
       activeStatus: true,
       isProfileCompleted: true,
