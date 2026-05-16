@@ -6,10 +6,10 @@ chmod 400 /etc/mongodb-keyfile
 chown 999:999 /etc/mongodb-keyfile
 
 # Start MongoDB with replica set and keyfile
-exec docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --keyFile /etc/mongodb-keyfile &
+docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --keyFile /etc/mongodb-keyfile &
 
 # Wait for MongoDB to be ready
-sleep 10
+sleep 30
 
 # Initialize replica set
 mongosh -u admin -p password123 --authenticationDatabase admin --eval "
