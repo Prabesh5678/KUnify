@@ -54,7 +54,7 @@ const MyProfile = () => {
         "3rd": "COMP206",
         "4th": "COMP207",
         "5th": "COMP303",
-        "6th": "COMP313",
+        "6th": "COMP308",
       };
       subject = ceMap[sem] || "";
     }
