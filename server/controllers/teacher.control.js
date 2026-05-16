@@ -190,9 +190,9 @@ export const teamApprove = async (req, res) => {
     if (!teacherId) throw new Error("Unable to get teacher id!");
     const { requestId } = req.body;
     if (!requestId) throw new Error("Unable to get team id!");
-    const team = await Team.findById(requestId);
+    const team = await Team.findById(requestId).session(session);
     if (!team) throw new Error("Unable to find team!");
-    const teacher = await Teacher.findById(teacherId);
+    const teacher = await Teacher.findById(teacherId).session(session);
     if (!teacher || !teacher.pendingTeams.map(String).includes(requestId))
       throw new Error("Unable to find teacher or team is not in pending list!");
 
