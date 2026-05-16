@@ -146,6 +146,11 @@ const Request = () => {
       toast.error("Please complete all required fields before submitting");
       return;
     }
+    const titleWordCount = title.trim().split(/\s+/).length;
+
+  if (titleWordCount > 30) {
+    return toast.error("Project title cannot exceed 30 words");
+  }
 
     const formData = new FormData();
     formData.append("title", title);
@@ -413,8 +418,8 @@ const Request = () => {
               {isProposalSubmitted && existingProposal && (
                 <div className="mt-4 flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-3">
                   <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-800">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-800 truncate">
                       {existingProposal.projectTitle || title || "Team Proposal"}
                     </p>
                     <p className="text-xs text-green-600 font-medium">
