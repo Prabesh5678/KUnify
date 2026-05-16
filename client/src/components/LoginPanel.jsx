@@ -35,45 +35,43 @@ const LoginPanel = () => {
       const decoded = jwtDecode(credentialResponse.credential);
       const email = decoded.email;
       if (!email) return toast.error("Email not provided by Google.");
-const decodedData={
-name:decoded.name,
-email,
-picture:decoded.picture,
-googleId:decoded.sub,
-}
+      const decodedData = {
+        name: decoded.name,
+        email,
+        picture: decoded.picture,
+        googleId: decoded.sub,
+      }
       // ---- Teacher ----
-   if (
-  TEACHER_EMAIL.includes(email.toLowerCase()) &&
-  email.toLowerCase().endsWith("@ku.edu.np")
-) {
-  const { data } = await axios.post(
-    "/api/teacher/google-signin",
-    { credential: decodedData },
-    { withCredentials: true }
-  );
+      if (
+        TEACHER_EMAIL.includes(email.toLowerCase()) ||
+        email.toLowerCase().endsWith("@ku.edu.np")
+      ) {
+        const { data } = await axios.post(
+          "/api/teacher/google-signin",
+          { credential: decodedData },
+          { withCredentials: true }
+        );
 
-  if (!data?.success || !data.user) {
-    return toast.error("Teacher login failed");
-  
+        if (!data?.success || !data.user) {
+          return toast.error("Teacher login failed");
+        }
 
-  setShowUserLogin(false);
-} else {
-  toast.error("Only the email provided by KU is allowed");
-}
+        setShowUserLogin(false);
 
-  // fetch the real DB user into context
-  const freshUser = await fetchUser();
+        // fetch the real DB user into context
+        const freshUser = await fetchUser();
 
-  // Navigate based on actual user in context
-  if (freshUser?.isProfileCompleted) {
-    navigate("/teacher/dashboard", { replace: true });
-  } else {
-    navigate("/teacher/profilesetup", { replace: true });
-  }
+        // Navigate based on actual user in context
+        if (freshUser?.isProfileCompleted) {
+          navigate("/teacher/dashboard", { replace: true });
+        } else {
+          navigate("/teacher/profilesetup", { replace: true });
+        }
+        return;
 
-  return;
-}
-
+      } else {
+        toast.error("Only the email provided by KU is allowed");
+      }
 
       // ---- Student ----
       if (!email.endsWith("@student.ku.edu.np")) return toast.error("Only emails provided by KU is allowed");
@@ -93,7 +91,7 @@ googleId:decoded.sub,
       navigate(profileCompleted ? "/student/home" : "/setup-profile", { replace: true });
       toast.success("Login successful!");
     } catch (err) {
-    //  console.error(err);
+      //  console.error(err);
       toast.error("Something went wrong during login.");
     }
   };
@@ -122,37 +120,36 @@ googleId:decoded.sub,
         return;
       }
     } catch (err) {
-    //  console.log("Not admin, trying Visiting Faculty login");
+      //  console.log("Not admin, trying Visiting Faculty login");
     }
 
     // Visiting Faculty fallback
     try {
-            const { data } = await axios.post("/api/teacher/login", {
-              email: vfEmail,
-              password: vfPassword,
-            });
+      const { data } = await axios.post("/api/teacher/login", {
+        email: vfEmail,
+        password: vfPassword,
+      });
 
-   if(data.success) {
-  setShowUserLogin(false);
+      if (data.success) {
+        setShowUserLogin(false);
 
-  // fetch the real DB user from backend and populate context
-  const freshUser = await fetchUser();
+        // fetch the real DB user from backend and populate context
+        const freshUser = await fetchUser();
 
-  // navigate based on actual profile completion
-  if(freshUser?.isProfileCompleted) {
-    navigate("/teacher/dashboard", { replace: true });
-  } else {
-    navigate("/teacher/profilesetup", { replace: true });
-  }
+        // navigate based on actual profile completion
+        if (freshUser?.isProfileCompleted) {
+          navigate("/teacher/dashboard", { replace: true });
+        } else {
+          navigate("/teacher/profilesetup", { replace: true });
+        }
 
-  // reset login form
-  setVfEmail("");
-  setVfPassword("");
-  toast.success("Visiting faculty login successful!");
-}
+        // reset login form
+        setVfEmail("");
+        setVfPassword("");
+        toast.success("Visiting faculty login successful!");
+      }
 
-      else
-      {
+      else {
         toast.error('Unable to login');
         console.error(data?.messge)
       }
