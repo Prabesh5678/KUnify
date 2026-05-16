@@ -210,7 +210,7 @@ export const memberApprove = async (req, res) => {
     if (action === "approve") {
       if (memberCount >= 5) throw new Error("Max member reached!");
       member.isApproved = true;
-      await member.save();
+      await member.save({session});
       return res.json({ success: true, message: "Member approved!" });
     }
 
