@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { GoogleLogin } from "@react-oauth/google";
@@ -19,7 +18,8 @@ const TEACHER_EMAIL = [
 ];
 
 const LoginPanel = () => {
-  const { setUser, showUserLogin, setShowUserLogin, fetchUser } = useAppContext();
+  const { setUser, showUserLogin, setShowUserLogin, fetchUser } =
+    useAppContext();
   const navigate = useNavigate();
 
   const [vfEmail, setVfEmail] = useState("");
@@ -40,7 +40,7 @@ const LoginPanel = () => {
         email,
         picture: decoded.picture,
         googleId: decoded.sub,
-      }
+      };
       // ---- Teacher ----
       if (
         TEACHER_EMAIL.includes(email.toLowerCase()) ||
@@ -49,10 +49,12 @@ const LoginPanel = () => {
         const { data } = await axios.post(
           "/api/teacher/google-signin",
           { credential: decodedData },
-          { withCredentials: true }
+          { withCredentials: true },
         );
-
-        if (!data?.success || !data.user) {
+        if (data.success) {
+          toast.success("Teacher login successful!");
+        }
+        if (!data.success) {
           return toast.error("Teacher login failed");
         }
 
@@ -68,31 +70,38 @@ const LoginPanel = () => {
           navigate("/teacher/profilesetup", { replace: true });
         }
         return;
-
-      } else {
-        toast.error("Only the email provided by KU is allowed");
       }
 
       // ---- Student ----
-      if (!email.endsWith("@student.ku.edu.np")) return toast.error("Only emails provided by KU is allowed");
+      else if (!email.endsWith("@student.ku.edu.np"))
+        return toast.error("Only emails provided by KU is allowed");
 
       const { data } = await axios.post("/api/student/google-signin", {
         credential: decoded,
       });
 
-      if (!data?.success || !data?.student) return toast.error(data.message || "Student login failed");
+      if (!data.success)
+        return toast.error(data.message || "Student login failed");
 
       setUser({ ...data.student, role: "student" });
       setShowUserLogin(false);
 
-      const profileCompleted =
-        !!(data.student.department && data.student.semester && data.student.rollNumber && data.student.subjectCode);
+      const profileCompleted = !!(
+        data.student.department &&
+        data.student.semester &&
+        data.student.rollNumber &&
+        data.student.subjectCode
+      );
 
-      navigate(profileCompleted ? "/student/home" : "/setup-profile", { replace: true });
-      toast.success("Login successful!");
-    } catch (err) {
-      //  console.error(err);
+      navigate(profileCompleted ? "/student/home" : "/setup-profile", {
+        replace: true,
+      });
+      return toast.success("Login successful!");
+    }
+     catch (err) {
+       console.error(err);
       toast.error("Something went wrong during login.");
+      return;
     }
   };
 
@@ -102,12 +111,16 @@ const LoginPanel = () => {
   };
 
   const handleVisitingFacultyLogin = async () => {
-    if (!vfEmail || !vfPassword) return toast.error("Please enter email and password");
+    if (!vfEmail || !vfPassword)
+      return toast.error("Please enter email and password");
     setLoadingVF(true);
 
     try {
       // Admin login
-      const { data } = await axios.post("/api/admin/login", { email: vfEmail, password: vfPassword });
+      const { data } = await axios.post("/api/admin/login", {
+        email: vfEmail,
+        password: vfPassword,
+      });
 
       if (data.success) {
         setUser({ email: vfEmail, role: "admin" });
@@ -147,11 +160,9 @@ const LoginPanel = () => {
         setVfEmail("");
         setVfPassword("");
         toast.success("Visiting faculty login successful!");
-      }
-
-      else {
-        toast.error('Unable to login');
-        console.error(data?.messge)
+      } else {
+        toast.error("Unable to login");
+        console.error(data?.messge);
       }
     } catch (err) {
       toast.error("Login failed");
@@ -178,14 +189,13 @@ const LoginPanel = () => {
 
         <div className="text-sm text-gray-300 space-y-2 mb-6">
           <p>
-            <span className="font-semibold text-gray-100">Students:</span>{" "}
-            Use email ending with{" "}
+            <span className="font-semibold text-gray-100">Students:</span> Use
+            email ending with{" "}
             <span className="text-gray-100">@student.ku.edu.np</span>
           </p>
           <p>
-            <span className="font-semibold text-gray-100">Teachers:</span>{" "}
-            Use email ending with{" "}
-            <span className="text-gray-100">@ku.edu.np</span>
+            <span className="font-semibold text-gray-100">Teachers:</span> Use
+            email ending with <span className="text-gray-100">@ku.edu.np</span>
           </p>
         </div>
 
@@ -243,14 +253,12 @@ const LoginPanel = () => {
           </div>
         </div>
 
-
         <button
           onClick={() => {
-            setShowUserLogin(false)
+            setShowUserLogin(false);
             setVfEmail("");
             setVfPassword("");
-          }
-          }
+          }}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-200 text-lg cursor-pointer"
         >
           ✕
