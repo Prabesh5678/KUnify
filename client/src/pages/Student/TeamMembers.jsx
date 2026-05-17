@@ -66,7 +66,6 @@ const TeamMembers = () => {
         { memberId, action,memberCount:approvedMembers.length },
         { withCredentials: true }
       );
-
       if (res.data.success) {
         toast.success(res.data.message);
         fetchTeam();

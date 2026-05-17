@@ -192,7 +192,6 @@ export const memberApprove = async (req, res) => {
     const leaderId = req.studentId;
     const { teamId } = req.params;
     const { memberId, action, memberCount } = req.body;
-
     const team = await Team.findById(teamId).session(session);
     if (!team) {
       throw new Error("Team not found!");
@@ -211,6 +210,7 @@ export const memberApprove = async (req, res) => {
       if (memberCount >= 5) throw new Error("Max member reached!");
       member.isApproved = true;
       await member.save({session});
+      await session.commitTransaction();
       return res.json({ success: true, message: "Member approved!" });
     }
 
