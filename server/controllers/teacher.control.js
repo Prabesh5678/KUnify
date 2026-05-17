@@ -173,11 +173,31 @@ export const teamRequest = async (req, res) => {
         teams: requests,
         totalLogEntries: totalLogs,
       });
+    } else if (req.query.get === "deletion") {
+      const teacher = await Teacher.findById(teacherId)
+        .select("deletionTeams")
+        .populate({
+          path: "deletionTeams",
+          select: "name members supervisorStatus",
+        });
+      if (!teacher) {
+        return res.json({ success: false, message: "Unable to find teacher!" });
+      }
+
+      if (!teacher.deletionTeams || teacher.deletionTeams.length === 0) {
+        return res.json({
+          success: false,
+          message: "Unable to find any deletion teams!",
+        });
+      }
+      const teams = teacher.deletionTeams;
+      return res.json({ success: true, teams });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Query parameter 'get' is invalid",
+      });
     }
-    return res.status(400).json({
-      success: false,
-      message: "Query parameter 'get' is invalid",
-    });
   } catch (error) {
     console.error(error.stack);
     return res.json({ success: false, message: "Unable to get team data!" });
