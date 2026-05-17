@@ -180,6 +180,10 @@ export const teamRequest = async (req, res) => {
         .populate({
           path: "deletionTeams",
           select: "name members supervisorStatus",
+          populate: {         
+        path: "members",
+        select: "name",
+      },
         });
       if (!teacher) {
         return res.json({ success: false, message: "Unable to find teacher!" });
@@ -399,6 +403,10 @@ export const deleteTeam = async (req, res) => {
   } catch (error) {
     if (session) await session.abortTransaction();
     console.error(error);
+<<<<<<< HEAD
     res.json({ success: false, message:error.message|| "Unable to delete team" });
+=======
+    res.json({ success: false, message: error.message||"Unable to delete team" });
+>>>>>>> 596cfe3eccbe48f3ffc78f9e170b0a6d0f928a90
   }
 };
