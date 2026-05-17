@@ -188,13 +188,6 @@ export const teamRequest = async (req, res) => {
       if (!teacher) {
         return res.json({ success: false, message: "Unable to find teacher!" });
       }
-
-      if (!teacher.deletionTeams || teacher.deletionTeams.length === 0) {
-        return res.json({
-          success: false,
-          message: "Unable to find any deletion teams!",
-        });
-      }
       const teams = teacher.deletionTeams;
       return res.json({ success: true, teams });
     } else {

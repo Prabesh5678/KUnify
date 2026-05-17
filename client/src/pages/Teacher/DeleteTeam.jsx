@@ -24,7 +24,7 @@ const [actionLoading, setActionLoading] = useState(false);
       if (data.success) {
         setRequests(data.teams);
       } else {
-     toast.error("Failed to fetch requests");
+     toast.error(data.message||"Failed to fetch requests");
       }
     } catch (err) {
       setError("Failed to load requests");
