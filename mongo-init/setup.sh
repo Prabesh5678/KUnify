@@ -1,26 +1,53 @@
 #!/bin/bash
+set -e
 
 # Generate keyfile
 openssl rand -base64 756 > /etc/mongodb-keyfile
 chmod 400 /etc/mongodb-keyfile
 chown 999:999 /etc/mongodb-keyfile
 
-# Start MongoDB with replica set and keyfile
-exec docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --keyFile /etc/mongodb-keyfile &
+# Start MongoDB WITHOUT auth first, so we can create the admin user
+mongod --replSet rs0 --bind_ip_all --fork --logpath /var/log/mongod-init.log
 
 # Wait for MongoDB to be ready
-sleep 10
+echo "Waiting for MongoDB to start..."
+until mongosh --eval "db.adminCommand('ping')" --quiet; do
+  sleep 1
+done
 
-# Initialize replica set
-mongosh -u admin -p password123 --authenticationDatabase admin --eval "
-try {
-  rs.status();
-  print('Already initialized');
-} catch(e) {
-  rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongodb:27017'}]});
-  print('Replica set initialized!');
-}
+# Initialize replica set (no auth yet)
+mongosh --eval "
+  try {
+    rs.status();
+    print('Already initialized');
+  } catch(e) {
+    rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongodb:27017'}]});
+    print('Replica set initialized');
+  }
 "
 
-# Keep container running
-wait
+# Wait for primary to be elected
+echo "Waiting for primary election..."
+until mongosh --eval "db.isMaster().ismaster" --quiet | grep -q true; do
+  sleep 1
+done
+
+# Create admin user
+mongosh admin --eval "
+  if (db.getUser('admin') === null) {
+    db.createUser({
+      user: 'admin',
+      pwd: 'password123',
+      roles: [{role: 'root', db: 'admin'}]
+    });
+    print('Admin user created');
+  } else {
+    print('Admin user already exists');
+  }
+"
+
+# Shut down the no-auth instance
+mongod --shutdown
+
+# Restart with auth + keyfile enabled (this becomes PID 1, keeping container alive)
+exec docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --keyFile /etc/mongodb-keyfile --auth
