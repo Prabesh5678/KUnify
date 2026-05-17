@@ -6,14 +6,11 @@ openssl rand -base64 756 > /etc/mongodb-keyfile
 chmod 400 /etc/mongodb-keyfile
 chown 999:999 /etc/mongodb-keyfile
 
-# Start MongoDB WITHOUT auth first, so we can create the admin user
-mongod --replSet rs0 --bind_ip_all --fork --logpath /var/log/mongod-init.log
+# Start MongoDB with replica set and keyfile
+docker-entrypoint.sh mongod --replSet rs0 --bind_ip_all --keyFile /etc/mongodb-keyfile &
 
 # Wait for MongoDB to be ready
-echo "Waiting for MongoDB to start..."
-until mongosh --eval "db.adminCommand('ping')" --quiet; do
-  sleep 1
-done
+sleep 30
 
 # Initialize replica set (no auth yet)
 mongosh --eval "
