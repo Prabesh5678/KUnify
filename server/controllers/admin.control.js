@@ -233,6 +233,7 @@ export const approveSupervisorRequest = async (req, res) => {
     teacher.approvedTeams = teacher.approvedTeams.filter(
       (id) => id.toString() !== team._id.toString(),
     );
+    teacher.activeCount += 1;
     await Promise.all([team.save(), teacher.save()]);
     res.json({ success: true, message: "Supervisor assigned successfully!" });
   } catch (err) {
@@ -445,6 +446,7 @@ export const assignSupervisorManually = async (req, res) => {
     if (teacher.approvedTeams.includes(team._id)) {
       teacher.approvedTeams.pull(team._id);
     }
+    teacher.activeCount += 1;
     await teacher.save({ session });
     await session.commitTransaction();
     res.json({

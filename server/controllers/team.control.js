@@ -23,8 +23,7 @@ export const createTeam = async (req, res) => {
 
     const { name, subject } = req.body;
     const studentId = req.studentId;
-if(!studentId)
-throw new Error('StudentId Error!')
+    if (!studentId) throw new Error("StudentId Error!");
     if (!name || !subject) {
       throw new Error("All fields required!");
     }
@@ -46,7 +45,7 @@ throw new Error('StudentId Error!')
       ],
       { session },
     );
-console.log(team[0])
+    console.log(team[0]);
     leader.teamId = team[0]._id;
     leader.isTeamLeader = true;
     leader.isApproved = true;
@@ -96,9 +95,8 @@ export const joinTeam = async (req, res) => {
       throw new Error("Invalid team code or select the valid subject!");
     }
 
-    // const needsApproval =
-    //   student.lastTeamId &&
-    //   student.lastTeamId.toString() === team._id.toString();
+    if(team.supervisorStatus==='underDeletion') 
+      throw new Error("Team is under deletion process so unable to join!");
 
     team.members.addToSet(studentId);
 
@@ -175,7 +173,7 @@ export const teamInfo = async (req, res) => {
     if (!team) {
       return res.json({ success: false, message: "Team not found!" });
     }
-console.log(team)
+    console.log(team);
     return res.json({ success: true, team });
   } catch (err) {
     console.error(err);
@@ -209,7 +207,7 @@ export const memberApprove = async (req, res) => {
     if (action === "approve") {
       if (memberCount >= 5) throw new Error("Max member reached!");
       member.isApproved = true;
-      await member.save({session});
+      await member.save({ session });
       await session.commitTransaction();
       return res.json({ success: true, message: "Member approved!" });
     }
@@ -252,21 +250,31 @@ export const deleteTeam = async (req, res) => {
       throw new Error("Not in any team or isn't a teamleader!");
     }
 
-    const team = await Team.findById(student.teamId).session(session);
+    const team = await Team.findById(student.teamId)
+      .populate("supervisor")
+      .session(session);
     if (!team) throw new Error("Team not found!");
-    if (team.supervisorStatus === "adminApproved")
-      throw new Error("Supervisor already allocated so unable to delete team!");
+    // if (team.supervisorStatus === "adminApproved")
+    //   throw new Error("Supervisor already allocated so unable to delete team!");
     const count = team.members.length;
-    if (count > 1 && team.leaderId.toString() !== studentId) {
+    if (count > 1 || team.leaderId.toString() !== studentId) {
       throw new Error("Not a leader or more team members!");
     }
     if (team.supervisor) {
-      const teacher = await Teacher.findById(team.supervisor).session(session);
-      if (teacher) {
-        teacher.pendingTeams.pull(student.teamId);
-        teacher.approvedTeams.pull(student.teamId);
-        teacher.save({ session });
+      const teacher = team.supervisor;
+      if (team.supervisorStatus === "adminApproved") {
+        teacher.deletionTeams.addToSet(student.teamId);
+        team.supervisorStatus = "underDeletion";
+        await Promise.all([team.save({ session }), teacher.save({ session })]);
+        await session.commitTransaction();
+        return res.json({
+          success: true,
+          message: "Team marked for deletion. Waiting for teacher's approval!",
+        });
       }
+      teacher.pendingTeams.pull(student.teamId);
+      teacher.approvedTeams.pull(student.teamId);
+      await teacher.save({ session });
     }
 
     (await proposalModel.deleteMany({ team: student.teamId }, { session }),

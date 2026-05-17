@@ -3,7 +3,8 @@ import Teacher from "../models/teacher.model.js";
 import Team from "../models/team.model.js";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import LogEntry from "../models/logEntry.model.js"; 
+import LogEntry from "../models/logEntry.model.js";
+import ProposalModel from "../models/proposal.model.js";
 
 // POST /api/teacher/google-signin
 export const googleSignIn = async (req, res) => {
@@ -153,22 +154,25 @@ export const teamRequest = async (req, res) => {
       const teacher = await Teacher.findById(teacherId).select("pendingTeams");
       const count = teacher?.pendingTeams?.length || 0;
       return res.json({ success: true, count });
-    }
-     else if (req.query.get === "all") {
+    } else if (req.query.get === "all") {
       const requests = await Teacher.findById(teacherId)
         .select("assignedTeams approvedTeams pendingTeams -_id")
         .populate({
           path: "assignedTeams",
           populate: {
-            path: "supervisor"
+            path: "supervisor",
           },
         });
       if (!requests)
         return res.json({ success: false, message: "Unable to find teacher!" });
-      const totalLogs = await LogEntry.countDocuments({ 
-    teamId: { $in: requests.assignedTeams } 
-  });
-      return res.json({ success: true, teams: requests, totalLogEntries: totalLogs });
+      const totalLogs = await LogEntry.countDocuments({
+        teamId: { $in: requests.assignedTeams },
+      });
+      return res.json({
+        success: true,
+        teams: requests,
+        totalLogEntries: totalLogs,
+      });
     }
     return res.status(400).json({
       success: false,
@@ -230,10 +234,13 @@ export const teamApprove = async (req, res) => {
 export const teacherLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-  if(!email||!password)
-    return res.json({success:false,message:"Please provide all feilds!"})
+    if (!email || !password)
+      return res.json({
+        success: false,
+        message: "Please provide all feilds!",
+      });
 
-    const teacher = await Teacher.findOne({ email }).select('+password').lean();
+    const teacher = await Teacher.findOne({ email }).select("+password").lean();
 
     if (!teacher) {
       return res.status(401).json({
@@ -265,11 +272,11 @@ export const teacherLogin = async (req, res) => {
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
     });
-delete teacher.password;
-console.log(teacher)
+    delete teacher.password;
+    console.log(teacher);
     res.json({
       success: true,
-       user: {
+      user: {
         id: teacher._id,
         name: teacher.name,
         email: teacher.email,
@@ -279,10 +286,12 @@ console.log(teacher)
       },
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message||'Something wrong!' });
+    res
+      .status(500)
+      .json({ success: false, message: err.message || "Something wrong!" });
   }
 };
- 
+
 // fetching logsheet
 export const getTeamLogsheets = async (req, res) => {
   try {
@@ -292,7 +301,7 @@ export const getTeamLogsheets = async (req, res) => {
     const query = { teamId };
 
     if (week && week !== "all") query.week = week;
-    if (studentId && studentId !== "all") query.createdBy = studentId; 
+    if (studentId && studentId !== "all") query.createdBy = studentId;
     const logs = await LogEntry.find(query)
       .populate("createdBy", "name email semester rollNumber department")
       .lean();
@@ -304,3 +313,71 @@ export const getTeamLogsheets = async (req, res) => {
   }
 };
 
+// /api/teacher/delete-team/:teamId
+export const deleteTeam = async (req, res) => {
+  let session;
+  try {
+    session = await mongoose.startSession();
+    session.startTransaction();
+    const action = req.query.action;
+    const teacherId = req.teacherId;
+    const { teamId } = req.params;
+    if (!teacherId) throw new Error("Unable to get teacher id!");
+    const teacher = await Teacher.findById(teacherId).session(session);
+    if (!teacher) throw new Error("Unable to find teacher!");
+    if (!teamId) throw new Error("Unable to get team id!");
+    const team = await Team.findById(teamId)
+      .populate("leaderId")
+      .session(session);
+    if (!team || !team.leaderId)
+      throw new Error("Unable to find team or leader!");
+    const leader = team.leaderId;
+    if (team.supervisorStatus !== "underDeletion") {
+      throw new Error("Team is not marked for deletion!");
+    }
+    if (team.supervisor && team.supervisor._id.toString() !== teacherId) {
+      throw new Error("You are not the supervisor of this team!");
+    }
+
+    if (action === "cancel") {
+      team.supervisorStatus = "adminApproved";
+      teacher.deletionTeams.pull(teamId);
+      await Promise.all([team.save({ session }), teacher.save({ session })]);
+      await session.commitTransaction();
+      return res.json({ success: true, message: "Team deletion cancelled!" });
+    } else if (action === "confirm") {
+      if (team.members.length > 1)
+        throw new Error("Team still has members! Unable to delete!");
+      teacher.deletionTeams.pull(teamId);
+      teacher.pendingTeams.pull(teamId);
+      teacher.approvedTeams.pull(teamId);
+      teacher.activeCount -= 1;
+      await Student.findByIdAndUpdate(
+        team.leaderId._id,
+        {
+          $set: {
+            teamId: null,
+            isTeamLeader: false,
+            isApproved: false,
+          },
+        },
+        { session },
+      );
+      await LogEntry.deleteMany({ teamId }, { session });
+      await ProposalModel.deleteMany({ team: teamId }, { session });
+
+      await Promise.all([
+        team.deleteOne({ session }),
+        teacher.save({ session }),
+      ]);
+      await session.commitTransaction();
+      return res.json({ success: true, message: "Team deleted successfully!" });
+    } else {
+      throw new Error("Invalid action!");
+    }
+  } catch (error) {
+    if (session) await session.abortTransaction();
+    console.error(error);
+    res.json({ success: false, message: "Unable to delete team" });
+  }
+};
