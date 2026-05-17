@@ -17,6 +17,7 @@ const TeamMembers = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+
   const fetchTeam = async () => {
     try {
       setLoading(true);
@@ -44,6 +45,8 @@ const TeamMembers = () => {
   if (!team) return <p className="p-6 text-center">No team data found.</p>;
 
   const isLeader = team.leaderId?._id === user?._id;
+  const isPendingDeletion = team.supervisorStatus === "underDeletion";
+
 
   const currentUserMember = team.members?.find(
     (member) => member._id === user?._id
@@ -63,7 +66,7 @@ const TeamMembers = () => {
       setActionLoading(memberId);
       const res = await axios.post(
         `/api/team/approve/${teamId}`,
-        { memberId, action,memberCount:approvedMembers.length },
+        { memberId, action, memberCount: approvedMembers.length },
         { withCredentials: true }
       );
       if (res.data.success) {
@@ -101,7 +104,7 @@ const TeamMembers = () => {
       setShowLeaveModal(false);
     }
   };
-
+  {/*
   const handleDeleteTeam = async () => {
     try {
       setDeleting(true);
@@ -124,45 +127,82 @@ const TeamMembers = () => {
       setShowDeleteModal(false);
     }
   };
+*/}
+const handleDeleteTeam = async () => {
+  try {
+    setDeleting(true);
+    const res = await axios.post("/api/team/delete", {}, { withCredentials: true });
 
+    if (res.data.success) {
+      toast.success(res.data.message);
+
+      if (res.data.deleted) {
+        // No supervisor — team fully deleted
+        navigate("/student/dashboard");
+      } else {
+        // Supervisor exists — deletion is pending approval, stay on page
+        fetchTeam();
+      }
+    } else {
+      toast.error(res.data.message || "Unable to delete team!");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to delete team");
+  } finally {
+    setDeleting(false);
+    setShowDeleteModal(false);
+  }
+};
   return (
     <div className="max-w-4xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-sm">
       {/* Header */}
-    
+
       <div className="text-gray-500 mt-1">
-  {team.supervisor && team.supervisorStatus === "adminApproved" ? (
-    <>
-      <p>
-        <b className="text-gray-700">Supervisor:</b>{" "}
-        <span className="font-medium">{team.supervisor.name}</span>
-      </p>
-      <p>
-        <b className="text-gray-700">Email:</b>{" "}
-        <span className="font-medium">{team.supervisor.email}</span>
-      </p>
-    </>
-  ) : team.supervisor ? (
-    <p className="text-yellow-600 italic">
-      <b>Requested Supervisor:</b> {team.supervisor.name} (Pending Approval)
-    </p>
-  ) : (
-    <p className="italic text-gray-400">No supervisor assigned yet</p>
-  )}
-</div>
+        {team.supervisor && team.supervisorStatus === "adminApproved" ? (
+          <>
+            <p>
+              <b className="text-gray-700">Supervisor:</b>{" "}
+              <span className="font-medium">{team.supervisor.name}</span>
+            </p>
+            <p>
+              <b className="text-gray-700">Email:</b>{" "}
+              <span className="font-medium">{team.supervisor.email}</span>
+            </p>
+          </>
+        ) : team.supervisor ? (
+          <p className="text-yellow-600 italic">
+            <b>Requested Supervisor:</b> {team.supervisor.name} 
+          </p>
+        ) : (
+          <p className="italic text-gray-400">No supervisor assigned yet</p>
+        )}
+      </div>
 
 
       {/* DELETE TEAM — ONLY CREATOR & ONLY SINGLE MEMBER */}
       {isLeader && team.members.length === 1 && (
-        <div className="mb-6 flex justify-end">
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="bg-red-50 text-red-600 border border-red-200 px-5 py-3 rounded-xl
-                       hover:bg-red-100 transition font-medium flex items-center gap-2 cursor-pointer"
-          >
-            <AlertCircle size={18} />
-            Delete Team
-          </button>
-        </div>
+        isPendingDeletion ? (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl flex justify-between items-center">
+            <div className="flex items-center gap-2 text-yellow-700">
+              <AlertCircle size={18} />
+              <span className="font-medium">
+                Team deletion is pending supervisor approval
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="mb-6 flex justify-end">
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="bg-red-50 text-red-600 border border-red-200 px-5 py-3 rounded-xl
+                   hover:bg-red-100 transition font-medium flex items-center gap-2 cursor-pointer"
+            >
+              <AlertCircle size={18} />
+              Delete Team
+            </button>
+          </div>
+        )
       )}
 
       {/* Approved Members */}
@@ -318,11 +358,10 @@ const TeamMembers = () => {
             <div className="flex justify-center gap-4 cursor-pointer">
               <button
                 onClick={handleLeaveTeam}
-                className={`${
-                  isCurrentUserPending
-                    ? "bg-gray-600 hover:bg-gray-700"
-                    : "bg-red-600 hover:bg-red-700"
-                } text-white px-6 py-2 rounded-lg`}
+                className={`${isCurrentUserPending
+                  ? "bg-gray-600 hover:bg-gray-700"
+                  : "bg-red-600 hover:bg-red-700"
+                  } text-white px-6 py-2 rounded-lg`}
               >
                 Yes
               </button>

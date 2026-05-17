@@ -11,42 +11,21 @@ export default function TeamDeleteRequests() {
   const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
   const [selectedAccept, setSelectedAccept] = useState(null);
   const [error, setError] = useState("");
-
+const [actionLoading, setActionLoading] = useState(false);
   const { triggerRequestRefetch } = useAppContext();
 
   const fetchDeleteRequests = async () => {
     try {
-      
-      /*
       const { data } = await axios.get(
-        "/api/teacher/team-delete-requests",
+        "/api/teacher/teams?get=deletion",
         { withCredentials: true }
       );
 
       if (data.success) {
-        setRequests(data.requests);
+        setRequests(data.teams);
       } else {
-        toast.error("Failed to fetch requests");
+     toast.error("Failed to fetch requests");
       }
-      */
-
-      
-      const testData = [
-        {
-          _id: "1",
-          teamName: "Alpha Team",
-          supervisor: "Mr. Sharma",
-          students: [{ name: "A" }, { name: "B" }, { name: "C" }],
-        },
-        {
-          _id: "2",
-          teamName: "Beta Squad",
-          supervisor: "Dr. Khan",
-          students: [{ name: "D" }, { name: "E" }, { name: "F" }],
-        },
-      ];
-
-      setRequests(testData);
     } catch (err) {
       setError("Failed to load requests");
       console.error(err);
@@ -57,59 +36,54 @@ export default function TeamDeleteRequests() {
     fetchDeleteRequests();
   }, []);
 
-  
   const handleAccept = async () => {
-    try {
-      const reqId = selectedAccept?._id;
-
-      /*
-      const { data } = await axios.post(
-        "/api/teacher/team-delete-request?action=accept",
-        { requestId: reqId },
-        { withCredentials: true }
-      );
-
-      if (data.success) {
-        toast.success("Team deleted successfully!");
-      }
-      */
-
-      setRequests((prev) => prev.filter((r) => r._id !== reqId));
+  try {
+    setActionLoading(true);
+    const teamId = selectedAccept?._id;
+      console.log("Deleting team:", teamId);
+    const { data } = await axios.post(
+      `/api/teacher/delete-team/${teamId}?action=confirm`,
+      {},
+      { withCredentials: true }
+    );
+    if (data.success) {
+      setRequests((prev) => prev.filter((r) => r._id !== teamId));
       setAcceptDialogOpen(false);
       triggerRequestRefetch();
       toast.success("Team deleted successfully!");
-    } catch (err) {
-      toast.error("Failed to accept request");
-      console.error(err);
+    } else {
+      toast.error(data.message || "Failed to delete team");
     }
-  };
+  } catch (err) {
+    toast.error("Failed to accept request");
+  } finally {
+    setActionLoading(false);
+  }
+};
 
-  
-  const handleReject = async () => {
-    try {
-      const reqId = selected?._id;
-
-      /*
-      const { data } = await axios.post(
-        "/api/teacher/team-delete-request?action=reject",
-        { requestId: reqId },
-        { withCredentials: true }
-      );
-
-      if (data.success) {
-        toast.success("Request rejected");
-      }
-      */
-
-      setRequests((prev) => prev.filter((r) => r._id !== reqId));
+const handleReject = async () => {
+  try {
+    setActionLoading(true);
+    const teamId = selected?._id;
+    const { data } = await axios.post(
+      `/api/teacher/delete-team/${teamId}?action=cancel`,
+      {},
+      { withCredentials: true }
+    );
+    if (data.success) {
+      setRequests((prev) => prev.filter((r) => r._id !== teamId));
       setDialogOpen(false);
       triggerRequestRefetch();
-      toast.success("Request rejected");
-    } catch (err) {
-      toast.error("Failed to reject request");
-      console.error(err);
+      toast.success("Delete request rejected");
+    } else {
+      toast.error(data.message || "Failed to reject request");
     }
-  };
+  } catch (err) {
+    toast.error("Failed to reject request");
+  } finally {
+    setActionLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-primary/10">
@@ -133,19 +107,15 @@ export default function TeamDeleteRequests() {
                   <div>
                     <h2 className="font-bold text-lg flex items-center gap-2">
                       <Trash2 size={18} />
-                      {req.teamName}
+                      {req.name}
                     </h2>
-
-                    <p className="text-gray-600">
-                      Supervisor: {req.supervisor}
-                    </p>
 
                     <p className="text-gray-500 text-sm mt-1">
                       Students:{" "}
-                      {req.students.map((s, i) => (
+                      {req.members?.map((s, i) => (
                         <span key={i}>
                           {s.name}
-                          {i !== req.students.length - 1 ? ", " : ""}
+                          {i !== req.members.length - 1 ? ", " : ""}
                         </span>
                       ))}
                     </p>
@@ -180,9 +150,7 @@ export default function TeamDeleteRequests() {
         )}
       </div>
 
-      {/* =========================
-          REJECT MODAL
-      ========================= */}
+      {/* REJECT MODAL */}
       {dialogOpen && selected && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
           <div className="bg-white p-6 rounded-xl w-full max-w-md">
@@ -191,7 +159,7 @@ export default function TeamDeleteRequests() {
             </h2>
 
             <p className="text-gray-600 mb-4">
-              Reject delete request for <b>{selected.teamName}</b>?
+              Reject delete request for <b>{selected.name}</b>?
             </p>
 
             <div className="flex justify-end gap-3">
@@ -213,9 +181,7 @@ export default function TeamDeleteRequests() {
         </div>
       )}
 
-      {/* =========================
-          ACCEPT MODAL
-      ========================= */}
+      {/* ACCEPT MODAL */}
       {acceptDialogOpen && selectedAccept && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
           <div className="bg-white p-6 rounded-xl w-full max-w-md">
@@ -225,7 +191,7 @@ export default function TeamDeleteRequests() {
 
             <p className="text-gray-600 mb-4">
               Are you sure you want to delete{" "}
-              <b>{selectedAccept.teamName}</b>? This action cannot be undone.
+              <b>{selectedAccept.name}</b>? This action cannot be undone.
             </p>
 
             <div className="flex justify-end gap-3">

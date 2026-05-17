@@ -19,6 +19,8 @@ export default function TeacherSidebar() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [teamRequestCount, setTeamRequestCount] = useState(0);
+  const [deletionCount, setDeletionCount] = useState(0);
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -36,7 +38,7 @@ export default function TeacherSidebar() {
     document.body.style.overflow = showLogoutModal ? "hidden" : "auto";
   }, [showLogoutModal]);
 
-  // Fetch dynamic team request count
+  // Fetch team request count
   useEffect(() => {
     const fetchTeamRequestsCount = async () => {
       try {
@@ -51,26 +53,41 @@ export default function TeacherSidebar() {
         console.error("Error fetching team request count:", err);
       }
     };
-
     fetchTeamRequestsCount();
+  }, [requestRefetchTrigger]);
+
+  // Fetch deletion request count
+  useEffect(() => {
+    const fetchDeletionCount = async () => {
+      try {
+        const { data } = await axios.get(
+          "/api/teacher/teams?get=deletion",
+          { withCredentials: true }
+        );
+        if (data.success) {
+          setDeletionCount(data.teams.length);
+        }
+      } catch (err) {
+        console.error("Error fetching deletion count:", err);
+      }
+    };
+    fetchDeletionCount();
   }, [requestRefetchTrigger]);
 
   const items = [
     { id: 1, label: "Dashboard", icon: <LayoutGrid size={20} />, to: "/teacher/dashboard" },
     { id: 2, label: "Team Projects", icon: <FolderKanban size={20} />, to: "/teacher/projects" },
     { id: 3, label: "Team Requests", icon: <Bell size={20} />, to: "/teacher/requests" },
-    //{ id: 4, label: "Team Deficits", icon: <AlertCircle size={20} />, to: "/teacher/deficits" },
     { id: 5, label: "Settings", icon: <Settings size={20} />, to: "/teacher/settings" },
     { id: 6, label: "Delete Requests", icon: <Trash2 size={20} />, to: "/teacher/deleterequests" },
   ];
-  if(location.pathname==='/teacher/profilesetup')
-    return null;
+
+  if (location.pathname === '/teacher/profilesetup') return null;
 
   return (
     <>
       <aside
-        className={`h-screen bg-primary text-white flex flex-col justify-between transition-width duration-300 ${collapsed ? "w-16" : "w-64"
-          }`}
+        className={`h-screen bg-primary text-white flex flex-col justify-between transition-width duration-300 ${collapsed ? "w-16" : "w-64"}`}
       >
         {/* Header */}
         <div>
@@ -78,7 +95,6 @@ export default function TeacherSidebar() {
             {!collapsed && (
               <div>
                 <h1 className="text-xl font-semibold">Teacher Panel</h1>
-
               </div>
             )}
             <button
@@ -97,8 +113,7 @@ export default function TeacherSidebar() {
                 key={item.id}
                 to={item.to}
                 className={({ isActive }) =>
-                  `w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${isActive ? "bg-[#0f172a]" : "hover:bg-[#1b2334]"
-                  }`
+                  `w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 transition-colors ${isActive ? "bg-[#0f172a]" : "hover:bg-[#1b2334]"}`
                 }
                 title={item.label}
               >
@@ -111,13 +126,17 @@ export default function TeacherSidebar() {
                         {teamRequestCount}
                       </span>
                     )}
+                    {item.label === "Delete Requests" && deletionCount > 0 && (
+                      <span className="absolute -top-2 -right-2 text-white text-xs font-semibold px-1.5 py-0.5 rounded-full bg-red-500">
+                        {deletionCount}
+                      </span>
+                    )}
                   </div>
 
                   {/* Label */}
                   {!collapsed && <span className="text-sm">{item.label}</span>}
                 </div>
               </NavLink>
-
             ))}
           </nav>
         </div>
@@ -136,11 +155,8 @@ export default function TeacherSidebar() {
               </div>
             )}
           </div>
-
         </div>
       </aside>
-
-
     </>
   );
 }

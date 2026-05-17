@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import LogEntry from "../models/logEntry.model.js";
 import ProposalModel from "../models/proposal.model.js";
+import Student from "../models/student.model.js";
 
 // POST /api/teacher/google-signin
 export const googleSignIn = async (req, res) => {
@@ -179,6 +180,10 @@ export const teamRequest = async (req, res) => {
         .populate({
           path: "deletionTeams",
           select: "name members supervisorStatus",
+          populate: {         
+        path: "members",
+        select: "name",
+      },
         });
       if (!teacher) {
         return res.json({ success: false, message: "Unable to find teacher!" });
@@ -398,6 +403,6 @@ export const deleteTeam = async (req, res) => {
   } catch (error) {
     if (session) await session.abortTransaction();
     console.error(error);
-    res.json({ success: false, message: "Unable to delete team" });
+    res.json({ success: false, message: error.message||"Unable to delete team" });
   }
 };
