@@ -353,9 +353,9 @@ export const requestSupervisor = async (req, res) => {
   } catch (error) {
     if (session) await session.abortTransaction();
     console.error(error);
-    return res.status(400).json({
+    return res.json({
       success: false,
-      message: error.message || "Server error",
+      message: error.message || "Server error!",
     });
   } finally {
     if (session) session.endSession();

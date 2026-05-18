@@ -134,11 +134,11 @@ const handleDeleteTeam = async () => {
     const res = await axios.post("/api/team/delete", {}, { withCredentials: true });
 
     if (res.data.success) {
-      toast.success(res.data.message);
+      toast.success(res.data.message||"Team deletion initiated");
 
       if (res.data.deleted) {
         // No supervisor — team fully deleted
-        navigate("/student/dashboard");
+        navigate("/student/home");
       } else {
         // Supervisor exists — deletion is pending approval, stay on page
         fetchTeam();

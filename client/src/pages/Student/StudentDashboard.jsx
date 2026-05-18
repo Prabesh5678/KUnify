@@ -103,8 +103,8 @@ const StudentDashboard = () => {
         toast.error(data.message);
       }
     } catch (error) {
-    //  console.error(error);
-      toast.error("Something went wrong");
+     console.error(error);
+      toast.error(error.message||"Something went wrong!");
     }
   };
 
