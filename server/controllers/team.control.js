@@ -289,7 +289,7 @@ export const deleteTeam = async (req, res) => {
     await Promise.all([team.deleteOne({ session }), student.save({ session })]);
 
     await session.commitTransaction();
-    return res.json({ success: true, message: "Deleted team successfully" });
+    return res.json({ success: true,deleted:true, message: "Deleted team successfully" });
   } catch (err) {
     if (session) await session.abortTransaction();
     console.error(err.stack);
