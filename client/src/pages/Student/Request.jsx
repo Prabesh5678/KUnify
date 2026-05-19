@@ -29,6 +29,7 @@ const Request = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredSupervisor, setHoveredSupervisor] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const abstractWordCount = abstract.trim()
     ? abstract.trim().split(/\s+/).length
@@ -61,7 +62,7 @@ const Request = () => {
           //  toast("Proposal has already been submitted by your team");
         }
       } catch (error) {
-    //    console.error("Error fetching proposal:", error);
+        //    console.error("Error fetching proposal:", error);
       }
     };
 
@@ -82,7 +83,7 @@ const Request = () => {
           console.error(data.message);
         }
       } catch (error) {
-       // console.error("Error fetching supervisors", error);
+        // console.error("Error fetching supervisors", error);
       }
     };
 
@@ -148,9 +149,9 @@ const Request = () => {
     }
     const titleWordCount = title.trim().split(/\s+/).length;
 
-  if (titleWordCount > 30) {
-    return toast.error("Project title cannot exceed 30 words");
-  }
+    if (titleWordCount > 30) {
+      return toast.error("Project title cannot exceed 30 words");
+    }
 
     const formData = new FormData();
     formData.append("title", title);
@@ -284,6 +285,7 @@ const Request = () => {
 
             <div className="grid md:grid-cols-2 gap-6">
               {/* Supervisor Dropdown */}
+              {/* Supervisor Dropdown */}
               <div className="relative">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Select Supervisor
@@ -295,7 +297,10 @@ const Request = () => {
                   disabled={isProposalSubmitted}
                   onClick={() => {
                     setIsOpen(!isOpen);
-                    if (isOpen) setHoveredSupervisor(null); // Clear tooltip when closing
+                    if (isOpen) {
+                      setHoveredSupervisor(null);
+                      setSearchQuery(""); // Clear search on close
+                    }
                   }}
                   className={`w-full flex items-center justify-between px-4 py-3 border rounded-lg bg-gray-100
       ${isProposalSubmitted ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-200"}
@@ -306,169 +311,198 @@ const Request = () => {
                       ? supervisors.find((s) => s._id === selectedSupervisor)?.name
                       : "Select Supervisor"}
                   </span>
-
                   <ChevronDown
                     size={20}
-                    className={`text-gray-600 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
-                      }`}
+                    className={`text-gray-600 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                   />
                 </button>
 
                 {/* Dropdown list */}
                 {isOpen && !isProposalSubmitted && (
-                  <div className="absolute z-50 mt-2 w-full bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                    <div
-                    onClick={() => {
-                      setSelectedSupervisor("");
-                      setIsOpen(false);
-                      setHoveredSupervisor(null);
-                    }}
-                    className="px-4 py-2 cursor-pointer hover:bg-red-50 text-gray-500 italic border-b"
->
-                    -- None --
-                  </div>
+                  <div className="absolute z-50 mt-2 w-full bg-white border rounded-lg shadow-lg">
 
-                 {supervisors.map((sup) => (
-                    <div
-                      key={sup._id}
-                      onClick={() => {
-                        setSelectedSupervisor(sup._id);
-                        setIsOpen(false);
-                        setHoveredSupervisor(null); // Clear tooltip on selection
-                      }}
-                      onMouseEnter={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        setHoveredSupervisor({
-                          ...sup,
-                          top: rect.top + rect.height / 2,
-                          left: rect.right + 10,
-                        });
-                      }}
-                      onMouseLeave={() => setHoveredSupervisor(null)}
-                      className="relative px-4 py-2 cursor-pointer hover:bg-blue-50"
-                    >
-                      {sup.name}
+                    {/* Search input */}
+                    <div className="p-2 border-b">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search supervisor..."
+                        autoFocus
+                        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
                     </div>
-                  ))}
-              </div>
+
+                    <div className="max-h-52 overflow-y-auto">
+                      {/* None option */}
+                      <div
+                        onClick={() => {
+                          setSelectedSupervisor("");
+                          setIsOpen(false);
+                          setHoveredSupervisor(null);
+                          setSearchQuery("");
+                        }}
+                        className="px-4 py-2 cursor-pointer hover:bg-red-50 text-gray-500 italic border-b"
+                      >
+                        -- None --
+                      </div>
+
+                      {/* Filtered supervisors */}
+                      {supervisors
+                        .filter((sup) =>
+                          sup.name.toLowerCase().includes(searchQuery.toLowerCase())
+                        )
+                        .map((sup) => (
+                          <div
+                            key={sup._id}
+                            onClick={() => {
+                              setSelectedSupervisor(sup._id);
+                              setIsOpen(false);
+                              setHoveredSupervisor(null);
+                              setSearchQuery(""); // Clear search after selection
+                            }}
+                            onMouseEnter={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setHoveredSupervisor({
+                                ...sup,
+                                top: rect.top + rect.height / 2,
+                                left: rect.right + 10,
+                              });
+                            }}
+                            onMouseLeave={() => setHoveredSupervisor(null)}
+                            className="relative px-4 py-2 cursor-pointer hover:bg-blue-50"
+                          >
+                            {sup.name}
+                          </div>
+                        ))}
+
+                      {/* No results message */}
+                      {supervisors.filter((sup) =>
+                        sup.name.toLowerCase().includes(searchQuery.toLowerCase())
+                      ).length === 0 && (
+                          <div className="px-4 py-3 text-sm text-gray-400 text-center">
+                            No supervisors found
+                          </div>
+                        )}
+                    </div>
+                  </div>
                 )}
 
-              {/* Tooltip rendered outside of dropdown item */}
-              {isOpen && hoveredSupervisor && (
-                <div
-                  className="fixed w-64 bg-white text-black text-xs rounded-lg px-3 py-2 shadow-lg z-50 pointer-events-none"
-                  style={{
-                    top: hoveredSupervisor.top,
-                    left: hoveredSupervisor.left,
-                    transform: "translateY(-50%)",
-                  }}
-                >
-                  <p className="font-semibold mb-1">Specialization</p>
-                  <p>{hoveredSupervisor.specialization}</p>
-                </div>
-              )}
-            </div>
-
-
-            {/* PDF Upload */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Upload Proposal (PDF only, max 2MB)
-              </label>
-              <label
-                className={`w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg ${isProposalSubmitted
-                  ? "opacity-50 cursor-not-allowed"
-                  : "cursor-pointer hover:bg-gray-200"
-                  }`}
-              >
-                Choose File
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="application/pdf"
-                  disabled={isProposalSubmitted}
-                  onChange={(e) => handlePdfSelect(e.target.files[0])}
-                />
-              </label>
-
-              {/* PDF info for newly selected file (before submission) */}
-              {pdfFile && !isProposalSubmitted && (
-                <div className="mt-4 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-800">
-                      {pdfFile.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Size: {(pdfFile.size / 1024).toFixed(2)} KB
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleViewPDFBefore(pdfPreviewUrl)}
-                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                {/* Tooltip */}
+                {isOpen && hoveredSupervisor && (
+                  <div
+                    className="fixed w-64 bg-white text-black text-xs rounded-lg px-3 py-2 shadow-lg z-50 pointer-events-none"
+                    style={{
+                      top: hoveredSupervisor.top,
+                      left: hoveredSupervisor.left,
+                      transform: "translateY(-50%)",
+                    }}
                   >
-                    <ExternalLink size={16} />
-                    View
-                  </button>
-                </div>
-              )}
-
-              {/* PDF uploaded by team (after submission) */}
-              {isProposalSubmitted && existingProposal && (
-                <div className="mt-4 flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-3">
-                  <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-800 truncate">
-                      {existingProposal.projectTitle || title || "Team Proposal"}
-                    </p>
-                    <p className="text-xs text-green-600 font-medium">
-                      ✓ Submitted successfully
-                    </p>
+                    <p className="font-semibold mb-1">Specialization</p>
+                    <p>{hoveredSupervisor.specialization}</p>
                   </div>
-                  {(existingProposal.proposalFile?.url || pdfPreviewUrl) && (
+                )}
+              </div>
+
+              {/* PDF Upload */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Upload Proposal (PDF only, max 2MB)
+                </label>
+                <label
+                  className={`w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg ${isProposalSubmitted
+                    ? "opacity-50 cursor-not-allowed"
+                    : "cursor-pointer hover:bg-gray-200"
+                    }`}
+                >
+                  Choose File
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="application/pdf"
+                    disabled={isProposalSubmitted}
+                    onChange={(e) => handlePdfSelect(e.target.files[0])}
+                  />
+                </label>
+
+                {/* PDF info for newly selected file (before submission) */}
+                {pdfFile && !isProposalSubmitted && (
+                  <div className="mt-4 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-800">
+                        {pdfFile.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Size: {(pdfFile.size / 1024).toFixed(2)} KB
+                      </p>
+                    </div>
                     <button
                       type="button"
-                      onClick={() =>
-                        handleViewPDFAfter(
-                          existingProposal.proposalFile?.url || pdfPreviewUrl,
-                          existingProposal.projectTitle || title || "Proposal"
-                        )
-                      }
-                      className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+                      onClick={() => handleViewPDFBefore(pdfPreviewUrl)}
+                      className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
                     >
                       <ExternalLink size={16} />
                       View
                     </button>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
+
+                {/* PDF uploaded by team (after submission) */}
+                {isProposalSubmitted && existingProposal && (
+                  <div className="mt-4 flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-3">
+                    <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-800 truncate">
+                        {existingProposal.projectTitle || title || "Team Proposal"}
+                      </p>
+                      <p className="text-xs text-green-600 font-medium">
+                        ✓ Submitted successfully
+                      </p>
+                    </div>
+                    {(existingProposal.proposalFile?.url || pdfPreviewUrl) && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleViewPDFAfter(
+                            existingProposal.proposalFile?.url || pdfPreviewUrl,
+                            existingProposal.projectTitle || title || "Proposal"
+                          )
+                        }
+                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+                      >
+                        <ExternalLink size={16} />
+                        View
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-        </div>
 
-        {/* Submit Button */}
-        <div className="flex justify-center pt-10">
-          <button
-            type="submit"
-            disabled={isFormInvalid || isProposalSubmitted}
-            className={`bg-primary text-white font-bold py-3.5 px-12 rounded-xl shadow-lg transition
+            {/* Submit Button */}
+            <div className="flex justify-center pt-10">
+              <button
+                type="submit"
+                disabled={isFormInvalid || isProposalSubmitted}
+                className={`bg-primary text-white font-bold py-3.5 px-12 rounded-xl shadow-lg transition
       ${isFormInvalid || isProposalSubmitted
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-primary/70 hover:scale-105 cursor-pointer"
-              }`}
-          >
-            {uploadStatus === "uploading"
-              ? "Uploading..."
-              : isProposalSubmitted
-                ? "Proposal Already Submitted"
-                : "Submit Request"}
-          </button>
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-primary/70 hover:scale-105 cursor-pointer"
+                  }`}
+              >
+                {uploadStatus === "uploading"
+                  ? "Uploading..."
+                  : isProposalSubmitted
+                    ? "Proposal Already Submitted"
+                    : "Submit Request"}
+              </button>
+            </div>
+
+          </form>
+
+          <Toaster position="top-right" />
         </div>
-
-      </form>
-
-      <Toaster position="top-right" />
-    </div>
       </div >
     </div >
   );

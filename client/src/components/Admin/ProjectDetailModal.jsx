@@ -10,9 +10,11 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
   const [loading, setLoading] = useState(false);
   const [similarityData, setSimilarityData] = useState(null);
   const [debugInfo, setDebugInfo] = useState(null);
+  const [teacherSearch, setTeacherSearch] = useState("");
+  const [teacherDropdownOpen, setTeacherDropdownOpen] = useState(false);
 
   // Fetch suggested teachers using cosine similarity when modal opens
- useEffect(() => {
+  useEffect(() => {
     if (!isOpen || !project) return;
 
     const fetchSuggestedTeachers = async () => {
@@ -25,7 +27,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
 
         if (res.data?.success && res.data.data) {
           const teamData = res.data.data;
-          
+
           const teachers = teamData.teacherScores.map((score) => ({
             _id: score.teacherId?.toString(),
             name: score.teacherName || "Unknown",
@@ -39,16 +41,16 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
         }
       } catch (error) {
         console.error("Smart matching failed, loading all teachers:", error);
-      
+
         const teachersRes = await axios.get("/api/admin/get-teachers", { withCredentials: true });
         if (teachersRes.data?.success) {
           const all = [...(teachersRes.data.regularFaculty || []), ...(teachersRes.data.visitingFaculty || [])];
-          setSuggestedTeachers(all.map(t => ({ 
-            _id: t._id, 
-            name: t.name, 
-            specialization: t.specialization, 
+          setSuggestedTeachers(all.map(t => ({
+            _id: t._id,
+            name: t.name,
+            specialization: t.specialization,
             displayName: t.name,
-            similarityScore: 0 
+            similarityScore: 0
           })));
         }
       } finally {
@@ -60,53 +62,53 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
   }, [isOpen, project]);
 
   if (!isOpen || !project) return null;
- 
- const handleAssign = async () => {
-  if (!selectedTeacher) {
-    toast.error("Please select a teacher to assign");
-    return;
-  }
 
-  setLoading(true);
-
-  try {
-    const res = await axios.put(
-      "/api/admin/assign-supervisor",
-      {
-        teamId: project._id,
-        teacherId: selectedTeacher,
-      },
-      { withCredentials: true }
-    );
-    if (res.data.success) {
-      // Update UI state if needed (example: mark teacher as assigned)
-      setSuggestedTeachers((prev) =>
-        prev.map((t) =>
-          t._id === selectedTeacher ? { ...t, assigned: true } : t
-        )
-      );
-
-      toast.success("Teacher assigned successfully!");
-      
-      setSelectedTeacher(""); // reset selection
-       onClose?.(); 
-    } else {
-      // Backend returned success: false
-      toast.error(res.data.message || "Assignment failed");
+  const handleAssign = async () => {
+    if (!selectedTeacher) {
+      toast.error("Please select a teacher to assign");
+      return;
     }
-  } catch (err) {
-    console.error("Assign error:", err);
 
-    // Only show toast if there really was a network or server error
-    const msg =
-      err.response?.data?.message ||
-      err.message ||
-      "Assignment failed due to server error";
-    toast.error(msg);
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+
+    try {
+      const res = await axios.put(
+        "/api/admin/assign-supervisor",
+        {
+          teamId: project._id,
+          teacherId: selectedTeacher,
+        },
+        { withCredentials: true }
+      );
+      if (res.data.success) {
+        // Update UI state if needed (example: mark teacher as assigned)
+        setSuggestedTeachers((prev) =>
+          prev.map((t) =>
+            t._id === selectedTeacher ? { ...t, assigned: true } : t
+          )
+        );
+
+        toast.success("Teacher assigned successfully!");
+
+        setSelectedTeacher(""); // reset selection
+        onClose?.();
+      } else {
+        // Backend returned success: false
+        toast.error(res.data.message || "Assignment failed");
+      }
+    } catch (err) {
+      console.error("Assign error:", err);
+
+      // Only show toast if there really was a network or server error
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        "Assignment failed due to server error";
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const handleViewPDF = (url) => {
@@ -147,7 +149,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
           </p>
           <p className="font-medium">
             Teacher Acceptance Status:{" "}
-            {project.supervisorStatus==='teacherApproved' ? (
+            {project.supervisorStatus === 'teacherApproved' ? (
               <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-semibold">
                 Accepted
               </span>
@@ -189,33 +191,111 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
             </div>
           ) : (
             <>
-              <select
-                className="w-full p-2 border rounded border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-300"
-                value={selectedTeacher}
-                onChange={(e) => setSelectedTeacher(e.target.value)}
-                disabled={loading}
-              >
-                <option value="">
-                  {loading ? "Loading..." : "-- Select Teacher --"}
-                </option>
-                {suggestedTeachers.map((t) => (
-                  <option key={t._id} value={t._id}>
-                    {t.displayName || t.name || "Unknown Teacher"}
-                  </option>
-                ))}
-              </select>
+              {/* Searchable Teacher Dropdown */}
+              <div className="relative">
+                {/* Trigger button */}
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => {
+                    setTeacherDropdownOpen((prev) => !prev);
+                    setTeacherSearch("");
+                  }}
+                  className="w-full flex items-center justify-between p-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-sky-300 disabled:opacity-50"
+                >
+                  <span className="text-sm text-gray-700">
+                    {selectedTeacher
+                      ? suggestedTeachers.find((t) => t._id === selectedTeacher)?.name || "Selected"
+                      : loading
+                        ? "Loading..."
+                        : "-- Select Teacher --"}
+                  </span>
+                  <svg
+                    className={`w-4 h-4 text-gray-500 transition-transform ${teacherDropdownOpen ? "rotate-180" : ""}`}
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
 
-              {/* Show selected teacher's specialization */}
+                {/* Dropdown */}
+                {teacherDropdownOpen && !loading && (
+                  <div className="absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg">
+                    {/* Search input */}
+                    <div className="p-2 border-b">
+                      <input
+                        type="text"
+                        autoFocus
+                        value={teacherSearch}
+                        onChange={(e) => setTeacherSearch(e.target.value)}
+                        placeholder="Search teacher..."
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-300"
+                      />
+                    </div>
+
+                    {/* List */}
+                    <div className="max-h-52 overflow-y-auto">
+                      {/* None option */}
+                      <div
+                        onClick={() => {
+                          setSelectedTeacher("");
+                          setTeacherDropdownOpen(false);
+                          setTeacherSearch("");
+                        }}
+                        className="px-4 py-2 text-sm text-gray-400 italic cursor-pointer hover:bg-red-50 border-b"
+                      >
+                        -- None --
+                      </div>
+
+                      {suggestedTeachers
+                        .filter((t) =>
+                          t.name?.toLowerCase().includes(teacherSearch.toLowerCase()) ||
+                          t.specialization?.toLowerCase().includes(teacherSearch.toLowerCase())
+                        )
+                        .map((t) => (
+                          <div
+                            key={t._id}
+                            onClick={() => {
+                              setSelectedTeacher(t._id);
+                              setTeacherDropdownOpen(false);
+                              setTeacherSearch("");
+                            }}
+                            className="px-4 py-2 text-sm cursor-pointer hover:bg-blue-50 flex justify-between items-center"
+                          >
+                            <span>{t.name}</span>
+                            {t.similarityScore > 0 && (
+                              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                                {Math.round(t.similarityScore * 100)}%
+                              </span>
+                            )}
+                          </div>
+                        ))}
+
+                      {/* No results */}
+                      {suggestedTeachers.filter((t) =>
+                        t.name?.toLowerCase().includes(teacherSearch.toLowerCase()) ||
+                        t.specialization?.toLowerCase().includes(teacherSearch.toLowerCase())
+                      ).length === 0 && (
+                          <div className="px-4 py-3 text-sm text-gray-400 text-center">
+                            No teachers found
+                          </div>
+                        )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Selected teacher info */}
               {selectedTeacher && (
                 <div className="mt-2 p-3 bg-indigo-50 rounded-lg">
                   <p className="text-sm text-gray-700">
                     <span className="font-semibold">Specialization: </span>
-                    {suggestedTeachers.find(t => t._id === selectedTeacher)?.specialization || "N/A"}
+                    {suggestedTeachers.find((t) => t._id === selectedTeacher)?.specialization || "N/A"}
                   </p>
                   <p className="text-sm text-gray-700 mt-1">
                     <span className="font-semibold">Similarity Score: </span>
                     <span className="text-green-600 font-semibold">
-                      {Math.round((suggestedTeachers.find(t => t._id === selectedTeacher)?.similarityScore || 0) * 100)}%
+                      {Math.round((suggestedTeachers.find((t) => t._id === selectedTeacher)?.similarityScore || 0) * 100)}%
                     </span>
                   </p>
                 </div>
