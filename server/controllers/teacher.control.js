@@ -93,7 +93,7 @@ export const profileCompletion = async (req, res) => {
   try {
     const teacherId = req.teacherId;
     const form = req.body;
-    if (!form.phone || !form.specialization) {
+    if (!form.phone || !form.specialization || !form.position) {
       return res.json({ success: false, message: "Provide all the details!" });
     } else {
       const teacher = await Teacher.findByIdAndUpdate(
@@ -101,6 +101,7 @@ export const profileCompletion = async (req, res) => {
         {
           phone: form.phone,
           specialization: form.specialization,
+          position: form.position,
           isProfileCompleted: true,
         },
 

@@ -33,6 +33,8 @@ const teacherSchema = new mongoose.Schema({
     ref:'team'
   }],
   password: { type: String, sparse: true ,select:false} ,
+  
+  position: {type: String, default: ""},
 });
 
 const Teacher =

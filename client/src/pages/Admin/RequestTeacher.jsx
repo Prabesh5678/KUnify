@@ -38,7 +38,7 @@ const RequestTeacher = () => {
       }
     } catch (err) {
      // console.error("Error fetching requests:", err);
-      const errorMessage = err.response?.data?.message || err.message || "Failed to fetch supervisor requests";
+      const errorMessage = err.response?.data?.message || err.message || "<Failed to fetch supervisor requests";
       toast.error(errorMessage);
 
       if (err.response?.status === 401) {
@@ -70,7 +70,7 @@ const url = `${import.meta.env.VITE_BACKEND_URL}/api/admin/supervisor/${endpoint
           } successfully`
         );
 
-        // ✅ Reload the requests automatically
+        //  Reload the requests automatically
         await fetchRequests();
       } else {
         throw new Error(response.data.message || "Failed to update request");
