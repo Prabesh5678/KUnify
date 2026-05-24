@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
+const POSITION_OPTIONS = [
+  "Visiting Faculty",
+  "Teaching Assistant",
+  "Lecturer",
+  "Assistant Professor",
+  "Associate Professor",
+  "Professor",
+];
+
 export default function TeacherSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -12,6 +21,7 @@ export default function TeacherSettings() {
     email: "",
     phone: "",
     specialization: "",
+    position: "",
     role: "",
   });
 
@@ -23,7 +33,6 @@ export default function TeacherSettings() {
 
   const [error, setError] = useState("");
 
-  // Fetch teacher profile
   const fetchTeacherProfile = async () => {
     try {
       const res = await axios.get("/api/teacher/is-auth", {
@@ -37,7 +46,8 @@ export default function TeacherSettings() {
         email: user.email || "",
         phone: user.phone || "",
         specialization: user.specialization || "",
-        role: user.role || "Teacher", 
+        position: user.position || "",
+        role: user.role || "Teacher",
       });
     } catch (err) {
       console.error(err);
@@ -54,10 +64,10 @@ export default function TeacherSettings() {
   const validate = () => {
     if (!form.phone) return "Phone is required";
     if (!form.specialization) return "Specialization is required";
+    if (!form.position) return "Position is required";
     return null;
   };
 
-  // Update profile
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -73,7 +83,11 @@ export default function TeacherSettings() {
 
       await axios.put(
         "/api/teacher/setup-profile",
-        { phone: form.phone, specialization: form.specialization },
+        {
+          phone: form.phone,
+          specialization: form.specialization,
+          position: form.position,
+        },
         { withCredentials: true }
       );
 
@@ -86,7 +100,6 @@ export default function TeacherSettings() {
     }
   };
 
-  // Change password (only for visiting faculty)
   const handleChangePassword = async (e) => {
     e.preventDefault();
     setError("");
@@ -129,9 +142,7 @@ export default function TeacherSettings() {
             <h1 className="text-2xl font-semibold text-gray-900">
               Profile Settings
             </h1>
-            <p className="text-gray-500">
-              Update your account information
-            </p>
+            <p className="text-gray-500">Update your account information</p>
           </div>
 
           {/* Dropdown Menu (only for Visiting Faculty) */}
@@ -224,6 +235,34 @@ export default function TeacherSettings() {
             </div>
           </div>
 
+          {/* Position Selector - full width below the grid */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Position
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {POSITION_OPTIONS.map((pos) => (
+                <button
+                  key={pos}
+                  type="button"
+                  onClick={() => setForm({ ...form, position: pos })}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${
+                    form.position === pos
+                      ? "bg-primary text-white border-primary shadow-sm"
+                      : "bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary"
+                  }`}
+                >
+                  {pos}
+                </button>
+              ))}
+            </div>
+            {form.position && (
+              <p className="text-xs text-primary mt-2">
+                Selected: <span className="font-semibold">{form.position}</span>
+              </p>
+            )}
+          </div>
+
           {/* Save Button */}
           <button
             type="submit"
@@ -251,7 +290,6 @@ export default function TeacherSettings() {
                 }
                 className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
               />
-
               <input
                 type="password"
                 placeholder="New Password"
@@ -261,20 +299,15 @@ export default function TeacherSettings() {
                 }
                 className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
               />
-
               <input
                 type="password"
                 placeholder="Confirm New Password"
                 value={passwordForm.confirmPassword}
                 onChange={(e) =>
-                  setPasswordForm({
-                    ...passwordForm,
-                    confirmPassword: e.target.value,
-                  })
+                  setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
                 }
                 className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
               />
-
               <button
                 type="submit"
                 className="w-full px-6 py-2 bg-primary text-white font-semibold rounded-md hover:bg-primary/90 transition"

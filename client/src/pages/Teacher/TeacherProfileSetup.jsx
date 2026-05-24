@@ -4,6 +4,15 @@ import { useAppContext } from "../../context/AppContext";
 import toast from "react-hot-toast";
 import axios from "axios";
 
+const POSITION_OPTIONS = [
+  "Visiting Faculty",
+  "Teaching Assistant",
+  "Lecturer",
+  "Assistant Professor",
+  "Associate Professor",
+  "Professor",
+];
+
 const TeacherProfileSetup = () => {
   const { user, setUser } = useAppContext();
   const navigate = useNavigate();
@@ -12,14 +21,13 @@ const TeacherProfileSetup = () => {
     name: "",
     phone: "",
     specialization: "",
+    position: "",
   });
 
   const [loading, setLoading] = useState(false);
 
-  // Wait for user context and set initial name
-
   useEffect(() => {
-    if (user === undefined) return; // wait for context
+    if (user === undefined) return;
 
     if (!user) {
       navigate("/", { replace: true });
@@ -42,8 +50,6 @@ const TeacherProfileSetup = () => {
     }));
   }, [user, navigate]);
 
-
-  // show loading if user context not ready
   if (user === undefined || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -65,13 +71,17 @@ const TeacherProfileSetup = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handlePositionSelect = (pos) => {
+    setForm((prev) => ({ ...prev, position: pos }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { phone, specialization } = form;
+    const { phone, specialization, position } = form;
     const phoneRegex = /^\d{10}$/;
 
-    if ( !phone || !specialization) {
+    if (!phone || !specialization || !position) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -83,10 +93,10 @@ const TeacherProfileSetup = () => {
 
     try {
       setLoading(true);
-console.log(form)
+
       const { data } = await axios.put(
         "/api/teacher/setup-profile",
-        { phone, specialization },
+        { phone, specialization, position },
         { withCredentials: true }
       );
 
@@ -96,9 +106,9 @@ console.log(form)
 
       const updatedUser = {
         ...data.user,
-        role: "teacher",                  
-        picture: data.user.avatar || "",  
-        _id: data.user._id || data.user.id
+        role: "teacher",
+        picture: data.user.avatar || "",
+        _id: data.user._id || data.user.id,
       };
 
       setUser(updatedUser);
@@ -114,7 +124,9 @@ console.log(form)
   };
 
   const isFormValid =
-    form.phone.trim() !== "" && form.specialization.trim() !== "";
+    form.phone.trim() !== "" &&
+    form.specialization.trim() !== "" &&
+    form.position.trim() !== "";
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">
@@ -130,12 +142,12 @@ console.log(form)
               Full Name
             </label>
             <input
-  type="text"
-  name="name"
-  value={form.name}
-  readOnly
-  className="w-full px-4 py-2 border border-gray-300 rounded-md text-black cursor-not-allowed bg-gray-100"
-/>
+              type="text"
+              name="name"
+              value={form.name}
+              readOnly
+              className="w-full px-4 py-2 border border-gray-300 rounded-md text-black cursor-not-allowed bg-gray-100"
+            />
           </div>
 
           {/* Phone */}
@@ -154,6 +166,34 @@ console.log(form)
             />
           </div>
 
+          {/* Position */}
+          <div>
+            <label className="block mb-2 font-medium text-primary-700">
+              Position
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {POSITION_OPTIONS.map((pos) => (
+                <button
+                  key={pos}
+                  type="button"
+                  onClick={() => handlePositionSelect(pos)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${
+                    form.position === pos
+                      ? "bg-primary text-white border-primary shadow-sm"
+                      : "bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary"
+                  }`}
+                >
+                  {pos}
+                </button>
+              ))}
+            </div>
+            {form.position && (
+              <p className="text-xs text-primary mt-2">
+                Selected: <span className="font-semibold">{form.position}</span>
+              </p>
+            )}
+          </div>
+
           {/* Specialization */}
           <div>
             <label className="block mb-1 font-medium text-primary-700">
@@ -168,7 +208,8 @@ console.log(form)
               className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-primary"
             />
             <p className="text-xs text-gray-500 mt-1">
-              {form.specialization.trim().split(/\s+/).filter(Boolean).length}/150 words
+              {form.specialization.trim().split(/\s+/).filter(Boolean).length}
+              /150 words
             </p>
           </div>
 
