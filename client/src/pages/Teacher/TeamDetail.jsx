@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import { ExternalLink, User, FileText, ChevronDown, ChevronUp, Download } from "lucide-react";
+import { ExternalLink, User, FileText, ChevronDown, ChevronUp, Download, CheckCircle } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 axios.defaults.withCredentials = true;
 
@@ -16,6 +17,9 @@ export default function TeamDetails() {
   const [selectedWeek, setSelectedWeek] = useState("all");
   const [allWeeks, setAllWeeks] = useState([]);
   const [exportLoading, setExportLoading] = useState(false);
+  const [checkingLogId, setCheckingLogId] = useState(null);
+  const [correctionLogId, setCorrectionLogId] = useState(null);
+  const [selectedMarks, setSelectedMarks] = useState({});
 
   const [activeTab, setActiveTab] = useState("team");
   const [loading, setLoading] = useState(!team);
@@ -137,6 +141,58 @@ export default function TeamDetails() {
     } finally {
       setExportLoading(false);
     }
+  };
+
+  const updateLogsheet = (updatedLog) => {
+    setLogsheets((prev) =>
+      prev.map((log) => (log._id === updatedLog._id ? { ...log, ...updatedLog } : log))
+    );
+  };
+
+  const handleCheckLog = async (logId) => {
+    const mark = Number(selectedMarks[logId] ?? 5);
+    try {
+      setCheckingLogId(logId);
+      const { data } = await axios.patch(`/api/teacher/logs/${logId}/check`, { mark });
+
+      if (data.success) {
+        updateLogsheet(data.log);
+        toast.success("Log checked successfully");
+      } else {
+        toast.error(data.message || "Unable to check log");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to check log");
+    } finally {
+      setCheckingLogId(null);
+    }
+  };
+
+  const handleRequestCorrection = async (logId) => {
+    const correctionNote = window.prompt("Enter correction note for the student");
+    if (!correctionNote || !correctionNote.trim()) return;
+
+    try {
+      setCorrectionLogId(logId);
+      const { data } = await axios.patch(`/api/teacher/logs/${logId}/request-correction`, {
+        correctionNote,
+      });
+
+      if (data.success) {
+        updateLogsheet(data.log);
+        toast.success("Correction requested");
+      } else {
+        toast.error(data.message || "Unable to request correction");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to request correction");
+    } finally {
+      setCorrectionLogId(null);
+    }
+  };
+
+  const handleMarkChange = (logId, mark) => {
+    setSelectedMarks((prev) => ({ ...prev, [logId]: mark }));
   };
 
   const allMembers = team?.members || [];
@@ -285,11 +341,71 @@ export default function TeamDetails() {
                     ) : (
                       logsheets.map((log, index) => (
                         <div key={index} className="border p-4 rounded bg-yellow-50 mb-3">
-                          <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">Week {log.week}</span>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">Week {log.week}</span>
+                            {log.isChecked && (
+                              <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs px-2 py-1 rounded">
+                                <CheckCircle size={14} />
+                                Checked
+                              </span>
+                            )}
+                            {log.correctionRequested && (
+                              <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded">
+                                Correction requested
+                              </span>
+                            )}
+                          </div>
                           <p className="font-semibold mt-1">{log.createdBy?.name || "Unknown"}</p>
                           <p className="text-sm break-words">{log.activity}</p>
                           <p className="text-sm break-words">{log.outcome}</p>
                           <p className="text-xs text-gray-500 mt-1">Logged on: {new Date(log.createdAt).toLocaleString()}</p>
+                          {log.checkedAt && (
+                            <p className="text-xs text-gray-500 mt-1">Checked on: {new Date(log.checkedAt).toLocaleString()}</p>
+                          )}
+                          {log.mark !== null && log.mark !== undefined && (
+                            <p className="text-xs text-green-700 mt-1">Mark: {log.mark}/5</p>
+                          )}
+                          {log.correctionNote && (
+                            <p className="text-xs text-amber-700 mt-1">Correction: {log.correctionNote}</p>
+                          )}
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            {!log.isChecked && (
+                              <select
+                                value={selectedMarks[log._id] ?? 5}
+                                onChange={(e) => handleMarkChange(log._id, Number(e.target.value))}
+                                disabled={checkingLogId === log._id}
+                                className="border border-gray-300 rounded px-2 py-1 text-sm bg-white cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                {[0, 1, 2, 3, 4, 5].map((mark) => (
+                                  <option key={mark} value={mark}>
+                                    {mark}/5
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                            <button
+                              onClick={() => handleCheckLog(log._id)}
+                              disabled={log.isChecked || checkingLogId === log._id}
+                              className={`px-3 py-1 rounded text-sm font-medium ${
+                                log.isChecked
+                                  ? "bg-green-100 text-green-700 cursor-not-allowed"
+                                  : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                              }`}
+                            >
+                              {log.isChecked
+                                ? "Checked"
+                                : checkingLogId === log._id
+                                  ? "Checking..."
+                                  : "Mark Checked"}
+                            </button>
+                            <button
+                              onClick={() => handleRequestCorrection(log._id)}
+                              disabled={correctionLogId === log._id}
+                              className="px-3 py-1 rounded text-sm font-medium bg-amber-500 text-white hover:bg-amber-600 cursor-pointer disabled:cursor-not-allowed"
+                            >
+                              {correctionLogId === log._id ? "Requesting..." : "Request Correction"}
+                            </button>
+                          </div>
                         </div>
                       ))
                     )}

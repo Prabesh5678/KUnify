@@ -17,16 +17,17 @@ const Logsheet = () => {
 
   const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, id: null });
 
-  const userId = user._id;
-  const teamId = user.teamId._id;
+  const userId = user?._id;
+  const teamId = typeof user?.teamId === "object" ? user.teamId?._id : user?.teamId;
 
   const activityLimit = 100; // preview limit
   const outcomeLimit = 150; // preview limit
 
   useEffect(() => {
+    if (!userId) return;
     if (activeTab === "my") fetchMyLogs();
     else fetchTeamLogs();
-  }, [activeTab]);
+  }, [activeTab, userId, teamId]);
 
   useEffect(() => {
   if (activeTab === "my") {
@@ -46,6 +47,11 @@ const Logsheet = () => {
   };
 
   const fetchTeamLogs = async () => {
+    if (!teamId) {
+      toast.error("Team not found");
+      return;
+    }
+
     try {
       const { data } = await axios.get(`/api/log/team/${teamId}`);
       if (data.success) setTeamLogs(data.logs);
@@ -98,11 +104,15 @@ const Logsheet = () => {
   const confirmDeleteLog = async () => {
     const { id } = confirmDelete;
     try {
-      await axios.delete(`/api/log/delete/${id}`);
-      toast.success("Log deleted");
-      activeTab === "my" ? fetchMyLogs() : fetchTeamLogs();
-    } catch {
-      toast.error("Failed to delete log");
+      const { data } = await axios.delete(`/api/log/delete/${id}`);
+      if (data.success) {
+        toast.success("Log deleted");
+        activeTab === "my" ? fetchMyLogs() : fetchTeamLogs();
+      } else {
+        toast.error(data.message || "Failed to delete log");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete log");
     } finally {
       setConfirmDelete({ isOpen: false, id: null });
     }
@@ -219,11 +229,31 @@ const Logsheet = () => {
                       {new Date(log.date).toLocaleDateString()}
                     </h3>
 
-                    {activeTab === "team" && (
-                      <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
-                        {log.createdBy?.name || "User"}
-                      </span>
-                    )}
+                    <div className="flex flex-wrap justify-end gap-2">
+                      {log.isChecked && (
+                        <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                          Checked by supervisor
+                        </span>
+                      )}
+
+                      {log.isChecked && log.mark !== null && log.mark !== undefined && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                          Mark: {log.mark}/5
+                        </span>
+                      )}
+
+                      {log.correctionRequested && (
+                        <span className="text-xs bg-amber-100 text-amber-700 px-3 py-1 rounded-full">
+                          Correction requested
+                        </span>
+                      )}
+
+                      {activeTab === "team" && (
+                        <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
+                          {log.createdBy?.name || "User"}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -238,7 +268,14 @@ const Logsheet = () => {
                     </p>
                   </div>
 
-                  {activeTab === "my" && (
+                  {log.correctionNote && (
+                    <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+                      <span className="font-semibold">Correction note:</span>{" "}
+                      {log.correctionNote}
+                    </div>
+                  )}
+
+                  {activeTab === "my" && !log.isChecked && (
                     <div className="flex justify-end gap-3 mt-3">
                       <button
                         className="text-blue-600 font-semibold cursor-pointer"
@@ -246,12 +283,14 @@ const Logsheet = () => {
                       >
                         Edit
                       </button>
-                      <button
-                        className="text-red-600 font-semibold cursor-pointer"
-                        onClick={() => handleDelete(log._id)}
-                      >
-                        Delete
-                      </button>
+                      {!log.correctionRequested && (
+                        <button
+                          className="text-red-600 font-semibold cursor-pointer"
+                          onClick={() => handleDelete(log._id)}
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

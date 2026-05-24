@@ -79,7 +79,13 @@ const TeamDetail = () => {
             activity: log.logId?.activity || log.activity || "No activity",
             outcome: log.logId?.outcome || log.outcome || "No outcome",
             createdBy: log.createdBy || log.memberId,
-            createdAt: log.createdAt || log.logId?.createdAt
+            createdAt: log.createdAt || log.logId?.createdAt,
+            isChecked: log.logId?.isChecked ?? log.isChecked,
+            mark: log.logId?.mark ?? log.mark,
+            checkedAt: log.logId?.checkedAt ?? log.checkedAt,
+            correctionRequested: log.logId?.correctionRequested ?? log.correctionRequested,
+            correctionNote: log.logId?.correctionNote ?? log.correctionNote,
+            correctionRequestedAt: log.logId?.correctionRequestedAt ?? log.correctionRequestedAt,
           }));
           setLogsheets(formattedLogs);
         }
@@ -318,11 +324,41 @@ const TeamDetail = () => {
                 </div>
               ) : logsheets.map((log, i) => (
                 <div key={i} className="border p-4 rounded bg-yellow-50">
-                  <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">Week {log.week}</span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">Week {log.week}</span>
+                    {log.isChecked && (
+                      <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">
+                        Checked
+                      </span>
+                    )}
+                    {log.correctionRequested && (
+                      <span className="bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded">
+                        Correction requested
+                      </span>
+                    )}
+                  </div>
                   <p className="font-semibold mt-1">{log.createdBy?.name || "Unknown"}</p>
                   <p className="text-sm break-words">{log.activity}</p>
                   <p className="text-sm break-words">{log.outcome}</p>
                   <p className="text-xs text-gray-500 mt-1">Logged on: {new Date(log.createdAt).toLocaleString()}</p>
+                  {log.checkedAt && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Checked on: {new Date(log.checkedAt).toLocaleString()}
+                    </p>
+                  )}
+                  {log.mark !== null && log.mark !== undefined && (
+                    <p className="text-xs text-green-700 mt-1">Mark: {log.mark}/5</p>
+                  )}
+                  {log.correctionNote && (
+                    <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+                      <span className="font-semibold">Latest correction:</span> {log.correctionNote}
+                      {log.correctionRequestedAt && (
+                        <span className="block mt-1 text-amber-700">
+                          Requested on: {new Date(log.correctionRequestedAt).toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
 

@@ -128,6 +128,13 @@ export const updateLog = async (req, res) => {
       });
     }
 
+    if (log.isChecked) {
+      return res.json({
+        success: false,
+        message: "This log has already been checked by your supervisor and cannot be edited",
+      });
+    }
+
     // Only creator can edit
     if (log.createdBy.toString() !== studentId) {
       return res.json({
@@ -155,6 +162,11 @@ export const updateLog = async (req, res) => {
     log.week = week;
     log.activity = activity;
     log.outcome = outcome;
+    log.mark = null;
+    log.correctionRequested = false;
+    log.correctionNote = "";
+    log.correctionRequestedBy = null;
+    log.correctionRequestedAt = null;
 
     await log.save();
 
@@ -183,6 +195,20 @@ export const deleteLog = async (req, res) => {
       return res.json({
         success: false,
         message: "Log not found",
+      });
+    }
+
+    if (log.isChecked) {
+      return res.json({
+        success: false,
+        message: "This log has already been checked by your supervisor and cannot be deleted",
+      });
+    }
+
+    if (log.correctionRequested) {
+      return res.json({
+        success: false,
+        message: "This log has a correction request and cannot be deleted",
       });
     }
 
@@ -224,21 +250,57 @@ export const exportTeamLogs = async (req, res) => {
 
     const logs = await LogEntry.find(filter)
       .populate("createdBy", "name email")
+      .populate("checkedBy", "name email")
+      .populate("correctionRequestedBy", "name email")
+      .populate("reviewTimeline.teacher", "name email")
       .sort({ week: 1 });
 
     if (!logs.length) {
       return res.json({ success: false, message: "No logs found" });
     }
 
-    // Shape the data for the spreadsheet
-    const data = logs.map((log) => ({
-      Week: log.week,
-      Date: new Date(log.date).toLocaleDateString(),
-      Student: log.createdBy?.name || "Unknown",
-      Email: log.createdBy?.email || "",
-      Activity: log.activity,
-      Outcome: log.outcome,
-    }));
+    const formatDateTime = (value) =>
+      value ? new Date(value).toLocaleString() : "";
+
+    const getLatestCorrection = (timeline = []) =>
+      [...timeline].reverse().find((item) => item.action === "correction_requested");
+
+    const formatTimeline = (timeline = []) =>
+      timeline
+        .map((item, index) => {
+          const when = formatDateTime(item.at);
+          if (item.action === "checked") {
+            const markText = item.mark === null || item.mark === undefined ? "" : `: ${item.mark}/5`;
+            return `${index + 1}. ${when} - Checked${markText}`;
+          }
+          return `${index + 1}. ${when} - Correction requested${item.note ? `: ${item.note}` : ""}`;
+        })
+        .join("\n");
+
+    const data = logs.map((log) => {
+      const status = log.isChecked
+        ? "Checked"
+        : log.correctionRequested
+          ? "Correction Requested"
+          : "Not Checked";
+
+      const latestCorrection = getLatestCorrection(log.reviewTimeline);
+
+      return {
+        Week: log.week,
+        Date: new Date(log.date).toLocaleDateString(),
+        Student: log.createdBy?.name || "Unknown",
+        Email: log.createdBy?.email || "",
+        Activity: log.activity,
+        Outcome: log.outcome,
+        Status: status,
+        "Mark (0-5)": log.mark ?? "",
+        "Checked At": formatDateTime(log.checkedAt),
+        "Latest Correction Note": latestCorrection?.note || "",
+        "Latest Correction At": formatDateTime(latestCorrection?.at),
+        "Review Timeline": formatTimeline(log.reviewTimeline),
+      };
+    });
 
     // Create the Excel file
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -253,6 +315,12 @@ export const exportTeamLogs = async (req, res) => {
       { wch: 28 }, // Email
       { wch: 35 }, // Activity
       { wch: 35 }, // Outcome
+      { wch: 22 }, // Status
+      { wch: 12 }, // Mark
+      { wch: 22 }, // Checked At
+      { wch: 35 }, // Latest Correction Note
+      { wch: 24 }, // Latest Correction At
+      { wch: 70 }, // Review Timeline
     ];
 
     // Convert to a downloadable file buffer and send

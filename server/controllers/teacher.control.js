@@ -324,12 +324,145 @@ export const getTeamLogsheets = async (req, res) => {
     if (studentId && studentId !== "all") query.createdBy = studentId;
     const logs = await LogEntry.find(query)
       .populate("createdBy", "name email semester rollNumber department")
+      .populate("checkedBy", "name email")
+      .populate("correctionRequestedBy", "name email")
+      .populate("reviewTimeline.teacher", "name email")
       .lean();
 
     res.json({ success: true, data: logs });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+const getReviewedLog = (logId) =>
+  LogEntry.findById(logId)
+    .populate("createdBy", "name email semester rollNumber department")
+    .populate("checkedBy", "name email")
+    .populate("correctionRequestedBy", "name email")
+    .populate("reviewTimeline.teacher", "name email")
+    .lean();
+
+const ensureTeacherCanReviewLog = async (teacherId, logId) => {
+  const log = await LogEntry.findById(logId);
+  if (!log) {
+    return { error: "Log not found" };
+  }
+
+  const team = await Team.findById(log.teamId);
+  if (!team) {
+    return { error: "Team not found" };
+  }
+
+  if (!team.supervisor || team.supervisor.toString() !== teacherId) {
+    return { error: "You are not allowed to review this log" };
+  }
+
+  return { log };
+};
+
+// PATCH /api/teacher/logs/:logId/check
+export const checkLogEntry = async (req, res) => {
+  try {
+    const teacherId = req.teacherId;
+    const { logId } = req.params;
+    const mark = Number(req.body.mark);
+
+    if (!Number.isInteger(mark) || mark < 0 || mark > 5) {
+      return res.json({
+        success: false,
+        message: "Please provide a mark from 0 to 5",
+      });
+    }
+
+    const { log, error } = await ensureTeacherCanReviewLog(teacherId, logId);
+    if (error) {
+      return res.json({ success: false, message: error });
+    }
+
+    log.isChecked = true;
+    log.checkedBy = teacherId;
+    log.checkedAt = new Date();
+    log.mark = mark;
+    log.correctionRequested = false;
+    log.correctionNote = "";
+    log.correctionRequestedBy = null;
+    log.correctionRequestedAt = null;
+    log.reviewTimeline.push({
+      action: "checked",
+      mark,
+      teacher: teacherId,
+      at: log.checkedAt,
+    });
+
+    await log.save();
+
+    const checkedLog = await getReviewedLog(log._id);
+
+    return res.json({
+      success: true,
+      message: "Log checked successfully",
+      log: checkedLog,
+    });
+  } catch (error) {
+    console.error(error.stack);
+    return res.json({
+      success: false,
+      message: "Internal Server Error!",
+    });
+  }
+};
+
+// PATCH /api/teacher/logs/:logId/request-correction
+export const requestLogCorrection = async (req, res) => {
+  try {
+    const teacherId = req.teacherId;
+    const { logId } = req.params;
+    const { correctionNote } = req.body;
+
+    if (!correctionNote || !correctionNote.trim()) {
+      return res.json({
+        success: false,
+        message: "Please provide a correction note",
+      });
+    }
+
+    const { log, error } = await ensureTeacherCanReviewLog(teacherId, logId);
+    if (error) {
+      return res.json({ success: false, message: error });
+    }
+
+    log.isChecked = false;
+    log.checkedBy = null;
+    log.checkedAt = null;
+    log.mark = null;
+    log.correctionRequested = true;
+    log.correctionNote = correctionNote.trim();
+    log.correctionRequestedBy = teacherId;
+    log.correctionRequestedAt = new Date();
+    log.reviewTimeline.push({
+      action: "correction_requested",
+      note: log.correctionNote,
+      teacher: teacherId,
+      at: log.correctionRequestedAt,
+    });
+
+    await log.save();
+
+    const correctionLog = await getReviewedLog(log._id);
+
+    return res.json({
+      success: true,
+      message: "Correction requested successfully",
+      log: correctionLog,
+    });
+  } catch (error) {
+    console.error(error.stack);
+    return res.json({
+      success: false,
+      message: "Internal Server Error!",
+    });
   }
 };
 
