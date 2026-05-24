@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+{/*
+  import React, { useState, useEffect } from "react";
 import { NotebookPen, ExternalLink, ChevronDown } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 import axios from "axios";
@@ -202,6 +203,590 @@ const Request = () => {
   return (
     <div className="min-h-screen py-9 px-4">
       <div className="max-w-4xl mx-auto">
+        {/* Header 
+        <div className="bg-white rounded-t-2xl shadow-lg border-b">
+          <div className="px-8 py-6 flex items-center gap-4">
+            <NotebookPen className="text-blue-600" size={32} />
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Initial Form</h1>
+              <p className="text-gray-600 mt-1">
+                {isProposalSubmitted
+                  ? "View the submitted proposal"
+                  : "Complete the form below to submit your proposal"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Form 
+        <div className="bg-white rounded-b-2xl shadow-xl p-8 md:p-10 -mt-1">
+          <form className="space-y-8" onSubmit={handleSubmit}>
+            {/* Project Title 
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Project Title <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={title}
+                disabled={isProposalSubmitted}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Your project title"
+                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+              />
+            </div>
+
+            {/* Abstract 
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Project Abstract <span className="text-red-500">*</span>
+              </label>
+
+              <textarea
+                value={abstract}
+                disabled={isProposalSubmitted}
+                onChange={(e) => {
+                  const words = e.target.value.trim().split(/\s+/);
+                  if (words.length <= 250) {
+                    setAbstract(e.target.value);
+                  }
+                }}
+                rows={4}
+                placeholder="Abstract of your project in 200–250 words."
+                className="w-full px-4 py-6 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+              />
+
+              {/* Word Counter 
+              <div className="mt-1 text-right text-xs">
+                <span
+                  className={`font-medium ${abstractWordCount === 250
+                    ? "text-red-600"
+                    : "text-gray-500"
+                    }`}
+                >
+                  {abstractWordCount}/250 words
+                </span>
+              </div>
+            </div>
+
+            {/* Keywords 
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Keywords <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={keywords}
+                disabled={isProposalSubmitted}
+                onChange={(e) => setKeywords(e.target.value)}
+                placeholder="e.g. React, ML, IoT"
+                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+              />
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Supervisor Dropdown 
+              {/* Supervisor Dropdown 
+              <div className="relative">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Select Supervisor
+                </label>
+
+                {/* Dropdown button 
+                <button
+                  type="button"
+                  disabled={isProposalSubmitted}
+                  onClick={() => {
+                    setIsOpen(!isOpen);
+                    if (isOpen) {
+                      setHoveredSupervisor(null);
+                      setSearchQuery(""); // Clear search on close
+                    }
+                  }}
+                  className={`w-full flex items-center justify-between px-4 py-3 border rounded-lg bg-gray-100
+      ${isProposalSubmitted ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-200"}
+    `}
+                >
+                  <span>
+                    {selectedSupervisor
+                      ? supervisors.find((s) => s._id === selectedSupervisor)?.name
+                      : "Select Supervisor"}
+                  </span>
+                  <ChevronDown
+                    size={20}
+                    className={`text-gray-600 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {/* Dropdown list 
+                {isOpen && !isProposalSubmitted && (
+                  <div className="absolute z-50 mt-2 w-full bg-white border rounded-lg shadow-lg">
+
+                    {/* Search input 
+                    <div className="p-2 border-b">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search supervisor..."
+                        autoFocus
+                        className="w-full px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
+                    </div>
+
+                    <div className="max-h-52 overflow-y-auto">
+                      {/* None option 
+                      <div
+                        onClick={() => {
+                          setSelectedSupervisor("");
+                          setIsOpen(false);
+                          setHoveredSupervisor(null);
+                          setSearchQuery("");
+                        }}
+                        className="px-4 py-2 cursor-pointer hover:bg-red-50 text-gray-500 italic border-b"
+                      >
+                        -- None --
+                      </div>
+
+                      {/* Filtered supervisors 
+                      {supervisors
+                        .filter((sup) =>
+                          sup.name.toLowerCase().includes(searchQuery.toLowerCase())
+                        )
+                        .map((sup) => (
+                          <div
+                            key={sup._id}
+                            onClick={() => {
+                              setSelectedSupervisor(sup._id);
+                              setIsOpen(false);
+                              setHoveredSupervisor(null);
+                              setSearchQuery(""); // Clear search after selection
+                            }}
+                            onMouseEnter={(e) => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setHoveredSupervisor({
+                                ...sup,
+                                top: rect.top + rect.height / 2,
+                                left: rect.right + 10,
+                              });
+                            }}
+                            onMouseLeave={() => setHoveredSupervisor(null)}
+                            className="relative px-4 py-2 cursor-pointer hover:bg-blue-50"
+                          >
+                            {sup.name}
+                          </div>
+                        ))}
+
+                      {/* No results message 
+                      {supervisors.filter((sup) =>
+                        sup.name.toLowerCase().includes(searchQuery.toLowerCase())
+                      ).length === 0 && (
+                          <div className="px-4 py-3 text-sm text-gray-400 text-center">
+                            No supervisors found
+                          </div>
+                        )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tooltip 
+                {isOpen && hoveredSupervisor && (
+                  <div
+                    className="fixed w-64 bg-white text-black text-xs rounded-lg px-3 py-2 shadow-lg z-50 pointer-events-none"
+                    style={{
+                      top: hoveredSupervisor.top,
+                      left: hoveredSupervisor.left,
+                      transform: "translateY(-50%)",
+                    }}
+                  >
+                    <p className="font-semibold mb-1">Specialization</p>
+                    <p>{hoveredSupervisor.specialization}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* PDF Upload 
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Upload Proposal (PDF only, max 2MB)
+                </label>
+                <label
+                  className={`w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg ${isProposalSubmitted
+                    ? "opacity-50 cursor-not-allowed"
+                    : "cursor-pointer hover:bg-gray-200"
+                    }`}
+                >
+                  Choose File
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="application/pdf"
+                    disabled={isProposalSubmitted}
+                    onChange={(e) => handlePdfSelect(e.target.files[0])}
+                  />
+                </label>
+
+                {/* PDF info for newly selected file (before submission) 
+                {pdfFile && !isProposalSubmitted && (
+                  <div className="mt-4 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-800">
+                        {pdfFile.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Size: {(pdfFile.size / 1024).toFixed(2)} KB
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleViewPDFBefore(pdfPreviewUrl)}
+                      className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      <ExternalLink size={16} />
+                      View
+                    </button>
+                  </div>
+                )}
+
+                {/* PDF uploaded by team (after submission) 
+                {isProposalSubmitted && existingProposal && (
+                  <div className="mt-4 flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-3">
+                    <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-800 truncate">
+                        {existingProposal.projectTitle || title || "Team Proposal"}
+                      </p>
+                      <p className="text-xs text-green-600 font-medium">
+                        ✓ Submitted successfully
+                      </p>
+                    </div>
+                    {(existingProposal.proposalFile?.url || pdfPreviewUrl) && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleViewPDFAfter(
+                            existingProposal.proposalFile?.url || pdfPreviewUrl,
+                            existingProposal.projectTitle || title || "Proposal"
+                          )
+                        }
+                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+                      >
+                        <ExternalLink size={16} />
+                        View
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Submit Button 
+            <div className="flex justify-center pt-10">
+              <button
+                type="submit"
+                disabled={isFormInvalid || isProposalSubmitted}
+                className={`bg-primary text-white font-bold py-3.5 px-12 rounded-xl shadow-lg transition
+      ${isFormInvalid || isProposalSubmitted
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-primary/70 hover:scale-105 cursor-pointer"
+                  }`}
+              >
+                {uploadStatus === "uploading"
+                  ? "Uploading..."
+                  : isProposalSubmitted
+                    ? "Proposal Already Submitted"
+                    : "Submit Request"}
+              </button>
+            </div>
+
+          </form>
+
+          <Toaster position="top-right" />
+        </div>
+      </div >
+    </div >
+  );
+};
+
+export default Request;
+*/ }
+import React, { useState, useEffect } from "react";
+import { NotebookPen, ExternalLink, ChevronDown, Pencil, X } from "lucide-react";
+import { Toaster, toast } from "react-hot-toast";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAppContext } from "../../context/AppContext";
+
+const Request = () => {
+  const { teamId } = useParams();
+  const navigate = useNavigate();
+
+  // Form fields
+  const [title, setTitle] = useState("");
+  const [abstract, setAbstract] = useState("");
+  const [keywords, setKeywords] = useState("");
+
+  // PDF file and preview URL
+  const [pdfFile, setPdfFile] = useState(null);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState("");
+
+  // State to track submission & upload
+  const [uploadStatus, setUploadStatus] = useState("idle");
+  const [isProposalSubmitted, setIsProposalSubmitted] = useState(false);
+  const [existingProposal, setExistingProposal] = useState(null);
+
+  // PDF edit state
+  const [isEditingPdf, setIsEditingPdf] = useState(false);
+  const [newPdfFile, setNewPdfFile] = useState(null);
+  const [newPdfPreviewUrl, setNewPdfPreviewUrl] = useState("");
+  const [isSavingPdf, setIsSavingPdf] = useState(false);
+
+  // Supervisors
+  const [supervisors, setSupervisors] = useState([]);
+  const [selectedSupervisor, setSelectedSupervisor] = useState("");
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [hoveredSupervisor, setHoveredSupervisor] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const abstractWordCount = abstract.trim()
+    ? abstract.trim().split(/\s+/).length
+    : 0;
+
+  // Fetch existing proposal
+  useEffect(() => {
+    const fetchTeamProposal = async () => {
+      try {
+        if (!teamId) return;
+
+        const { data } = await axios.get(`/api/proposal/${teamId}`, {
+          withCredentials: true,
+        });
+
+        if (!data) return;
+
+        if (data.team.proposal) {
+          const p = data.team.proposal;
+          setTitle(p.projectTitle);
+          setAbstract(p.abstract);
+          setKeywords(p.projectKeyword);
+
+          if (p.proposalFile && p.proposalFile.url) {
+            setPdfPreviewUrl(p.proposalFile.url);
+          }
+
+          setExistingProposal(p);
+          setIsProposalSubmitted(true);
+        }
+      } catch (error) {
+        //    console.error("Error fetching proposal:", error);
+      }
+    };
+
+    fetchTeamProposal();
+  }, [teamId]);
+
+  useEffect(() => {
+    const fetchSupervisors = async () => {
+      try {
+        const { data } = await axios.get("/api/student/get-teachers", {
+          withCredentials: true,
+        });
+
+        if (data.success) {
+          setSupervisors(data.teachers);
+        } else {
+          toast.error("Unable to find teachers");
+          console.error(data.message);
+        }
+      } catch (error) {
+        // console.error("Error fetching supervisors", error);
+      }
+    };
+
+    fetchSupervisors();
+  }, []);
+
+  // Form validation
+  const isFormInvalid =
+    !title.trim() ||
+    !abstract.trim() ||
+    !keywords.trim() ||
+    (!pdfFile && !isProposalSubmitted) ||
+    uploadStatus === "uploading";
+
+  // PDF selection handler (for initial submission)
+  const handlePdfSelect = (file) => {
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      toast.error("Only PDF files allowed");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("File must be under 2MB");
+      return;
+    }
+
+    setPdfFile(file);
+    setUploadStatus("selected");
+    setPdfPreviewUrl(URL.createObjectURL(file));
+    toast.success("PDF selected successfully");
+  };
+
+  // PDF selection handler for re-upload (edit mode)
+  const handleNewPdfSelect = (file) => {
+    if (!file) return;
+
+    if (file.type !== "application/pdf") {
+      toast.error("Only PDF files allowed");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("File must be under 2MB");
+      return;
+    }
+
+    setNewPdfFile(file);
+    setNewPdfPreviewUrl(URL.createObjectURL(file));
+    toast.success("New PDF selected");
+  };
+
+  // Cancel PDF edit
+  const handleCancelPdfEdit = () => {
+    setIsEditingPdf(false);
+    setNewPdfFile(null);
+    setNewPdfPreviewUrl("");
+  };
+
+  // Save re-uploaded PDF
+  const handleSavePdf = async () => {
+    if (!newPdfFile) {
+      toast.error("Please select a new PDF file first");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("proposal", newPdfFile);
+
+    try {
+      setIsSavingPdf(true);
+
+      const { data } = await axios.patch(
+        `/api/proposal/change/${teamId}`,
+        formData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      if (data.success) {
+        const updatedUrl = data.proposal?.proposalFile?.url || newPdfPreviewUrl;
+        setPdfPreviewUrl(updatedUrl);
+        setExistingProposal((prev) => ({
+          ...prev,
+          proposalFile: { url: updatedUrl },
+        }));
+        setIsEditingPdf(false);
+        setNewPdfFile(null);
+        setNewPdfPreviewUrl("");
+        toast.success("PDF updated successfully");
+      } else {
+        toast.error(data.message || "Failed to update PDF");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update PDF. Please try again.");
+    } finally {
+      setIsSavingPdf(false);
+    }
+  };
+
+  // Open PDF in new tab
+  const handleViewPDFBefore = (url) => {
+    if (!url) {
+      toast.error("PDF file not found");
+      return;
+    }
+    window.open(url, "_blank");
+  };
+
+  const handleViewPDFAfter = (url, filename) => {
+    if (!url) {
+      toast.error("PDF file not found");
+      return;
+    }
+    const viewerUrl = `/view-pdf?url=${encodeURIComponent(url)}&title=${encodeURIComponent(filename || "Proposal")}`;
+    window.open(viewerUrl, "_blank");
+  };
+
+  // Form submit handler
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (isFormInvalid) {
+      toast.error("Please complete all required fields before submitting");
+      return;
+    }
+    const titleWordCount = title.trim().split(/\s+/).length;
+
+    if (titleWordCount > 30) {
+      return toast.error("Project title cannot exceed 30 words");
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("abstract", abstract);
+    formData.append("keywords", keywords);
+    formData.append("proposal", pdfFile);
+    formData.append("supervisor", selectedSupervisor);
+
+    try {
+      setUploadStatus("uploading");
+
+      const { data } = await axios.post(
+        `/api/proposal/upload/${teamId}`,
+        formData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      if (data.success) {
+        const newProposal = {
+          projectTitle: title,
+          abstract,
+          projectKeyword: keywords,
+          proposalFile: {
+            url: data.proposal.proposalFile.url,
+          },
+        };
+
+        setExistingProposal(newProposal);
+        setPdfPreviewUrl(data.proposal.proposalFile.url);
+        setPdfFile(null);
+        setIsProposalSubmitted(true);
+        setUploadStatus("uploaded");
+        toast.success("Proposal submitted ");
+      } else {
+        setUploadStatus("failed");
+        toast.error(data.message);
+      }
+    } catch (error) {
+      setUploadStatus("failed");
+      console.error(error.stack);
+      toast.error("Upload failed. Please try again.");
+    }
+  };
+
+  return (
+    <div className="min-h-screen py-9 px-4">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-t-2xl shadow-lg border-b">
           <div className="px-8 py-6 flex items-center gap-4">
@@ -258,10 +843,9 @@ const Request = () => {
               {/* Word Counter */}
               <div className="mt-1 text-right text-xs">
                 <span
-                  className={`font-medium ${abstractWordCount === 250
-                    ? "text-red-600"
-                    : "text-gray-500"
-                    }`}
+                  className={`font-medium ${
+                    abstractWordCount === 250 ? "text-red-600" : "text-gray-500"
+                  }`}
                 >
                   {abstractWordCount}/250 words
                 </span>
@@ -285,7 +869,6 @@ const Request = () => {
 
             <div className="grid md:grid-cols-2 gap-6">
               {/* Supervisor Dropdown */}
-              {/* Supervisor Dropdown */}
               <div className="relative">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Select Supervisor
@@ -299,12 +882,12 @@ const Request = () => {
                     setIsOpen(!isOpen);
                     if (isOpen) {
                       setHoveredSupervisor(null);
-                      setSearchQuery(""); // Clear search on close
+                      setSearchQuery("");
                     }
                   }}
                   className={`w-full flex items-center justify-between px-4 py-3 border rounded-lg bg-gray-100
-      ${isProposalSubmitted ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-200"}
-    `}
+                    ${isProposalSubmitted ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:bg-gray-200"}
+                  `}
                 >
                   <span>
                     {selectedSupervisor
@@ -320,7 +903,6 @@ const Request = () => {
                 {/* Dropdown list */}
                 {isOpen && !isProposalSubmitted && (
                   <div className="absolute z-50 mt-2 w-full bg-white border rounded-lg shadow-lg">
-
                     {/* Search input */}
                     <div className="p-2 border-b">
                       <input
@@ -359,7 +941,7 @@ const Request = () => {
                               setSelectedSupervisor(sup._id);
                               setIsOpen(false);
                               setHoveredSupervisor(null);
-                              setSearchQuery(""); // Clear search after selection
+                              setSearchQuery("");
                             }}
                             onMouseEnter={(e) => {
                               const rect = e.currentTarget.getBoundingClientRect();
@@ -380,10 +962,10 @@ const Request = () => {
                       {supervisors.filter((sup) =>
                         sup.name.toLowerCase().includes(searchQuery.toLowerCase())
                       ).length === 0 && (
-                          <div className="px-4 py-3 text-sm text-gray-400 text-center">
-                            No supervisors found
-                          </div>
-                        )}
+                        <div className="px-4 py-3 text-sm text-gray-400 text-center">
+                          No supervisors found
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -409,21 +991,19 @@ const Request = () => {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Upload Proposal (PDF only, max 2MB)
                 </label>
-                <label
-                  className={`w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg ${isProposalSubmitted
-                    ? "opacity-50 cursor-not-allowed"
-                    : "cursor-pointer hover:bg-gray-200"
-                    }`}
-                >
-                  Choose File
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="application/pdf"
-                    disabled={isProposalSubmitted}
-                    onChange={(e) => handlePdfSelect(e.target.files[0])}
-                  />
-                </label>
+
+                {/* Show file picker only when not yet submitted */}
+                {!isProposalSubmitted && (
+                  <label className="w-full flex justify-center px-4 py-3 bg-gray-100 border rounded-lg cursor-pointer hover:bg-gray-200">
+                    Choose File
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="application/pdf"
+                      onChange={(e) => handlePdfSelect(e.target.files[0])}
+                    />
+                  </label>
+                )}
 
                 {/* PDF info for newly selected file (before submission) */}
                 {pdfFile && !isProposalSubmitted && (
@@ -448,9 +1028,9 @@ const Request = () => {
                   </div>
                 )}
 
-                {/* PDF uploaded by team (after submission) */}
-                {isProposalSubmitted && existingProposal && (
-                  <div className="mt-4 flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-3">
+                {/* PDF uploaded by team (after submission) — with Edit button */}
+                {isProposalSubmitted && existingProposal && !isEditingPdf && (
+                  <div className="mt-2 flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg p-3">
                     <img src="/pdf_image.png" alt="PDF" className="w-10 h-10" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-800 truncate">
@@ -460,21 +1040,99 @@ const Request = () => {
                         ✓ Submitted successfully
                       </p>
                     </div>
-                    {(existingProposal.proposalFile?.url || pdfPreviewUrl) && (
+                    <div className="flex items-center gap-2">
+                      {(existingProposal.proposalFile?.url || pdfPreviewUrl) && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleViewPDFAfter(
+                              existingProposal.proposalFile?.url || pdfPreviewUrl,
+                              existingProposal.projectTitle || title || "Proposal"
+                            )
+                          }
+                          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+                        >
+                          <ExternalLink size={16} />
+                          View
+                        </button>
+                      )}
+                      {/* Edit PDF button */}
                       <button
                         type="button"
-                        onClick={() =>
-                          handleViewPDFAfter(
-                            existingProposal.proposalFile?.url || pdfPreviewUrl,
-                            existingProposal.projectTitle || title || "Proposal"
-                          )
-                        }
-                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+                        onClick={() => setIsEditingPdf(true)}
+                        className="flex items-center gap-1 text-sm text-blue hover:text-blue font-medium cursor-pointer"
                       >
-                        <ExternalLink size={16} />
-                        View
+                        <Pencil size={15} />
+                        Edit
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* PDF edit and re upload */}
+                {isProposalSubmitted && isEditingPdf && (
+                  <div className="mt-2 border border-primary bg-white rounded-lg p-4 space-y-3">
+                    <p className="text-xs text-white font-medium">
+                      Select a new PDF to replace the submitted file
+                    </p>
+
+                    {/* New file picker */}
+                    <label className="w-full flex justify-center px-4 py-2 bg-white border border-primary rounded-lg cursor-pointer text-sm text-black font-medium">
+                      Choose New PDF
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="application/pdf"
+                        onChange={(e) => handleNewPdfSelect(e.target.files[0])}
+                      />
+                    </label>
+
+                    {/* Selected new file preview */}
+                    {newPdfFile && (
+                      <div className="flex items-center gap-3 bg-white border border-blue-200 rounded-lg p-2">
+                        <img src="/pdf_image.png" alt="PDF" className="w-8 h-8" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-gray-800 truncate">
+                            {newPdfFile.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {(newPdfFile.size / 1024).toFixed(2)} KB
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleViewPDFBefore(newPdfPreviewUrl)}
+                          className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 font-medium cursor-pointer"
+                        >
+                          <ExternalLink size={14} />
+                          View
+                        </button>
+                      </div>
                     )}
+
+                    {/* Save & Cancel buttons */}
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={handleSavePdf}
+                        disabled={!newPdfFile || isSavingPdf}
+                        className={`flex-1 py-2 rounded-lg text-sm font-semibold text-white transition
+                          ${!newPdfFile || isSavingPdf
+                            ? "bg-green-300 cursor-not-allowed"
+                            : "bg-green-600 hover:bg-green-700 cursor-pointer"
+                          }`}
+                      >
+                        {isSavingPdf ? "Saving..." : "Save"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancelPdfEdit}
+                        disabled={isSavingPdf}
+                        className="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 transition cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -486,7 +1144,7 @@ const Request = () => {
                 type="submit"
                 disabled={isFormInvalid || isProposalSubmitted}
                 className={`bg-primary text-white font-bold py-3.5 px-12 rounded-xl shadow-lg transition
-      ${isFormInvalid || isProposalSubmitted
+                  ${isFormInvalid || isProposalSubmitted
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:bg-primary/70 hover:scale-105 cursor-pointer"
                   }`}
@@ -494,17 +1152,16 @@ const Request = () => {
                 {uploadStatus === "uploading"
                   ? "Uploading..."
                   : isProposalSubmitted
-                    ? "Proposal Already Submitted"
-                    : "Submit Request"}
+                  ? "Proposal Already Submitted"
+                  : "Submit Request"}
               </button>
             </div>
-
           </form>
 
           <Toaster position="top-right" />
         </div>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 };
 
