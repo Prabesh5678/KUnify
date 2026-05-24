@@ -16,6 +16,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useAppContext } from "../../context/AppContext";
 
+
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { selectedSubject, user } = useAppContext();
@@ -26,7 +27,7 @@ const StudentDashboard = () => {
     return;
   }
   const userId = user._id;
-   
+
 
   const [teamStatus, setTeamStatus] = useState("Not Joined");
   const [teamName, setTeamName] = useState("");
@@ -37,6 +38,7 @@ const StudentDashboard = () => {
   const [copied, setCopied] = useState(false);
   const [supervisors, setSupervisors] = useState([]);
   const [selectedSupervisor, setSelectedSupervisor] = useState(null);
+  const [guidelinesOpen, setGuidelinesOpen] = useState(false);
 
   const fetchTeamStatus = async () => {
     try {
@@ -62,14 +64,14 @@ const StudentDashboard = () => {
         }
       }
     } catch (err) {
-    //  console.error("Failed to fetch team status:", err);
+      //  console.error("Failed to fetch team status:", err);
       setTeamStatus("Error");
     } finally {
       setIsLoading(false);
     }
   };
 
-  
+
   useEffect(() => {
     fetchTeamStatus();
   }, []);
@@ -98,13 +100,13 @@ const StudentDashboard = () => {
       if (data.success) {
         toast.success("Supervisor request sent successfully");
         setTeamStatus("pending");
-       // setIsOpen(false);
+        // setIsOpen(false);
       } else {
         toast.error(data.message);
       }
     } catch (error) {
-     console.error(error);
-      toast.error(error.message||"Something went wrong!");
+      console.error(error);
+      toast.error(error.message || "Something went wrong!");
     }
   };
 
@@ -194,7 +196,7 @@ const StudentDashboard = () => {
           </div>
 
           <SupervisorCard
-          
+
             teamStatus={teamStatus}
             supervisors={supervisors}
             selectedSupervisor={selectedSupervisor}
@@ -223,11 +225,10 @@ const StudentDashboard = () => {
             disabled={teamStatus === "Not Joined"}
             onClick={() => navigate("/student/logsheet")}
             className={`bg-white rounded-2xl shadow-sm p-6 border flex items-center gap-4  transition text-left cursor-pointer
-    ${
-      teamStatus !== "Not Joined"
-        ? "hover:shadow-md cursor-pointer"
-        : "opacity-60 cursor-not-allowed"
-    }`}
+    ${teamStatus !== "Not Joined"
+                ? "hover:shadow-md cursor-pointer"
+                : "opacity-60 cursor-not-allowed"
+              }`}
           >
             <div className="p-3 bg-orange-100 rounded-xl">
               <Calendar className="text-orange-600" size={28} />
@@ -243,32 +244,66 @@ const StudentDashboard = () => {
           </button>
         </div>
 
-        {/* ✅ QUICK ACTIONS — ONLY IF IN TEAM */}
+        {/* QUICK ACTIONS — ONLY IF IN TEAM */}
         {teamStatus !== "Not Joined" && (
           <div>
             <h2 className="text-xl font-bold mb-5">Quick Actions</h2>
 
-            <button
-              onClick={() => navigate("/student/guidelines")}
-              className="w-full rounded-2xl p-5 shadow-sm hover:shadow-md flex justify-between items-center
-                         bg-gradient-to-r from-orange-50 to-amber-100 mb-4 cursor-pointer"
-            >
-              <div className="flex gap-4">
-                <div className="p-3 bg-orange-200 rounded-xl">
-                  <Plus className="text-orange-700" size={26} />
-                </div>
-                <div className="text-left">
-                  <p className="font-semibold text-gray-800">
-                    See the Instructions
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Read the instructions carefully.
-                  </p>
-                </div>
-              </div>
-              <span className="text-xl text-orange-700">→</span>
-            </button>
 
+            <div className="w-full rounded-2xl shadow-sm bg-gradient-to-r from-orange-50 to-amber-100 mb-4 overflow-hidden">
+              <button
+                onClick={() => setGuidelinesOpen(!guidelinesOpen)}
+                className="w-full p-5 flex justify-between items-center cursor-pointer hover:shadow-md transition"
+              >
+                <div className="flex gap-4">
+                  <div className="p-3 bg-orange-200 rounded-xl">
+                    <Plus className="text-orange-700" size={26} />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-semibold text-gray-800">See the Instructions</p>
+                    <p className="text-sm text-gray-600">Read the instructions carefully.</p>
+                  </div>
+                </div>
+                <span className="text-xl text-orange-700">{guidelinesOpen ? "▲" : "▼"}</span>
+              </button>
+
+              {guidelinesOpen && (
+                <div className="px-6 pb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-xl p-5 border border-gray-200">
+                    <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <Users className="text-green-600" size={20} /> Team Formation
+                    </h3>
+                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 ml-2">
+                      <li>Teams must consist of <strong>at most 5 members</strong></li>
+                      <li>Create or join a team for project</li>
+                      <li>Team leader coordinates all activities</li>
+                    </ul>
+                  </div>
+                  <div className="bg-white rounded-xl p-5 border border-gray-200">
+                    <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <FileText className="text-purple-600" size={20} /> Supervisor Request
+                    </h3>
+                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 ml-2">
+                      <li>Fill up the form</li>
+                      <li>Include title, objectives, and keywords</li>
+                      <li>Requests reviewed within <strong>5 working days</strong></li>
+                      <li>You may request a preferred supervisor</li>
+                    </ul>
+                  </div>
+                  <div className="bg-white rounded-xl p-5 border border-gray-200 sm:col-span-2">
+                    <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                      <Calendar className="text-orange-600" size={20} /> Logsheet Maintenance
+                    </h3>
+                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1 ml-2">
+                      <li>Maintain individual logsheets weekly</li>
+                      <li>Include date, activities, hours, and outcomes</li>
+                      <li>Update at least once per week</li>
+                      <li>Supervisor reviews during meetings</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={() => navigate(`/student/requestsupervisor/${teamId}`)}

@@ -16,7 +16,6 @@ import AboutSPMP from "./pages/AboutSPMP";
 import UserManual from "./pages/UserManual";
 import ProfileSetup from "./pages/Student/ProfileSetup";
 import StudentDashboard from "./pages/Student/StudentDashboard";
-import GuidelinesPage from "./pages/Student/Guidelinespage";
 import Request from "./pages/Student/Request";
 import Logsheet from "./pages/Student/Logsheet";
 import MyProfile from "./pages/Student/MyProfile";
@@ -142,7 +141,6 @@ const App = () => {
                   element={<StudentTeamMembers />}
                 />
                 <Route path="/student/dashboard" element={<StudentDashboard />} />
-                <Route path="/student/guidelines" element={<GuidelinesPage />} />
                 <Route path="/view-pdf" element={<PDFViewer />} />
                 <Route
                   path="/student/requestsupervisor/:teamId"
