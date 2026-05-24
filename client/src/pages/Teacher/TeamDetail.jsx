@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import { ExternalLink, User, FileText, ChevronDown, ChevronUp } from "lucide-react";
+import { ExternalLink, User, FileText, ChevronDown, ChevronUp, Download } from "lucide-react";
 
 axios.defaults.withCredentials = true;
 
@@ -15,6 +15,7 @@ export default function TeamDetails() {
   const [selectedStudent, setSelectedStudent] = useState("all");
   const [selectedWeek, setSelectedWeek] = useState("all");
   const [allWeeks, setAllWeeks] = useState([]);
+  const [exportLoading, setExportLoading] = useState(false);
 
   const [activeTab, setActiveTab] = useState("team");
   const [loading, setLoading] = useState(!team);
@@ -57,7 +58,6 @@ export default function TeamDetails() {
     fetchProposal();
   }, [team]);
 
-
   useEffect(() => {
     if (!team?._id) return;
 
@@ -98,13 +98,46 @@ export default function TeamDetails() {
   }, [team?._id, selectedStudent, selectedWeek]);
 
   const handleViewProposal = () => {
-  if (!proposal?.proposalFile?.url) return;
+    if (!proposal?.proposalFile?.url) return;
+    const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(proposal.proposalFile.url)}&embedded=true`;
+    window.open(viewerUrl, "_blank");
+  };
 
-  // Use Google Docs Viewer
-  const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(proposal.proposalFile.url)}&embedded=true`;
-  window.open(viewerUrl, "_blank");
-};
+  const handleExportLogs = async () => {
+    if (!team?._id) return;
+    try {
+      setExportLoading(true);
+      const response = await axios.get(`/api/teacher/export/${team._id}`, {
+        withCredentials: true,
+        responseType: "blob",
+      });
 
+      // Determine filename from content-disposition header if available
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = `${team.name || "team"}_logs.xlsx`;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+          filename = match[1].replace(/['"]/g, "");
+        }
+      }
+
+      // Create a blob URL and trigger download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Error exporting logs:", err);
+      alert("Failed to export logs. Please try again.");
+    } finally {
+      setExportLoading(false);
+    }
+  };
 
   const allMembers = team?.members || [];
 
@@ -198,10 +231,10 @@ export default function TeamDetails() {
               {/* LOGSHEETS TAB */}
               {activeTab === "logs" && (
                 <>
-                  {/* Filters */}
-                  <div className="flex flex-wrap gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+                  {/* Filters + Export */}
+                  <div className="flex flex-wrap gap-4 mb-4 p-4 bg-gray-50 rounded-lg items-end">
                     <div className="flex-1 min-w-[200px]">
-                      <label>Filter by Student</label>
+                      <label className="block mb-1 text-sm font-medium text-gray-700">Filter by Student</label>
                       <select
                         value={selectedStudent}
                         onChange={(e) => setSelectedStudent(e.target.value)}
@@ -214,7 +247,7 @@ export default function TeamDetails() {
                       </select>
                     </div>
                     <div className="flex-1 min-w-[200px]">
-                      <label>Filter by Week</label>
+                      <label className="block mb-1 text-sm font-medium text-gray-700">Filter by Week</label>
                       <select
                         value={selectedWeek}
                         onChange={(e) => setSelectedWeek(e.target.value)}
@@ -225,6 +258,18 @@ export default function TeamDetails() {
                           <option key={w} value={w}>Week {w}</option>
                         ))}
                       </select>
+                    </div>
+
+                    {/* Export Button */}
+                    <div className="flex-shrink-0">
+                      <button
+                        onClick={handleExportLogs}
+                        disabled={exportLoading}
+                        className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        <Download size={16} />
+                        {exportLoading ? "Exporting..." : "Export"}
+                      </button>
                     </div>
                   </div>
 

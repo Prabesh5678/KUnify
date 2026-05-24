@@ -1,9 +1,8 @@
-
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import AdminSidebar from "../../components/Admin/AdminSidebar";
-import { ExternalLink, FileText, ChevronDown, ChevronUp, User } from "lucide-react";
+import { ExternalLink, FileText, ChevronDown, ChevronUp, User, Download } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
 import { useParams } from "react-router-dom";
 
@@ -17,6 +16,7 @@ const TeamDetail = () => {
   const [loading, setLoading] = useState(true);
   const [logsheetsLoading, setLogsheetsLoading] = useState(false);
   const [allWeeks, setAllWeeks] = useState([]);
+  const [exportLoading, setExportLoading] = useState(false);
 
   const [isTeamOpen, setIsTeamOpen] = useState(true);
   const [isProposalOpen, setIsProposalOpen] = useState(true);
@@ -112,7 +112,7 @@ const TeamDetail = () => {
           setAllWeeks(weeks);
         }
       } catch (err) {
-       // console.error("Error fetching all weeks:", err);
+        // console.error("Error fetching all weeks:", err);
       }
     };
 
@@ -123,6 +123,38 @@ const TeamDetail = () => {
     if (!url) return toast.error("PDF not found");
     const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
     window.open(viewerUrl, "_blank");
+  };
+
+  // Export logs as Excel/CSV via backend
+  const handleExportLogs = async () => {
+    try {
+      setExportLoading(true);
+      const response = await axios.get(`/api/admin/export/${teamId}`, {
+        responseType: "blob",
+      });
+
+      const contentDisposition = response.headers["content-disposition"];
+     let filename = `${team?.name || "team"}_logs_${Date.now()}.xlsx`;
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (match) filename = match[1];
+      }
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Logs exported successfully!");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to export logs");
+    } finally {
+      setExportLoading(false);
+    }
   };
 
   const allMembers = team?.members || [];
@@ -166,23 +198,22 @@ const TeamDetail = () => {
         <AdminHeader />
         <div className="max-w-5xl mx-auto space-y-4">
 
-          
           {/* Team Header */}
-<div className="bg-white p-6 rounded-xl shadow">
-  <h1 className="text-2xl font-bold text-gray-800  break-words">{team.name}</h1>
-  
-  {team.supervisor && team.supervisorStatus === "adminApproved" ? (
-    <p className="text-gray-600 mt-2">
-      <b>Supervisor:</b> {team.supervisor.name} ({team.supervisor.email})
-    </p>
-  ) : team.supervisor ? (
-    <p className="text-red-600 mt-2 italic">
-      <b>Requested Supervisor:</b> {team.supervisor.name} (Pending Approval)
-    </p>
-  ) : (
-    <p className="text-gray-500 mt-2 italic">No supervisor assigned</p>
-  )}
-</div>
+          <div className="bg-white p-6 rounded-xl shadow">
+            <h1 className="text-2xl font-bold text-gray-800 break-words">{team.name}</h1>
+
+            {team.supervisor && team.supervisorStatus === "adminApproved" ? (
+              <p className="text-gray-600 mt-2">
+                <b>Supervisor:</b> {team.supervisor.name} ({team.supervisor.email})
+              </p>
+            ) : team.supervisor ? (
+              <p className="text-red-600 mt-2 italic">
+                <b>Requested Supervisor:</b> {team.supervisor.name} (Pending Approval)
+              </p>
+            ) : (
+              <p className="text-gray-500 mt-2 italic">No supervisor assigned</p>
+            )}
+          </div>
 
           {/* Members */}
           <SectionHeader
@@ -235,8 +266,8 @@ const TeamDetail = () => {
           {isLogsheetOpen && (
             <div className="bg-white p-6 rounded-xl shadow space-y-4">
 
-              {/* Filters */}
-              <div className="flex flex-wrap gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+              {/* Filters + Export */}
+              <div className="flex flex-wrap gap-4 mb-4 p-4 bg-gray-50 rounded-lg items-end">
                 <div className="flex-1 min-w-[200px]">
                   <label>Filter by Student</label>
                   <select
@@ -263,6 +294,14 @@ const TeamDetail = () => {
                     ))}
                   </select>
                 </div>
+                <button
+                  onClick={handleExportLogs}
+                  disabled={exportLoading}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white px-4 py-2 rounded cursor-pointer transition-colors whitespace-nowrap"
+                >
+                  <Download size={16} />
+                  {exportLoading ? "Exporting..." : "Export Logs"}
+                </button>
               </div>
 
               {/* Logs */}
