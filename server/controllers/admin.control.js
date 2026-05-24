@@ -72,7 +72,7 @@ export const getAllTeachers = async (req, res) => {
         { name: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
       ],
-    }).select("name email specialization phone activeStatus googleId position");
+    }).select("name email specialization phone activeStatus googleId position lastLogin");
     const visitingFaculty = await Teacher.find({
       googleId: { $in: [null, undefined] },
       $or: [

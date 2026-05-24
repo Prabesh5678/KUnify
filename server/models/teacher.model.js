@@ -35,6 +35,7 @@ const teacherSchema = new mongoose.Schema({
   password: { type: String, sparse: true ,select:false} ,
   
   position: {type: String, default: ""},
+  lastLogin: { type: Date, default: null },
 });
 
 const Teacher =

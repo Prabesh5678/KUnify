@@ -26,6 +26,7 @@ export const googleSignIn = async (req, res) => {
         avatar: credential.picture,
         isProfileCompleted: false, // default
       });
+      teacher.lastLogin = new Date();
       await teacher.save();
     }
 
@@ -277,7 +278,7 @@ export const teacherLogin = async (req, res) => {
         message: "Invalidd credentials",
       });
     }
-
+await Teacher.findByIdAndUpdate(teacher._id, { lastLogin: new Date() });
     // create JWT
     const token = jwt.sign(
       { id: teacher._id, role: "teacher" },
