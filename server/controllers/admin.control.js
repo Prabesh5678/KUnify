@@ -465,3 +465,20 @@ export const assignSupervisorManually = async (req, res) => {
     if (session) session.endSession();
   }
 };
+
+// Update teacher position
+export const updateTeacherPosition = async (req, res) => {
+  try {
+    const { position } = req.body;
+    const teacher = await Teacher.findByIdAndUpdate(
+      req.params.id,
+      { position },
+      { new: true, runValidators: true }
+    );
+    if (!teacher)
+      return res.status(404).json({ success: false, message: "Teacher not found" });
+    res.json({ success: true, message: "Position updated successfully", teacher });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

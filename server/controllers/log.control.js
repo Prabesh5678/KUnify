@@ -1,5 +1,6 @@
 import LogEntry from "../models/logEntry.model.js";
 import Student from "../models/student.model.js";
+import * as XLSX from "xlsx";
 
 // POST /api/log/create
 export const addLog = async (req, res) => {
@@ -205,5 +206,63 @@ export const deleteLog = async (req, res) => {
       success: false,
       message: "Internal Server Error!",
     });
+  }
+};
+
+// GET /api/log/export/:teamId
+// GET /api/log/export/:teamId           → exports all team logs
+// GET /api/log/export/:teamId?student=userId  → exports only that student's logs
+
+export const exportTeamLogs = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const { student } = req.query;
+
+    // If student id is passed in query, filter by that student, otherwise get all team logs
+    const filter = { teamId };
+    if (student) filter.createdBy = student;
+
+    const logs = await LogEntry.find(filter)
+      .populate("createdBy", "name email")
+      .sort({ week: 1 });
+
+    if (!logs.length) {
+      return res.json({ success: false, message: "No logs found" });
+    }
+
+    // Shape the data for the spreadsheet
+    const data = logs.map((log) => ({
+      Week: log.week,
+      Date: new Date(log.date).toLocaleDateString(),
+      Student: log.createdBy?.name || "Unknown",
+      Email: log.createdBy?.email || "",
+      Activity: log.activity,
+      Outcome: log.outcome,
+    }));
+
+    // Create the Excel file
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Logsheet");
+
+    // Set column widths so it looks nice when opened
+    worksheet["!cols"] = [
+      { wch: 8 },  // Week
+      { wch: 14 }, // Date
+      { wch: 22 }, // Student
+      { wch: 28 }, // Email
+      { wch: 35 }, // Activity
+      { wch: 35 }, // Outcome
+    ];
+
+    // Convert to a downloadable file buffer and send
+    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+    res.setHeader("Content-Disposition", `attachment; filename="logsheet.xlsx"`);
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    return res.send(buffer);
+
+  } catch (error) {
+    console.error(error.stack);
+    return res.json({ success: false, message: "Failed to export logs" });
   }
 };

@@ -1,6 +1,7 @@
 import express from 'express';
 import { googleSignIn, isAuth, profileCompletion, teamApprove, teamRequest, teacherLogin, getTeamLogsheets, deleteTeam} from '../controllers/teacher.control.js';
 import authTeacher from '../middlewares/teacher.middleware.js';
+import { exportTeamLogs } from "../controllers/log.control.js";
 
 const teacherRouter= express.Router();
 
@@ -12,6 +13,6 @@ const teacherRouter= express.Router();
     teacherRouter.post("/login", teacherLogin);
     teacherRouter.get("/teams/:teamId/logsheets", authTeacher, getTeamLogsheets);
     teacherRouter.post("/delete-team/:teamId", authTeacher, deleteTeam);
-  
+    teacherRouter.get("/export/:teamId", exportTeamLogs);
     
     export default teacherRouter;

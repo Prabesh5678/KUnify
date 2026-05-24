@@ -6,6 +6,7 @@ import {
   getTeamLogs,
   updateLog,
   deleteLog,
+  exportTeamLogs,
 } from "../controllers/log.control.js";
 
 const logRouter = express.Router();
@@ -45,4 +46,5 @@ logRouter.delete(
   deleteLog
 );
 
+logRouter.get("/export/:teamId", exportTeamLogs);
 export default logRouter;
