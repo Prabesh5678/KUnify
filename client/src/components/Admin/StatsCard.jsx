@@ -1,6 +1,12 @@
 import React from "react";
 
-const StatsCard = ({ title, value, icon, color = "blue" }) => {
+const StatsCard = ({
+  title,
+  value,
+  icon,
+  color = "blue",
+  onClick,
+}) => {
   const colorMap = {
     blue: "bg-blue-50 text-blue-600",
     purple: "bg-purple-50 text-purple-600",
@@ -9,11 +15,12 @@ const StatsCard = ({ title, value, icon, color = "blue" }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm flex items-center gap-4">
+    <div
+      onClick={onClick}
+      className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm flex items-center gap-4 cursor-pointer hover:shadow-md transition"
+    >
       {icon && (
-        <div
-          className={`p-3 rounded-lg text-2xl ${colorMap[color]}`}
-        >
+        <div className={`p-3 rounded-lg text-2xl ${colorMap[color]}`}>
           {icon}
         </div>
       )}

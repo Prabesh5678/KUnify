@@ -62,24 +62,28 @@ const AdminDashboard = () => {
               value={loading ? "..." : stats.totalStudents}
               icon={<FaUsers />}
               color="blue"
+               onClick={() => navigate("/admin/admin_std")}
             />
             <StatsCard
               title="Total Teachers"
               value={loading ? "..." : stats.totalTeachers}
               icon={<FaChalkboardTeacher />}
               color="purple"
+                onClick={() => navigate("/admin/admin_teachers")}
             />
             <StatsCard
               title="Total Projects"
               value={loading ? "..." : stats.totalProjects}
               icon={<FaProjectDiagram />}
               color="green"
+              onClick={() => navigate("/admin/projects")}
             />
             <StatsCard
               title="Pending Requests"
               value={loading ? "..." : stats.totalRequests}
               icon={<FaTasks />}
               color="orange"
+              onClick={() => navigate("/admin/requestteacher")} 
             />
           </div>
         </div>

@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import AdminSidebar from "../../components/Admin/AdminSidebar";
 import AdminHeader from "../../components/Admin/AdminHeader";
-import { FaUserGraduate, FaPhone, FaEnvelope, FaTools, FaBriefcase } from "react-icons/fa";
+import { FaUserGraduate, FaPhone, FaEnvelope, FaTools, FaBriefcase, FaClock, FaHistory } from "react-icons/fa";
 import toast from "react-hot-toast";
 
 const POSITION_OPTIONS = [
@@ -47,29 +47,20 @@ const AllTeachers = () => {
     }
   }, [id, teacher]);
 
-  // Pre-select current position when teacher data loads
   useEffect(() => {
-    if (teacher) {
-      setSelectedPosition(teacher.position || "");
-    }
+    if (teacher) setSelectedPosition(teacher.position || "");
   }, [teacher]);
 
   const handleSavePosition = async () => {
-    if (!selectedPosition) {
-      toast.error("Please select a position");
-      return;
-    }
-
+    if (!selectedPosition) { toast.error("Please select a position"); return; }
     try {
       setSaving(true);
       const teacherId = teacher._id || teacher.id;
-
       const res = await axios.put(
         `/api/admin/teacher/${teacherId}/position`,
         { position: selectedPosition },
         { withCredentials: true }
       );
-
       if (res.data.success) {
         setTeacher((prev) => ({ ...prev, position: selectedPosition }));
         toast.success("Position updated successfully!");
@@ -90,9 +81,7 @@ const AllTeachers = () => {
     setEditMode(false);
   };
 
-  if (loading) {
-    return <p className="p-8 text-gray-600">Loading teacher information...</p>;
-  }
+  if (loading) return <p className="p-8 text-gray-600">Loading teacher information...</p>;
 
   if (!teacher || !(teacher._id || teacher.id)) {
     return (
@@ -103,16 +92,21 @@ const AllTeachers = () => {
           <p className="text-red-600 font-semibold">
             Teacher data not found or invalid. Please navigate from Teachers Management page.
           </p>
-          <button
-            onClick={() => navigate(-1)}
-            className="mt-4 px-4 py-2 bg-primary text-white rounded"
-          >
+          <button onClick={() => navigate(-1)} className="mt-4 px-4 py-2 bg-primary text-white rounded">
             Go Back
           </button>
         </div>
       </div>
     );
   }
+
+  const loginHistory = Array.isArray(teacher.loginHistory) ? teacher.loginHistory : [];
+
+  
+  const lastLoginRaw = teacher.lastLogin || teacher.lastLoginAt || teacher.last_login || null;
+  const lastLoginDisplay = lastLoginRaw
+    ? new Date(lastLoginRaw).toLocaleString()
+    : "Never";
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -135,40 +129,39 @@ const AllTeachers = () => {
           {/* Info Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <InfoItem icon={<FaUserGraduate />} label="Full Name">
-              <input
-                value={teacher.name || ""}
-                readOnly
-                className="ml-2 p-2 border rounded w-full bg-gray-100 cursor-not-allowed"
-              />
+              <input value={teacher.name || ""} readOnly className="ml-2 p-2 border rounded w-full bg-gray-100 cursor-not-allowed" />
             </InfoItem>
-
             <InfoItem icon={<FaPhone />} label="Phone">
-              <input
-                value={teacher.phone || ""}
-                readOnly
-                className="ml-2 p-2 border rounded w-full bg-gray-100 cursor-not-allowed"
-              />
+              <input value={teacher.phone || ""} readOnly className="ml-2 p-2 border rounded w-full bg-gray-100 cursor-not-allowed" />
             </InfoItem>
-
             <InfoItem icon={<FaEnvelope />} label="Email">
-              <input
-                value={teacher.email || ""}
-                readOnly
-                className="ml-2 p-2 border rounded w-full bg-gray-100 cursor-not-allowed"
-              />
+              <input value={teacher.email || ""} readOnly className="ml-2 p-2 border rounded w-full bg-gray-100 cursor-not-allowed" />
             </InfoItem>
-
             <InfoItem icon={<FaTools />} label="Specialization">
-              <input
-                value={teacher.specialization || ""}
-                readOnly
-                className="ml-2 p-2 border rounded w-full bg-gray-100 cursor-not-allowed"
-              />
+              <input value={teacher.specialization || ""} readOnly className="ml-2 p-2 border rounded w-full bg-gray-100 cursor-not-allowed" />
             </InfoItem>
           </div>
 
+          {/* Last Login stat card*/}
+          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm mb-6 flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-xl">
+              <FaClock className="text-primary text-xl" />
+            </div>
+            <div>
+              <p className="text-xs uppercase text-gray-400 font-semibold tracking-wide">Last Login</p>
+              <p className="text-sm font-medium text-gray-800 mt-0.5">
+                {lastLoginDisplay}
+              </p>
+            </div>
+            {loginHistory.length > 0 && (
+              <span className="ml-auto text-xs font-medium bg-primary/10 text-primary px-3 py-1 rounded-full">
+                {loginHistory.length} session{loginHistory.length !== 1 ? "s" : ""} recorded
+              </span>
+            )}
+          </div>
+
           {/* Position Section */}
-          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm mb-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <FaBriefcase className="text-primary text-lg" />
@@ -200,7 +193,6 @@ const AllTeachers = () => {
               )}
             </div>
 
-            {/* View mode — show current position as badge */}
             {!editMode && (
               <div>
                 {teacher.position ? (
@@ -213,12 +205,9 @@ const AllTeachers = () => {
               </div>
             )}
 
-            {/* Edit mode — pill selector */}
             {editMode && (
               <div>
-                <p className="text-xs text-gray-500 mb-3">
-                  Select a new position for this teacher:
-                </p>
+                <p className="text-xs text-gray-500 mb-3">Select a new position for this teacher:</p>
                 <div className="flex flex-wrap gap-2">
                   {POSITION_OPTIONS.map((pos) => (
                     <button
@@ -240,6 +229,52 @@ const AllTeachers = () => {
                     Selected: <span className="font-semibold">{selectedPosition}</span>
                   </p>
                 )}
+              </div>
+            )}
+          </div>
+
+          {/*Login History Log */}
+          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <FaHistory className="text-primary text-lg" />
+              <h3 className="text-base font-semibold text-gray-700">Login History</h3>
+            </div>
+
+            {loginHistory.length === 0 ? (
+              <p className="text-sm text-gray-400 italic">No login history available.</p>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {[...loginHistory]
+                  .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                  .slice(0, 20)
+                  .map((entry, idx) => (
+                    <div key={idx} className="flex items-center justify-between py-3 gap-4">
+                      {/* Index badge */}
+                      <span className="text-xs font-semibold text-gray-400 w-6 shrink-0">
+                        #{idx + 1}
+                      </span>
+
+                      {/* Timestamp */}
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-800">
+                          {entry.timestamp
+                            ? new Date(entry.timestamp).toLocaleString()
+                            : "Unknown"}
+                        </p>
+                      </div>
+
+                      {/* Status badge */}
+                      <span
+                        className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${
+                          entry.status === "failed"
+                            ? "bg-red-100 text-red-600"
+                            : "bg-green-100 text-green-700"
+                        }`}
+                      >
+                        {entry.status === "failed" ? "Failed" : "Success"}
+                      </span>
+                    </div>
+                  ))}
               </div>
             )}
           </div>
