@@ -20,7 +20,7 @@ const AllTeachers = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [teacher, setTeacher] = useState(location.state?.teacher || null);
+  const [ teacher, setTeacher] = useState(location.state?.teacher || null);
   const [loading, setLoading] = useState(!teacher);
   const [editMode, setEditMode] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState("");
@@ -102,8 +102,9 @@ const AllTeachers = () => {
 
   const loginHistory = Array.isArray(teacher.loginHistory) ? teacher.loginHistory : [];
 
-  
-  const lastLoginRaw = teacher.lastLogin || teacher.lastLoginAt || teacher.last_login || null;
+  console.log("Teacher data:", teacher);
+  const lastLoginRaw = teacher.lastLogin || null;
+  console.log("Raw lastLogin value:", lastLoginRaw);
   const lastLoginDisplay = lastLoginRaw
     ? new Date(lastLoginRaw).toLocaleString()
     : "Never";

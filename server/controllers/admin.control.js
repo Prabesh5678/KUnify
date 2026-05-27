@@ -79,7 +79,7 @@ export const getAllTeachers = async (req, res) => {
         { name: { $regex: search, $options: "i" } },
         { email: { $regex: search, $options: "i" } },
       ],
-    }).select("name email specialization phone activeStatus position");
+    }).select("name email specialization phone activeStatus position lastLogin");
     res.json({ success: true, regularFaculty, visitingFaculty });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

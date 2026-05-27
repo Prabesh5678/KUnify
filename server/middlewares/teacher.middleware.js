@@ -41,10 +41,11 @@ const authTeacher = async (req, res, next) => {
 
     // IMPORTANT: set both req.user and req.teacherId
     req.teacherId = tokenDecode.id;
+    // await Teacher.findByIdAndUpdate(tokenDecode.id, { lastLogin: new Date() });
 
     next();
   } catch (error) {
-    return res.json({ success: false, message: error.message });
+    return res.json({ success: false, message:"Server Error" });
   }
 };
 
