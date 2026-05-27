@@ -34,7 +34,7 @@ export const googleSignIn = async (req, res) => {
     const teacherToken = jwt.sign(
       { id: teacher._id, role: "teacher" },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "1d" },
     );
 
     // Set cookie
@@ -42,7 +42,7 @@ export const googleSignIn = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
     });
 
     // Send proper user object
@@ -283,7 +283,7 @@ await Teacher.findByIdAndUpdate(teacher._id, { lastLogin: new Date() });
     const token = jwt.sign(
       { id: teacher._id, role: "teacher" },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" },
+      { expiresIn: "1d" },
     );
 
     // send cookie
@@ -291,6 +291,7 @@ await Teacher.findByIdAndUpdate(teacher._id, { lastLogin: new Date() });
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
+      maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
     });
     delete teacher.password;
     console.log(teacher);
