@@ -153,7 +153,7 @@ const TeachersManagement = () => {
           <td
             className="p-3 text-primary cursor-pointer hover:underline hover:text-primary/80"
             onClick={() =>
-              navigate("/admin/allteachers/:id", {
+              navigate(`/admin/allteachers/${t._id || t.id}`, {
                 state: { teacher: t, projects: [] },
               })
             }
