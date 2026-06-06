@@ -26,9 +26,9 @@ export const googleSignIn = async (req, res) => {
         avatar: credential.picture,
         isProfileCompleted: false, // default
       });
-      teacher.lastLogin = new Date();
-      await teacher.save();
     }
+    teacher.lastLogin = new Date();
+    await teacher.save();
 
     // Generate JWT (FIXED: teacher._id, not student._id)
     const teacherToken = jwt.sign(
@@ -505,7 +505,7 @@ export const deleteTeam = async (req, res) => {
       teacher.deletionTeams.pull(teamId);
       teacher.pendingTeams.pull(teamId);
       teacher.approvedTeams.pull(teamId);
-      teacher.activeCount -= 1;
+      teacher.activeCount>=0? teacher.activeCount -= 1 : null;
       await Student.findByIdAndUpdate(
         team.leaderId._id,
         {

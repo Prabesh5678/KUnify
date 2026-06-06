@@ -102,9 +102,7 @@ const AllTeachers = () => {
 
   const loginHistory = Array.isArray(teacher.loginHistory) ? teacher.loginHistory : [];
 
-  console.log("Teacher data:", teacher);
   const lastLoginRaw = teacher.lastLogin || null;
-  console.log("Raw lastLogin value:", lastLoginRaw);
   const lastLoginDisplay = lastLoginRaw
     ? new Date(lastLoginRaw).toLocaleString()
     : "Never";

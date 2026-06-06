@@ -15,7 +15,7 @@ const teacherSchema = new mongoose.Schema({
     default: false,//remember to make it false after making admin
   },
   maxCount:{type:Number,default:5},
-  activeCount:{type:Number,default:0},
+  activeCount:{type:Number,default:0,min:0},
   pendingTeams:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'team'
