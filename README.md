@@ -1,6 +1,8 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/KUnify-SPMP-6C63FF?style=for-the-badge&logoColor=white" alt="KUnify"/>
+<a href="https://spmp.ku.edu.np">
+  <img src="https://img.shields.io/badge/KUnify-SPMP-6C63FF?style=for-the-badge&logoColor=white" alt="KUnify"/>
+</a>
 
 # KUnify — Student Project Management Platform
 
