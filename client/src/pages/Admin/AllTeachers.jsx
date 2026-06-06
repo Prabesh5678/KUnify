@@ -20,32 +20,39 @@ const AllTeachers = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const [ teacher, setTeacher] = useState(location.state?.teacher || null);
+  const [teacher, setTeacher] = useState(location.state?.teacher || null);
   const [loading, setLoading] = useState(!teacher);
+  const [editMode, setEditMode] = useState(false);
+  const [selectedPosition, setSelectedPosition] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [teacher, setTeacher] = useState(location.state?.teacher || null);
+  const [loading, setLoading] = useState(!location.state?.teacher); // ← fix: was !teacher but teacher wasn't defined yet
   const [editMode, setEditMode] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!teacher && id) {
-      const fetchTeacher = async () => {
-        try {
-          setLoading(true);
-          const res = await axios.get("/api/admin/get-teachers", { withCredentials: true });
-          if (res.data.success) {
-            const allTeachers = [...res.data.regularFaculty, ...res.data.visitingFaculty];
-            const t = allTeachers.find((t) => t._id === id);
-            if (t) setTeacher(t);
-          }
-        } catch (err) {
-          console.error("Failed to fetch teacher:", err);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchTeacher();
+    if (!id) {
+      setLoading(false);
+      return;
     }
-  }, [id, teacher]);
+    const fetchTeacher = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get("/api/admin/get-teachers", { withCredentials: true });
+        if (res.data.success) {
+          const allTeachers = [...res.data.regularFaculty, ...res.data.visitingFaculty];
+          const t = allTeachers.find((t) => (t._id || t.id) === id);
+          if (t) setTeacher(t);
+        }
+      } catch (err) {
+        console.error("Failed to fetch teacher:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTeacher();
+  }, [id]);
 
   useEffect(() => {
     if (teacher) setSelectedPosition(teacher.position || "");
@@ -213,11 +220,10 @@ const AllTeachers = () => {
                       key={pos}
                       type="button"
                       onClick={() => setSelectedPosition(pos)}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${
-                        selectedPosition === pos
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${selectedPosition === pos
                           ? "bg-primary text-white border-primary shadow-sm"
                           : "bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary"
-                      }`}
+                        }`}
                     >
                       {pos}
                     </button>
@@ -264,11 +270,10 @@ const AllTeachers = () => {
 
                       {/* Status badge */}
                       <span
-                        className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${
-                          entry.status === "failed"
+                        className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${entry.status === "failed"
                             ? "bg-red-100 text-red-600"
                             : "bg-green-100 text-green-700"
-                        }`}
+                          }`}
                       >
                         {entry.status === "failed" ? "Failed" : "Success"}
                       </span>
