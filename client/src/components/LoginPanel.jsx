@@ -61,8 +61,8 @@ const LoginPanel = () => {
         setShowUserLogin(false);
 
         // fetch the real DB user into context
-        const freshUser = await fetchUser();
-
+        const freshUser = await fetchUser("/teacher");
+        
         // Navigate based on actual user in context
         if (freshUser?.isProfileCompleted) {
           navigate("/teacher/dashboard", { replace: true });
@@ -84,6 +84,7 @@ const LoginPanel = () => {
         return toast.error(data.message || "Student login failed");
 
       setUser({ ...data.student, role: "student" });
+      console.log("from login panel, student data(user setted):", data.student.subjectCode);
       setShowUserLogin(false);
 
       const profileCompleted = !!(
@@ -92,8 +93,8 @@ const LoginPanel = () => {
         data.student.rollNumber &&
         data.student.subjectCode
       );
-
-      navigate(profileCompleted ? "/student/home" : "/setup-profile", {
+      await fetchUser(); // Ensure context is updated before navigating
+      navigate(profileCompleted ? "/student/home/" : "/setup-profile", {
         replace: true,
       });
       return toast.success("Login successful!");

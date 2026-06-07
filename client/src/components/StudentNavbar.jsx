@@ -18,7 +18,6 @@ const StudentNavbar = () => {
   const plusButtonRef = useRef(null);
   const navigate = useNavigate();
   const { selectedSubject, setUser } = useAppContext();
-
   /* =========================
      LOGOUT
   ========================= */

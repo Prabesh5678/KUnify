@@ -21,15 +21,10 @@ const AllTeachers = () => {
   const { id } = useParams();
 
   const [teacher, setTeacher] = useState(location.state?.teacher || null);
-  const [loading, setLoading] = useState(!teacher);
   const [editMode, setEditMode] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState("");
   const [saving, setSaving] = useState(false);
-  const [teacher, setTeacher] = useState(location.state?.teacher || null);
   const [loading, setLoading] = useState(!location.state?.teacher); // ← fix: was !teacher but teacher wasn't defined yet
-  const [editMode, setEditMode] = useState(false);
-  const [selectedPosition, setSelectedPosition] = useState("");
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!id) {

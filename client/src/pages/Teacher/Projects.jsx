@@ -52,7 +52,6 @@ export default function TeacherProjects() {
     const fetchTeams = async () => {
       try {
         const { data } = await axios.get("/api/teacher/teams?get=all");
-        console.log(data.teams.assignedTeams);
         if (data.success) {
           const teamList = data?.teams || [];
           setTeams(teamList.assignedTeams);

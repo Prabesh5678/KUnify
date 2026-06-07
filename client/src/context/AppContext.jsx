@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -8,7 +13,7 @@ axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
 const AppContext = createContext();
-
+let fetchDone=false;
 export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
 
@@ -31,117 +36,147 @@ export const AppContextProvider = ({ children }) => {
 
   // Refetch trigger
   const [requestRefetchTrigger, setRequestRefetchTrigger] = useState(0);
-  const triggerRequestRefetch = () => setRequestRefetchTrigger(prev => prev + 1);
+  const triggerRequestRefetch = () =>
+    setRequestRefetchTrigger((prev) => prev + 1);
 
-  // ===== fetchUser - refresh-safe auth =====
-  const fetchUser = async () => {
-    setLoadingUser(true);
+  //helper functions for fetchUser
+  const tryAdmin = async (set) => {
     try {
-      // ---- ADMIN ----
-      try {
-        const adminRes = await axios.get("/api/admin/is-auth");
-        if (adminRes.data?.success) {
-          setUser({ role: "admin" });
-          setIsAdmin(true);
-          setIsTeacher(false);
-          setIsStudent(false);
-          setStudentProfile(null);
-          setSelectedSubject(null);
-          setProfileSetupDone(true);
-          return;
-        }
-      } catch (err) {
-        // ignore 401
-        if (err.response?.status && err.response.status !== 401) {
-        //  console.warn("Admin auth error:", err.response?.data?.message || err.message);
-        }
+      const res = await axios.get("/api/admin/is-auth");
+      if (res.data?.success) {
+        set.user({ role: "admin" });
+        set.isAdmin(true);
+        set.isTeacher(false);
+        set.isStudent(false);
+        set.studentProfile(null);
+        set.selectedSubject(null);
+        set.profileSetupDone(true);
+        return true;
       }
+    } catch (err) {
+      if (err.response?.status !== 401) {
+        console.warn(
+          "Admin auth error:",
+          err.response?.data?.message || err.message,
+        );
+      }
+      // 401 = just not admin, silently ignore
+    }
+    return false;
+  };
 
-      // ---- STUDENT ----
-      try {
-        const studentRes = await axios.get("/api/student/is-auth?populateTeam=true");
-        if (studentRes.data?.success && studentRes.data?.student) {
-          const studentUser = { ...studentRes.data.student, role: "student" };
-          setUser(studentUser);
-          setIsStudent(true);
-          setIsAdmin(false);
-          setIsTeacher(false);
-
-          const profileDone = !!(
+  const tryStudent = async (set) => {
+    try {
+      const res = await axios.get("/api/student/is-auth?populateTeam=true");
+      if (res.data?.success && res.data?.student) {
+        const studentUser = { ...res.data.student, role: "student" };
+        set.user(studentUser);
+        set.isStudent(true);
+        set.isAdmin(false);
+        set.isTeacher(false);
+        set.profileSetupDone(
+          !!(
             studentUser.department &&
             studentUser.semester &&
             studentUser.rollNumber &&
             studentUser.subjectCode
-          );
-          setProfileSetupDone(profileDone);
-
-          setStudentProfile({
-            department: studentUser.department,
-            semester: studentUser.semester,
-            rollNumber: studentUser.rollNumber,
-            subjectCode: studentUser.subjectCode,
-          });
-
-          // Sync selectedSubject
-          setSelectedSubject(studentUser.subjectCode || null);
-          return;
-        }
-      } catch (err) {
-        console.warn("Student not authenticated:", err.response?.data?.message || err.message);
+          ),
+        );
+        set.studentProfile({
+          department: studentUser.department,
+          semester: studentUser.semester,
+          rollNumber: studentUser.rollNumber,
+          subjectCode: studentUser.subjectCode,
+        });
+        set.selectedSubject(studentUser.subjectCode || null);
+        return true;
       }
-
-      // ---- TEACHER ----
-      try {
-        const teacherRes = await axios.get("/api/teacher/is-auth");
-        if (teacherRes.data?.success && teacherRes.data?.user) {
-          setUser({ ...teacherRes.data.user, role: "teacher" });
-          setIsTeacher(true);
-          setIsAdmin(false);
-          setIsStudent(false);
-          setStudentProfile(null);
-          setSelectedSubject(null);
-          setProfileSetupDone(teacherRes.data.user.isProfileCompleted === true);
-          return;
-        }
-      } catch (err) {
-        if (err.response?.status !== 401) {
-          console.warn("Teacher auth error:", err.response?.data?.message || err.message);
-        }
-      }
-
-      // ---- Not authenticated ----
-      setUser(null);
-      setIsAdmin(false);
-      setIsTeacher(false);
-      setIsStudent(false);
-      setStudentProfile(null);
-      setSelectedSubject(null);
-      setProfileSetupDone(false);
     } catch (err) {
-      console.error("Fetch user failed:", err);
-      setUser(null);
-      setIsAdmin(false);
-      setIsTeacher(false);
-      setIsStudent(false);
-      setStudentProfile(null);
-      setSelectedSubject(null);
-      setProfileSetupDone(false);
-    } finally {
-      setLoadingUser(false);
+      if (err.response?.status !== 401) {
+        console.warn(
+          "Student auth error:",
+          err.response?.data?.message || err.message,
+        );
+      }
     }
+    return false;
   };
+
+  const tryTeacher = async (set) => {
+    try {
+      const res = await axios.get("/api/teacher/is-auth");
+      if (res.data?.success && res.data?.user) {
+        set.user({ ...res.data.user, role: "teacher" });
+        set.isTeacher(true);
+        set.isAdmin(false);
+        set.isStudent(false);
+        set.studentProfile(null);
+        set.selectedSubject(null);
+        set.profileSetupDone(res.data.user.isProfileCompleted === true);
+        return true;
+      }
+    } catch (err) {
+      if (err.response?.status !== 401) {
+        console.warn(
+          "Teacher auth error:",
+          err.response?.data?.message || err.message,
+        );
+      }
+    }
+    return false;
+  };
+  const clearUser = (set) => {
+    set.user(null);
+    set.isAdmin(false);
+    set.isTeacher(false);
+    set.isStudent(false);
+    set.studentProfile(null);
+    set.selectedSubject(null);
+    set.profileSetupDone(false);
+  };
+  // ===== fetchUser - refresh-safe auth =====
+  const set = {
+    user: setUser,
+    isAdmin: setIsAdmin,
+    isTeacher: setIsTeacher,
+    isStudent: setIsStudent,
+    studentProfile: setStudentProfile,
+    selectedSubject: setSelectedSubject,
+    profileSetupDone: setProfileSetupDone,
+  };
+ const fetchUser = async (forcedPath) => {
+   setLoadingUser(true);
+   const path = forcedPath || window.location.pathname;
+
+
+   try {
+     let authenticated = false;
+
+     if (path.startsWith("/admin")) authenticated = await tryAdmin(set);
+     else if (path.startsWith("/student"))
+       authenticated = await tryStudent(set);
+     else if (path.startsWith("/teacher"))
+       authenticated = await tryTeacher(set);
+     else
+       authenticated =
+      (await tryStudent(set)) ||
+      (await tryTeacher(set))||
+         (await tryAdmin(set)) ;
+
+     if (!authenticated) clearUser(set); // ← nothing matched, clear everything
+   } catch (err) {
+     console.error("Fetch user failed:", err);
+     clearUser(set); // ← unexpected error, clear everything
+   } finally {
+     setLoadingUser(false);
+   }
+ };
 
   // ===== Logout =====
   const logout = async () => {
     try {
       await axios.get("/api/logout");
-      setUser(null);
-      setIsAdmin(false);
-      setIsTeacher(false);
-      setIsStudent(false);
-      setStudentProfile(null);
-      setSelectedSubject(null);
-      setProfileSetupDone(false);
+      clearUser(set);
       toast.success("Logged out successfully!");
       navigate("/", { replace: true });
     } catch (err) {
@@ -157,24 +192,24 @@ export const AppContextProvider = ({ children }) => {
       toast.success("Profile completed successfully!");
     } catch (err) {
       console.error("Failed to complete profile:", err);
-   //   throw err;
+      //   throw err;
     }
   };
 
-  // ===== Save selected subject =====
-  const saveSelectedSubject = async (subject) => {
-    try {
-      setSelectedSubject(subject);
-      setStudentProfile(prev => ({ ...prev, subjectCode: subject }));
-      await axios.put("/api/student/profile-update", { subjectCode: subject });
-    } catch (err) {
-    //  console.error("Failed to save selected subject:", err);
-    }
-  };
 
-  // ===== Fetch user on mount or when refetch triggered =====
+
+  // ===== Fetch user on mount (only once, prevents React StrictMode double-call) =====
   useEffect(() => {
+    if (fetchDone) return;
+    fetchDone = true;
     fetchUser();
+  }, []); // Empty array - only run once on mount
+
+  // ===== Refetch when explicitly triggered =====
+  useEffect(() => {
+    if (requestRefetchTrigger >0) {
+      fetchUser();
+    }
   }, [requestRefetchTrigger]);
 
   // ===== Context value =====
@@ -198,7 +233,6 @@ export const AppContextProvider = ({ children }) => {
     setShowSignupPanel,
     selectedSubject,
     setSelectedSubject,
-    saveSelectedSubject,
     completeProfile,
     fetchUser,
     logout,

@@ -80,11 +80,12 @@ export const isAuth = async (req, res) => {
         message: "Couldnot find student id. ",
       });
     let student;
+    if(req.query.from==='home')console.log("is-auth called from student home")
     if (req.query.populateTeam === "true") {
-      student = await Student.findById(studentId).populate("teamId");
+        student = await Student.findById(studentId).populate("teamId");
     } else {
       student = await Student.findById(studentId);
-    }
+    } 
     if(!student)
       return res.json({success:false,message:'Unale to find Student!'})
     return res.json({ success: true, student });

@@ -12,10 +12,9 @@ const StudentHome = () => {
   const fetchLatestStudentAndTeam = async () => {
     try {
       const studentRes = await axios.get(
-        "/api/student/is-auth",
+        "/api/student/is-auth?populateTeam=true",
         { withCredentials: true }
       );
-
       const freshStudent = studentRes.data.student;
       setStudent(freshStudent);
 
@@ -23,15 +22,8 @@ const StudentHome = () => {
         setTeam(null);
         return;
       }
-
-      const teamRes = await axios.get(
-        `/api/team/${freshStudent.teamId}`,
-        { withCredentials: true }
-      );
-
-      if (teamRes.data.success) {
-        setTeam(teamRes.data.team);
-      }
+const team= freshStudent.teamId;
+      setTeam(team);
     } catch (err) {
   //    console.error("Failed to fetch student/team", err);
     } finally {
