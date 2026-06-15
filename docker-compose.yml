@@ -32,9 +32,6 @@ services:
         condition: service_healthy
     env_file:
       - ./server/.env
-    volumes:
-      - ./server:/app
-      - /app/node_modules
 
   client:
     build:
@@ -42,11 +39,7 @@ services:
     container_name: spmp_client
     restart: always
     ports:
-      - "127.0.0.1:5173:5173"
-    depends_on:
-      - server
-    stdin_open: true
-    tty: true
+      - "127.0.0.1:5173:80"
 
   mongo-express:
     image: mongo-express
