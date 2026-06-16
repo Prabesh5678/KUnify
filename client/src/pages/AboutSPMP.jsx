@@ -11,7 +11,7 @@ const AboutSPMP = () => {
     <div className="px-6 md:px-16 py-14 min-h-screen bg-gradient-to-br from-gray-100 via-primary/5 to-primary/10">
       <div className="border rounded-xl p-8 bg-white shadow-lg max-w-6xl mx-auto space-y-8">
 
-        <h2 className="text-3xl font-semibold text-primary border-b pb-3">
+        <h2 className="text-3xl flex justify-center font-semibold text-primary border-b pb-3">
           About Us
         </h2>
 
