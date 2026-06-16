@@ -237,30 +237,22 @@ export default function TeacherSettings() {
 
           {/* Position Selector - full width below the grid */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Position
             </label>
-            <div className="flex flex-wrap gap-2">
+
+            <select
+              value={form.position}
+              onChange={(e) => setForm({ ...form, position: e.target.value })}
+              className="w-104 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+
               {POSITION_OPTIONS.map((pos) => (
-                <button
-                  key={pos}
-                  type="button"
-                  onClick={() => setForm({ ...form, position: pos })}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${
-                    form.position === pos
-                      ? "bg-primary text-white border-primary shadow-sm"
-                      : "bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary"
-                  }`}
-                >
+                <option key={pos} value={pos}>
                   {pos}
-                </button>
+                </option>
               ))}
-            </div>
-            {form.position && (
-              <p className="text-xs text-primary mt-2">
-                Selected: <span className="font-semibold">{form.position}</span>
-              </p>
-            )}
+            </select>
           </div>
 
           {/* Save Button */}

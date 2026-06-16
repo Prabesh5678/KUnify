@@ -166,12 +166,15 @@ const AllTeachers = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <FaBriefcase className="text-primary text-lg" />
-                <h3 className="text-base font-semibold text-gray-700">Position</h3>
+                <h3 className="text-base font-semibold text-gray-700">
+                  Position
+                </h3>
               </div>
+
               {!editMode ? (
                 <button
                   onClick={() => setEditMode(true)}
-                  className="px-4 py-1.5 text-sm bg-primary text-white rounded-md hover:bg-primary/90 transition cursor-pointer"
+                  className="px-4 py-2 text-sm bg-primary text-white rounded-md hover:bg-primary/90 transition cursor-pointer"
                 >
                   Edit Position
                 </button>
@@ -179,14 +182,15 @@ const AllTeachers = () => {
                 <div className="flex gap-2">
                   <button
                     onClick={handleCancelEdit}
-                    className="px-4 py-1.5 text-sm border border-gray-300 text-gray-600 rounded-md hover:bg-gray-50 transition cursor-pointer"
+                    className="px-4 py-2 text-sm border border-gray-300 text-gray-600 rounded-md hover:bg-gray-50 transition cursor-pointer"
                   >
                     Cancel
                   </button>
+
                   <button
                     onClick={handleSavePosition}
                     disabled={saving}
-                    className="px-4 py-1.5 text-sm bg-primary text-white rounded-md hover:bg-primary/90 transition cursor-pointer disabled:opacity-60"
+                    className="px-4 py-2 text-sm bg-primary text-white rounded-md hover:bg-primary/90 transition cursor-pointer disabled:opacity-60"
                   >
                     {saving ? "Saving..." : "Save"}
                   </button>
@@ -194,42 +198,25 @@ const AllTeachers = () => {
               )}
             </div>
 
-            {!editMode && (
-              <div>
-                {teacher.position ? (
-                  <span className="inline-block px-4 py-1.5 rounded-full text-sm font-medium bg-primary text-white">
-                    {teacher.position}
-                  </span>
-                ) : (
-                  <p className="text-sm text-gray-400 italic">No position assigned yet</p>
-                )}
-              </div>
-            )}
-
-            {editMode && (
-              <div>
-                <p className="text-xs text-gray-500 mb-3">Select a new position for this teacher:</p>
-                <div className="flex flex-wrap gap-2">
-                  {POSITION_OPTIONS.map((pos) => (
-                    <button
-                      key={pos}
-                      type="button"
-                      onClick={() => setSelectedPosition(pos)}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${selectedPosition === pos
-                          ? "bg-primary text-white border-primary shadow-sm"
-                          : "bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary"
-                        }`}
-                    >
-                      {pos}
-                    </button>
-                  ))}
-                </div>
-                {selectedPosition && (
-                  <p className="text-xs text-primary mt-3">
-                    Selected: <span className="font-semibold">{selectedPosition}</span>
-                  </p>
-                )}
-              </div>
+            {!editMode ? (
+              <input
+                type="text"
+                value={teacher.position || "No position assigned"}
+                readOnly
+                className="w-104 p-3 border rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
+              />
+            ) : (
+              <select
+                value={selectedPosition}
+                onChange={(e) => setSelectedPosition(e.target.value)}
+                className="w-104 p-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                {POSITION_OPTIONS.map((pos) => (
+                  <option key={pos} value={pos}>
+                    {pos}
+                  </option>
+                ))}
+              </select>
             )}
           </div>
 
@@ -266,8 +253,8 @@ const AllTeachers = () => {
                       {/* Status badge */}
                       <span
                         className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${entry.status === "failed"
-                            ? "bg-red-100 text-red-600"
-                            : "bg-green-100 text-green-700"
+                          ? "bg-red-100 text-red-600"
+                          : "bg-green-100 text-green-700"
                           }`}
                       >
                         {entry.status === "failed" ? "Failed" : "Success"}
