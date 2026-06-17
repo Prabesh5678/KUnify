@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import AdminSidebar from "../../components/Admin/AdminSidebar";
-import { ExternalLink, FileText, ChevronDown, ChevronUp, User, Download } from "lucide-react";
+import { ExternalLink, FileText, ChevronDown, ChevronUp, User, Download, CheckCircle } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
 import { useParams } from "react-router-dom";
 
@@ -140,7 +140,7 @@ const TeamDetail = () => {
       });
 
       const contentDisposition = response.headers["content-disposition"];
-     let filename = `${team?.name || "team"}_logs_${Date.now()}.xlsx`;
+      let filename = `${team?.name || "team"}_logs_${Date.now()}.xlsx`;
       if (contentDisposition) {
         const match = contentDisposition.match(/filename="?([^"]+)"?/);
         if (match) filename = match[1];
@@ -323,11 +323,12 @@ const TeamDetail = () => {
                   <p>No logs found</p>
                 </div>
               ) : logsheets.map((log, i) => (
-                <div key={i} className="border p-4 rounded bg-yellow-50">
+                <div key={i} className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 p-5">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">Week {log.week}</span>
                     {log.isChecked && (
-                      <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">
+                      <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs px-2 py-1 rounded">
+                        <CheckCircle size={14} />
                         Checked
                       </span>
                     )}
@@ -338,16 +339,31 @@ const TeamDetail = () => {
                     )}
                   </div>
                   <p className="font-semibold mt-1">{log.createdBy?.name || "Unknown"}</p>
-                  <p className="text-sm break-words">{log.activity}</p>
-                  <p className="text-sm break-words">{log.outcome}</p>
-                  <p className="text-xs text-gray-500 mt-1">Logged on: {new Date(log.createdAt).toLocaleString()}</p>
-                  {log.checkedAt && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Checked on: {new Date(log.checkedAt).toLocaleString()}
-                    </p>
-                  )}
+
+                  {/* Activity & Outcome */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Activity</p>
+                      <p className="text-sm break-words mt-0.5">{log.activity}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outcome</p>
+                      <p className="text-sm break-words mt-0.5">{log.outcome}</p>
+                    </div>
+                  </div>
+
+                  {/* Timestamps*/}
+                  <div className="flex flex-col gap-1 mt-3 pt-3 border-t border-gray-100">
+                    <p className="text-xs text-gray-500">Log written on: {new Date(log.createdAt).toLocaleString()}</p>
+                    {log.checkedAt && (
+                      <p className="text-xs text-gray-500">
+                        Checked by supervisor on: {new Date(log.checkedAt).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+
                   {log.mark !== null && log.mark !== undefined && (
-                    <p className="text-xs text-green-700 mt-1">Mark: {log.mark}/5</p>
+                    <p className="text-base font-semibold text-green-700 mt-1">Mark: {log.mark}/5</p>
                   )}
                   {log.correctionNote && (
                     <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800">
