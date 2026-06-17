@@ -330,7 +330,7 @@ export default function TeamDetails() {
                   </div>
 
                   {/* Logs */}
-                  <div className="rounded-xl border border-green-200 p-5 shadow-sm">
+                  <div>
                     {logsheetsLoading ? (
                       <p>Loading logs...</p>
                     ) : logsheets.length === 0 ? (
@@ -340,7 +340,7 @@ export default function TeamDetails() {
                       </div>
                     ) : (
                       logsheets.map((log, index) => (
-                        <div key={index} className="border p-4 rounded bg-yellow-50 mb-3">
+                        <div key={index} className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 p-5 mb-3">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">Week {log.week}</span>
                             {log.isChecked && (
@@ -355,19 +355,34 @@ export default function TeamDetails() {
                               </span>
                             )}
                           </div>
+
                           <p className="font-semibold mt-1">{log.createdBy?.name || "Unknown"}</p>
-                          <p className="text-sm break-words">{log.activity}</p>
-                          <p className="text-sm break-words">{log.outcome}</p>
-                          <p className="text-xs text-gray-500 mt-1">Logged on: {new Date(log.createdAt).toLocaleString()}</p>
-                          {log.checkedAt && (
-                            <p className="text-xs text-gray-500 mt-1">Checked on: {new Date(log.checkedAt).toLocaleString()}</p>
-                          )}
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                            <div>
+                              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Activity</h4>
+                              <p className="text-sm break-words mt-1">{log.activity}</p>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outcome</h4>
+                              <p className="text-sm break-words mt-1">{log.outcome}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col mt-2">
+                            <p className="text-xs text-gray-500">Log written on: {new Date(log.createdAt).toLocaleString()}</p>
+                            {log.checkedAt && (
+                              <p className="text-xs text-gray-500">Checked by supervisor on: {new Date(log.checkedAt).toLocaleString()}</p>
+                            )}
+                          </div>
+
                           {log.mark !== null && log.mark !== undefined && (
-                            <p className="text-xs text-green-700 mt-1">Mark: {log.mark}/5</p>
+                            <p className="text-base font-semibold text-green-700 mt-1">Mark: {log.mark}/5</p>
                           )}
                           {log.correctionNote && (
                             <p className="text-xs text-amber-700 mt-1">Correction: {log.correctionNote}</p>
                           )}
+
                           <div className="flex flex-wrap gap-2 mt-3">
                             {!log.isChecked && (
                               <select
@@ -386,11 +401,10 @@ export default function TeamDetails() {
                             <button
                               onClick={() => handleCheckLog(log._id)}
                               disabled={log.isChecked || checkingLogId === log._id}
-                              className={`px-3 py-1 rounded text-sm font-medium ${
-                                log.isChecked
+                              className={`px-3 py-1 rounded text-sm font-medium ${log.isChecked
                                   ? "bg-green-100 text-green-700 cursor-not-allowed"
                                   : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
-                              }`}
+                                }`}
                             >
                               {log.isChecked
                                 ? "Checked"
