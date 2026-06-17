@@ -87,9 +87,9 @@ const AllTeachers = () => {
 
   if (!teacher || !(teacher._id || teacher.id)) {
     return (
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 lg:flex">
         <AdminSidebar />
-        <div className="flex-1 p-8">
+       <div className="flex-1 p-4 pt-20 sm:p-6 lg:p-8 lg:pt-8 overflow-x-hidden">
           <AdminHeader />
           <p className="text-red-600 font-semibold">
             Teacher data not found or invalid. Please navigate from Teachers Management page.
@@ -110,14 +110,14 @@ const AllTeachers = () => {
     : "Never";
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
       <AdminSidebar />
       <div className="flex-1 p-8">
         <AdminHeader />
         <div className="p-4 md:p-4">
 
           {/* Header */}
-          <div className="flex items-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-8">
             <div className="p-4 bg-primary/10 rounded-2xl">
               <FaUserGraduate className="text-primary text-3xl" />
             </div>
@@ -155,7 +155,7 @@ const AllTeachers = () => {
               </p>
             </div>
             {loginHistory.length > 0 && (
-              <span className="ml-auto text-xs font-medium bg-primary/10 text-primary px-3 py-1 rounded-full">
+            <span className="sm:ml-auto text-xs font-medium bg-primary/10 text-primary px-3 py-1 rounded-full">
                 {loginHistory.length} session{loginHistory.length !== 1 ? "s" : ""} recorded
               </span>
             )}
@@ -163,7 +163,7 @@ const AllTeachers = () => {
 
           {/* Position Section */}
           <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm mb-6">
-            <div className="flex items-center justify-between mb-4">
+           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <div className="flex items-center gap-2">
                 <FaBriefcase className="text-primary text-lg" />
                 <h3 className="text-base font-semibold text-gray-700">
@@ -179,7 +179,7 @@ const AllTeachers = () => {
                   Edit Position
                 </button>
               ) : (
-                <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                   <button
                     onClick={handleCancelEdit}
                     className="px-4 py-2 text-sm border border-gray-300 text-gray-600 rounded-md hover:bg-gray-50 transition cursor-pointer"
@@ -203,13 +203,13 @@ const AllTeachers = () => {
                 type="text"
                 value={teacher.position || "No position assigned"}
                 readOnly
-                className="w-104 p-3 border rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
+              className="w-full p-3 border rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
               />
             ) : (
               <select
                 value={selectedPosition}
                 onChange={(e) => setSelectedPosition(e.target.value)}
-                className="w-104 p-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {POSITION_OPTIONS.map((pos) => (
                   <option key={pos} value={pos}>

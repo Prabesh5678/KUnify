@@ -103,7 +103,7 @@ const url = `${import.meta.env.VITE_BACKEND_URL}/api/admin/supervisor/${endpoint
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
       <AdminSidebar />
 
       <div className="flex-1 p-8 overflow-auto">

@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 
 const TeacherLayout = () => {
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Sidebar - fixed height */}
       <div className="h-screen sticky top-0">
         <TeacherSidebar />

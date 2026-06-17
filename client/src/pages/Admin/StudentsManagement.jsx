@@ -73,21 +73,21 @@ const StudentsManagement = () => {
   );
 
   const pastelColors = [
-   { bg: "bg-sky-50", border: "border-sky-200" },
-  { bg: "bg-teal-50", border: "border-teal-200" },
-  { bg: "bg-indigo-50", border: "border-indigo-200" },
-  { bg: "bg-rose-50", border: "border-rose-200" },
-  { bg: "bg-amber-50", border: "border-amber-200" },
+    { bg: "bg-sky-50", border: "border-sky-200" },
+    { bg: "bg-teal-50", border: "border-teal-200" },
+    { bg: "bg-indigo-50", border: "border-indigo-200" },
+    { bg: "bg-rose-50", border: "border-rose-200" },
+    { bg: "bg-amber-50", border: "border-amber-200" },
   ];
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
       <AdminSidebar />
-      <div className="flex-1 p-8">
+      <div className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
         <AdminHeader />
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 mb-8">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-primary/10 rounded-xl">
               <FaUserGraduate className="text-primary" size={24} />
@@ -97,7 +97,7 @@ const StudentsManagement = () => {
             </h2>
           </div>
 
-          <div className="relative w-full md:w-80">
+          <div className="relative w-full lg:w-80">
             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
@@ -110,7 +110,7 @@ const StudentsManagement = () => {
         </div>
 
         {/* Department Tabs */}
-        <div className="flex flex-wrap gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 mb-6">
           {departments.map((dept) => (
             <button
               key={dept}
@@ -128,7 +128,7 @@ const StudentsManagement = () => {
 
         {/* Semester Tabs */}
         {activeDepartment && (
-          <div className="flex flex-wrap gap-3 mb-6">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 mb-6">
             {semesters.map((sem) => (
               <button
                 key={sem}
@@ -150,46 +150,71 @@ const StudentsManagement = () => {
           {loading ? (
             <p className="text-center text-gray-400 py-6">Loading students...</p>
           ) : filteredStudents.length > 0 ? (
-            <div className="bg-secondary rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead className="bg-secondary/70">
-                    <tr>
-                      <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Name</th>
-                      <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Email</th>
-                      <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Registration Number</th>
-                      <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Department</th>
-                      <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Semester</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {filteredStudents.map((s, index) => (
-                      <tr
-                        key={s._id}
-                        className={`transition duration-200 cursor-pointer ${pastelColors[index % pastelColors.length].bg
-                          } hover:bg-primary/30`}
-                      >
-
-                        <td className="px-6 py-4">
-                          <button
-                            onClick={() =>
-                              navigate("/admin/admin_std-details", { state: { student: s } })
-                            }
-                            className="font-semibold hover:underline cursor-pointer"
-                          >
-                            {s.name}
-                          </button>
-                        </td>
-                        <td className="px-6 py-4 text-sm">{s.email}</td>
-                        <td className="px-6 py-4 text-sm">{s.rollNumber || "N/A"}</td>
-                        <td className="px-6 py-4 text-sm">{s.department || "N/A"}</td>
-                        <td className="px-6 py-4 text-sm">{s.semester || "N/A"}</td>
+            <>
+              {/* Desktop / tablet table view */}
+              <div className="hidden md:block bg-secondary rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead className="bg-secondary/70">
+                      <tr>
+                        <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Name</th>
+                        <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Email</th>
+                        <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Registration Number</th>
+                        <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Department</th>
+                        <th className="px-6 py-4 text-xs font-bold text-primary uppercase">Semester</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {filteredStudents.map((s, index) => (
+                        <tr
+                          key={s._id}
+                          className={`transition duration-200 cursor-pointer ${pastelColors[index % pastelColors.length].bg} hover:bg-primary/30`}
+                        >
+                          <td className="px-6 py-4">
+                            <button
+                              onClick={() => navigate("/admin/admin_std-details", { state: { student: s } })}
+                              className="font-semibold hover:underline cursor-pointer"
+                            >
+                              {s.name}
+                            </button>
+                          </td>
+                          <td className="px-6 py-4 text-sm">{s.email}</td>
+                          <td className="px-6 py-4 text-sm">{s.rollNumber || "N/A"}</td>
+                          <td className="px-6 py-4 text-sm">{s.department || "N/A"}</td>
+                          <td className="px-6 py-4 text-sm">{s.semester || "N/A"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+
+              {/* Mobile card view */}
+              <div className="md:hidden flex flex-col gap-3">
+                {filteredStudents.map((s, index) => (
+                  <div
+                    key={s._id}
+                    onClick={() => navigate("/admin/admin_std-details", { state: { student: s } })}
+                    className={`rounded-2xl shadow-md border border-gray-100 p-4 cursor-pointer transition duration-200 ${pastelColors[index % pastelColors.length].bg} active:bg-primary/30`}
+                  >
+                    <p className="font-semibold text-base mb-2">{s.name}</p>
+                    <div className="grid grid-cols-2 gap-y-1 text-sm text-gray-700">
+                      <span className="text-xs font-bold text-primary uppercase">Email</span>
+                      <span className="text-right break-all">{s.email}</span>
+
+                      <span className="text-xs font-bold text-primary uppercase">Reg. No.</span>
+                      <span className="text-right">{s.rollNumber || "N/A"}</span>
+
+                      <span className="text-xs font-bold text-primary uppercase">Department</span>
+                      <span className="text-right">{s.department || "N/A"}</span>
+
+                      <span className="text-xs font-bold text-primary uppercase">Semester</span>
+                      <span className="text-right">{s.semester || "N/A"}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           ) : (
             <p className="text-gray-400 text-center italic py-6">
               No students found.

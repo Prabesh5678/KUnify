@@ -162,8 +162,8 @@ const TeachersManagement = () => {
           </td>
 
 
-          <td className="p-3">{t.email}</td>
-          <td className="p-3">
+          <td className="p-3 max-w-[200px] break-words">{t.email}</td>
+          <td className="p-3 max-w-[200px] break-words">
             <button
               onClick={() => handleToggle(t._id)}
               className="cursor-pointer rounded p-1 transition"
@@ -176,7 +176,7 @@ const TeachersManagement = () => {
             </button>
           </td>
 
-          <td className="p-3">
+          <td className="p-3 max-w-[200px] break-words">
             {t.isVisiting && (
               <button
                 onClick={() => {

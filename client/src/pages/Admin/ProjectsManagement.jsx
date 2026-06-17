@@ -136,8 +136,8 @@ const ProjectsManagement = () => {
       );
 
     return (
-      <div className="overflow-x-auto bg-white rounded-xl shadow p-4">
-        <table className="min-w-full text-left">
+      <div className="w-full overflow-x-auto rounded-xl bg-white shadow">
+        <table className="w-full table-auto text-left">
           <thead>
             <tr className="border-b border-gray-200">
               <th className="p-3 text-gray-600">Team Name / Project</th>
@@ -166,19 +166,19 @@ const ProjectsManagement = () => {
                     {team.name || team.projectTitle || "Unnamed Team"}
                   </td>
 
-                  <td className="p-3 break-words max-w-[150px]">
+                <td className="p-3 max-w-[180px] whitespace-normal break-words">
                     {team.department ||
                       team.leaderId?.department ||
                       team.members?.[0]?.department ||
                       "N/A"}
                   </td>
 
-                  <td className="p-3">
+                  <td className="p-3 max-w-[200px] break-words">
                     {getTeamSemester(team) || "N/A"}
                   </td>
 
                   {isAssigned && (
-                    <td className="p-3">
+                    <td className="p-3 max-w-[200px] break-words">
                       {team.supervisor
                         ? `${team.supervisor.name} (${supervisorCount}/${MAX_PROJECTS_PER_TEACHER})`
                         : "Not Assigned"}
@@ -186,7 +186,7 @@ const ProjectsManagement = () => {
                   )}
 
                   {!isAssigned && (
-                    <td className="p-3">
+                    <td className="p-3 max-w-[200px] break-words">
                       <button
                         onClick={() => openModal(team)}
                         className="px-3 py-1 bg-primary text-white rounded hover:bg-primary/80 transition-colors cursor-pointer"
@@ -205,9 +205,9 @@ const ProjectsManagement = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
       <AdminSidebar />
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
         <AdminHeader />
 
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
@@ -215,8 +215,8 @@ const ProjectsManagement = () => {
         </h2>
 
         {/* ── Summary Count Cards ── */}
-        <div className="flex gap-4 mb-6">
-          <div className="flex items-center gap-3 bg-white rounded-xl shadow px-5 py-4 min-w-[170px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <div className="flex items-center gap-3 bg-white rounded-xl shadow px-5 py-4 w-full">
             <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
               <svg className="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
@@ -228,7 +228,7 @@ const ProjectsManagement = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 bg-white rounded-xl shadow px-5 py-4 min-w-[170px]">
+          <div className="flex items-center gap-3 bg-white rounded-xl shadow px-5 py-4 w-full">
             <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
               <svg className="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -240,7 +240,7 @@ const ProjectsManagement = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 bg-white rounded-xl shadow px-5 py-4 min-w-[170px]">
+          <div className="flex items-center gap-3 bg-white rounded-xl shadow px-5 py-4 w-full">
             <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
               <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -254,9 +254,9 @@ const ProjectsManagement = () => {
         </div>
 
         {/* ── Search & Semester Filter ── */}
-        <div className="flex flex-wrap gap-3 mb-4 items-center">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-4 items-stretch sm:items-center">
           {/* Text search */}
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <div className="relative w-full sm:flex-1 sm:max-w-sm">
             <svg
               className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
               fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -301,42 +301,38 @@ const ProjectsManagement = () => {
         </div>
 
         {/* ── Toggle Tabs ── */}
-        <div className="flex gap-4 mb-4">
+        <div className="flex flex-col sm:flex-row gap-3 mb-4">
           <button
-            className={`px-4 py-2 rounded cursor-pointer flex items-center gap-2 ${
-              activeTab === "unassigned"
-                ? "bg-primary text-white"
-                : "bg-gray-200 text-gray-700"
-            }`}
+            className={`w-full sm:w-auto px-4 py-2 rounded cursor-pointer flex items-center gap-2 ${activeTab === "unassigned"
+              ? "bg-primary text-white"
+              : "bg-gray-200 text-gray-700"
+              }`}
             onClick={() => setActiveTab("unassigned")}
           >
             Unassigned Teams
             <span
-              className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                activeTab === "unassigned"
-                  ? "bg-white/20 text-white"
-                  : "bg-gray-300 text-gray-600"
-              }`}
+              className={`text-xs font-bold px-2 py-0.5 rounded-full ${activeTab === "unassigned"
+                ? "bg-white/20 text-white"
+                : "bg-gray-300 text-gray-600"
+                }`}
             >
               {filteredUnassigned.length}
             </span>
           </button>
 
           <button
-            className={`px-4 py-2 rounded cursor-pointer flex items-center gap-2 ${
-              activeTab === "assigned"
-                ? "bg-primary text-white"
-                : "bg-gray-200 text-gray-700"
-            }`}
+            className={`px-4 py-2 rounded cursor-pointer flex items-center gap-2 ${activeTab === "assigned"
+              ? "bg-primary text-white"
+              : "bg-gray-200 text-gray-700"
+              }`}
             onClick={() => setActiveTab("assigned")}
           >
             Assigned Teams
             <span
-              className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                activeTab === "assigned"
-                  ? "bg-white/20 text-white"
-                  : "bg-gray-300 text-gray-600"
-              }`}
+              className={`text-xs font-bold px-2 py-0.5 rounded-full ${activeTab === "assigned"
+                ? "bg-white/20 text-white"
+                : "bg-gray-300 text-gray-600"
+                }`}
             >
               {filteredAssigned.length}
             </span>
