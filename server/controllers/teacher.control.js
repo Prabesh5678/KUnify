@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import LogEntry from "../models/logEntry.model.js";
 import ProposalModel from "../models/proposal.model.js";
 import Student from "../models/student.model.js";
+import { enqueueLoginLog } from "../utils/loginQueue.js";
 // POST /api/teacher/google-signin
 export const googleSignIn = async (req, res) => {
   try {
@@ -29,7 +30,7 @@ export const googleSignIn = async (req, res) => {
     }
     teacher.lastLogin = new Date();
     await teacher.save();
-
+enqueueLoginLog({ teacherId: teacher._id });
     // Generate JWT (FIXED: teacher._id, not student._id)
     const teacherToken = jwt.sign(
       { id: teacher._id, role: "teacher" },
@@ -279,6 +280,11 @@ export const teacherLogin = async (req, res) => {
       });
     }
 await Teacher.findByIdAndUpdate(teacher._id, { lastLogin: new Date() });
+enqueueLoginLog({
+  teacherId: teacher._id,
+  ipAddress: req.ip || req.headers["x-forwarded-for"],
+  userAgent: req.headers["user-agent"]
+});
     // create JWT
     const token = jwt.sign(
       { id: teacher._id, role: "teacher" },
@@ -538,3 +544,4 @@ export const deleteTeam = async (req, res) => {
     res.json({ success: false, message: error.message||"Unable to delete team" });
   }
 };
+

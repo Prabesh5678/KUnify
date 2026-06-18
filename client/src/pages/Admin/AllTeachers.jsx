@@ -25,7 +25,7 @@ const AllTeachers = () => {
   const [selectedPosition, setSelectedPosition] = useState("");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(!location.state?.teacher); // ← fix: was !teacher but teacher wasn't defined yet
-
+const [loginHistory, setLoginHistory] = useState([]);
   useEffect(() => {
     if (!id) {
       setLoading(false);
@@ -49,10 +49,24 @@ const AllTeachers = () => {
     fetchTeacher();
   }, [id]);
 
-  useEffect(() => {
-    if (teacher) setSelectedPosition(teacher.position || "");
-  }, [teacher]);
+ useEffect(() => {
+  if (teacher) setSelectedPosition(teacher.position || "");
+}, [teacher]);
 
+useEffect(() => {
+  if (!id) return;
+  const fetchLoginHistory = async () => {
+    try {
+      const res = await axios.get(`/api/login-history/teacher/${id}`, { withCredentials: true });
+      if (res.data.success) {
+        setLoginHistory(res.data.history);
+      }
+    } catch (err) {
+      console.error("Failed to fetch login history:", err);
+    }
+  };
+  fetchLoginHistory();
+}, [id]);
   const handleSavePosition = async () => {
     if (!selectedPosition) { toast.error("Please select a position"); return; }
     try {
@@ -102,7 +116,7 @@ const AllTeachers = () => {
     );
   }
 
-  const loginHistory = Array.isArray(teacher.loginHistory) ? teacher.loginHistory : [];
+
 
   const lastLoginRaw = teacher.lastLogin || null;
   const lastLoginDisplay = lastLoginRaw
@@ -232,33 +246,26 @@ const AllTeachers = () => {
             ) : (
               <div className="divide-y divide-gray-100">
                 {[...loginHistory]
-                  .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                  .sort((a, b) => new Date(b.loginAt) - new Date(a.loginAt))
                   .slice(0, 20)
                   .map((entry, idx) => (
                     <div key={idx} className="flex items-center justify-between py-3 gap-4">
                       {/* Index badge */}
                       <span className="text-xs font-semibold text-gray-400 w-6 shrink-0">
-                        #{idx + 1}
+                        {idx + 1}
                       </span>
 
                       {/* Timestamp */}
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-800">
-                          {entry.timestamp
-                            ? new Date(entry.timestamp).toLocaleString()
+                          {entry.loginAt
+                            ? new Date(entry.loginAt).toLocaleString()
                             : "Unknown"}
                         </p>
                       </div>
 
-                      {/* Status badge */}
-                      <span
-                        className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${entry.status === "failed"
-                          ? "bg-red-100 text-red-600"
-                          : "bg-green-100 text-green-700"
-                          }`}
-                      >
-                        {entry.status === "failed" ? "Failed" : "Success"}
-                      </span>
+                     
+                     
                     </div>
                   ))}
               </div>
