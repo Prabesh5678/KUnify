@@ -15,6 +15,24 @@ export default function TeacherSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [editingSpecialization, setEditingSpecialization] = useState(true);
+  const [specializations, setSpecializations] = useState([]);
+  const [input, setInput] = useState("");
+
+  const addTag = () => {
+    const value = input.trim();
+
+    if (!value || specializations.includes(value)) return;
+
+    setSpecializations([...specializations, value]);
+    setInput("");
+  };
+
+  const removeTag = (tagToRemove) => {
+    setSpecializations(
+      specializations.filter((tag) => tag !== tagToRemove)
+    );
+  };
 
   const [form, setForm] = useState({
     name: "",
@@ -40,7 +58,11 @@ export default function TeacherSettings() {
       });
 
       const user = res.data.user;
-
+      setSpecializations(
+        user.specialization
+          ? user.specialization.split(",").map((s) => s.trim())
+          : []
+      );
       setForm({
         name: user.name || "",
         email: user.email || "",
@@ -61,44 +83,66 @@ export default function TeacherSettings() {
     fetchTeacherProfile();
   }, []);
 
-  const validate = () => {
-    if (!form.phone) return "Phone is required";
-    if (!form.specialization) return "Specialization is required";
-    if (!form.position) return "Position is required";
-    return null;
-  };
+ const validate = () => {
+  if (!form.phone) return "Phone is required";
+  if (specializations.length === 0)
+    return "Specialization is required";
+  if (!form.position) return "Position is required";
+  return null;
+};
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    const validationError = validate();
-    if (validationError) {
-      setError(validationError);
-      return;
+  // Add the current input as a tag if user hasn't pressed Space yet
+  let updatedTags = [...specializations];
+
+  if (input.trim()) {
+    if (!updatedTags.includes(input.trim())) {
+      updatedTags.push(input.trim());
     }
+  }
 
-    try {
-      setSaving(true);
+  if (updatedTags.length === 0) {
+    setError("Specialization is required");
+    return;
+  }
 
-      await axios.put(
-        "/api/teacher/setup-profile",
-        {
-          phone: form.phone,
-          specialization: form.specialization,
-          position: form.position,
-        },
-        { withCredentials: true }
-      );
+  if (!form.phone) {
+    setError("Phone is required");
+    return;
+  }
 
-      toast.success("Profile updated successfully!");
-    } catch (err) {
-      console.error(err);
-      setError("Update failed. Please try again.");
-    } finally {
-      setSaving(false);
-    }
-  };
+  if (!form.position) {
+    setError("Position is required");
+    return;
+  }
+
+  try {
+    setSaving(true);
+
+    await axios.put(
+      "/api/teacher/setup-profile",
+      {
+        phone: form.phone,
+        specialization: updatedTags.join(", "),
+        position: form.position,
+      },
+      { withCredentials: true }
+    );
+
+    setSpecializations(updatedTags);
+    setInput("");
+
+    toast.success("Profile updated successfully!");
+  } catch (err) {
+    console.error(err);
+    setError("Update failed. Please try again.");
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -133,30 +177,30 @@ export default function TeacherSettings() {
   }
 
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-br from-primary/10 to-white">
-      <div className="max-w-4xl mx-auto space-y-6 bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+    <div className="min-h-screen p-3 sm:p-6 bg-gradient-to-br from-primary/10 to-white">
+      <div className="max-w-4xl mx-auto space-y-6 bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200">
 
         {/* Page Title + Dropdown */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">
               Profile Settings
             </h1>
-            <p className="text-gray-500">Update your account information</p>
+            <p className="text-gray-500 text-sm sm:text-base">Update your account information</p>
           </div>
 
           {/* Dropdown Menu (only for Visiting Faculty) */}
           {form.role === "Visiting Faculty" && (
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="px-4 py-2 rounded-md bg-primary text-white font-semibold hover:bg-primary/90 transition"
+                className="w-full sm:w-auto px-4 py-2 rounded-md bg-primary text-white font-semibold hover:bg-primary/90 transition"
               >
                 Menu
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border">
+                <div className="absolute left-0 right-0 sm:left-auto sm:right-0 mt-2 w-full sm:w-56 bg-white rounded-md shadow-lg border z-10">
                   <button
                     className="w-full text-left px-4 py-2 hover:bg-primary/10"
                     onClick={() => setDropdownOpen(false)}
@@ -224,14 +268,42 @@ export default function TeacherSettings() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Specialization
               </label>
-              <input
-                type="text"
-                value={form.specialization}
-                onChange={(e) =>
-                  setForm({ ...form, specialization: e.target.value })
-                }
-                className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+
+              <div className="flex flex-wrap gap-2 border rounded-md p-2 focus-within:ring-2 focus-within:ring-primary">
+                {specializations.map((tag) => (
+                  <div
+                    key={tag}
+                    className="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/30 rounded-full px-3 py-1"
+                  >
+                    <span>{tag}</span>
+
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="hover:text-red-600"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === "Enter" ||
+                      e.key === " " ||
+                      e.key === ","
+                    ) {
+                      e.preventDefault();
+                      addTag();
+                    }
+                  }}
+                  className="flex-1 min-w-[120px] outline-none"
+                />
+              </div>
             </div>
           </div>
 
@@ -244,7 +316,7 @@ export default function TeacherSettings() {
             <select
               value={form.position}
               onChange={(e) => setForm({ ...form, position: e.target.value })}
-              className="w-104 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full sm:w-104 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
             >
 
               {POSITION_OPTIONS.map((pos) => (
@@ -267,7 +339,7 @@ export default function TeacherSettings() {
 
         {/* Change Password (Only Visiting Faculty) */}
         {form.role === "Visiting Faculty" && dropdownOpen && (
-          <div className="mt-6 bg-primary/5 border border-primary/20 rounded-lg p-5">
+          <div className="mt-6 bg-primary/5 border border-primary/20 rounded-lg p-4 sm:p-5">
             <h2 className="text-lg font-semibold text-primary mb-3">
               Change Password
             </h2>

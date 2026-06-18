@@ -40,7 +40,7 @@ const TeacherProfileSetup = () => {
     }
 
     if (user.isProfileCompleted) {
-      navigate("/teacher/dashboard", { replace: true });
+      navigate("/teacher/projects", { replace: true });
       return;
     }
 
@@ -114,7 +114,7 @@ const TeacherProfileSetup = () => {
       setUser(updatedUser);
 
       toast.success("Profile completed successfully!");
-      navigate("/teacher/dashboard", { replace: true });
+      navigate("/teacher/projects", { replace: true });
     } catch (error) {
       console.error(error);
       toast.error(error.message || "Something went wrong");

@@ -18,25 +18,24 @@ const TeacherHeader = () => {
   };
 
   return (
-    <div className="flex justify-between items-center bg-primary p-5 mt-4 px-8 shadow-md rounded-none">
-
+    <div className="flex justify-between items-center gap-3 bg-primary p-4 sm:p-5 mt-4 px-4 sm:px-8 shadow-md rounded-none">
 
       {/* Left Section */}
-      <NavLink to="/teacher/dashboard" className="flex items-center gap-4">
-        <img src={assets.ku_logo} alt="ku_logo" className="h-12" />
-        <div className="text-white">
-          <div className="text-xl font-semibold">
+      <NavLink to="/teacher/dashboard" className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+        <img src={assets.ku_logo} alt="ku_logo" className="h-9 sm:h-12 shrink-0" />
+        <div className="text-white min-w-0">
+          <div className="text-base sm:text-xl font-semibold truncate">
             Welcome, {user?.name || "Teacher"}
           </div>
-          <div className="text-lg font-semibold">Kathmandu University</div>
-          <div className="text-sm">Student Project Management Platform</div>
+          <div className="hidden sm:block text-lg font-semibold">Kathmandu University</div>
+          <div className="hidden sm:block text-sm">Student Project Management Platform</div>
         </div>
       </NavLink>
 
       {/* Logout Button */}
       <button
         onClick={() => setShowLogoutModal(true)}
-        className="bg-primary text-white font-semibold px-5 py-2 rounded-lg hover:bg-primary transition-all duration-200 cursor-pointer"
+        className="bg-primary text-white font-semibold px-3 sm:px-5 py-1.5 sm:py-2 text-sm sm:text-base rounded-lg hover:bg-primary transition-all duration-200 cursor-pointer shrink-0 whitespace-nowrap"
       >
         Logout
       </button>
@@ -44,11 +43,11 @@ const TeacherHeader = () => {
       {/* Logout Modal */}
       {showLogoutModal && (
         <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]"
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] px-4"
           onClick={() => setShowLogoutModal(false)}
         >
           <div
-            className="bg-white rounded-xl p-6 w-96 text-center shadow-lg"
+            className="bg-white rounded-xl p-6 w-full max-w-sm text-center shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-xl font-semibold mb-4">

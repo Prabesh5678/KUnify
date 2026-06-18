@@ -150,7 +150,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
             {/* Activity */}
             <div>
               <label className="font-semibold block mb-1">
-                Activity (max {activityLimit} chars)
+                Activity Accomplisheds(max {activityLimit} chars)
               </label>
               <textarea
                 rows={2}
@@ -167,7 +167,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
             {/* Outcome */}
             <div>
               <label className="font-semibold block mb-1">
-                Outcome (max {outcomeLimit} chars)
+                Activity to Accomplish (max {outcomeLimit} chars)
               </label>
               <textarea
                 rows={3}
