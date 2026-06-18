@@ -381,6 +381,9 @@ export const checkLogEntry = async (req, res) => {
     if (error) {
       return res.json({ success: false, message: error });
     }
+    if (log.isChecked) {
+  return res.json({ success: false, message: "Cannot request correction on an already checked log" });
+}
 
     log.isChecked = true;
     log.checkedBy = teacherId;

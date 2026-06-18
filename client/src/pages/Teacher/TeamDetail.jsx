@@ -412,6 +412,7 @@ export default function TeamDetails() {
                                   ? "Checking..."
                                   : "Mark Checked"}
                             </button>
+                            {!log.isChecked && (
                             <button
                               onClick={() => handleRequestCorrection(log._id)}
                               disabled={correctionLogId === log._id}
@@ -419,6 +420,7 @@ export default function TeamDetails() {
                             >
                               {correctionLogId === log._id ? "Requesting..." : "Request Correction"}
                             </button>
+                            )}
                           </div>
                         </div>
                       ))
