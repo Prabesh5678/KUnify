@@ -26,6 +26,10 @@ const AllTeachers = () => {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(!location.state?.teacher); // ← fix: was !teacher but teacher wasn't defined yet
 const [loginHistory, setLoginHistory] = useState([]);
+const [historyPage, setHistoryPage] = useState(1);
+const [totalHistory, setTotalHistory] = useState(0);
+const [historyLoading, setHistoryLoading] = useState(false);
+const [exportLoading, setExportLoading] = useState(false);
   useEffect(() => {
     if (!id) {
       setLoading(false);
@@ -52,21 +56,55 @@ const [loginHistory, setLoginHistory] = useState([]);
  useEffect(() => {
   if (teacher) setSelectedPosition(teacher.position || "");
 }, [teacher]);
+const fetchLoginHistory = async (page = 1) => {
+  try {
+    setHistoryLoading(true);
+    const res = await axios.get(`/api/login-history/teacher/${id}?page=${page}`, { withCredentials: true });
+    if (res.data.success) {
+      if (page === 1) {
+        setLoginHistory(res.data.history);
+      } else {
+        setLoginHistory(prev => [...prev, ...res.data.history]);
+      }
+      setTotalHistory(res.data.total);
+      setHistoryPage(page);
+    }
+  } catch (err) {
+    console.error("Failed to fetch login history:", err);
+  } finally {
+    setHistoryLoading(false);
+  }
+};
 
 useEffect(() => {
   if (!id) return;
-  const fetchLoginHistory = async () => {
-    try {
-      const res = await axios.get(`/api/login-history/teacher/${id}`, { withCredentials: true });
-      if (res.data.success) {
-        setLoginHistory(res.data.history);
-      }
-    } catch (err) {
-      console.error("Failed to fetch login history:", err);
-    }
-  };
-  fetchLoginHistory();
+  fetchLoginHistory(1);
 }, [id]);
+const handleExport = async () => {
+  try {
+    setExportLoading(true);
+    const res = await axios.get(`/api/login-history/teacher/${id}/export`, { withCredentials: true });
+    if (!res.data.success) return;
+
+    const rows = res.data.history.map((entry, idx) =>
+      `${idx + 1}\t${new Date(entry.loginAt).toLocaleString()}`
+    ).join("\n");
+
+    const content = `Login History - ${teacher.name}\n\n#\tDate & Time\n${rows}`;
+    const blob = new Blob([content], { type: "application/msword" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${teacher.name}_login_history.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error("Export failed:", err);
+    toast.error("Export failed");
+  } finally {
+    setExportLoading(false);
+  }
+};
   const handleSavePosition = async () => {
     if (!selectedPosition) { toast.error("Please select a position"); return; }
     try {
@@ -168,11 +206,7 @@ useEffect(() => {
                 {lastLoginDisplay}
               </p>
             </div>
-            {loginHistory.length > 0 && (
-            <span className="sm:ml-auto text-xs font-medium bg-primary/10 text-primary px-3 py-1 rounded-full">
-                {loginHistory.length} session{loginHistory.length !== 1 ? "s" : ""} recorded
-              </span>
-            )}
+            
           </div>
 
           {/* Position Section */}
@@ -234,43 +268,72 @@ useEffect(() => {
             )}
           </div>
 
-          {/*Login History Log */}
-          <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
-              <FaHistory className="text-primary text-lg" />
-              <h3 className="text-base font-semibold text-gray-700">Login History</h3>
+         
+         {/*Login History Log */}
+<div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+  <div className="flex items-center gap-2 mb-4">
+    <FaHistory className="text-primary text-lg" />
+    <h3 className="text-base font-semibold text-gray-700">Login History</h3>
+    <span className="ml-auto text-xs text-gray-400">{totalHistory} total</span>
+  </div>
+
+  {loginHistory.length === 0 ? (
+    <p className="text-sm text-gray-400 italic">No login history available.</p>
+  ) : (
+    <>
+      <div className="divide-y divide-gray-100">
+        {loginHistory.map((entry, idx) => (
+          <div key={idx} className="flex items-center justify-between py-3 gap-4">
+            <span className="text-xs font-semibold text-gray-400 w-6 shrink-0">
+              {idx + 1}
+            </span>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-800">
+                {entry.loginAt ? new Date(entry.loginAt).toLocaleString() : "Unknown"}
+              </p>
             </div>
-
-            {loginHistory.length === 0 ? (
-              <p className="text-sm text-gray-400 italic">No login history available.</p>
-            ) : (
-              <div className="divide-y divide-gray-100">
-                {[...loginHistory]
-                  .sort((a, b) => new Date(b.loginAt) - new Date(a.loginAt))
-                  .slice(0, 20)
-                  .map((entry, idx) => (
-                    <div key={idx} className="flex items-center justify-between py-3 gap-4">
-                      {/* Index badge */}
-                      <span className="text-xs font-semibold text-gray-400 w-6 shrink-0">
-                        {idx + 1}
-                      </span>
-
-                      {/* Timestamp */}
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-800">
-                          {entry.loginAt
-                            ? new Date(entry.loginAt).toLocaleString()
-                            : "Unknown"}
-                        </p>
-                      </div>
-
-                     
-                     
-                    </div>
-                  ))}
-              </div>
-            )}
           </div>
+        ))}
+      </div>
+
+    <div className="mt-4 text-center flex gap-3 justify-center">
+        {loginHistory.length < totalHistory && loginHistory.length < 100 && (
+          <button
+            onClick={() => fetchLoginHistory(historyPage + 1)}
+            disabled={historyLoading}
+            className="px-4 py-2 text-sm text-primary border border-primary rounded-md hover:bg-primary/10 transition cursor-pointer disabled:opacity-50"
+          >
+            {historyLoading ? "Loading..." : "See More"}
+          </button>
+        )}
+
+        {loginHistory.length > 50 && (
+          <button
+            onClick={() => {
+              setLoginHistory(prev => prev.slice(0, 50));
+              setHistoryPage(1);
+            }}
+            className="px-4 py-2 text-sm text-gray-500 border border-gray-300 rounded-md hover:bg-gray-50 transition cursor-pointer"
+          >
+            See Less
+          </button>
+        )}
+
+        
+{loginHistory.length > 0 && (
+          <button
+            onClick={handleExport}
+            disabled={exportLoading}
+            className="px-4 py-2 text-sm text-primary border border-primary rounded-md hover:bg-primary/10 transition cursor-pointer disabled:opacity-50"
+          >
+            {exportLoading ? "Exporting..." : "Export to Word"}
+          </button>
+        )}
+      </div>
+    </>
+  )}
+</div>
+
 
         </div>
       </div>
