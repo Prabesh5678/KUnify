@@ -28,6 +28,28 @@ export default function TeamDetails() {
   const [isProposalOpen, setIsProposalOpen] = useState(true);
   const [isLogsOpen, setIsLogsOpen] = useState(true);
 
+  const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
+  const [correctionTargetLogId, setCorrectionTargetLogId] = useState(null);
+  const [correctionNoteInput, setCorrectionNoteInput] = useState("");
+
+  const openCorrectionDialog = (logId) => {
+    setCorrectionTargetLogId(logId);
+    setCorrectionNoteInput("");
+    setCorrectionDialogOpen(true);
+  };
+
+  const closeCorrectionDialog = () => {
+    setCorrectionDialogOpen(false);
+    setCorrectionTargetLogId(null);
+    setCorrectionNoteInput("");
+  };
+
+  const submitCorrectionRequest = async () => {
+    if (!correctionNoteInput.trim()) return;
+    await handleRequestCorrection(correctionTargetLogId, correctionNoteInput.trim());
+    closeCorrectionDialog();
+  };
+
   useEffect(() => {
     const fetchFullTeam = async () => {
       if (!team?._id) return;
@@ -135,10 +157,12 @@ export default function TeamDetails() {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Error exporting logs:", err);
-      alert("Failed to export logs. Please try again.");
-    } finally {
+    } 
+    catch (err) {
+  console.error("Error exporting logs:", err);
+  toast.error("Failed to export logs. Please try again.");
+}
+  finally {
       setExportLoading(false);
     }
   };
@@ -168,9 +192,32 @@ export default function TeamDetails() {
     }
   };
 
-  const handleRequestCorrection = async (logId) => {
-    const correctionNote = window.prompt("Enter correction note for the student");
-    if (!correctionNote || !correctionNote.trim()) return;
+const handleRequestCorrection = async (logId, correctionNote) => {
+  try {
+    setCorrectionLogId(logId);
+
+    const { data } = await axios.patch(
+      `/api/teacher/logs/${logId}/request-correction`,
+      {
+        correctionNote,
+      }
+    );
+
+    if (data.success) {
+      updateLogsheet(data.log);
+      toast.success("Correction requested");
+    } else {
+      toast.error(data.message || "Unable to request correction");
+    }
+  } catch (err) {
+    toast.error(
+      err.response?.data?.message || "Failed to request correction"
+    );
+  } finally {
+    setCorrectionLogId(null);
+  }
+
+      return;
 
     try {
       setCorrectionLogId(logId);
@@ -212,18 +259,19 @@ export default function TeamDetails() {
   );
 
   return (
-    <div className="h-screen bg-gray-50 flex">
-      <div className="flex-1 overflow-hidden">
-        <div className="p-6 h-full flex flex-col">
-          <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 flex-1 overflow-auto">
-
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full">
+        <div className="p-3 sm:p-4 md:p-6">
+          <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-pink-600">{team.name}</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-pink-600 break-words">
+                {team.name}
+              </h1>
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-3 mt-6">
+            <div className="flex flex-wrap gap-3 mt-6">
               <button
                 onClick={() => setActiveTab("team")}
                 className={`cursor-pointer px-5 py-2 rounded-xl font-medium shadow-md transition ${activeTab === "team" ? "bg-blue-600 text-white shadow-blue-200" : "bg-white text-gray-600 hover:shadow-lg"}`}
@@ -254,7 +302,9 @@ export default function TeamDetails() {
                     </div>
                     <div className="mt-4">
                       <h3 className="font-semibold text-gray-600 break-words">Abstract</h3>
-                      <p className="text-gray-700">{proposal?.abstract || "N/A"}</p>
+                      <p className="text-gray-700 break-words whitespace-pre-wrap">
+                        {proposal?.abstract || "N/A"}
+                      </p>
                     </div>
                     {proposal?.proposalFile?.url && (
                       <div className="mt-4">
@@ -271,7 +321,7 @@ export default function TeamDetails() {
                   {/* Team Members */}
                   <div className="rounded-xl border border-blue-200 p-5 shadow-sm">
                     <h2 className="font-bold text-lg text-blue-700">Team Members</h2>
-                    <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {allMembers.map((member, idx) => (
                         <div key={member._id || idx} className="bg-gray-50 rounded-lg border border-gray-200 p-3">
                           <User size={16} className="text-blue-600 inline mr-2" />
@@ -288,7 +338,7 @@ export default function TeamDetails() {
               {activeTab === "logs" && (
                 <>
                   {/* Filters + Export */}
-                  <div className="flex flex-wrap gap-4 mb-4 p-4 bg-gray-50 rounded-lg items-end">
+                 <div className="flex flex-col lg:flex-row gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
                     <div className="flex-1 min-w-[200px]">
                       <label className="block mb-1 text-sm font-medium text-gray-700">Filter by Student</label>
                       <select
@@ -330,6 +380,7 @@ export default function TeamDetails() {
                   </div>
 
                   {/* Logs */}
+                  {/* Logs */}
                   <div>
                     {logsheetsLoading ? (
                       <p>Loading logs...</p>
@@ -340,9 +391,14 @@ export default function TeamDetails() {
                       </div>
                     ) : (
                       logsheets.map((log, index) => (
-                        <div key={index} className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 p-5 mb-3">
+                        <div
+                          key={index}
+                          className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 p-5 mb-3"
+                        >
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">Week {log.week}</span>
+                            <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                              Week {log.week}
+                            </span>
                             {log.isChecked && (
                               <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs px-2 py-1 rounded">
                                 <CheckCircle size={14} />
@@ -360,27 +416,39 @@ export default function TeamDetails() {
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                             <div>
-                              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Activity</h4>
+                              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                Activity Accomplished
+                              </h4>
                               <p className="text-sm break-words mt-1">{log.activity}</p>
                             </div>
                             <div>
-                              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outcome</h4>
+                              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                Activity to Accomplish
+                              </h4>
                               <p className="text-sm break-words mt-1">{log.outcome}</p>
                             </div>
                           </div>
 
                           <div className="flex flex-col mt-2">
-                            <p className="text-xs text-gray-500">Log written on: {new Date(log.createdAt).toLocaleString()}</p>
+                            <p className="text-xs text-gray-500">
+                              Log written on: {new Date(log.createdAt).toLocaleString()}
+                            </p>
                             {log.checkedAt && (
-                              <p className="text-xs text-gray-500">Checked by supervisor on: {new Date(log.checkedAt).toLocaleString()}</p>
+                              <p className="text-xs text-gray-500">
+                                Checked by supervisor on: {new Date(log.checkedAt).toLocaleString()}
+                              </p>
                             )}
                           </div>
 
                           {log.mark !== null && log.mark !== undefined && (
-                            <p className="text-base font-semibold text-green-700 mt-1">Mark: {log.mark}/5</p>
+                            <p className="text-base font-semibold text-green-700 mt-1">
+                              Mark: {log.mark}/5
+                            </p>
                           )}
                           {log.correctionNote && (
-                            <p className="text-xs text-amber-700 mt-1">Correction: {log.correctionNote}</p>
+                            <p className="text-xs text-amber-700 mt-1">
+                              Correction: {log.correctionNote}
+                            </p>
                           )}
 
                           <div className="flex flex-wrap gap-2 mt-3">
@@ -398,12 +466,13 @@ export default function TeamDetails() {
                                 ))}
                               </select>
                             )}
+
                             <button
                               onClick={() => handleCheckLog(log._id)}
                               disabled={log.isChecked || checkingLogId === log._id}
                               className={`px-3 py-1 rounded text-sm font-medium ${log.isChecked
-                                  ? "bg-green-100 text-green-700 cursor-not-allowed"
-                                  : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
+                                ? "bg-green-100 text-green-700 cursor-not-allowed"
+                                : "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
                                 }`}
                             >
                               {log.isChecked
@@ -412,20 +481,57 @@ export default function TeamDetails() {
                                   ? "Checking..."
                                   : "Mark Checked"}
                             </button>
+
                             {!log.isChecked && (
-                            <button
-                              onClick={() => handleRequestCorrection(log._id)}
-                              disabled={correctionLogId === log._id}
-                              className="px-3 py-1 rounded text-sm font-medium bg-amber-500 text-white hover:bg-amber-600 cursor-pointer disabled:cursor-not-allowed"
-                            >
-                              {correctionLogId === log._id ? "Requesting..." : "Request Correction"}
-                            </button>
+                              <button
+                                onClick={() => openCorrectionDialog(log._id)}
+                                disabled={correctionLogId === log._id}
+                                className="px-3 py-1 rounded text-sm font-medium bg-amber-500 text-white hover:bg-amber-600 cursor-pointer disabled:cursor-not-allowed"
+                              >
+                                {correctionLogId === log._id ? "Requesting..." : "Request Correction"}
+                              </button>
                             )}
                           </div>
                         </div>
                       ))
                     )}
                   </div>
+
+                  {/* Correction Dialog */}
+                  {correctionDialogOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+                      <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-6">
+                        <h3 className="text-lg font-semibold text-gray-800">Request Correction</h3>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Enter the reason for requesting a correction on this log.
+                        </p>
+
+                        <textarea
+                          value={correctionNoteInput}
+                          onChange={(e) => setCorrectionNoteInput(e.target.value)}
+                          rows={4}
+                          placeholder="e.g. Please clarify the outcome for Tuesday's task..."
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mt-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                        />
+
+                        <div className="flex justify-end gap-2 mt-4">
+                          <button
+                            onClick={closeCorrectionDialog}
+                            className="px-3 py-1.5 rounded text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={submitCorrectionRequest}
+                            disabled={!correctionNoteInput.trim() || correctionLogId === correctionTargetLogId}
+                            className="px-3 py-1.5 rounded text-sm font-medium bg-amber-500 text-white hover:bg-amber-600 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                          >
+                            {correctionLogId === correctionTargetLogId ? "Requesting..." : "Submit"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
 

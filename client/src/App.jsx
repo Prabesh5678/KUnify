@@ -39,7 +39,7 @@ import TeamDetail from "./pages/Admin/TeamDetail";
 import TeacherGuard from "./components/TeacherGuard";
 import TeacherLayout from "./components/TeacherLayout";
 import TeacherSidebar from "./components/Teacher/TeacherSidebar";
-import TeacherDashboard from "./pages/Teacher/Dashboard";
+//import TeacherDashboard from "./pages/Teacher/Dashboard";
 import TeacherProjects from "./pages/Teacher/Projects";
 import TeacherRequests from "./pages/Teacher/Requests";
 import TeacherTeams from "./pages/Teacher/Teams";
@@ -83,7 +83,7 @@ const App = () => {
       if (!profileDone && pathname !== "/teacher/profilesetup") {
         navigate("/teacher/profilesetup", { replace: true });
       } else if (profileDone && pathname === "/teacher/profilesetup") {
-        navigate("/teacher/dashboard", { replace: true });
+        navigate("/teacher/projects", { replace: true });
       }
       return;
     }
@@ -166,7 +166,6 @@ const App = () => {
 
               <Route element={<TeacherGuard />}>
                 <Route path="/teacher" element={<TeacherLayout />}>
-                  <Route path="dashboard" element={<TeacherDashboard />} />
                   <Route path="projects" element={<TeacherProjects />} />
                   <Route path="requests" element={<TeacherRequests />} />
                   <Route path="teams" element={<TeacherTeams />} />

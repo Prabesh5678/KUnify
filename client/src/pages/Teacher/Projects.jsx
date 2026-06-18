@@ -115,35 +115,35 @@ export default function TeacherProjects() {
   );
 
   return (
-    <div className="flex flex-col h-full w-full p-6">
+    <div className="flex flex-col h-full w-full p-4 sm:p-6">
       {/* Title */}
-      <h1 className="text-3xl font-bold">Team Projects</h1>
-      <p className="text-gray-500 mt-1">
+      <h1 className="text-2xl sm:text-3xl font-bold">Team Projects</h1>
+      <p className="text-gray-500 mt-1 text-sm sm:text-base">
         Review project proposals and track team progress through logsheets
       </p>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5 mt-6">
         {stats.map((item, index) => (
           <div
             key={index}
-            className={`rounded-2xl p-5 
+            className={`rounded-2xl p-3 sm:p-5 
                   shadow-md hover:shadow-lg 
                   transition-shadow duration-300
                   ${item.cardBg}`}
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">{item.label}</p>
-                <h2 className={`text-3xl font-bold mt-1 ${item.textColor}`}>
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm text-gray-600 truncate">{item.label}</p>
+                <h2 className={`text-xl sm:text-3xl font-bold mt-1 ${item.textColor}`}>
                   {item.value}
                 </h2>
               </div>
 
               <div
-                className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.iconBg}`}
+                className={`w-9 h-9 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 ${item.iconBg}`}
               >
-                <item.icon className={`${item.textColor} w-6 h-6`} />
+                <item.icon className={`${item.textColor} w-4 h-4 sm:w-6 sm:h-6`} />
               </div>
             </div>
           </div>
@@ -152,7 +152,7 @@ export default function TeacherProjects() {
 
       {/* Search*/}
       <div className="flex justify-between items-center mt-8">
-        <div className="relative w-72">
+        <div className="relative w-full max-w-md">
           <input
             type="text"
             placeholder="Search teams or projects"
@@ -165,11 +165,11 @@ export default function TeacherProjects() {
       </div>
 
       {/* Main content */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-6">
         {error ? (
-          <p className="text-center col-span-2 mt-10 text-red-500">{error}</p>
+          <p className="text-center col-span-1 md:col-span-2 mt-10 text-red-500">{error}</p>
         ) : filteredTeams.length === 0 ? (
-          <p className="text-gray-500 col-span-2 text-center">No teams found</p>
+          <p className="text-gray-500 col-span-1 md:col-span-2 text-center">No teams found</p>
         ) : (
           filteredTeams.map((team) => (
             <div
@@ -180,13 +180,13 @@ export default function TeacherProjects() {
                 })
               }
 
-              className="cursor-pointer bg-white rounded-2xl p-5 
+              className="cursor-pointer bg-white rounded-2xl p-4 sm:p-5 
            shadow-md hover:shadow-lg transition-shadow"
             >
-              <div className="flex justify-between items-center">
-                <h2 className="font-semibold text-lg">{team.name}</h2>
+              <div className="flex justify-between items-start gap-2">
+                <h2 className="font-semibold text-lg min-w-0 truncate">{team.name}</h2>
                 <span
-                  className={`px-3 py-1 text-sm rounded-full ${team.status === "approved"
+                  className={`px-3 py-1 text-xs sm:text-sm rounded-full shrink-0 whitespace-nowrap ${team.status === "approved"
                       ? "bg-green-100 text-green-600"
                       : "bg-orange-100 text-orange-600"
                     }`}
@@ -194,13 +194,13 @@ export default function TeacherProjects() {
                   {team.supervisorStatus}
                 </span>
               </div>
-              <p className="text-gray-500 text-sm">{team.subject}</p>
+              <p className="text-gray-500 text-sm truncate">{team.subject}</p>
 
               <div className="mt-3 text-sm text-gray-600 space-y-1">
               </div>
 
-              <div className="mt-3 text-xs flex justify-between text-gray-400">
-                <span>Proposed: {team.supervisor.name}</span>
+              <div className="mt-3 text-xs flex justify-between gap-2 text-gray-400">
+                <span className="truncate">Proposed: {team.supervisor.name}</span>
               </div>
             </div>
           ))

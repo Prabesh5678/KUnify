@@ -65,7 +65,7 @@ const LoginPanel = () => {
         
         // Navigate based on actual user in context
         if (freshUser?.isProfileCompleted) {
-          navigate("/teacher/dashboard", { replace: true });
+          navigate("/teacher/projects", { replace: true });
         } else {
           navigate("/teacher/profilesetup", { replace: true });
         }
@@ -152,7 +152,7 @@ const LoginPanel = () => {
 
         // navigate based on actual profile completion
         if (freshUser?.isProfileCompleted) {
-          navigate("/teacher/dashboard", { replace: true });
+          navigate("/teacher/projects", { replace: true });
         } else {
           navigate("/teacher/profilesetup", { replace: true });
         }
