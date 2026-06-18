@@ -258,12 +258,12 @@ const Logsheet = () => {
 
                   <div className="space-y-2">
                     <p className="text-gray-700">
-                      <span className="font-semibold text-blue-600">Activity Accomplished:</span>{" "}
+                      <span className="font-semibold text-blue-600">Task Accomplished:</span>{" "}
                       {renderText(log.activity, activityLimit, log._id + "_activity")}
                     </p>
 
                     <p className="text-gray-700">
-                      <span className="font-semibold text-green-600">Activity to Accomplish:</span>{" "}
+                      <span className="font-semibold text-green-600">Task to be Accomplished:</span>{" "}
                       {renderText(log.outcome, outcomeLimit, log._id + "_outcome")}
                     </p>
                   </div>

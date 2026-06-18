@@ -343,11 +343,11 @@ const TeamDetail = () => {
                   {/* Activity & Outcome */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                     <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Activity Accomplished</p>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Task Accomplished</p>
                       <p className="text-sm break-words mt-0.5">{log.activity}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Activity to Accomplish</p>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Task to be Accomplished</p>
                       <p className="text-sm break-words mt-0.5">{log.outcome}</p>
                     </div>
                   </div>

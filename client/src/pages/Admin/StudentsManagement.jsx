@@ -81,9 +81,9 @@ const StudentsManagement = () => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="flex min-h-screen h-screen bg-gray-50 overflow-x-hidden">
       <AdminSidebar />
-      <div className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
+      <div className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 overflow-auto h-full">
         <AdminHeader />
 
         {/* Header */}
