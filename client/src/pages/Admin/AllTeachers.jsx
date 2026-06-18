@@ -162,9 +162,9 @@ const handleExport = async () => {
     : "Never";
 
   return (
-    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="flex min-h-screen h-screen bg-gray-50 overflow-x-hidden">
       <AdminSidebar />
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 overflow-auto">
         <AdminHeader />
         <div className="p-4 md:p-4">
 
