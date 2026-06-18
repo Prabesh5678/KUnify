@@ -18,7 +18,7 @@ const TeacherHeader = () => {
   };
 
   return (
-    <div className="flex justify-between items-center gap-3 bg-primary p-4 sm:p-5 mt-4 px-4 sm:px-8 shadow-md rounded-none">
+    <div className="flex justify-between items-center gap-3 bg-primary p-4 sm:p-5 mt-4 px-4 sm:px-8 shadow-md rounded-2xl">
 
       {/* Left Section */}
       <NavLink to="/teacher/dashboard" className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">

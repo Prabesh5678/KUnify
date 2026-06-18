@@ -86,7 +86,7 @@ const handleReject = async () => {
 };
 
   return (
-    <div className="min-h-screen bg-primary/10">
+    <div className="min-h-screen">
       <div className="p-6 max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Team Delete Requests</h1>
 

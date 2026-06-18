@@ -4,7 +4,7 @@ import { Outlet } from "react-router-dom";
 
 const TeacherLayout = () => {
   return (
-    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="flex min-h-screen h-screen bg-gray-50 overflow-x-hidden">
       {/* Sidebar - fixed height */}
       <div className="h-screen sticky top-0">
         <TeacherSidebar />
@@ -12,13 +12,11 @@ const TeacherLayout = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
-        {/* Header Container with side spacing */}
-        <div className="px-6 mt-4">
-          <TeacherHeader />
-        </div>
-
         {/* Scrollable Page Content */}
         <main className="flex-1 overflow-auto px-6 mt-2">
+          <div className="px-6 mt-4">
+            <TeacherHeader />
+          </div>
           <Outlet />
         </main>
       </div>

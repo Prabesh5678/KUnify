@@ -380,7 +380,6 @@ const handleRequestCorrection = async (logId, correctionNote) => {
                   </div>
 
                   {/* Logs */}
-                  {/* Logs */}
                   <div>
                     {logsheetsLoading ? (
                       <p>Loading logs...</p>
@@ -417,13 +416,13 @@ const handleRequestCorrection = async (logId, correctionNote) => {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                             <div>
                               <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                Activity Accomplished
+                                Task Accomplished
                               </h4>
                               <p className="text-sm break-words mt-1">{log.activity}</p>
                             </div>
                             <div>
                               <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                Activity to Accomplish
+                                Task to be Accomplished
                               </h4>
                               <p className="text-sm break-words mt-1">{log.outcome}</p>
                             </div>

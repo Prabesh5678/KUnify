@@ -177,7 +177,7 @@ export default function TeacherSettings() {
   }
 
   return (
-    <div className="min-h-screen p-3 sm:p-6 bg-gradient-to-br from-primary/10 to-white">
+    <div className="min-h-screen p-3 sm:p-6 bg-gradient-to-br">
       <div className="max-w-4xl mx-auto space-y-6 bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-200">
 
         {/* Page Title + Dropdown */}

@@ -94,7 +94,7 @@ export default function TeamRequests() {
 
 
   return (
-    <div className="min-h-screen bg-primary/10">
+    <div className="min-h-screen">
       {/* MAIN CONTENT */}
       <div className="p-6 max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Team Requests</h1>
