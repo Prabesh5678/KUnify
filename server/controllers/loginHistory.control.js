@@ -5,7 +5,7 @@ export const getTeacherLoginHistory = async (req, res) => {
   try {
     const { teacherId } = req.params;
     const page = parseInt(req.query.page) || 1;
-    const limit = 1;
+    const limit = 50;
     const skip = (page - 1) * limit;
 
     const [history, total] = await Promise.all([
