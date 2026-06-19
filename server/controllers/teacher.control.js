@@ -280,11 +280,7 @@ export const teacherLogin = async (req, res) => {
       });
     }
 await Teacher.findByIdAndUpdate(teacher._id, { lastLogin: new Date() });
-enqueueLoginLog({
-  teacherId: teacher._id,
-  ipAddress: req.ip || req.headers["x-forwarded-for"],
-  userAgent: req.headers["user-agent"]
-});
+enqueueLoginLog({ teacherId: teacher._id });
     // create JWT
     const token = jwt.sign(
       { id: teacher._id, role: "teacher" },

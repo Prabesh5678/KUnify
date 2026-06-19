@@ -35,6 +35,10 @@ const [exportLoading, setExportLoading] = useState(false);
       setLoading(false);
       return;
     }
+    if (location.state?.teacher) {
+    setLoading(false);
+    return;
+  }
     const fetchTeacher = async () => {
       try {
         setLoading(true);
