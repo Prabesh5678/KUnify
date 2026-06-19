@@ -1,4 +1,3 @@
-
 import Proposal from "../models/proposal.model.js";
 import Team from "../models/team.model.js";
 import cloudinary from "../configs/cloudinary.config.js";
@@ -19,12 +18,14 @@ export const uploadProposal = async (req, res) => {
     if (!title || !abstract || !keywords)
       throw new Error("All fields are required!");
     if (!req.file) throw new Error("PDF file is required");
-    if(req.file.mimetype !== 'application/pdf') throw new Error("Only PDF files are allowed");
+    if (req.file.mimetype !== "application/pdf")
+      throw new Error("Only PDF files are allowed");
 
     const team = await Team.findById(teamId);
     if (!team) throw new Error("You are not part of any team!");
-    if (team.proposal) throw new Error("Proposal already submitted by your team");
-    if (team.supervisorStatus === 'adminApproved')
+    if (team.proposal)
+      throw new Error("Proposal already submitted by your team");
+    if (team.supervisorStatus === "adminApproved")
       throw new Error("Supervisor Already Assigned!");
 
     let teacher = null;
@@ -48,17 +49,19 @@ export const uploadProposal = async (req, res) => {
     }
 
     const [proposal] = await Proposal.create(
-      [{
-        projectTitle: title,
-        abstract,
-        projectKeyword: keywords,
-        team: team._id,
-        proposalFile: {
-          url: secureUrl,
-          publicId: result.public_id,
+      [
+        {
+          projectTitle: title,
+          abstract,
+          projectKeyword: keywords,
+          team: team._id,
+          proposalFile: {
+            url: secureUrl,
+            publicId: result.public_id,
+          },
         },
-      }],
-      { session }
+      ],
+      { session },
     );
 
     team.proposal = proposal._id;
@@ -69,7 +72,10 @@ export const uploadProposal = async (req, res) => {
       team.supervisorStatus = "pending";
     }
 
-    await Promise.all([team.save({ session }), teacher ? teacher.save({ session }) : null]);
+    await Promise.all([
+      team.save({ session }),
+      teacher ? teacher.save({ session }) : null,
+    ]);
 
     await session.commitTransaction();
 
@@ -78,13 +84,12 @@ export const uploadProposal = async (req, res) => {
       message: "Proposal submitted successfully",
       proposal,
     });
-
   } catch (error) {
     if (session) await session.abortTransaction();
-    console.error("Full error: ",error);
+    console.error("Full error: ", error);
     return res.status(500).json({
       success: false,
-      message:"Server error",
+      message: "Server error",
     });
   } finally {
     if (session) session.endSession();
@@ -110,42 +115,69 @@ export const getProposal = async (req, res) => {
 
 //patch /api/proposal/change/:teamId
 export const changeProposal = async (req, res) => {
-  try{
+  try {
     const { teamId } = req.params;
     if (!req.file) throw new Error("PDF file is required");
-        if (req.file.mimetype !== "application/pdf")
-          throw new Error("Only PDF files are allowed");
-    if (!teamId) return res.status(400).json({ success: false, message: "Invalid team id" });
+    if (req.file.mimetype !== "application/pdf")
+      throw new Error("Only PDF files are allowed");
+    if (!teamId)
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid team id" });
     const team = await Team.findById(teamId);
-    if (!team) return res.status(404).json({ success: false, message: "Team not found" });
-    if (!team.proposal) return res.status(404).json({ success: false, message: "No proposal found for this team" });
+    if (!team)
+      return res
+        .status(404)
+        .json({ success: false, message: "Team not found" });
+    if (!team.proposal)
+      return res
+        .status(404)
+        .json({ success: false, message: "No proposal found for this team" });
     const proposal = await Proposal.findById(team.proposal);
-    if (!proposal) return res.status(404).json({ success: false, message: "Proposal not found" });
+    if (!proposal)
+      return res
+        .status(404)
+        .json({ success: false, message: "Proposal not found" });
     const oldPublicId = proposal.proposalFile?.publicId;
-    if(!oldPublicId) throw new Error("No existing proposal file found to replace");
-    res.json({ success: true, message: "Proposal file updated successfully" });
-console.log("cloudinary upload initiated at :", new Date().toISOString());
-const result = await cloudinary.uploader.upload(req.file.path, {
-  folder: "kunify/proposals",
-  resource_type: "raw",
-  type: "upload",
-  access_mode: "public",
-  flags: "attachment",
-  transformation: [{ flags: "attachment" }],
-});
-console.log("cloudinary upload completed at :", new Date().toISOString());
+    if (!oldPublicId)
+      throw new Error("No existing proposal file found to replace");
+    res.json({ success: true, message: "Proposal file update in progress" });
+
+    // everything below runs in the background, AFTER response is sent
+    processUploadInBackground(req.file.path, proposal, oldPublicId);
+    return;
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Failed to update proposal file" });
+  }
+};
+async function processUploadInBackground(filePath, proposal, oldPublicId) {
+  try {
+
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: "kunify/proposals",
+      resource_type: "raw",
+      type: "upload",
+      access_mode: "public",
+    });
+
+
     let secureUrl = result.secure_url;
-    let publicId = result.public_id;
     if (secureUrl.includes("/upload/")) {
       secureUrl = secureUrl.replace("/upload/", "/upload/fl_attachment/");
     }
-    proposal.proposalFile = { url: secureUrl, publicId };
-    await proposal.save();
-        await cloudinary.uploader.destroy(oldPublicId, { resource_type: "raw" });
-    return 
-        
 
-  }catch(error){
-    return res.status(500).json({ success: false, message:"Server error" });
-  } 
+    proposal.proposalFile = { url: secureUrl, publicId: result.public_id };
+    await proposal.save();
+
+    await cloudinary.uploader.destroy(oldPublicId, { resource_type: "raw" });
+
+    console.log(
+      "Proposal update completed successfully for proposal:",
+      proposal._id,
+    );
+  } catch (err) {
+    console.error("Background proposal upload failed:", err);
+  }
 }
