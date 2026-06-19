@@ -123,6 +123,7 @@ export const changeProposal = async (req, res) => {
     if (!proposal) return res.status(404).json({ success: false, message: "Proposal not found" });
     const oldPublicId = proposal.proposalFile?.publicId;
     if(!oldPublicId) throw new Error("No existing proposal file found to replace");
+    res.json({ success: true, message: "Proposal file updated successfully" });
 console.log("cloudinary upload initiated at :", new Date().toISOString());
 const result = await cloudinary.uploader.upload(req.file.path, {
   folder: "kunify/proposals",
@@ -141,7 +142,7 @@ console.log("cloudinary upload completed at :", new Date().toISOString());
     proposal.proposalFile = { url: secureUrl, publicId };
     await proposal.save();
         await cloudinary.uploader.destroy(oldPublicId, { resource_type: "raw" });
-    return res.json({ success: true, message: "Proposal file updated successfully"});
+    return 
         
 
   }catch(error){
