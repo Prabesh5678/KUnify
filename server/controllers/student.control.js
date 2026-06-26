@@ -185,4 +185,88 @@ export const getTeachers =async (_,res) => {
         });
 
   }
-}
+};
+
+// GET /api/student/projects
+// Get all open teacher projects (only for students without a team)
+export const getTeacherProjects = async (req, res) => {
+  try {
+    const student = await Student.findById(req.studentId);
+
+    if (student.teamId) {
+      return res.json({ success: false, message: "You are already in a team. You cannot view teacher projects." });
+    }
+
+    const projects = await TeacherProject.find({ status: "open" })
+      .populate("teacher", "name email specialization position")
+      .sort({ createdAt: -1 });
+
+    return res.json({ success: true, projects });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+
+// POST /api/student/projects/:projectId/apply
+// Student applies to a teacher's project
+export const applyToProject = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+
+    const student = await Student.findById(req.studentId);
+    if (!student) {
+      return res.json({ success: false, message: "Student not found!" });
+    }
+
+    // Student must not be in a team
+    if (student.teamId) {
+      return res.json({ success: false, message: "You are already in a team. You cannot apply to a project." });
+    }
+
+    // Check if the project exists and is open
+    const project = await TeacherProject.findById(projectId);
+    if (!project) {
+      return res.json({ success: false, message: "Project not found!" });
+    }
+    if (project.status === "closed") {
+      return res.json({ success: false, message: "This project is closed!" });
+    }
+
+    // Check if student already applied to this project
+    const alreadyApplied = student.appliedProjects.find(
+      (a) => a.project.toString() === projectId
+    );
+    if (alreadyApplied) {
+      return res.json({ success: false, message: "You have already applied to this project!" });
+    }
+
+    // Add to student's appliedProjects
+    student.appliedProjects.push({ project: projectId });
+    await student.save();
+
+    return res.json({ success: true, message: "Application submitted successfully!" });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+
+// GET /api/student/projects/my-applications
+// Student sees all projects they have applied to
+export const getMyApplications = async (req, res) => {
+  try {
+    const student = await Student.findById(req.studentId).populate({
+      path: "appliedProjects.project",
+      populate: { path: "teacher", select: "name email specialization" },
+    });
+
+    if (!student) {
+      return res.json({ success: false, message: "Student not found!" });
+    }
+
+    return res.json({ success: true, applications: student.appliedProjects });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};

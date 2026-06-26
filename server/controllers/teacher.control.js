@@ -541,3 +541,160 @@ export const deleteTeam = async (req, res) => {
   }
 };
 
+
+// POST /api/teacher/my-projects
+export const createMyProject = async (req, res) => {
+  try {
+    const { title, description, technologies } = req.body;
+
+    if (!title || !description) {
+      return res.json({ success: false, message: "Title and description are required!" });
+    }
+
+    const project = new TeacherProject({
+      teacher: req.teacherId,
+      title,
+      description,
+      technologies: technologies || [],
+    });
+
+    await project.save();
+
+    return res.json({ success: true, message: "Project created!", project });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+
+// GET /api/teacher/my-projects
+export const getMyProjects = async (req, res) => {
+  try {
+    const projects = await TeacherProject.find({ teacher: req.teacherId }).sort({ createdAt: -1 });
+
+    return res.json({ success: true, projects });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+
+// GET /api/teacher/my-projects/:projectId/applicants
+export const getProjectApplicants = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+
+    // Find all students who applied to this project
+    const students = await Student.find({
+      "appliedProjects.project": projectId,
+    }).select("name email rollNumber semester department appliedProjects");
+
+    // Return only the relevant application info per student
+    const applicants = students.map((student) => {
+      const application = student.appliedProjects.find(
+        (a) => a.project.toString() === projectId
+      );
+      return {
+        studentId: student._id,
+        name: student.name,
+        email: student.email,
+        rollNumber: student.rollNumber,
+        semester: student.semester,
+        status: application.status,
+        appliedAt: application.appliedAt,
+      };
+    });
+
+    return res.json({ success: true, applicants });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+
+// PUT /api/teacher/my-projects/:projectId
+export const updateMyProject = async (req, res) => {
+  try {
+    const { title, description, technologies, status } = req.body;
+
+    const project = await TeacherProject.findOneAndUpdate(
+      { _id: req.params.projectId, teacher: req.teacherId },
+      { title, description, technologies, status },
+      { new: true }
+    );
+
+    if (!project) {
+      return res.json({ success: false, message: "Project not found!" });
+    }
+
+    return res.json({ success: true, message: "Project updated!", project });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+
+// DELETE /api/teacher/my-projects/:projectId
+export const deleteMyProject = async (req, res) => {
+  try {
+    const project = await TeacherProject.findOneAndDelete({
+      _id: req.params.projectId,
+      teacher: req.teacherId,
+    });
+
+    if (!project) {
+      return res.json({ success: false, message: "Project not found!" });
+    }
+
+    return res.json({ success: true, message: "Project deleted!" });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+
+// POST /api/teacher/my-projects/:projectId/applicants/:studentId?action=accept
+// POST /api/teacher/my-projects/:projectId/applicants/:studentId?action=reject
+export const handleStudentApplication = async (req, res) => {
+  try {
+    const { projectId, studentId } = req.params;
+    const { action } = req.query;
+
+    if (action !== "accept" && action !== "reject") {
+      return res.json({ success: false, message: "Action must be 'accept' or 'reject'" });
+    }
+
+    const student = await Student.findById(studentId);
+    if (!student) {
+      return res.json({ success: false, message: "Student not found!" });
+    }
+
+    // Find this project in the student's appliedProjects
+    const application = student.appliedProjects.find(
+      (a) => a.project.toString() === projectId
+    );
+
+    if (!application) {
+      return res.json({ success: false, message: "Student has not applied to this project!" });
+    }
+
+    if (application.status !== "pending") {
+      return res.json({ success: false, message: "This application is already processed!" });
+    }
+
+    if (action === "accept") {
+      if (student.teamId) {
+        return res.json({ success: false, message: "This student already joined a team!" });
+      }
+      application.status = "accepted";
+    } else {
+      application.status = "rejected";
+    }
+
+    await student.save();
+
+    return res.json({ success: true, message: `Student ${action}ed successfully!` });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};

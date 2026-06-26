@@ -67,8 +67,27 @@ const studentSchema = new mongoose.Schema(
       type: Boolean,
       default: undefined,
     },
+
+appliedProjects: [
+  {
+    project: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "teacherProject",
+    },
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "rejected"],
+      default: "pending",
+    },
+    appliedAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  { timestamps: true }
+],
+  },
+  { timestamps: true },
+  
 );
 
 const Student =
