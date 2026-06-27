@@ -7,24 +7,26 @@ import LogEntry from "../models/logEntry.model.js";
 import ProposalModel from "../models/proposal.model.js";
 import Student from "../models/student.model.js";
 import { enqueueLoginLog } from "../utils/loginQueue.js";
+import { handleGoogleAuth } from "../utils/helperFunctions.js";
 // POST /api/teacher/google-signin
 export const googleSignIn = async (req, res) => {
   try {
-    const credential = req.body.credential; // or { credential }
-    if (!credential) {
-      return res.json({ success: false, message: "No credential provided" });
-    }
+    const result = await handleGoogleAuth(req.body.credential);
+
+  if (!result.success) return res.json(result);
+
+  const { googleId, email, name, picture } = result;
 
     // Check if teacher already exists
-    let teacher = await Teacher.findOne({ email: credential.email });
+    let teacher = await Teacher.findOne({ email: email });
 
     // Create teacher if not exists
     if (!teacher) {
       teacher = new Teacher({
-        name: credential.name || "KU teacher",
-        email: credential.email,
-        googleId: credential.googleId,
-        avatar: credential.picture,
+        name: name || "KU teacher",
+        email: email,
+        googleId: googleId,
+        avatar:picture,
         isProfileCompleted: false, // default
       });
     }
@@ -109,6 +111,7 @@ export const profileCompletion = async (req, res) => {
 
         { runValidators: true, new: true },
       );
+      if(!teacher ) return res.json({success:false,message:'Unable to find Teacher!'})
       return res.json({
         success: true,
         message: "Profile completed successfully",

@@ -2,42 +2,24 @@ import mongoose from "mongoose";
 import Student from "../models/student.model.js";
 import Teacher from "../models/teacher.model.js";
 import jwt from "jsonwebtoken";
-// import { OAuth2Client } from "google-auth-library";
+import { handleGoogleAuth } from "../utils/helperFunctions.js";
 
 // Google Sign-In Controller: /api/student/google-signin
 export const googleSignIn = async (req, res) => {
   try {
-    // const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-    // console.log(req.body)
-    const credential = req.body.credential; //or {credential}
-    // console.log(credential)
-    if (!credential) {
-      return res.json({ success: false, message: "No credential provided" });
-    }
-
-    // // Verify the Google userToken
-    // const ticket = await client.verifyIdToken({
-    //   idToken: credential,
-    //   audience: process.env.GOOGLE_CLIENT_ID,
-    // });
-    // const payload = ticket.getPayload();
-    // const { sub: googleId, email, name, picture } = payload;
-    // if (!email) {
-    //   return res.json({
-    //     success: false,
-    //     message: "Email not provided by Google",
-    //   });
-    // }
-
-    // Check if student already exists
-    let student = await Student.findOne({ email: credential.email });
+    const result = await handleGoogleAuth(req.body.credential);
+    if (!result.success) return res.json(result); 
+    const { googleId, email, name, avatar } = result;
+ 
+   
+    let student = await Student.findOne({ email});
 
     if (!student) {
       student = new Student({
-        name: credential.name || "KU Student",
-        email: credential.email,
-        googleId: credential.sub,
-        avatar: credential.picture,
+        name: name || "KU Student",
+        email,
+        googleId,
+        avatar
       });
       await student.save();
     }
@@ -80,7 +62,6 @@ export const isAuth = async (req, res) => {
         message: "Couldnot find student id. ",
       });
     let student;
-    if(req.query.from==='home')console.log("is-auth called from student home")
     if (req.query.populateTeam === "true") {
         student = await Student.findById(studentId).populate("teamId");
     } else {
@@ -98,6 +79,8 @@ export const isAuth = async (req, res) => {
 export const profileCompletion = async (req, res) => {
   try {
     const studentId = req.studentId;
+    if(!studentId)
+      return res.json({success:false,message:'Could not find student id.'})
     const form = req.body;
     if (
       !form.department ||
@@ -117,17 +100,20 @@ export const profileCompletion = async (req, res) => {
         },
         { runValidators: true, new: true }
       );
+      if(!student)
+        return res.json({success:false,message:'Could not update profile.'})
       return res.json({
         success: true,
         message: "Profile completed successfully",
         student,
       });
     }
-  } catch (error) {}
+  } catch (error) {
   return res.json({
     success: false,
     message: "Couldnot complete the profile.",
   });
+}
 };
 // /api/profile-update
 export const profileUpdate = async (req, res) => {
@@ -172,9 +158,6 @@ export const getTeachers =async (_,res) => {
       { activeStatus: true, isProfileCompleted: true },
       { name: 1, specialization: 1 },
     );
-  if(teachers.length===0){
-    return res.json({success:false,message:'No active teachers found!'})
-  }
   return res.json({success:true,teachers})
   } catch (error) {
     console.error(error.stack);
