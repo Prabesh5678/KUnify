@@ -26,7 +26,6 @@ const subjectMap = {
 const ProfileSetup = () => {
   const { fetchUser, setProfileSetupDone, user } = useAppContext();
   const navigate = useNavigate();
-
   const [form, setForm] = useState({
     department: "",
     semester: "",
@@ -65,7 +64,6 @@ const ProfileSetup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const regPattern = /^\d{6}-\d{2}$/;
 
     if (!form.department || !form.semester || !form.rollNumber) {
@@ -203,11 +201,6 @@ const ProfileSetup = () => {
           <button
             type="submit"
             disabled={
-              !/^\d{6}-\d{2}$/.test(form.rollNumber) ||
-
-              !form.department ||
-              !form.semester ||
-              !form.subjectCode ||
               isLoading
             }
             className="w-full py-3 bg-primary text-white font-semibold rounded-md hover:opacity-90 transition cursor-pointer"

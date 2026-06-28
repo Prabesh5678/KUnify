@@ -48,15 +48,14 @@ const LoginPanel = () => {
       ) {
         const { data } = await axios.post(
           "/api/teacher/google-signin",
-          { credential: decodedData },
+          { credential: credentialResponse.credential },
           { withCredentials: true },
         );
-        if (data.success) {
-          toast.success("Teacher login successful!");
-        }
+        
         if (!data.success) {
           return toast.error("Teacher login failed");
         }
+        toast.success("Teacher login successful!");
 
         setShowUserLogin(false);
 
@@ -77,7 +76,7 @@ const LoginPanel = () => {
         return toast.error("Only emails provided by KU is allowed");
 
       const { data } = await axios.post("/api/student/google-signin", {
-        credential: decoded,
+        credential: credentialResponse.credential,
       });
 
       if (!data.success)
@@ -104,7 +103,7 @@ const LoginPanel = () => {
       toast.error("Something went wrong during login.");
       return;
     }
-  };
+  }; 
 
   // ---- Visiting Faculty / Admin login ----
   const handleEmailChange = (e) => {

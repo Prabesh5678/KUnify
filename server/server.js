@@ -25,6 +25,7 @@ const allowedOrigins = [
   "http://localhost:5174",
   "http://spmp.ku.edu.np",
   "https://spmp.ku.edu.np",
+  "https://staging.spmp.ku.edu.np",
 ];
 
 const corsOptions = {
