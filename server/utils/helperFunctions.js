@@ -53,7 +53,8 @@ export const uploadFile = async (file, folder = "uploads") => {
     await fs.unlink(file.path).catch(() => {});
 
     // Return a relative URL path (serve this via express.static or nginx)
-    const url = `/uploads/${folder}/${filename}`;
+    const baseUrl = process.env.BASE_URL;
+    const url = `${baseUrl}/uploads/${env}/${folder}/${filename}`;
     return { url, publicId: null };
   }
 
