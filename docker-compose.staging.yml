@@ -7,8 +7,6 @@ services:
     ports:
       - "127.0.0.1:27018:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password123
       MONGO_INITDB_DATABASE: spmp_staging
     volumes:
       - mongodb_staging_data:/data/db
