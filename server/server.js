@@ -44,6 +44,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.get("/", (_, res) => res.send("API is working"));
 

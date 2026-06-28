@@ -3,6 +3,7 @@ import Team from "../models/team.model.js";
 import cloudinary from "../configs/cloudinary.config.js";
 import Teacher from "../models/teacher.model.js";
 import mongoose from "mongoose";
+import { uploadFile } from "../utils/helperFunctions.js";
 
 // post /api/proposal/upload/:teamId
 export const uploadProposal = async (req, res) => {
@@ -34,19 +35,7 @@ export const uploadProposal = async (req, res) => {
       if (!teacher) throw new Error("Supervisor not found");
     }
 
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: "kunify/proposals",
-      resource_type: "raw",
-      type: "upload",
-      access_mode: "public",
-      flags: "attachment",
-      transformation: [{ flags: "attachment" }],
-    });
-
-    let secureUrl = result.secure_url;
-    if (secureUrl.includes("/upload/")) {
-      secureUrl = secureUrl.replace("/upload/", "/upload/fl_attachment/");
-    }
+     const { url, publicId } = await uploadFile(req.file, "proposals");
 
     const [proposal] = await Proposal.create(
       [
@@ -56,8 +45,8 @@ export const uploadProposal = async (req, res) => {
           projectKeyword: keywords,
           team: team._id,
           proposalFile: {
-            url: secureUrl,
-            publicId: result.public_id,
+            url,
+            publicId,
           },
         },
       ],
