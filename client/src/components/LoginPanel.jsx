@@ -173,8 +173,10 @@ const LoginPanel = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-xl rounded-xl bg-[#111] text-gray-100 shadow-2xl border border-gray-800 px-10 py-10 relative">
-        <h1 className="text-center text-2xl font-semibold mb-6">
+      <div
+  className="
+    w-[95%] max-w-xl rounded-xl bg-[#111] text-gray-100 shadow-2xl border border-gray-800 px-4 sm:px-6 md:px-10 py-6 sm:py-8 md:py-10 relative max-h-[90vh] overflow-y-auto ">
+        <h1 className="text-center text-xl sm:text-2xl font-semibold mb-6">
           Login to Student Project Management Platform
         </h1>
 
