@@ -1,0 +1,99 @@
+services:
+  mongodb-staging:
+    image: mongo:8
+    container_name: spmp_mongodb_staging
+    restart: always
+    entrypoint: ["/bin/bash", "/setup.staging.sh"]
+    ports:
+      - "127.0.0.1:27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: spmp_staging
+    volumes:
+      - mongodb_staging_data:/data/db
+      - ./mongo-init/setup.staging.sh:/setup.staging.sh
+    deploy:
+      resources:
+        limits:
+          memory: 600M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh -u admin -p password123 --authenticationDatabase admin --eval \"db.adminCommand('ping')\" --quiet"]
+      interval: 60s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+
+  server-staging:
+    build:
+      context: ./server
+    container_name: spmp_server_staging
+    restart: always
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      mongodb-staging:
+        condition: service_healthy
+    env_file:
+      - ./server/.env.staging
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  client-staging:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.staging
+    container_name: spmp_client_staging
+    restart: always
+    ports:
+      - "127.0.0.1:5174:80"
+    depends_on:
+      - server-staging
+    deploy:
+      resources:
+        limits:
+          memory: 50M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2m"
+        max-file: "2"
+
+  mongo-express-staging:
+    image: mongo-express
+    container_name: spmp_mongo_express_staging
+    restart: always
+    ports:
+      - "127.0.0.1:8082:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password123
+      ME_CONFIG_BASICAUTH: "false"
+      ME_CONFIG_MONGODB_URL: mongodb://admin:password123@mongodb-staging:27017/
+      ME_CONFIG_SITE_BASEURL: "/db-staging/"
+    depends_on:
+      - mongodb-staging
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2m"
+        max-file: "2"
+
+volumes:
+  mongodb_staging_data:
