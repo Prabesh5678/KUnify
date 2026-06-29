@@ -38,7 +38,7 @@ export const handleGoogleAuth = async (credential) => {
 export const uploadFile = async (file, folder = "uploads") => {
   const provider = process.env.STORAGE_PROVIDER;
   const env = process.env.NODE_ENV;
-
+try {
   if (provider === "local") {
     // Store under /uploads/<folder>/ on the VPS
     const uploadDir = path.join(process.cwd(), "uploads",env, folder);
@@ -76,4 +76,23 @@ export const uploadFile = async (file, folder = "uploads") => {
   }
 
   return { url, publicId: result.public_id };
+}catch (err) {
+    await fs.unlink(file.path).catch(() => {});
+    throw new Error(`File upload failed: ${err.message}`);
+  }
+};
+
+export const deleteFile = async (fileUrl, publicId) => {
+  const provider = process.env.STORAGE_PROVIDER;
+   try {
+    if (provider === "local") {
+      const diskPath = path.join(process.cwd(), new URL(fileUrl).pathname);
+      await fs.unlink(diskPath);
+    } else {
+      await cloudinary.uploader.destroy(publicId, { resource_type: "raw" });
+    }
+    console.log(`File deleted successfully from ${provider} storage.`);
+  } catch (err) {
+    console.error(`Error deleting file: ${err.message}`);
+  }
 };

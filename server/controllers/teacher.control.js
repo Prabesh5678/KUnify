@@ -8,14 +8,16 @@ import ProposalModel from "../models/proposal.model.js";
 import Student from "../models/student.model.js";
 import { enqueueLoginLog } from "../utils/loginQueue.js";
 import { handleGoogleAuth } from "../utils/helperFunctions.js";
+import TeacherProject from "../models/teacherProject.model.js";
+import { deleteFile } from "../utils/helperFunctions.js";
 // POST /api/teacher/google-signin
 export const googleSignIn = async (req, res) => {
   try {
     const result = await handleGoogleAuth(req.body.credential);
 
-  if (!result.success) return res.json(result);
+    if (!result.success) return res.json(result);
 
-  const { googleId, email, name, picture } = result;
+    const { googleId, email, name, picture } = result;
 
     // Check if teacher already exists
     let teacher = await Teacher.findOne({ email: email });
@@ -26,13 +28,13 @@ export const googleSignIn = async (req, res) => {
         name: name || "KU teacher",
         email: email,
         googleId: googleId,
-        avatar:picture,
+        avatar: picture,
         isProfileCompleted: false, // default
       });
     }
     teacher.lastLogin = new Date();
     await teacher.save();
-enqueueLoginLog({ teacherId: teacher._id });
+    enqueueLoginLog({ teacherId: teacher._id });
     // Generate JWT (FIXED: teacher._id, not student._id)
     const teacherToken = jwt.sign(
       { id: teacher._id, role: "teacher" },
@@ -111,7 +113,8 @@ export const profileCompletion = async (req, res) => {
 
         { runValidators: true, new: true },
       );
-      if(!teacher ) return res.json({success:false,message:'Unable to find Teacher!'})
+      if (!teacher)
+        return res.json({ success: false, message: "Unable to find Teacher!" });
       return res.json({
         success: true,
         message: "Profile completed successfully",
@@ -186,10 +189,10 @@ export const teamRequest = async (req, res) => {
         .populate({
           path: "deletionTeams",
           select: "name members supervisorStatus",
-          populate: {         
-        path: "members",
-        select: "name",
-      },
+          populate: {
+            path: "members",
+            select: "name",
+          },
         });
       if (!teacher) {
         return res.json({ success: false, message: "Unable to find teacher!" });
@@ -282,8 +285,8 @@ export const teacherLogin = async (req, res) => {
         message: "Invalidd credentials",
       });
     }
-await Teacher.findByIdAndUpdate(teacher._id, { lastLogin: new Date() });
-enqueueLoginLog({ teacherId: teacher._id });
+    await Teacher.findByIdAndUpdate(teacher._id, { lastLogin: new Date() });
+    enqueueLoginLog({ teacherId: teacher._id });
     // create JWT
     const token = jwt.sign(
       { id: teacher._id, role: "teacher" },
@@ -387,8 +390,11 @@ export const checkLogEntry = async (req, res) => {
       return res.json({ success: false, message: error });
     }
     if (log.isChecked) {
-  return res.json({ success: false, message: "Cannot request correction on an already checked log" });
-}
+      return res.json({
+        success: false,
+        message: "Cannot request correction on an already checked log",
+      });
+    }
 
     log.isChecked = true;
     log.checkedBy = teacherId;
@@ -489,11 +495,11 @@ export const deleteTeam = async (req, res) => {
     if (!teacher) throw new Error("Unable to find teacher!");
     if (!teamId) throw new Error("Unable to get team id!");
     const team = await Team.findById(teamId)
-      .populate("leaderId")
+      .populate({ path: "proposal", select: "proposalFile" })
       .session(session);
     if (!team || !team.leaderId)
       throw new Error("Unable to find team or leader!");
-    const leader = team.leaderId;
+    const leaderId = team.leaderId;
     if (team.supervisorStatus !== "underDeletion") {
       throw new Error("Team is not marked for deletion!");
     }
@@ -513,9 +519,11 @@ export const deleteTeam = async (req, res) => {
       teacher.deletionTeams.pull(teamId);
       teacher.pendingTeams.pull(teamId);
       teacher.approvedTeams.pull(teamId);
-      teacher.activeCount>=0? teacher.activeCount -= 1 : null;
+      teacher.activeCount > 0
+        ? (teacher.activeCount -= 1)
+        : (teacher.activeCount = 0);
       await Student.findByIdAndUpdate(
-        team.leaderId._id,
+        leaderId,
         {
           $set: {
             teamId: null,
@@ -525,14 +533,14 @@ export const deleteTeam = async (req, res) => {
         },
         { session },
       );
-      await LogEntry.deleteMany({ teamId }, { session });
-      await ProposalModel.deleteMany({ team: teamId }, { session });
-
       await Promise.all([
+        LogEntry.deleteMany({ teamId }, { session }),
+        ProposalModel.deleteMany({ team: teamId }, { session }),
         team.deleteOne({ session }),
         teacher.save({ session }),
       ]);
       await session.commitTransaction();
+      deleteFile(team.proposal?.proposalFile?.url,team.proposal?.proposalFile?.publicId);
       return res.json({ success: true, message: "Team deleted successfully!" });
     } else {
       throw new Error("Invalid action!");
@@ -540,10 +548,12 @@ export const deleteTeam = async (req, res) => {
   } catch (error) {
     if (session) await session.abortTransaction();
     console.error(error);
-    res.json({ success: false, message: error.message||"Unable to delete team" });
+    res.json({
+      success: false,
+      message: error.message || "Unable to delete team",
+    });
   }
 };
-
 
 // POST /api/teacher/my-projects
 export const createMyProject = async (req, res) => {
@@ -551,7 +561,10 @@ export const createMyProject = async (req, res) => {
     const { title, description, technologies } = req.body;
 
     if (!title || !description) {
-      return res.json({ success: false, message: "Title and description are required!" });
+      return res.json({
+        success: false,
+        message: "Title and description are required!",
+      });
     }
 
     const project = new TeacherProject({
@@ -569,18 +582,18 @@ export const createMyProject = async (req, res) => {
   }
 };
 
-
 // GET /api/teacher/my-projects
 export const getMyProjects = async (req, res) => {
   try {
-    const projects = await TeacherProject.find({ teacher: req.teacherId }).sort({ createdAt: -1 });
+    const projects = await TeacherProject.find({ teacher: req.teacherId }).sort(
+      { createdAt: -1 },
+    );
 
     return res.json({ success: true, projects });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
 };
-
 
 // GET /api/teacher/my-projects/:projectId/applicants
 export const getProjectApplicants = async (req, res) => {
@@ -595,7 +608,7 @@ export const getProjectApplicants = async (req, res) => {
     // Return only the relevant application info per student
     const applicants = students.map((student) => {
       const application = student.appliedProjects.find(
-        (a) => a.project.toString() === projectId
+        (a) => a.project.toString() === projectId,
       );
       return {
         studentId: student._id,
@@ -614,7 +627,6 @@ export const getProjectApplicants = async (req, res) => {
   }
 };
 
-
 // PUT /api/teacher/my-projects/:projectId
 export const updateMyProject = async (req, res) => {
   try {
@@ -623,7 +635,7 @@ export const updateMyProject = async (req, res) => {
     const project = await TeacherProject.findOneAndUpdate(
       { _id: req.params.projectId, teacher: req.teacherId },
       { title, description, technologies, status },
-      { new: true }
+      { new: true },
     );
 
     if (!project) {
@@ -635,7 +647,6 @@ export const updateMyProject = async (req, res) => {
     return res.json({ success: false, message: error.message });
   }
 };
-
 
 // DELETE /api/teacher/my-projects/:projectId
 export const deleteMyProject = async (req, res) => {
@@ -655,7 +666,6 @@ export const deleteMyProject = async (req, res) => {
   }
 };
 
-
 // POST /api/teacher/my-projects/:projectId/applicants/:studentId?action=accept
 // POST /api/teacher/my-projects/:projectId/applicants/:studentId?action=reject
 export const handleStudentApplication = async (req, res) => {
@@ -664,7 +674,10 @@ export const handleStudentApplication = async (req, res) => {
     const { action } = req.query;
 
     if (action !== "accept" && action !== "reject") {
-      return res.json({ success: false, message: "Action must be 'accept' or 'reject'" });
+      return res.json({
+        success: false,
+        message: "Action must be 'accept' or 'reject'",
+      });
     }
 
     const student = await Student.findById(studentId);
@@ -674,20 +687,29 @@ export const handleStudentApplication = async (req, res) => {
 
     // Find this project in the student's appliedProjects
     const application = student.appliedProjects.find(
-      (a) => a.project.toString() === projectId
+      (a) => a.project.toString() === projectId,
     );
 
     if (!application) {
-      return res.json({ success: false, message: "Student has not applied to this project!" });
+      return res.json({
+        success: false,
+        message: "Student has not applied to this project!",
+      });
     }
 
     if (application.status !== "pending") {
-      return res.json({ success: false, message: "This application is already processed!" });
+      return res.json({
+        success: false,
+        message: "This application is already processed!",
+      });
     }
 
     if (action === "accept") {
       if (student.teamId) {
-        return res.json({ success: false, message: "This student already joined a team!" });
+        return res.json({
+          success: false,
+          message: "This student already joined a team!",
+        });
       }
       application.status = "accepted";
     } else {
@@ -696,7 +718,10 @@ export const handleStudentApplication = async (req, res) => {
 
     await student.save();
 
-    return res.json({ success: true, message: `Student ${action}ed successfully!` });
+    return res.json({
+      success: true,
+      message: `Student ${action}ed successfully!`,
+    });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }

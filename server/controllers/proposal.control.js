@@ -3,7 +3,7 @@ import Team from "../models/team.model.js";
 import cloudinary from "../configs/cloudinary.config.js";
 import Teacher from "../models/teacher.model.js";
 import mongoose from "mongoose";
-import { uploadFile } from "../utils/helperFunctions.js";
+import { uploadFile,deleteFile } from "../utils/helperFunctions.js";
 
 // post /api/proposal/upload/:teamId
 export const uploadProposal = async (req, res) => {
@@ -128,45 +128,19 @@ export const changeProposal = async (req, res) => {
         .status(404)
         .json({ success: false, message: "Proposal not found" });
     const oldPublicId = proposal.proposalFile?.publicId;
-    if (!oldPublicId)
+    const oldUrl = proposal.proposalFile?.url;
+    if (!oldUrl||!oldPublicId)
       throw new Error("No existing proposal file found to replace");
     res.json({ success: true, message: "Proposal file update in progress" });
-
-    // everything below runs in the background, AFTER response is sent
-    processUploadInBackground(req.file.path, proposal, oldPublicId);
+   const {url, publicId} = await uploadFile(req.file, "proposals");
+    proposal.proposalFile = { url, publicId };
+    await proposal.save();
+    deleteFile(oldUrl, oldPublicId);
     return;
+  
   } catch (error) {
     return res
       .status(500)
       .json({ success: false, message: "Failed to update proposal file" });
   }
 };
-async function processUploadInBackground(filePath, proposal, oldPublicId) {
-  try {
-
-    const result = await cloudinary.uploader.upload(filePath, {
-      folder: "kunify/proposals",
-      resource_type: "raw",
-      type: "upload",
-      access_mode: "public",
-    });
-
-
-    let secureUrl = result.secure_url;
-    if (secureUrl.includes("/upload/")) {
-      secureUrl = secureUrl.replace("/upload/", "/upload/fl_attachment/");
-    }
-
-    proposal.proposalFile = { url: secureUrl, publicId: result.public_id };
-    await proposal.save();
-
-    await cloudinary.uploader.destroy(oldPublicId, { resource_type: "raw" });
-
-    console.log(
-      "Proposal update completed successfully for proposal:",
-      proposal._id,
-    );
-  } catch (err) {
-    console.error("Background proposal upload failed:", err);
-  }
-}

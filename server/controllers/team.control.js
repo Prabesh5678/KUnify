@@ -4,6 +4,7 @@ import Student from "../models/student.model.js";
 import Teacher from "../models/teacher.model.js";
 import proposalModel from "../models/proposal.model.js";
 import LogEntry from "../models/logEntry.model.js";
+import { deleteFile } from "../utils/helperFunctions.js";
 
 const generateTeamCode = () => {
   const chars =
@@ -45,7 +46,6 @@ export const createTeam = async (req, res) => {
       ],
       { session },
     );
-    console.log(team[0]);
     leader.teamId = team[0]._id;
     leader.isTeamLeader = true;
     leader.isApproved = true;
@@ -173,7 +173,6 @@ export const teamInfo = async (req, res) => {
     if (!team) {
       return res.json({ success: false, message: "Team not found!" });
     }
-    console.log(team);
     return res.json({ success: true, team });
   } catch (err) {
     console.error(err);
@@ -251,11 +250,9 @@ export const deleteTeam = async (req, res) => {
     }
 
     const team = await Team.findById(student.teamId)
-      .populate("supervisor")
+      .populate([{path: "supervisor", select: "pendingTeams approvedTeams deletionTeams"},{path: "proposal", select: "proposalFile"}])
       .session(session);
     if (!team) throw new Error("Team not found!");
-    // if (team.supervisorStatus === "adminApproved")
-    //   throw new Error("Supervisor already allocated so unable to delete team!");
     const count = team.members.length;
     if (count > 1 || team.leaderId.toString() !== studentId) {
       throw new Error("Not a leader or more team members!");
@@ -276,10 +273,11 @@ export const deleteTeam = async (req, res) => {
       teacher.approvedTeams.pull(student.teamId);
       await teacher.save({ session });
     }
-
-    (await proposalModel.deleteMany({ team: student.teamId }, { session }),
-      await LogEntry.deleteMany({ teamId: student.teamId }, { session }),
-      team.members.pull(studentId));
+    if(team.proposal?.proposalFile?.url && team.proposal?.proposalFile?.publicId){
+     deleteFile(team.proposal?.proposalFile?.url, team.proposal?.proposalFile?.publicId);
+    await proposalModel.deleteMany({ team: student.teamId }, { session });
+    await LogEntry.deleteMany({ teamId: student.teamId }, { session });
+    }
 
     // student.lastTeamId = student.teamId;
     student.teamId = null;
