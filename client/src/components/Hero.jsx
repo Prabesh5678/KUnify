@@ -20,7 +20,7 @@ const Hero = () => {
             </h1>
 
             <p className="text-base sm:text-lg md:text-xl text-secondary/80">
-              Your Centralized Academic Platform.
+              Student Project Management Platform.
             </p>
           </div>
 

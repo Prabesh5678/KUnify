@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Users } from "lucide-react";
 
 const StudentHome = () => {
   const navigate = useNavigate();
@@ -42,61 +43,82 @@ const team= freshStudent.teamId;
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-white px-6 py-12">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gray-100 px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto">
 
         {/* Header */}
-        <div className="mb-10">
-          <h1 className="text-3xl font-semibold text-gray-900">
-            Welcome
+        <div className="mb-8">
+
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2">
+            Welcome 
           </h1>
-          <p className="text-gray-500 mt-1">
-            Your project workspace overview
+
+          <p className="text-gray-500 mt-2 text-sm sm:text-base">
+            Your project workspace overview.
           </p>
         </div>
 
-        {/* Muted Card */}
-        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8 shadow-sm">
+        {/* Main Card */}
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 p-6 sm:p-8">
 
           {team ? (
             <>
-              <h2 className="text-2xl font-medium text-gray-900">
-                {team.name}
-              </h2>
+              {/* Information Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-8">
 
-              <p className="text-gray-600 mt-2">
-                Subject Code
-                <span className="ml-2 text-gray-800 font-medium">
-                  {team.subject}
-                </span>
-              </p>
+                <div className="bg-gray-50 rounded-2xl p-5 border">
+                  <p className="text-sm text-gray-500">
+                    Team Name
+                  </p>
+
+                  <h3 className="text-xl font-semibold mt-1">
+                    {team.name}
+                  </h3>
+                </div>
+
+                <div className="bg-gray-50 rounded-2xl p-5 border">
+                  <p className="text-sm text-gray-500">
+                    Subject Code
+                  </p>
+
+                  <h3 className="text-xl font-semibold mt-1">
+                    {team.subject}
+                  </h3>
+                </div>
+
+              </div>
 
               <button
                 onClick={() => navigate("/student/dashboard")}
-                className="mt-8 bg-gray-900 hover:bg-gray-800 cursor-pointer
-                text-white px-6 py-2.5 rounded-lg font-medium
-                transition-colors"
+                className="mt-8 w-full sm:w-auto bg-primary hover:opacity-90 text-white font-semibold px-8 py-3 rounded-xl transition"
               >
                 Go to Dashboard
               </button>
             </>
           ) : (
             <>
-              <h2 className="text-xl font-medium text-gray-800">
-                Team not formed
+              {/* Empty State Icon */}
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-6">
+                <Users
+                  size={30}
+                  className="text-gray-600"
+                />
+              </div>
+
+              <h2 className="text-3xl font-bold text-gray-900">
+                No Team Yet
               </h2>
 
-              <p className="text-gray-600 mt-2">
-                You are not part of any project yet.
+              <p className="text-gray-500 mt-3 max-w-lg">
+                You haven't joined or created a project team yet.
+                Create a new team or join an existing one from the
+                dashboard to get started.
               </p>
 
               <button
                 onClick={() => navigate("/student/dashboard")}
-                className="mt-8 bg-gray-900 hover:bg-gray-800
-                text-white px-6 py-2.5 rounded-lg font-medium
-                transition-colors"
+                className="mt-8 w-full sm:w-auto bg-primary hover:opacity-90 text-white font-semibold px-8 py-3 rounded-xl transition"
               >
                 Go to Dashboard
               </button>

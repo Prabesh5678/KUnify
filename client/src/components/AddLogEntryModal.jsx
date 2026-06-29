@@ -14,7 +14,7 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
   const [error, setError] = useState("");
 
   // Character limits
-  const activityLimit = 500; 
+  const activityLimit = 500;
   const outcomeLimit = 1000;
 
   // Weeks already added (excluding current edit)
@@ -84,54 +84,65 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
         toast.error(res.data.message || "Unable to save log");
       }
     } catch (err) {
-     // console.error(err);
+      // console.error(err);
       toast.error(err.response?.data?.message || "Failed to save log");
     } finally {
       setIsSubmitting(false); // enable buttons
     }
   };
 
-  return (
+ return (
     <>
-      <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/40 z-40"
+        onClick={onClose}
+      />
 
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
-          <div className="flex justify-between items-center px-5 py-4 border-b">
-            <h2 className="text-lg font-bold">
+      {/* Modal */}
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div className="bg-white w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl shadow-xl max-h-[95vh] overflow-y-auto">
+
+          {/* Header */}
+          <div className="flex justify-between items-center px-4 sm:px-5 py-4 border-b sticky top-0 bg-white z-10">
+            <h2 className="text-base sm:text-lg font-bold">
               {editLog ? "Edit Log Entry" : "Add Log Entry"}
             </h2>
-            <button onClick={onClose} className="cursor-pointer">
-              <X />
+            <button
+              onClick={onClose}
+              className="cursor-pointer p-1.5 rounded-lg hover:bg-gray-100 transition"
+            >
+              <X size={20} />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-4 space-y-1">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4">
             {error && (
-              <div className="bg-red-50 text-red-700 p-3 rounded-xl">
+              <div className="bg-red-50 text-red-700 p-3 rounded-xl text-sm">
                 {error}
               </div>
             )}
 
             {/* Date */}
             <div>
-              <label className="font-semibold block mb-1">Date</label>
+              <label className="font-semibold block mb-1 text-sm sm:text-base">Date</label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 max={today}
-                className="w-full px-4 py-2.5 border rounded-xl"
+                className="w-full px-4 py-2.5 border rounded-xl text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             {/* Week Dropdown */}
             <div>
-              <label className="font-semibold block mb-1">Week</label>
+              <label className="font-semibold block mb-1 text-sm sm:text-base">Week</label>
               <select
                 value={week}
                 onChange={(e) => setWeek(e.target.value)}
-                className="w-full px-4 py-2.5 border rounded-xl bg-white"
+                className="w-full px-3 sm:px-4 py-2.5 border rounded-xl text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="">Select Week</option>
                 {[...Array(16)].map((_, idx) => {
@@ -149,54 +160,58 @@ const AddLogEntryModal = ({ isOpen, onClose, onSuccess, editLog, myLogs }) => {
 
             {/* Activity */}
             <div>
-              <label className="font-semibold block mb-1">
-                Task Accomplished (max {activityLimit} chars)
+              <label className="font-semibold block mb-1 text-sm sm:text-base">
+                Task Accomplished{" "}
+                <span className="font-normal text-gray-400">(max {activityLimit} chars)</span>
               </label>
               <textarea
-                rows={2}
+                rows={3}
                 value={activity}
                 maxLength={activityLimit}
                 onChange={(e) => setActivity(e.target.value)}
-                className="w-full px-4 py-2.5 border border-blue-300 bg-blue-50 rounded-xl break-words"
+                className="w-full px-3 sm:px-4 py-2.5 border border-blue-300 bg-blue-50 rounded-xl text-sm sm:text-base resize-none break-words focus:outline-none focus:ring-2 focus:ring-blue-200"
               />
-              <div className="text-sm text-gray-500 text-right">
+              <div className="text-xs text-gray-400 text-right mt-0.5">
                 {activity.length}/{activityLimit}
               </div>
             </div>
 
             {/* Outcome */}
             <div>
-              <label className="font-semibold block mb-1">
-                Task to be Accomplished (max {outcomeLimit} chars)
+              <label className="font-semibold block mb-1 text-sm sm:text-base">
+                Task to be Accomplished{" "}
+                <span className="font-normal text-gray-400">(max {outcomeLimit} chars)</span>
               </label>
               <textarea
-                rows={3}
+                rows={4}
                 value={outcome}
                 maxLength={outcomeLimit}
                 onChange={(e) => setOutcome(e.target.value)}
-                className="w-full px-4 py-2.5 border border-green-300 bg-green-50 rounded-xl break-words"
+                className="w-full px-3 sm:px-4 py-2.5 border border-green-300 bg-green-50 rounded-xl text-sm sm:text-base resize-none break-words focus:outline-none focus:ring-2 focus:ring-green-200"
               />
-              <div className="text-sm text-gray-500 text-right">
+              <div className="text-xs text-gray-400 text-right mt-0.5">
                 {outcome.length}/{outcomeLimit}
               </div>
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-end gap-3 pt-3">
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2 pb-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2 bg-gray-100 cursor-pointer rounded-xl"
+                className="w-full sm:w-auto px-5 py-2.5 bg-gray-100 cursor-pointer rounded-xl text-sm sm:text-base"
                 disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2 bg-primary text-white cursor-pointer rounded-xl"
                 disabled={isSubmitting}
+                className="w-full sm:w-auto px-5 py-2.5 bg-primary text-white hover:opacity-90 rounded-xl transition cursor-pointer disabled:opacity-50 text-sm sm:text-base"
               >
-                {isSubmitting ? (editLog ? "Updating..." : "Saving...") : editLog ? "Update" : "Save"}
+                {isSubmitting
+                  ? editLog ? "Updating..." : "Saving..."
+                  : editLog ? "Update" : "Save"}
               </button>
             </div>
           </form>

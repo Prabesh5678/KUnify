@@ -13,14 +13,15 @@ const StudentNavbar = () => {
   const [isPlusMenuOpen, setIsPlusMenuOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false); // ✅ logout modal state
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
-  const plusButtonRef = useRef(null);
+  const plusRef = useRef(null);
+  const profileRef = useRef(null);
+
   const navigate = useNavigate();
   const { selectedSubject, setUser } = useAppContext();
-  /* =========================
-     LOGOUT
-  ========================= */
+
   const logout = async () => {
     try {
       const { data } = await axios.get("/api/logout", {
@@ -36,155 +37,185 @@ const StudentNavbar = () => {
       }
     } catch (error) {
       toast.error("Failed to logout");
-    //  console.error(error);
     }
   };
 
-  /* =========================
-     CLOSE PLUS MENU ON OUTSIDE CLICK
-  ========================= */
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        plusButtonRef.current &&
-        !plusButtonRef.current.contains(event.target)
-      ) {
+    const handleClickOutside = (e) => {
+      if (plusRef.current && !plusRef.current.contains(e.target)) {
         setIsPlusMenuOpen(false);
+      }
+
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 bg-primary text-secondary backdrop-blur-sm">
-        <div className="w-full px-0 lg:px-4 sm:px-4">
-          <div className="flex justify-between items-center h-14 sm:h-16 md:h-20">
-            {/* LEFT */}
-            <div className="flex items-center gap-3">
-              <div className="px-4 md:px-6">
-                <img
-                  onClick={() => navigate("/")}
-                  src={assets.ku_logo}
-                  alt="ku_logo"
-                  className="h-12 cursor-pointer"
-                />
-              </div>
-              <div>
-                <div className="text-lg font-semibold">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-primary text-secondary shadow">
+        <div className="flex items-center justify-between h-16 px-3 md:px-6">
+
+          {/* Left */}
+          <div
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 cursor-pointer min-w-0"
+          >
+            <img
+              src={assets.ku_logo}
+              alt="KU"
+              className="h-9 md:h-12 flex-shrink-0"
+            />
+
+            <div>
+              <div className="hidden md:block">
+                <h2 className="font-semibold text-lg">
                   Kathmandu University
-                </div>
-                <div className="text-sm">
+                </h2>
+                <p className="text-sm">
                   Student Project Management Platform
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Right */}
+          <div className="flex items-center gap-2 md:gap-5">
+
+            {/* Subject */}
+            <span
+              className="
+                max-w-[110px]
+                sm:max-w-[170px]
+                md:max-w-xs
+                truncate
+                text-xs
+                md:text-sm
+                font-semibold
+              "
+            >
+              {selectedSubject || "No Subject"}
+            </span>
+
+            {/* Plus */}
+            <div className="relative" ref={plusRef}>
+              <button
+                onClick={() => setIsPlusMenuOpen((prev) => !prev)}
+                className="p-1 hover:text-secondary/70"
+              >
+                <Plus className="w-6 h-6" />
+              </button>
+
+              {isPlusMenuOpen && (
+                <div className="absolute right-0 mt-2 w-44 rounded-lg bg-gray-700 shadow-lg overflow-hidden">
+                  <button
+                    onClick={() => {
+                      setIsCreateModalOpen(true);
+                      setIsPlusMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-600"
+                  >
+                    Create Team
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsJoinModalOpen(true);
+                      setIsPlusMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 border-t border-gray-500 hover:bg-gray-600"
+                  >
+                    Join Team
+                  </button>
                 </div>
-              </div>
+              )}
             </div>
 
-            {/* RIGHT */}
-            <div className="flex items-center space-x-4 lg:space-x-8">
-              <span className="text-sm font-bold cursor-default">
-                {selectedSubject || "No Subject Selected"}
-              </span>
-
-              {/* PLUS MENU */}
-              <div className="relative " ref={plusButtonRef}>
-                <button
-                  onClick={() => setIsPlusMenuOpen(!isPlusMenuOpen)}
-                  className="hover:text-secondary/60 cursor-pointer transition p-1"
-                >
-                  <Plus size={25} strokeWidth={2.5} />
-                </button>
-
-                {isPlusMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-gray-600 rounded-lg shadow-lg py-2 z-50">
-                    <button
-                      onClick={() => {
-                        setIsCreateModalOpen(true);
-                        setIsPlusMenuOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-500 cursor-pointer transition"
-                    >
-                      Create Team
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setIsJoinModalOpen(true);
-                        setIsPlusMenuOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-500 transition cursor-pointer border-t border-gray-300"
-                    >
-                      Join Team
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* PROFILE */}
-            <div className="relative group px-1 md:px-3">
-              <div className="bg-white rounded-full p-1">
+            {/* Profile */}
+            <div className="relative" ref={profileRef}>
+              <button
+                onClick={() => setProfileOpen((prev) => !prev)}
+                className="bg-white rounded-full p-1"
+              >
                 <img
                   src="/avatar.png"
-                  alt="User Avatar"
-                  className="h-10 md:h-12 rounded-full cursor-pointer object-cover"
+                  alt="avatar"
+                  className="h-9 w-9 md:h-11 md:w-11 rounded-full object-cover"
                 />
-              </div>
+              </button>
 
-              <ul
-                className="absolute right-3 mt-2 w-36 bg-primary shadow-lg rounded-md
-                opacity-0 invisible group-hover:opacity-100 group-hover:visible
-                transition-all duration-200"
-              >
-                <li
-                  onClick={() => navigate("/student/profile")}
-                  className="p-1.5 pl-3 hover:bg-primary cursor-pointer"
-                >
-                  My Profile
-                </li>
+              {profileOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-primary rounded-lg shadow-lg overflow-hidden">
+                  <button
+                    onClick={() => {
+                      navigate("/student/profile");
+                      setProfileOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-primary/80"
+                  >
+                    My Profile
+                  </button>
 
-                <li
-                  onClick={() => setShowLogoutModal(true)} // ✅ open modal instead of immediate logout
-                  className="p-1.5 pl-3 hover:bg-primary cursor-pointer"
-                >
-                  Logout
-                </li>
-              </ul>
+                  <button
+                    onClick={() => {
+                      setProfileOpen(false);
+                      setShowLogoutModal(true);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-primary/80"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </nav>
 
-      {/* MODALS */}
+      {/* Join Modal */}
       <JoinTeamModal
         isOpen={isJoinModalOpen}
         onClose={() => setIsJoinModalOpen(false)}
         selectedSubject={selectedSubject}
       />
+
+      {/* Create Modal */}
       <CreateTeamModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         selectedSubject={selectedSubject}
       />
 
-      {/* LOGOUT CONFIRMATION MODAL */}
+      {/* Logout Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-96 text-center shadow-lg">
-            <h3 className="text-xl font-semibold mb-4">
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-[100] p-4">
+          <div className="bg-white rounded-xl w-full max-w-sm p-6">
+            <h2 className="text-xl font-semibold text-center text-gray-800">
+              Logout
+            </h2>
+
+            <p className="text-center text-gray-600 mt-3">
               Are you sure you want to logout?
-            </h3>
-            <div className="flex justify-center gap-4">
+            </p>
+
+            <div className="flex justify-center gap-4 mt-6">
               <button
                 onClick={logout}
-                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 cursor-pointer rounded-lg font-semibold"
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg"
               >
                 Yes
               </button>
+
               <button
                 onClick={() => setShowLogoutModal(false)}
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 cursor-pointer rounded-lg font-semibold"
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg"
               >
                 No
               </button>

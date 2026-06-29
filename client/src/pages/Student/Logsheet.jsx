@@ -144,18 +144,18 @@ const Logsheet = () => {
     );
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-10">
+   return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-6 sm:py-10">
       {/* Header */}
-      <div className="max-w-5xl mx-auto flex justify-between items-center mb-8 px-4">
-        <h1 className="text-3xl font-extrabold text-gray-800">Logsheet</h1>
+      <div className="max-w-5xl mx-auto flex justify-between items-center mb-6 sm:mb-8 px-4">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800">Logsheet</h1>
         {activeTab === "my" && (
           <button
             onClick={() => {
               setEditLog(null);
               setOpen(true);
             }}
-            className="bg-primary hover:bg-primary/90 transition text-white px-6 py-2.5 rounded-xl shadow cursor-pointer"
+            className="bg-primary hover:bg-primary/90 transition text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl shadow cursor-pointer text-sm sm:text-base"
           >
             + Add Log
           </button>
@@ -163,11 +163,11 @@ const Logsheet = () => {
       </div>
 
       {/* Tabs */}
-      <div className="max-w-5xl mx-auto flex mb-8 px-4">
-        <div className="flex gap-3">
+      <div className="max-w-5xl mx-auto flex flex-wrap gap-3 items-center mb-6 sm:mb-8 px-4">
+        <div className="flex gap-2 sm:gap-3">
           <button
             onClick={() => setActiveTab("my")}
-            className={`px-5 py-2 rounded-full font-medium transition cursor-pointer ${activeTab === "my"
+            className={`px-4 sm:px-5 py-2 rounded-full font-medium transition cursor-pointer text-sm sm:text-base ${activeTab === "my"
               ? "bg-primary text-white shadow"
               : "bg-white text-gray-600 border hover:bg-gray-50"
               }`}
@@ -177,7 +177,7 @@ const Logsheet = () => {
 
           <button
             onClick={() => setActiveTab("team")}
-            className={`px-5 py-2 rounded-full font-medium transition cursor-pointer ${activeTab === "team"
+            className={`px-4 sm:px-5 py-2 rounded-full font-medium transition cursor-pointer text-sm sm:text-base ${activeTab === "team"
               ? "bg-primary text-white shadow"
               : "bg-white text-gray-600 border hover:bg-gray-50"
               }`}
@@ -190,11 +190,9 @@ const Logsheet = () => {
           <select
             value={selectedUser}
             onChange={(e) => setSelectedUser(e.target.value)}
-            className="ml-auto
-      bg-white px-4 py-2 rounded-xl shadow border text-gray-700 cursor-pointer"
+            className="ml-auto bg-white px-3 sm:px-4 py-2 rounded-xl shadow border text-gray-700 cursor-pointer text-sm sm:text-base max-w-[160px] sm:max-w-none"
           >
             <option value="all">All Users</option>
-
             {uniqueUsers.map((user) => (
               <option key={user._id} value={user._id}>
                 {user.name}
@@ -215,21 +213,21 @@ const Logsheet = () => {
           .map(([week, logs]) => (
             <div key={week} className="space-y-4">
               {/* Week Header */}
-              <h2 className="text-xl font-bold text-gray-700 border-b pb-1 ml-2">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-700 border-b pb-1 ml-2">
                 Week {week}
               </h2>
 
               {logs.map((log) => (
                 <div
                   key={log._id}
-                  className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition"
+                  className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition"
                 >
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-semibold text-gray-800">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
+                    <h3 className="font-semibold text-gray-800 text-sm sm:text-base">
                       {new Date(log.date).toLocaleDateString()}
                     </h3>
 
-                    <div className="flex flex-wrap justify-end gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {log.isChecked && (
                         <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
                           Checked by supervisor
@@ -257,19 +255,19 @@ const Logsheet = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <p className="text-gray-700">
+                    <p className="text-gray-700 text-sm sm:text-base">
                       <span className="font-semibold text-blue-600">Task Accomplished:</span>{" "}
                       {renderText(log.activity, activityLimit, log._id + "_activity")}
                     </p>
 
-                    <p className="text-gray-700">
+                    <p className="text-gray-700 text-sm sm:text-base">
                       <span className="font-semibold text-green-600">Task to be Accomplished:</span>{" "}
                       {renderText(log.outcome, outcomeLimit, log._id + "_outcome")}
                     </p>
                   </div>
 
                   {log.correctionNote && (
-                    <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+                    <div className="mt-3 rounded-xl bg-amber-50 border border-amber-200 px-3 sm:px-4 py-3 text-sm text-amber-800">
                       <span className="font-semibold">Correction note:</span>{" "}
                       {log.correctionNote}
                     </div>
@@ -278,14 +276,14 @@ const Logsheet = () => {
                   {activeTab === "my" && !log.isChecked && (
                     <div className="flex justify-end gap-3 mt-3">
                       <button
-                        className="text-blue-600 font-semibold cursor-pointer"
+                        className="text-blue-600 font-semibold cursor-pointer text-sm sm:text-base"
                         onClick={() => handleEdit(log)}
                       >
                         Edit
                       </button>
                       {!log.correctionRequested && (
                         <button
-                          className="text-red-600 font-semibold cursor-pointer"
+                          className="text-red-600 font-semibold cursor-pointer text-sm sm:text-base"
                           onClick={() => handleDelete(log._id)}
                         >
                           Delete
@@ -298,7 +296,6 @@ const Logsheet = () => {
             </div>
           ))}
       </div>
-
 
       {/* Add/Edit Modal */}
       <AddLogEntryModal
@@ -319,19 +316,19 @@ const Logsheet = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5">
               <h2 className="text-lg font-bold mb-3">Delete Log</h2>
-              <p className="text-gray-700 mb-5">
+              <p className="text-gray-700 mb-5 text-sm sm:text-base">
                 Are you sure you want to delete this log?
               </p>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setConfirmDelete({ isOpen: false, id: null })}
-                  className="px-5 py-2 bg-gray-100 rounded-xl cursor-pointer "
+                  className="px-4 sm:px-5 py-2 bg-gray-100 rounded-xl cursor-pointer text-sm sm:text-base"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmDeleteLog}
-                  className="px-5 py-2 bg-red-600 text-white rounded-xl cursor-pointer "
+                  className="px-4 sm:px-5 py-2 bg-red-600 text-white rounded-xl cursor-pointer text-sm sm:text-base"
                 >
                   Delete
                 </button>

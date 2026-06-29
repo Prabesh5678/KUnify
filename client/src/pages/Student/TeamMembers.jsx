@@ -128,34 +128,34 @@ const TeamMembers = () => {
     }
   };
 */}
-const handleDeleteTeam = async () => {
-  try {
-    setDeleting(true);
-    const res = await axios.post("/api/team/delete", {}, { withCredentials: true });
+  const handleDeleteTeam = async () => {
+    try {
+      setDeleting(true);
+      const res = await axios.post("/api/team/delete", {}, { withCredentials: true });
 
-    if (res.data.success) {
-      toast.success(res.data.message||"Team deletion initiated");
+      if (res.data.success) {
+        toast.success(res.data.message || "Team deletion initiated");
 
-      if (res.data.deleted) {
-        // No supervisor — team fully deleted
-        navigate("/student/home");
+        if (res.data.deleted) {
+          // No supervisor — team fully deleted
+          navigate("/student/home");
+        } else {
+          // Supervisor exists — deletion is pending approval, stay on page
+          fetchTeam();
+        }
       } else {
-        // Supervisor exists — deletion is pending approval, stay on page
-        fetchTeam();
+        toast.error(res.data.message || "Unable to delete team!");
       }
-    } else {
-      toast.error(res.data.message || "Unable to delete team!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete team");
+    } finally {
+      setDeleting(false);
+      setShowDeleteModal(false);
     }
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to delete team");
-  } finally {
-    setDeleting(false);
-    setShowDeleteModal(false);
-  }
-};
+  };
   return (
-    <div className="max-w-4xl mx-auto mt-8 p-6 bg-white rounded-xl shadow-sm">
+    <div className="max-w-4xl mx-auto mt-4 sm:mt-8 p-4 sm:p-6 bg-white rounded-xl shadow-sm">
       {/* Header */}
 
       <div className="text-gray-500 mt-1">
@@ -167,12 +167,14 @@ const handleDeleteTeam = async () => {
             </p>
             <p>
               <b className="text-gray-700">Email:</b>{" "}
-              <span className="font-medium">{team.supervisor.email}</span>
+              <span className="font-medium break-all">
+                {team.supervisor.email}
+              </span>
             </p>
           </>
         ) : team.supervisor ? (
           <p className="text-yellow-600 italic">
-            <b>Requested Supervisor:</b> {team.supervisor.name} 
+            <b>Requested Supervisor:</b> {team.supervisor.name}
           </p>
         ) : (
           <p className="italic text-gray-400">No supervisor assigned yet</p>
@@ -192,11 +194,10 @@ const handleDeleteTeam = async () => {
             </div>
           </div>
         ) : (
-          <div className="mb-6 flex justify-end">
+          <div className="mb-6 flex justify-center sm:justify-end">
             <button
               onClick={() => setShowDeleteModal(true)}
-              className="bg-red-50 text-red-600 border border-red-200 px-5 py-3 rounded-xl
-                   hover:bg-red-100 transition font-medium flex items-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto bg-red-50 text-red-600 border border-red-200 px-5 py-3 rounded-xl hover:bg-red-100 transition font-medium flex items-center justify-center gap-2 cursor-pointer"
             >
               <AlertCircle size={18} />
               Delete Team
@@ -215,9 +216,8 @@ const handleDeleteTeam = async () => {
           approvedMembers.map((m) => (
             <div
               key={m._id}
-              className="flex justify-between items-center p-4 mb-3 rounded-lg border bg-emerald-50"
-            >
-              <div>
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 mb-3 rounded-lg border bg-emerald-50" >
+              <div className="min-w-0">
                 <p className="font-medium text-gray-800">
                   {m.name}
                   {team.leaderId?._id === m._id && (
@@ -226,9 +226,11 @@ const handleDeleteTeam = async () => {
                     </span>
                   )}
                 </p>
-                <p className="text-sm text-gray-600">{m.email}</p>
+                <p className="text-sm text-gray-600 break-all">
+                  {m.email}
+                </p>
               </div>
-              <span className="text-emerald-600 font-semibold">Approved</span>
+              <span className="text-emerald-600 font-semibold self-start sm:self-auto">Approved</span>
             </div>
           ))
         ) : (
@@ -246,27 +248,26 @@ const handleDeleteTeam = async () => {
           {pendingMembers.map((m) => (
             <div
               key={m._id}
-              className="flex justify-between items-center p-4 mb-3 rounded-lg border bg-yellow-50"
-            >
-              <div>
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 mb-3 rounded-lg border bg-yellow-50" >
+              <div className="min-w-0">
                 <p className="font-medium text-gray-800">{m.name}</p>
-                <p className="text-sm text-gray-600">{m.email}</p>
+                <p className="text-sm text-gray-600 break-all">
+                  {m.email}
+                </p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex w-full sm:w-auto gap-2">
                 <button
                   disabled={actionLoading === m._id}
                   onClick={() => handleMemberAction(m._id, "approve")}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded-md text-sm disabled:opacity-50 cursor-pointer"
-                >
+                 className="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50 cursor-pointer" >
                   Approve
                 </button>
 
                 <button
                   disabled={actionLoading === m._id}
                   onClick={() => handleMemberAction(m._id, "decline")}
-                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-md text-sm disabled:opacity-50 cursor-pointer"
-                >
+                  className="flex-1 sm:flex-none bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50 cursor-pointer" >
                   Decline
                 </button>
               </div>
