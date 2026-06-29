@@ -129,7 +129,7 @@ export const changeProposal = async (req, res) => {
         .json({ success: false, message: "Proposal not found" });
     const oldPublicId = proposal.proposalFile?.publicId;
     const oldUrl = proposal.proposalFile?.url;
-    if (!oldUrl||!oldPublicId)
+    if (!oldUrl)
       throw new Error("No existing proposal file found to replace");
     res.json({ success: true, message: "Proposal file update in progress" });
    const {url, publicId} = await uploadFile(req.file, "proposals");
@@ -139,6 +139,7 @@ export const changeProposal = async (req, res) => {
     return;
   
   } catch (error) {
+    console.error("changeProposal error:", error.message);
     return res
       .status(500)
       .json({ success: false, message: "Failed to update proposal file" });
