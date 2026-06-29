@@ -18,11 +18,11 @@ const StudentDetails = () => {
   }
 
   return (
- <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
-  <AdminSidebar />
-  <div className="flex-1 p-8">
-    <AdminHeader />
-    <div className="flex justify-between items-center mb-6"></div>
+    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
+      <AdminSidebar />
+      <div className="flex-1 p-8">
+        <AdminHeader />
+        <div className="flex justify-between items-center mb-6"></div>
 
         <div className="p-4 md:p-2">
           {/* Header */}
@@ -53,7 +53,21 @@ const StudentDetails = () => {
               <InfoItem
                 icon={<FaEnvelope />}
                 label="Email"
-                value={student.email}
+                value={
+                  <>
+                    {/* Mobile */}
+                    <span className="block sm:hidden break-all">
+                      {student.email?.split("@")[0]}@
+                      <br />
+                      {student.email?.split("@")[1]}
+                    </span>
+
+                    {/* Tablet/Desktop */}
+                    <span className="hidden sm:block break-all">
+                      {student.email}
+                    </span>
+                  </>
+                }
               />
 
               <InfoItem

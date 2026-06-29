@@ -10,11 +10,10 @@ import { useNavigate } from "react-router-dom";
 
 
 const pastelColors = [
- { bg: "bg-sky-50", border: "border-sky-200" },
+
   { bg: "bg-teal-50", border: "border-teal-200" },
   { bg: "bg-indigo-50", border: "border-indigo-200" },
-  { bg: "bg-rose-50", border: "border-rose-200" },
-  { bg: "bg-amber-50", border: "border-amber-200" },
+  
 ];
 
 axios.defaults.withCredentials = true;
@@ -141,7 +140,7 @@ const TeachersManagement = () => {
   const regularTeachers = filteredTeachers.filter((t) => !t.isVisiting);
   const visitingTeachers = filteredTeachers.filter((t) => t.isVisiting);
 
-  // Render table rows
+  // Render table rows (desktop / tablet table view)
   const renderTable = (teacherList) =>
     teacherList.map((t, idx) => {
       const color = pastelColors[idx % pastelColors.length];
@@ -193,16 +192,67 @@ const TeachersManagement = () => {
       );
     });
 
+  // Render cards (mobile view) — same data/handlers, just a stacked layout
+  const renderCards = (teacherList) =>
+    teacherList.map((t, idx) => {
+      const color = pastelColors[idx % pastelColors.length];
+      return (
+        <div
+          key={t._id}
+          className={`${color.bg} ${color.border} border rounded-lg p-4 mb-3 shadow-sm`}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <button
+              onClick={() =>
+                navigate(`/admin/allteachers/${t._id || t.id}`, {
+                  state: { teacher: t, projects: [] },
+                })
+              }
+              className="text-left text-primary font-semibold hover:underline hover:text-primary/80 cursor-pointer break-words"
+            >
+              {t.name}
+            </button>
+
+            <button
+              onClick={() => handleToggle(t._id)}
+              className="cursor-pointer rounded p-1 transition shrink-0"
+              aria-label={t.active ? "Set inactive" : "Set active"}
+            >
+              {t.active ? (
+                <FaToggleOn className="text-green-500 text-2xl" />
+              ) : (
+                <FaToggleOff className="text-gray-400 text-2xl" />
+              )}
+            </button>
+          </div>
+
+          <p className="text-sm text-gray-600 mt-1 break-words">{t.email}</p>
+
+          {t.isVisiting && (
+            <button
+              onClick={() => {
+                setSelectedTeacher(t);
+                setResetModalOpen(true);
+              }}
+              className="mt-3 w-full px-3 py-2 bg-primary text-white rounded hover:bg-primary cursor-pointer text-sm"
+            >
+              Reset Password
+            </button>
+          )}
+        </div>
+      );
+    });
+
   return (
-    <div className="flex min-h-screen h-screen bg-gray-50">
+    <div className="flex flex-col md:flex-row min-h-screen h-screen bg-gray-50">
       <AdminSidebar />
-      <div className="flex-1 p-8 overflow-auto h-full">
+      <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-auto h-full">
         <AdminHeader />
-        <div className="max-w-5xl mx-auto flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Teachers Management</h2>
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Teachers Management</h2>
           <button
             onClick={() => setModalOpen(true)}
-            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80 cursor-pointer"
+            className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/80 cursor-pointer w-full sm:w-auto"
           >
             Add Visiting Faculty
           </button>
@@ -218,9 +268,9 @@ const TeachersManagement = () => {
         />
 
         {/* Tabs */}
-        <div className="flex border-b mb-4">
+        <div className="flex border-b mb-4 overflow-x-auto">
           <button
-            className={`px-4 py-2 -mb-px font-semibold cursor-pointer ${activeTab === "regular"
+            className={`px-3 sm:px-4 py-2 -mb-px font-semibold cursor-pointer whitespace-nowrap text-sm sm:text-base ${activeTab === "regular"
               ? "border-b-2 border-primary text-primary"
               : "text-gray-500 hover:text-primary"
               }`}
@@ -230,7 +280,7 @@ const TeachersManagement = () => {
           </button>
 
           <button
-            className={`px-4 py-2 -mb-px font-semibold cursor-pointer ${activeTab === "visiting"
+            className={`px-3 sm:px-4 py-2 -mb-px font-semibold cursor-pointer whitespace-nowrap text-sm sm:text-base ${activeTab === "visiting"
               ? "border-b-2 border-primary text-primary"
               : "text-gray-500 hover:text-primary"
               }`}
@@ -242,50 +292,78 @@ const TeachersManagement = () => {
 
         {/* Tab content */}
         {activeTab === "regular" && (
-          <div className="overflow-x-auto bg-white rounded-xl shadow p-4 mb-8">
-            <table className="min-w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="p-3 text-gray-600">Name</th>
-                  <th className="p-3 text-gray-600">Email</th>
-                  <th className="p-3 text-gray-600">Status</th>
-                  <th className="p-3 text-gray-600">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {regularTeachers.length > 0 ? renderTable(regularTeachers) : (
-                  <tr>
-                    <td colSpan="4" className="p-3 text-center text-gray-500">
-                      No regular teachers found.
-                    </td>
+          <div className="mb-8">
+            {/* Mobile: stacked cards */}
+            <div className="sm:hidden">
+              {regularTeachers.length > 0 ? (
+                renderCards(regularTeachers)
+              ) : (
+                <p className="text-center text-gray-500 py-6 bg-white rounded-xl shadow">
+                  No regular teachers found.
+                </p>
+              )}
+            </div>
+
+            {/* Tablet/Desktop: table */}
+            <div className="hidden sm:block overflow-x-auto bg-white rounded-xl shadow p-4">
+              <table className="min-w-full text-left">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="p-3 text-gray-600">Name</th>
+                    <th className="p-3 text-gray-600">Email</th>
+                    <th className="p-3 text-gray-600">Status</th>
+                    <th className="p-3 text-gray-600">Action</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {regularTeachers.length > 0 ? renderTable(regularTeachers) : (
+                    <tr>
+                      <td colSpan="4" className="p-3 text-center text-gray-500">
+                        No regular teachers found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         {activeTab === "visiting" && (
-          <div className="overflow-x-auto bg-white rounded-xl shadow p-4 mb-8">
-            <table className="min-w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="p-3 text-gray-600">Name</th>
-                  <th className="p-3 text-gray-600">Email</th>
-                  <th className="p-3 text-gray-600">Status</th>
-                  <th className="p-3 text-gray-600">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visitingTeachers.length > 0 ? renderTable(visitingTeachers) : (
-                  <tr>
-                    <td colSpan="4" className="p-3 text-center text-gray-500">
-                      No visiting teachers found.
-                    </td>
+          <div className="mb-8">
+            {/* Mobile: stacked cards */}
+            <div className="sm:hidden">
+              {visitingTeachers.length > 0 ? (
+                renderCards(visitingTeachers)
+              ) : (
+                <p className="text-center text-gray-500 py-6 bg-white rounded-xl shadow">
+                  No visiting teachers found.
+                </p>
+              )}
+            </div>
+
+            {/* Tablet/Desktop: table */}
+            <div className="hidden sm:block overflow-x-auto bg-white rounded-xl shadow p-4">
+              <table className="min-w-full text-left">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="p-3 text-gray-600">Name</th>
+                    <th className="p-3 text-gray-600">Email</th>
+                    <th className="p-3 text-gray-600">Status</th>
+                    <th className="p-3 text-gray-600">Action</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {visitingTeachers.length > 0 ? renderTable(visitingTeachers) : (
+                    <tr>
+                      <td colSpan="4" className="p-3 text-center text-gray-500">
+                        No visiting teachers found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 

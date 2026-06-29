@@ -51,145 +51,124 @@ const AdminDashboard = () => {
     fetchDashboardStats();
   }, []);
 
-  return (
-    <div className="min-h-screen bg-gray-50 lg:flex">
-      <AdminSidebar />
+ return (
+  <div className="min-h-screen bg-gray-50 lg:flex">
+    <AdminSidebar />
 
-      <div className="flex-1 p-4 pt-20 sm:p-6 lg:p-8 lg:pt-8 overflow-x-hidden">
-        <AdminHeader adminName="Admin" />
+    <div className="flex-1 p-4 pt-10 sm:p-6 lg:p-8 lg:pt-8 overflow-x-hidden">
+      <AdminHeader adminName="Admin" />
 
-        {/* Stats Section */}
-        <div className="bg-blue-50/40 rounded-2xl p-4 sm:p-6 mb-6 sm:mb-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatsCard
-              title="Total Students"
-              value={loading ? "..." : stats.totalStudents}
-              icon={<FaUsers />}
-              color="blue"
-              onClick={() => navigate("/admin/admin_std")}
-            />
-
-            <StatsCard
-              title="Total Teachers"
-              value={loading ? "..." : stats.totalTeachers}
-              icon={<FaChalkboardTeacher />}
-              color="purple"
-              onClick={() => navigate("/admin/admin_teachers")}
-            />
-
-            <StatsCard
-              title="Total Projects"
-              value={loading ? "..." : stats.totalProjects}
-              icon={<FaProjectDiagram />}
-              color="green"
-              onClick={() => navigate("/admin/projects")}
-            />
-
-            <StatsCard
-              title="Pending Requests"
-              value={loading ? "..." : stats.totalRequests}
-              icon={<FaTasks />}
-              color="orange"
-              onClick={() => navigate("/admin/requestteacher")}
-            />
-          </div>
-        </div>
-
-        {/* Management Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-          {/* Student Management */}
-          <button
+      {/* Stats Section */}
+      <div className="bg-blue-50/40 rounded-2xl p-2 sm:p-4 mb-6 sm:mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+          <StatsCard
+            title="Total Students"
+            value={loading ? "..." : stats.totalStudents}
+            icon={<FaUsers />}
+            color="blue"
             onClick={() => navigate("/admin/admin_std")}
-            className="w-full rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md
-                      flex justify-between items-center
-                      bg-gradient-to-r from-purple-50 to-purple-100
-                      transition transform hover:-translate-y-1 cursor-pointer"
-          >
-            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="p-2 sm:p-3 bg-purple-200 rounded-xl flex-shrink-0">
-                <FaUserGraduate className="text-purple-700" size={22} />
-              </div>
-
-              <div className="text-left min-w-0">
-                <p className="font-semibold text-gray-800 text-sm sm:text-base">
-                  Student Management
-                </p>
-
-                <p className="text-xs sm:text-sm text-gray-600">
-                  View all students based on semester
-                </p>
-              </div>
-            </div>
-
-            <span className="text-lg sm:text-xl text-purple-700 flex-shrink-0">
-              →
-            </span>
-          </button>
-
-          {/* Projects Management */}
-          <button
-            onClick={() => navigate("/admin/projects")}
-            className="w-full rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md
-                      flex justify-between items-center
-                      bg-gradient-to-r from-green-50 to-green-100
-                      transition transform hover:-translate-y-1 cursor-pointer"
-          >
-            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="p-2 sm:p-3 bg-green-200 rounded-xl flex-shrink-0">
-                <FaProjectDiagram className="text-green-700" size={22} />
-              </div>
-
-              <div className="text-left min-w-0">
-                <p className="font-semibold text-gray-800 text-sm sm:text-base">
-                  Projects Management
-                </p>
-
-                <p className="text-xs sm:text-sm text-gray-600">
-                  View all projects and update status
-                </p>
-              </div>
-            </div>
-
-            <span className="text-lg sm:text-xl text-green-700 flex-shrink-0">
-              →
-            </span>
-          </button>
-
-          {/* All Teachers */}
-          <button
+          />
+          <StatsCard
+            title="Total Teachers"
+            value={loading ? "..." : stats.totalTeachers}
+            icon={<FaChalkboardTeacher />}
+            color="purple"
             onClick={() => navigate("/admin/admin_teachers")}
-            className="w-full rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md
-                      flex justify-between items-center
-                      bg-gradient-to-r from-orange-50 to-orange-100
-                      transition transform hover:-translate-y-1 cursor-pointer"
-          >
-            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="p-2 sm:p-3 bg-orange-200 rounded-xl flex-shrink-0">
-                <FaChalkboardTeacher
-                  className="text-orange-700"
-                  size={22}
-                />
-              </div>
-
-              <div className="text-left min-w-0">
-                <p className="font-semibold text-gray-800 text-sm sm:text-base">
-                  All Teachers
-                </p>
-
-                <p className="text-xs sm:text-sm text-gray-600">
-                  View all the teachers
-                </p>
-              </div>
-            </div>
-
-            <span className="text-lg sm:text-xl text-orange-700 flex-shrink-0">
-              →
-            </span>
-          </button>
+          />
+          <StatsCard
+            title="Total Projects"
+            value={loading ? "..." : stats.totalProjects}
+            icon={<FaProjectDiagram />}
+            color="green"
+            onClick={() => navigate("/admin/projects")}
+          />
+          <StatsCard
+            title="Pending Requests"
+            value={loading ? "..." : stats.totalRequests}
+            icon={<FaTasks />}
+            color="orange"
+            onClick={() => navigate("/admin/requestteacher")}
+          />
         </div>
       </div>
+
+      {/* Management Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
+        {/* Student Management */}
+        <button
+          onClick={() => navigate("/admin/admin_std")}
+          className="w-full rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md
+                     flex justify-between items-center
+                     bg-gradient-to-r from-purple-50 to-purple-100
+                     transition transform hover:-translate-y-1 cursor-pointer text-left"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2 sm:p-3 bg-purple-200 rounded-xl flex-shrink-0">
+              <FaUserGraduate className="text-purple-700" size={20} />
+            </div>
+            <div className="min-w-0">
+              <p className="font-semibold text-gray-800 text-sm sm:text-base">
+                Student Management
+              </p>
+              <p className="text-xs sm:text-sm text-gray-600 leading-snug">
+                View all students based on semester
+              </p>
+            </div>
+          </div>
+          <span className="text-lg text-purple-700 flex-shrink-0 ml-2">→</span>
+        </button>
+
+        {/* Projects Management */}
+        <button
+          onClick={() => navigate("/admin/projects")}
+          className="w-full rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md
+                     flex justify-between items-center
+                     bg-gradient-to-r from-green-50 to-green-100
+                     transition transform hover:-translate-y-1 cursor-pointer text-left"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2 sm:p-3 bg-green-200 rounded-xl flex-shrink-0">
+              <FaProjectDiagram className="text-green-700" size={20} />
+            </div>
+            <div className="min-w-0">
+              <p className="font-semibold text-gray-800 text-sm sm:text-base">
+                Projects Management
+              </p>
+              <p className="text-xs sm:text-sm text-gray-600 leading-snug">
+                View all projects and update status
+              </p>
+            </div>
+          </div>
+          <span className="text-lg text-green-700 flex-shrink-0 ml-2">→</span>
+        </button>
+
+        {/* All Teachers */}
+        <button
+          onClick={() => navigate("/admin/admin_teachers")}
+          className="w-full rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md
+                     flex justify-between items-center
+                     bg-gradient-to-r from-orange-50 to-orange-100
+                     transition transform hover:-translate-y-1 cursor-pointer text-left"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2 sm:p-3 bg-orange-200 rounded-xl flex-shrink-0">
+              <FaChalkboardTeacher className="text-orange-700" size={20} />
+            </div>
+            <div className="min-w-0">
+              <p className="font-semibold text-gray-800 text-sm sm:text-base">
+                All Teachers
+              </p>
+              <p className="text-xs sm:text-sm text-gray-600 leading-snug">
+                View all the teachers
+              </p>
+            </div>
+          </div>
+          <span className="text-lg text-orange-700 flex-shrink-0 ml-2">→</span>
+        </button>
+      </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default AdminDashboard;

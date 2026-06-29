@@ -73,11 +73,8 @@ const StudentsManagement = () => {
   );
 
   const pastelColors = [
-    { bg: "bg-sky-50", border: "border-sky-200" },
     { bg: "bg-teal-50", border: "border-teal-200" },
     { bg: "bg-indigo-50", border: "border-indigo-200" },
-    { bg: "bg-rose-50", border: "border-rose-200" },
-    { bg: "bg-amber-50", border: "border-amber-200" },
   ];
 
   return (
@@ -200,7 +197,11 @@ const StudentsManagement = () => {
                     <p className="font-semibold text-base mb-2">{s.name}</p>
                     <div className="grid grid-cols-2 gap-y-1 text-sm text-gray-700">
                       <span className="text-xs font-bold text-primary uppercase">Email</span>
-                      <span className="text-right break-all">{s.email}</span>
+                      <span className="text-right">
+                        {s.email?.split("@")[0]}@
+                        <br />
+                        {s.email?.split("@")[1]}
+                      </span>
 
                       <span className="text-xs font-bold text-primary uppercase">Reg. No.</span>
                       <span className="text-right">{s.rollNumber || "N/A"}</span>

@@ -250,7 +250,7 @@ const TeamDetail = () => {
                   <p className="break-words"><b>Title:</b> {team.proposal.projectTitle}</p>
                   <p className="break-words"><b>Abstract:</b> {team.proposal.abstract}</p>
                   <p className="break-words"><b>Keywords:</b>{team.proposal.projectKeyword}</p>
-                  {team.proposal.proposalFile?.url && (
+                  {team.proposal?.proposalFile?.url && (
                     <button
                       onClick={() => handleViewPDF(team.proposal.proposalFile.url)}
                       className="bg-primary text-white px-4 py-2 rounded mt-2 flex items-center gap-2 cursor-pointer"

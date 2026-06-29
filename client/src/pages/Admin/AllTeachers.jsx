@@ -328,8 +328,7 @@ const handleExport = async () => {
           <button
             onClick={handleExport}
             disabled={exportLoading}
-            className="px-4 py-2 text-sm text-primary border border-primary rounded-md hover:bg-primary/10 transition cursor-pointer disabled:opacity-50"
-          >
+           className="px-4 py-2 text-sm bg-primary text-white rounded-md hover:bg-primary/90 transition cursor-pointer disabled:opacity-50">
             {exportLoading ? "Exporting..." : "Export to Word"}
           </button>
         )}

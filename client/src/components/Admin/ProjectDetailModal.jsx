@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -122,39 +121,39 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
   const teamName = project.team?.name || project.teamName || project.name || "Untitled Project";
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-4">
-      <div className="relative bg-white rounded-2xl p-6 w-full max-w-4xl overflow-y-auto max-h-[90vh] shadow-lg">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 p-0 sm:p-4">
+      <div className="relative bg-white rounded-none sm:rounded-2xl p-4 sm:p-6 w-full max-w-4xl overflow-y-auto h-full sm:h-auto sm:max-h-[90vh] shadow-lg">
 
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 font-bold text-lg cursor-pointer"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 text-gray-500 hover:text-gray-800 font-bold text-lg cursor-pointer z-10"
         >
           ✕
         </button>
 
         {/* Project Title */}
-        <h2 className="text-3xl font-bold mb-4 text-gray-800 border-b pb-2">
+        <h2 className="text-xl sm:text-3xl font-bold mb-4 text-gray-800 border-b pb-2 pr-8">
           {project.proposal?.projectTitle || project.title || teamName}
         </h2>
 
         {/* Requested Teacher */}
         {/* Requested Teacher */}
-        <div className="bg-gray-50 p-4 rounded-xl shadow mb-4 space-y-1">
-          <p className="font-medium">
+        <div className="bg-gray-50 p-3 sm:p-4 rounded-xl shadow mb-4 space-y-2">
+          <p className="font-medium text-sm sm:text-base break-words">
             Requested Teacher:{" "}
             <span className="text-gray-700">
               {project.supervisor?.name || "None"}
             </span>
           </p>
-          <p className="font-medium">
-            Teacher Acceptance Status:{" "}
+          <p className="font-medium text-sm sm:text-base flex flex-wrap items-center gap-2">
+            <span>Teacher Acceptance Status:</span>
             {project.supervisorStatus === 'teacherApproved' ? (
-              <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-semibold">
+              <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs sm:text-sm font-semibold">
                 Accepted
               </span>
             ) : (
-              <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-semibold">
+              <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs sm:text-sm font-semibold">
                 Not Accepted
               </span>
             )}
@@ -164,9 +163,9 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
 
         {/* Team Keywords */}
         {(project.keywords || similarityData?.keywords) && (
-          <div className="bg-blue-50 p-4 rounded-xl shadow mb-4">
-            <p className="font-medium text-gray-700 mb-1">Project Keywords:</p>
-            <p className="text-sm text-gray-600 italic">
+          <div className="bg-blue-50 p-3 sm:p-4 rounded-xl shadow mb-4">
+            <p className="font-medium text-gray-700 mb-1 text-sm sm:text-base">Project Keywords:</p>
+            <p className="text-xs sm:text-sm text-gray-600 italic break-words">
               {project.keywords || similarityData?.keywords}
             </p>
           </div>
@@ -174,16 +173,16 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
 
         {/* Suggested Teachers with Cosine Similarity */}
         <div className="mt-4">
-          <label className="block text-gray-700 font-semibold mb-2">
+          <label className="block text-gray-700 font-semibold mb-2 text-sm sm:text-base">
             Suggested Teachers (Ranked by Similarity)
           </label>
 
           {suggestedTeachers.length === 0 && !loading ? (
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
-              <p className="text-yellow-800">
+            <div className="p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+              <p className="text-yellow-800 text-sm sm:text-base">
                 No teacher suggestions available. This may be because:
               </p>
-              <ul className="text-sm text-yellow-700 mt-2 space-y-1">
+              <ul className="text-xs sm:text-sm text-yellow-700 mt-2 space-y-1 text-left sm:text-center">
                 <li>• Team keywords are not set</li>
                 <li>• No teachers have specializations defined</li>
                 <li>• No active teachers available</li>
@@ -203,7 +202,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
                   }}
                   className="w-full flex items-center justify-between p-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-sky-300 disabled:opacity-50"
                 >
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm text-gray-700 truncate pr-2">
                     {selectedTeacher
                       ? suggestedTeachers.find((t) => t._id === selectedTeacher)?.name || "Selected"
                       : loading
@@ -211,7 +210,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
                         : "-- Select Teacher --"}
                   </span>
                   <svg
-                    className={`w-4 h-4 text-gray-500 transition-transform ${teacherDropdownOpen ? "rotate-180" : ""}`}
+                    className={`w-4 h-4 text-gray-500 transition-transform flex-shrink-0 ${teacherDropdownOpen ? "rotate-180" : ""}`}
                     fill="none" viewBox="0 0 24 24" stroke="currentColor"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -260,11 +259,11 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
                               setTeacherDropdownOpen(false);
                               setTeacherSearch("");
                             }}
-                            className="px-4 py-2 text-sm cursor-pointer hover:bg-blue-50 flex justify-between items-center"
+                            className="px-4 py-2 text-sm cursor-pointer hover:bg-blue-50 flex justify-between items-center gap-2"
                           >
-                            <span>{t.name}</span>
+                            <span className="truncate">{t.name}</span>
                             {t.similarityScore > 0 && (
-                              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full flex-shrink-0">
                                 {Math.round(t.similarityScore * 100)}%
                               </span>
                             )}
@@ -288,7 +287,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
               {/* Selected teacher info */}
               {selectedTeacher && (
                 <div className="mt-2 p-3 bg-indigo-50 rounded-lg">
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-gray-700 break-words">
                     <span className="font-semibold">Specialization: </span>
                     {suggestedTeachers.find((t) => t._id === selectedTeacher)?.specialization || "N/A"}
                   </p>
@@ -304,7 +303,7 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
               <button
                 onClick={handleAssign}
                 disabled={loading || !selectedTeacher}
-                className="mt-3 w-full px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-lg font-medium transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="mt-3 w-full px-4 py-2.5 sm:py-2 bg-primary hover:bg-primary/80 text-white rounded-lg font-medium transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 {loading ? "Loading..." : "Assign Teacher"}
               </button>
@@ -315,10 +314,12 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
         {/* Teacher Rankings Table */}
         {suggestedTeachers.length > 0 && suggestedTeachers[0]?.similarityScore !== undefined && (
           <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-3 text-gray-800">
+            <h3 className="text-base sm:text-lg font-semibold mb-3 text-gray-800">
               Teacher Match Rankings
             </h3>
-            <div className="overflow-x-auto">
+
+            {/* Desktop / tablet: table view */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm text-left border-collapse">
                 <thead className="bg-gray-100">
                   <tr>
@@ -365,6 +366,41 @@ const ProjectDetailModal = ({ isOpen, onClose, project, onAssignTeacher }) => {
                   })}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile: stacked card view (same data, no table) */}
+            <div className="sm:hidden space-y-2">
+              {suggestedTeachers.slice(0, 5).map((teacher, index) => {
+                const score = teacher.similarityScore || 0;
+                const percentage = Math.round(score * 100);
+
+                return (
+                  <div
+                    key={teacher._id}
+                    className={`border rounded-lg p-3 ${index === 0 ? 'bg-green-50 border-green-200' : 'bg-white'
+                      }`}
+                  >
+                    <div className="flex justify-between items-start gap-2">
+                      <span className="font-medium text-sm">
+                        #{index + 1} {teacher.name}
+                        {index === 0 && " 🏆"}
+                      </span>
+                      <span className="font-semibold text-green-700 text-sm flex-shrink-0">
+                        {percentage}%
+                      </span>
+                    </div>
+                    <div className="flex-1 bg-gray-200 rounded-full h-2 mt-2">
+                      <div
+                        className="bg-green-500 h-2 rounded-full transition-all"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-600 mt-2">
+                      {teacher.specialization || "N/A"}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
