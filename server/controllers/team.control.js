@@ -273,7 +273,7 @@ export const deleteTeam = async (req, res) => {
       teacher.approvedTeams.pull(student.teamId);
       await teacher.save({ session });
     }
-    if(team.proposal?.proposalFile?.url && team.proposal?.proposalFile?.publicId){
+    if(team.proposal?.proposalFile?.url || team.proposal?.proposalFile?.publicId){
      deleteFile(team.proposal?.proposalFile?.url, team.proposal?.proposalFile?.publicId);
     await proposalModel.deleteMany({ team: student.teamId }, { session });
     await LogEntry.deleteMany({ teamId: student.teamId }, { session });
