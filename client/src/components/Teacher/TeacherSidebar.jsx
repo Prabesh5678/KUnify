@@ -55,6 +55,13 @@ export default function TeacherSidebar() {
     setMobileOpen(false);
   }, [location.pathname]);
 
+  // Listen for the hamburger toggle dispatched from TeacherHeader
+  useEffect(() => {
+    const openDrawer = () => setMobileOpen(true);
+    window.addEventListener("teacher-toggle-mobile-menu", openDrawer);
+    return () => window.removeEventListener("teacher-toggle-mobile-menu", openDrawer);
+  }, []);
+
   // Fetch team request count
   useEffect(() => {
     const fetchTeamRequestsCount = async () => {
@@ -92,7 +99,6 @@ export default function TeacherSidebar() {
   }, [requestRefetchTrigger]);
 
   const items = [
-
     { id: 1, label: "Team Projects", icon: <FolderKanban size={20} />, to: "/teacher/projects" },
     { id: 2, label: "Team Requests", icon: <Bell size={20} />, to: "/teacher/requests" },
     { id: 3, label: "Settings", icon: <Settings size={20} />, to: "/teacher/settings" },
@@ -105,17 +111,6 @@ export default function TeacherSidebar() {
 
   return (
     <>
-      {/* Mobile top bar with hamburger toggle */}
-      <div className="md:hidden flex items-center justify-between bg-primary text-white p-4">
-        <button
-          onClick={() => setMobileOpen(true)}
-          className="p-2 rounded-md hover:bg-[#1b2334]"
-          title="Open menu"
-        >
-          <Menu size={22} />
-        </button>
-      </div>
-
       {/* Mobile backdrop overlay */}
       {mobileOpen && (
         <div
@@ -127,14 +122,22 @@ export default function TeacherSidebar() {
       <aside
         className={`h-screen bg-primary text-white flex flex-col justify-between transition-all duration-300 z-50
           fixed top-0 left-0 md:static
-          w-64 ${effectiveCollapsed ? "md:w-16" : "md:w-64"}
+          w-72 ${effectiveCollapsed ? "md:w-16" : "md:w-64"}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
         {/* Header */}
         <div>
           <div className="flex items-center justify-between p-4">
+             
+            <div className="flex items-center gap-3 md:hidden">
+              <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center font-semibold text-white">
+                {user?.name?.charAt(0) || "T"}
+              </div>
+              <p className="font-medium text-sm">{user?.name || "Teacher"}</p>
+            </div>
+
             {!effectiveCollapsed && (
-              <div>
+              <div className="hidden md:block">
                 <h1 className="text-xl font-semibold">Teacher Panel</h1>
               </div>
             )}
@@ -191,9 +194,9 @@ export default function TeacherSidebar() {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-700 p-4 space-y-4 flex flex-col items-center">
-          {/* User Info */}
-          <div className={`flex items-center gap-3 w-full ${effectiveCollapsed ? "flex-col gap-2" : "flex-row"}`}>
+        <div className="border-t border-gray-700 p-4 space-y-4">
+          {/* User Info - desktop only (mobile shows it in the drawer header instead) */}
+          <div className={`hidden md:flex items-center gap-3 w-full ${effectiveCollapsed ? "flex-col gap-2" : "flex-row"}`}>
             <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-semibold text-white">
               {user?.name?.charAt(0) || "T"}
             </div>
@@ -204,8 +207,48 @@ export default function TeacherSidebar() {
               </div>
             )}
           </div>
+
+          {/* Logout Button - mobile only, pinned to the bottom of the drawer */}
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            className="md:hidden w-full flex items-center gap-3 px-4 py-3 rounded-lg text-white-400 hover:bg-[#1b2334] transition-colors cursor-pointer"
+          >
+            <LogOut size={20} />
+            <span className="text-sm font-medium">Logout</span>
+          </button>
         </div>
       </aside>
+
+      {/* Logout Confirmation Modal (mobile trigger) */}
+      {showLogoutModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] px-4"
+          onClick={() => setShowLogoutModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl p-6 w-full max-w-sm text-center shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-semibold mb-4 text-gray-900">
+              Are you sure you want to logout?
+            </h3>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 cursor-pointer rounded-lg font-semibold"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-5 py-2 cursor-pointer rounded-lg font-semibold"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

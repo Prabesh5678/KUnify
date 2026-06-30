@@ -265,22 +265,19 @@ const handleRequestCorrection = async (logId, correctionNote) => {
           <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-4 sm:p-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-pink-600 break-words">
-                {team.name}
-              </h1>
-            </div>
+                      </div>
 
             {/* Tabs */}
             <div className="flex flex-wrap gap-3 mt-6">
               <button
                 onClick={() => setActiveTab("team")}
-                className={`cursor-pointer px-5 py-2 rounded-xl font-medium shadow-md transition ${activeTab === "team" ? "bg-blue-600 text-white shadow-blue-200" : "bg-white text-gray-600 hover:shadow-lg"}`}
+                className={`cursor-pointer px-5 py-2 rounded-xl font-medium shadow-md transition ${activeTab === "team" ? "bg-primary text-white shadow-primary" : "bg-white text-gray-600 hover:shadow-lg"}`}
               >
                 Team Details
               </button>
               <button
                 onClick={() => setActiveTab("logs")}
-                className={`cursor-pointer px-5 py-2 rounded-xl font-medium shadow-md transition ${activeTab === "logs" ? "bg-blue-600 text-white shadow-blue-200" : "bg-white text-gray-600 hover:shadow-lg"}`}
+                className={`cursor-pointer px-5 py-2 rounded-xl font-medium shadow-md transition ${activeTab === "logs" ? "bg-primary text-white shadow-primary" : "bg-white text-gray-600 hover:shadow-lg"}`}
               >
                 Logsheets
               </button>
@@ -295,13 +292,13 @@ const handleRequestCorrection = async (logId, correctionNote) => {
 
                   {/* Project Details */}
                   <div className="rounded-xl border border-purple-200 p-5 shadow-sm">
-                    <h2 className="font-bold text-lg text-blue-700">Project Details</h2>
+                    <h2 className="font-bold text-lg text-primary">Project Details</h2>
                     <div className="mt-4">
-                      <h3 className="font-semibold text-gray-600 truncate">Project Title</h3>
-                      <p className="text-gray-700 break-words">{proposal?.projectTitle || "N/A"}</p>
+                      <h3 className="font-semibold text-primary truncate">Project Title</h3>
+                      <p className="text-red-500 break-words font-bold text-2xl">{proposal?.projectTitle || "N/A"}</p>
                     </div>
                     <div className="mt-4">
-                      <h3 className="font-semibold text-gray-600 break-words">Abstract</h3>
+                      <h3 className="font-semibold text-primary break-words text-lg">Abstract</h3>
                       <p className="text-gray-700 break-words whitespace-pre-wrap">
                         {proposal?.abstract || "N/A"}
                       </p>
@@ -310,7 +307,7 @@ const handleRequestCorrection = async (logId, correctionNote) => {
                       <div className="mt-4">
                         <button
                           onClick={handleViewProposal}
-                          className="cursor-pointer px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                          className="cursor-pointer px-4 py-2 bg-primary text-white rounded-lg hover:bg-green-600 transition"
                         >
                           View Proposal PDF
                         </button>
@@ -319,8 +316,8 @@ const handleRequestCorrection = async (logId, correctionNote) => {
                   </div>
 
                   {/* Team Members */}
-                  <div className="rounded-xl border border-blue-200 p-5 shadow-sm">
-                    <h2 className="font-bold text-lg text-blue-700">Team Members</h2>
+                  <div className="rounded-xl border border-primary p-5 shadow-sm">
+                    <h2 className="font-bold text-lg text-primary">Team Members</h2>
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {allMembers.map((member, idx) => (
                         <div key={member._id || idx} className="bg-gray-50 rounded-lg border border-gray-200 p-3">

@@ -102,27 +102,27 @@ const ProfileSetup = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-white py-16 px-4">
-      <div className="max-w-3xl mx-auto bg-white border-2 border-primary rounded-2xl shadow-md p-10">
-        <h2 className="text-3xl font-bold text-center text-primary mb-10">
+    <div className="w-full min-h-screen bg-white py-8 sm:py-12 md:py-16 px-3 sm:px-4">
+      <div className="max-w-3xl mx-auto bg-white border-2 border-primary rounded-xl sm:rounded-2xl shadow-md p-4 sm:p-6 md:p-10">
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-primary mb-4 sm:mb-6 md:mb-10">
           Complete Your Profile
         </h2>
-        <p className="text-red-600 text-sm mb-4">
+        <p className="text-red-600 text-xs sm:text-sm mb-4">
           Please enter your correct information. Once filled, it cannot be changed again.
         </p>
 
 
-        <form onSubmit={handleSubmit} className="space-y-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+        <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 md:space-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
             <div className="flex flex-col gap-2">
-              <label className="text-[#0f172a] font-medium">
+              <label className="text-[#0f172a] text-sm sm:text-base font-medium">
                 Department <span className="text-red-500">*</span>
               </label>
               <select
                 name="department"
                 value={form.department}
                 onChange={handleChange}
-                className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a] cursor-pointer"
+                className="w-full p-2.5 sm:p-3 bg-white text-black text-sm sm:text-base rounded-md border border-[#0f172a] cursor-pointer"
                 disabled={isLoading}
               >
                 <option value="">-- Select --</option>
@@ -132,14 +132,14 @@ const ProfileSetup = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-[#0f172a] font-medium">
+              <label className="text-[#0f172a] text-sm sm:text-base font-medium">
                 Semester <span className="text-red-500">*</span>
               </label>
               <select
                 name="semester"
                 value={form.semester}
                 onChange={handleChange}
-                className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a] cursor-pointer"
+                className="w-full p-2.5 sm:p-3 bg-white text-black text-sm sm:text-base rounded-md border border-[#0f172a] cursor-pointer"
                 disabled={isLoading}
               >
                 <option value="">-- Select --</option>
@@ -152,7 +152,7 @@ const ProfileSetup = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-[#0f172a] font-medium">
+              <label className="text-[#0f172a] text-sm sm:text-base font-medium">
                 Registration Number <span className="text-red-500">*</span>
               </label>
               <input
@@ -179,7 +179,7 @@ const ProfileSetup = () => {
                     });
                   }
                 }}
-                className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a]"
+                className="w-full p-2.5 sm:p-3 bg-white text-black text-sm sm:text-base rounded-md border border-[#0f172a]"
                 disabled={isLoading}
               />
 
@@ -187,13 +187,13 @@ const ProfileSetup = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <label className="text-[#0f172a] font-medium">
+              <label className="text-[#0f172a] text-sm sm:text-base font-medium">
                 Subject Code <span className="text-red-500">*</span>
               </label>
               <input
                 value={form.subjectCode}
                 disabled
-                className="w-full p-3 bg-white text-black rounded-md border border-[#0f172a] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full p-2.5 sm:p-3 bg-white text-black text-sm sm:text-base rounded-md border border-[#0f172a] disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>
@@ -203,7 +203,7 @@ const ProfileSetup = () => {
             disabled={
               isLoading
             }
-            className="w-full py-3 bg-primary text-white font-semibold rounded-md hover:opacity-90 transition cursor-pointer"
+            className="w-full py-2.5 sm:py-3 bg-primary text-white text-sm sm:text-base font-semibold rounded-md hover:opacity-90 transition cursor-pointer"
           >
             Save Profile
           </button>

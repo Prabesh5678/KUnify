@@ -122,7 +122,7 @@ export default function TeacherProjects() {
         Review project proposals and track team progress through logsheets
       </p>
 
-      {/* Stats */}
+      {/* Stats - always 2 per row on mobile, 4 per row from md up */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5 mt-6">
         {stats.map((item, index) => (
           <div
@@ -150,19 +150,33 @@ export default function TeacherProjects() {
         ))}
       </div>
 
-      {/* Search*/}
-      <div className="flex justify-between items-center mt-8">
-        <div className="relative w-full max-w-md">
-          <input
-            type="text"
-            placeholder="Search teams or projects"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="cursor-pointer bg-white rounded-2xl pl-10 py-2 shadow-md hover:shadow-lg transition-shadow w-full"
-          />
-          <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
-        </div>
-      </div>
+      {/* Search */}
+    {/* Search */}
+<div className="mt-8 px-4">
+  <div className="relative w-full">
+    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+
+    <input
+      type="text"
+      placeholder="Search teams or projects"
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      className="
+        w-full
+        rounded-xl
+        bg-white
+        py-3
+        pl-10
+        pr-4
+        text-sm
+        shadow-md
+        focus:outline-none
+        focus:ring-2
+        focus:ring-primary
+      "
+    />
+  </div>
+</div>
 
       {/* Main content */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-6">
@@ -184,11 +198,11 @@ export default function TeacherProjects() {
            shadow-md hover:shadow-lg transition-shadow"
             >
               <div className="flex justify-between items-start gap-2">
-                <h2 className="font-semibold text-lg min-w-0 truncate">{team.name}</h2>
+                <h2 className="font-semibold text-base sm:text-lg min-w-0 truncate">{team.name}</h2>
                 <span
-                  className={`px-3 py-1 text-xs sm:text-sm rounded-full shrink-0 whitespace-nowrap ${team.status === "approved"
-                      ? "bg-green-100 text-green-600"
-                      : "bg-orange-100 text-orange-600"
+                  className={`px-2.5 sm:px-3 py-1 text-xs sm:text-sm rounded-full shrink-0 whitespace-nowrap ${team.status === "approved"
+                    ? "bg-green-100 text-green-600"
+                    : "bg-orange-100 text-orange-600"
                     }`}
                 >
                   {team.supervisorStatus}
@@ -199,7 +213,7 @@ export default function TeacherProjects() {
               <div className="mt-3 text-sm text-gray-600 space-y-1">
               </div>
 
-              <div className="mt-3 text-xs flex justify-between gap-2 text-gray-400">
+              <div className="mt-3 text-xs flex flex-wrap justify-between gap-1 text-gray-400">
                 <span className="truncate">Proposed: {team.supervisor.name}</span>
               </div>
             </div>

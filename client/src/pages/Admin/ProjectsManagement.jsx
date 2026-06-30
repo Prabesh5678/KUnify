@@ -7,11 +7,10 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 const pastelColors = [
-  { bg: "bg-sky-50", border: "border-sky-200" },
+  
   { bg: "bg-teal-50", border: "border-teal-200" },
   { bg: "bg-indigo-50", border: "border-indigo-200" },
-  { bg: "bg-rose-50", border: "border-rose-200" },
-  { bg: "bg-amber-50", border: "border-amber-200" },
+ 
 ];
 
 const MAX_PROJECTS_PER_TEACHER = 5;

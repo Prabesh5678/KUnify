@@ -24,6 +24,9 @@ const TeacherProfileSetup = () => {
     position: "",
   });
 
+  const [specializationTags, setSpecializationTags] = useState([]);
+  const [specializationInput, setSpecializationInput] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -52,8 +55,10 @@ const TeacherProfileSetup = () => {
 
   if (user === undefined || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading profile setup...</p>
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <p className="text-gray-600 text-sm sm:text-base">
+          Loading profile setup...
+        </p>
       </div>
     );
   }
@@ -63,17 +68,83 @@ const TeacherProfileSetup = () => {
 
     if (name === "phone" && !/^\d*$/.test(value)) return;
 
-    if (name === "specialization") {
-      const words = value.trim().split(/\s+/);
-      if (words.length > 150) return;
-    }
-
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handlePositionSelect = (pos) => {
     setForm((prev) => ({ ...prev, position: pos }));
   };
+
+  // ---- Specialization chip logic ----
+  const addSpecializationTag = (rawValue) => {
+    const value = rawValue.trim();
+    if (!value) return;
+
+    if (specializationTags.length >= 150) return;
+
+    if (
+      specializationTags.some(
+        (tag) => tag.toLowerCase() === value.toLowerCase()
+      )
+    ) {
+      setSpecializationInput("");
+      return;
+    }
+
+    const updatedTags = [...specializationTags, value];
+    setSpecializationTags(updatedTags);
+    setForm((prev) => ({
+      ...prev,
+      specialization: updatedTags.join(", "),
+    }));
+    setSpecializationInput("");
+  };
+
+  const removeSpecializationTag = (indexToRemove) => {
+    const updatedTags = specializationTags.filter(
+      (_, idx) => idx !== indexToRemove
+    );
+    setSpecializationTags(updatedTags);
+    setForm((prev) => ({
+      ...prev,
+      specialization: updatedTags.join(", "),
+    }));
+  };
+
+  const handleSpecializationInputChange = (e) => {
+    const value = e.target.value;
+
+    // Comma triggers a new chip
+    if (value.includes(",")) {
+      const parts = value.split(",");
+      const lastPart = parts.pop();
+      parts.forEach((part) => addSpecializationTag(part));
+      setSpecializationInput(lastPart);
+      return;
+    }
+
+    setSpecializationInput(value);
+  };
+
+  const handleSpecializationKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addSpecializationTag(specializationInput);
+    } else if (
+      e.key === "Backspace" &&
+      specializationInput === "" &&
+      specializationTags.length > 0
+    ) {
+      removeSpecializationTag(specializationTags.length - 1);
+    }
+  };
+
+  const handleSpecializationBlur = () => {
+    if (specializationInput.trim()) {
+      addSpecializationTag(specializationInput);
+    }
+  };
+  // ---- End specialization chip logic ----
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -129,16 +200,16 @@ const TeacherProfileSetup = () => {
     form.position.trim() !== "";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
-      <div className="w-full max-w-lg bg-white rounded-xl border border-gray-200 shadow-lg p-8">
-        <h1 className="text-2xl font-semibold mb-6 text-center text-primary">
+    <div className="min-h-screen flex items-center justify-center bg-white px-4 py-8 sm:py-12">
+      <div className="w-full max-w-lg bg-white rounded-xl border border-gray-200 shadow-lg p-5 sm:p-8">
+        <h1 className="text-xl sm:text-2xl font-semibold mb-5 sm:mb-6 text-center text-primary">
           Complete Your Profile
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
           {/* Name */}
           <div>
-            <label className="block mb-1 font-medium text-primary-700">
+            <label className="block mb-1 text-sm sm:text-base font-medium text-primary-700">
               Full Name
             </label>
             <input
@@ -146,13 +217,13 @@ const TeacherProfileSetup = () => {
               name="name"
               value={form.name}
               readOnly
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-black cursor-not-allowed bg-gray-100"
+              className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-md text-black text-sm sm:text-base cursor-not-allowed bg-gray-100"
             />
           </div>
 
           {/* Phone */}
           <div>
-            <label className="block mb-1 font-medium text-primary-700">
+            <label className="block mb-1 text-sm sm:text-base font-medium text-primary-700">
               Phone Number
             </label>
             <input
@@ -162,31 +233,29 @@ const TeacherProfileSetup = () => {
               value={form.phone}
               onChange={handleChange}
               maxLength={10}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-md text-black text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
           {/* Position */}
           <div>
-            <label className="block mb-2 font-medium text-primary-700">
+            <label className="block mb-2 text-sm sm:text-base font-medium text-primary-700">
               Position
             </label>
-            <div className="flex flex-wrap gap-2">
+            <select
+              value={form.position}
+              onChange={(e) => handlePositionSelect(e.target.value)}
+              className="w-full px-3 py-2 text-sm sm:text-base rounded-lg border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-150"
+            >
+              <option value="" disabled>
+                Select a position
+              </option>
               {POSITION_OPTIONS.map((pos) => (
-                <button
-                  key={pos}
-                  type="button"
-                  onClick={() => handlePositionSelect(pos)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-150 ${
-                    form.position === pos
-                      ? "bg-primary text-white border-primary shadow-sm"
-                      : "bg-white text-gray-600 border-gray-300 hover:border-primary hover:text-primary"
-                  }`}
-                >
+                <option key={pos} value={pos}>
                   {pos}
-                </button>
+                </option>
               ))}
-            </div>
+            </select>
             {form.position && (
               <p className="text-xs text-primary mt-2">
                 Selected: <span className="font-semibold">{form.position}</span>
@@ -194,22 +263,53 @@ const TeacherProfileSetup = () => {
             )}
           </div>
 
-          {/* Specialization */}
+          {/* Specialization - Chip Input */}
           <div>
-            <label className="block mb-1 font-medium text-primary-700">
+            <label className="block mb-1 text-sm sm:text-base font-medium text-primary-700">
               Specialization / Expertise
             </label>
-            <textarea
-              name="specialization"
-              placeholder="List your expertise (max 150 words)"
-              value={form.specialization}
-              onChange={handleChange}
-              rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+            <div
+              className="w-full min-h-[44px] px-2.5 sm:px-3 py-2 border border-gray-300 rounded-md flex flex-wrap items-center gap-1.5 sm:gap-2 focus-within:ring-2 focus-within:ring-primary"
+              onClick={() =>
+                document.getElementById("specialization-input")?.focus()
+              }
+            >
+              {specializationTags.map((tag, index) => (
+                <span
+                  key={`${tag}-${index}`}
+                  className="flex items-center gap-1 bg-primary/10 text-primary text-xs sm:text-sm font-medium px-2 py-1 rounded-full"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeSpecializationTag(index);
+                    }}
+                    className="text-primary hover:text-red-500 font-bold leading-none ml-0.5"
+                    aria-label={`Remove ${tag}`}
+                  >
+                    x
+                  </button>
+                </span>
+              ))}
+              <input
+                id="specialization-input"
+                type="text"
+                value={specializationInput}
+                onChange={handleSpecializationInputChange}
+                onKeyDown={handleSpecializationKeyDown}
+                onBlur={handleSpecializationBlur}
+                placeholder={
+                  specializationTags.length === 0
+                    ? "e.g. C, C++ (press Enter or comma to add)"
+                    : ""
+                }
+                className="flex-1 min-w-[100px] text-sm sm:text-base outline-none bg-transparent py-1"
+              />
+            </div>
             <p className="text-xs text-gray-500 mt-1">
-              {form.specialization.trim().split(/\s+/).filter(Boolean).length}
-              /150 words
+              {specializationTags.length}/150 skills added
             </p>
           </div>
 
@@ -217,11 +317,10 @@ const TeacherProfileSetup = () => {
           <button
             type="submit"
             disabled={!isFormValid || loading}
-            className={`w-full py-2 rounded-md font-medium transition ${
-              !isFormValid || loading
+            className={`w-full py-2.5 sm:py-2 rounded-md font-medium text-sm sm:text-base transition ${!isFormValid || loading
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-primary hover:bg-primary/90 text-white cursor-pointer"
-            }`}
+              }`}
           >
             {loading ? "Saving..." : "Save & Continue"}
           </button>
