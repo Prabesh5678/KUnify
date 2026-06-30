@@ -211,7 +211,7 @@ export default function TeacherSidebar() {
           {/* Logout Button - mobile only, pinned to the bottom of the drawer */}
           <button
             onClick={() => setShowLogoutModal(true)}
-            className="md:hidden w-full flex items-center gap-3 px-4 py-3 rounded-lg text-white-400 hover:bg-[#1b2334] transition-colors cursor-pointer"
+            className="md:hidden w-full flex items-center gap-3 px-4 py-6 rounded-lg text-white-400 hover:bg-[#1b2334] transition-colors cursor-pointer"
           >
             <LogOut size={20} />
             <span className="text-sm font-medium">Logout</span>

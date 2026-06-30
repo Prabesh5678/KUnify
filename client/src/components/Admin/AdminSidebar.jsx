@@ -153,14 +153,13 @@ const AdminSidebar = () => {
         </nav>
 
         {/* Logout — mobile only, pinned to bottom */}
-        <div className="lg:hidden pt-4 border-t border-white/20 mt-4">
+        <div className="lg:hidden pt-4 border-t border-white/20">
           <button
             onClick={() => {
               setMobileOpen(false);
               setShowLogoutModal(true);
             }}
-            className="flex items-center gap-4 w-full p-3 rounded-lg text-gray-200 hover:bg-white/10 transition"
-          >
+            className="flex items-center gap-4 w-full px-4 py-6 rounded-lg text-gray-200 hover:bg-white/10 transition">
             <span className="text-lg"><FaSignOutAlt /></span>
             <span className="font-medium">Logout</span>
           </button>
