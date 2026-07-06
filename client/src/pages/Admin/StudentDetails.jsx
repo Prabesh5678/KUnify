@@ -16,29 +16,43 @@ const StudentDetails = () => {
       </div>
     );
   }
-
+const handleExport = () => {
+  window.open(
+    `${import.meta.env.VITE_BACKEND_URL}/api/admin/export-students?department=${encodeURIComponent(
+      student.department
+    )}&semester=${encodeURIComponent(student.semester)}`,
+    "_blank"
+  );
+};
   return (
     <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
       <AdminSidebar />
       <div className="flex-1 p-8">
         <AdminHeader />
-        <div className="flex justify-between items-center mb-6"></div>
+        <div className="flex justify-between items-center mb-6">
+  <button
+    onClick={handleExport}
+    className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-primary/80 transition"
+  >
+    Export Students
+  </button>
+</div>
+<div className="p-4 md:p-2">
+  {/* Header */}
+  <div className="flex items-center gap-4 mb-6">
+    <div className="p-2 bg-primary/10 rounded-2xl">
+      <FaUserGraduate className="text-primary text-3xl" />
+    </div>
 
-        <div className="p-4 md:p-2">
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-2 bg-primary/10 rounded-2xl">
-              <FaUserGraduate className="text-primary text-3xl" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">
-                Student Profile
-              </h2>
-              <p className="text-gray-500 text-sm">
-                Detailed academic & team information
-              </p>
-            </div>
-          </div>
+    <div>
+      <h2 className="text-2xl font-bold text-gray-800">
+        Student Profile
+      </h2>
+      <p className="text-gray-500 text-sm">
+        Detailed academic & team information
+      </p>
+    </div>
+  </div>
 
           {/* Profile Card */}
           <div className="bg-white rounded-2xl shadow-md p-8 mb-8">

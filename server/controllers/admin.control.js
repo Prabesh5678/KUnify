@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import LogEntry from "../models/logEntry.model.js";
 import mongoose from "mongoose";
+import * as XLSX from "xlsx";
 
 // Admin Login (with email + password)
 export const adminLogin = async (req, res) => {
@@ -481,4 +482,64 @@ export const updateTeacherPosition = async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
+};
+//exporting students
+export const exportStudents = async (req, res) => {
+  
+  try {
+    const { semester, department } = req.query;
+
+    // Build filter based on query params
+    const filter = {};
+    if (semester) filter.semester = semester;
+    if (department) filter.department = department;
+
+    // Get students matching the filter
+    const students = await Student.find(filter)
+      .populate("teamId", "name")
+      .sort({ name: 1 });
+
+    if (!students.length) {
+      return res.json({ success: false, message: "No students found" });
+    }
+
+    // Shape the data for Excel
+    const data = students.map((student) => ({
+      Name: student.name || "",
+      Email: student.email || "",
+      "Registration Number": student.registrationNumber || "",
+      Department: student.department || "",
+      Semester: student.semester || "",
+      Team: student.teamId?.name || "No team",
+    }));
+
+    // Create Excel file
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+
+    // Set column widths
+    worksheet["!cols"] = [
+      { wch: 25 }, // Name
+      { wch: 32 }, // Email
+      { wch: 22 }, // Registration Number
+      { wch: 15 }, // Department
+      { wch: 12 }, // Semester
+      { wch: 20 }, // Team
+    ];
+
+    // Send file to client
+    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+    res.setHeader("Content-Disposition", `attachment; filename="students.xlsx"`);
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    return res.send(buffer);
+
+ } catch (error) {
+  console.error("EXPORT ERROR:", error);
+
+  return res.status(500).json({
+    success: false,
+    message: error.message,
+  });
+}
 };

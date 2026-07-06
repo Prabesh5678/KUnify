@@ -17,6 +17,7 @@ import {
   getTeacherSimilarity ,
   assignSupervisorManually,
   updateTeacherPosition,
+  exportStudents
 } from "../controllers/admin.control.js";
 import { exportTeamLogs } from "../controllers/log.control.js";
 
@@ -52,4 +53,5 @@ adminRouter.get("/teacher-similarity/:teamId", getTeacherSimilarity);
 adminRouter.put("/assign-supervisor", assignSupervisorManually);
 adminRouter.put("/teacher/:id/position", updateTeacherPosition);
 adminRouter.get("/export/:teamId", exportTeamLogs);
+adminRouter.get("/export-students", authAdmin, exportStudents);
 export default adminRouter;
