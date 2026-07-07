@@ -94,16 +94,30 @@ const StudentsManagement = () => {
             </h2>
           </div>
 
-          <div className="relative w-full lg:w-80">
-            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search students..."
-              value={search}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-primary outline-none"
-            />
-          </div>
+          
+          <div className="flex items-center gap-3 w-full lg:w-auto">
+  <div className="relative w-full lg:w-80">
+    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+    <input
+      type="text"
+      placeholder="Search students..."
+      value={search}
+      onChange={(e) => handleSearchChange(e.target.value)}
+      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-primary outline-none"
+    />
+  </div>
+  <button
+    onClick={() => {
+      const params = new URLSearchParams();
+      if (activeDepartment) params.append("department", activeDepartment);
+      if (activeSemester) params.append("semester", activeSemester);
+      window.open(`${import.meta.env.VITE_BACKEND_URL}/api/admin/export-students?${params.toString()}`, "_blank");
+    }}
+    className="whitespace-nowrap bg-primary text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-primary/80 transition"
+  >
+    Export Students
+  </button>
+</div>
         </div>
 
         {/* Department Tabs */}

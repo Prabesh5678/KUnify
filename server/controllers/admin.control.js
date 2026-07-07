@@ -487,14 +487,11 @@ export const updateTeacherPosition = async (req, res) => {
 export const exportStudents = async (req, res) => {
   
   try {
-    const { semester, department } = req.query;
-
-    // Build filter based on query params
+    const { semester, department, studentId } = req.query;
     const filter = {};
     if (semester) filter.semester = semester;
     if (department) filter.department = department;
-
-    // Get students matching the filter
+    if (studentId) filter._id = studentId; 
     const students = await Student.find(filter)
       .populate("teamId", "name")
       .sort({ name: 1 });
@@ -502,12 +499,10 @@ export const exportStudents = async (req, res) => {
     if (!students.length) {
       return res.json({ success: false, message: "No students found" });
     }
-
-    // Shape the data for Excel
     const data = students.map((student) => ({
       Name: student.name || "",
       Email: student.email || "",
-      "Registration Number": student.registrationNumber || "",
+      "Registration Number": student.rollNumber || "",
       Department: student.department || "",
       Semester: student.semester || "",
       Team: student.teamId?.name || "No team",
@@ -528,7 +523,6 @@ export const exportStudents = async (req, res) => {
       { wch: 20 }, // Team
     ];
 
-    // Send file to client
     const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
     res.setHeader("Content-Disposition", `attachment; filename="students.xlsx"`);
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");

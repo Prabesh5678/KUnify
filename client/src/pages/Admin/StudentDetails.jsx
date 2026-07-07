@@ -18,9 +18,7 @@ const StudentDetails = () => {
   }
 const handleExport = () => {
   window.open(
-    `${import.meta.env.VITE_BACKEND_URL}/api/admin/export-students?department=${encodeURIComponent(
-      student.department
-    )}&semester=${encodeURIComponent(student.semester)}`,
+    `${import.meta.env.VITE_BACKEND_URL}/api/admin/export-students?studentId=${student._id}`,
     "_blank"
   );
 };
