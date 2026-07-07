@@ -492,10 +492,22 @@ export const exportStudents = async (req, res) => {
     if (semester) filter.semester = semester;
     if (department) filter.department = department;
     if (studentId) filter._id = studentId; 
-    const students = await Student.find(filter)
-      .populate("teamId", "name")
-      .sort({ name: 1 });
-
+  const students = await Student.find(filter)
+  .populate({
+    path: "teamId",
+    select: "name supervisor proposal",
+    populate: [
+      {
+        path: "supervisor",
+        select: "name email",
+      },
+      {
+        path: "proposal",
+        select: "projectTitle",
+      },
+    ],
+  })
+  .sort({ name: 1 });
     if (!students.length) {
       return res.json({ success: false, message: "No students found" });
     }
@@ -506,6 +518,9 @@ export const exportStudents = async (req, res) => {
       Department: student.department || "",
       Semester: student.semester || "",
       Team: student.teamId?.name || "No team",
+      "Project Title": student.teamId?.proposal?.projectTitle || "Not submitted",
+  Supervisor: student.teamId?.supervisor?.name || "Not assigned",
+  "Supervisor Email": student.teamId?.supervisor?.email || "",
     }));
 
     // Create Excel file
@@ -521,6 +536,9 @@ export const exportStudents = async (req, res) => {
       { wch: 15 }, // Department
       { wch: 12 }, // Semester
       { wch: 20 }, // Team
+      { wch: 40 }, // Project Title
+  { wch: 22 }, // Supervisor
+  { wch: 32 }, // Supervisor Email
     ];
 
     const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
