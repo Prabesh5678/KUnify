@@ -96,7 +96,7 @@ const AdminSidebar = () => {
         `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 shrink-0">
           {open && (
             <h1 className="text-lg font-bold text-white whitespace-nowrap">
               Admin Panel
@@ -116,8 +116,8 @@ const AdminSidebar = () => {
           </button>
         </div>
 
-        {/* Navigation — grows to fill space */}
-        <nav className="flex flex-col gap-2 flex-1">
+        {/* Navigation — scrolls internally instead of overflowing past the screen */}
+        <nav className="flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto">
           {links.map((link) => (
             <NavLink
               key={link.path}
@@ -152,8 +152,8 @@ const AdminSidebar = () => {
           ))}
         </nav>
 
-        {/* Logout — mobile only, pinned to bottom */}
-        <div className="lg:hidden pt-4 border-t border-white/20">
+        {/* Logout — mobile only, always visible below the scrollable nav */}
+        <div className="lg:hidden pt-4 border-t border-white/20 shrink-0">
           <button
             onClick={() => {
               setMobileOpen(false);

@@ -19,8 +19,7 @@ const TeacherHeader = () => {
   };
 
   return (
-    <div className="flex justify-between items-center gap-3 bg-primary p-4 sm:p-5 mt-4 px-4 sm:px-8 shadow-md rounded-2xl">
-
+   <div className="flex justify-between items-center gap-3 bg-primary p-4 sm:p-5 sm:mt-4 -mx-4 sm:mx-0 px-4 sm:px-8 shadow-md rounded-none sm:rounded-2xl">
       {/* Left Section */}
       <NavLink to="/teacher/projects" className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
         <img src={assets.ku_logo} alt="ku_logo" className="h-9 sm:h-12 shrink-0" />

@@ -151,33 +151,28 @@ export default function TeacherProjects() {
       </div>
 
       {/* Search */}
-    {/* Search */}
-<div className="mt-8 px-4">
-  <div className="relative w-full">
-    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
 
-    <input
-      type="text"
-      placeholder="Search teams or projects"
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-      className="
-        w-full
-        rounded-xl
-        bg-white
-        py-3
-        pl-10
-        pr-4
-        text-sm
-        shadow-md
-        focus:outline-none
-        focus:ring-2
-        focus:ring-primary
-      "
-    />
-  </div>
-</div>
-
+      <div className="mt-10 px-6">
+        <input
+          type="text"
+          placeholder="Search teams or projects"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="
+      w-full
+      h-14
+      rounded-lg
+      border-2
+      border-gray-400
+      px-6
+      text-base
+      focus:outline-none
+      focus:border-black
+      focus:ring-1
+      focus:ring-black
+    "
+        />
+      </div>
       {/* Main content */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-6">
         {error ? (

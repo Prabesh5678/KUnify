@@ -50,6 +50,9 @@ import TeacherProfileSetup from "./pages/Teacher/TeacherProfileSetup";
 import TeacherHeader from "./components/Teacher/TeacherHeader";
 import TeamDetails from "./pages/Teacher/TeamDetail";
 import PDFViewer from "./components/PDFViewer";
+import TeacherProjectDashboard from "./pages/Teacher/ProposalProject";
+import UploadProject from "./pages/Teacher/UploadProject";
+import ProjectApplicants from "./pages/Teacher/ProjectApplicants";
 const App = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -170,10 +173,14 @@ const App = () => {
                   <Route path="requests" element={<TeacherRequests />} />
                   <Route path="teams" element={<TeacherTeams />} />
                   {/*<Route path="deficits" element={<TeacherDeficits />} />*/}
-                  <Route path ="deleterequests" element={<TeamDeleteRequests/>}/>
+                  <Route path="deleterequests" element={<TeamDeleteRequests />} />
                   <Route path="settings" element={<TeacherSettings />} />
                   <Route path="profilesetup" element={<TeacherProfileSetup />} />
                   <Route path="teamdetails" element={<TeamDetails />} />
+                  <Route path="projectbyteacher" element={<TeacherProjectDashboard />} />
+                  <Route path="uploadproject" element={<UploadProject />} />
+                  <Route path="projectapplicants/:projectId" element={<ProjectApplicants />} />
+
 
                 </Route>
               </Route>

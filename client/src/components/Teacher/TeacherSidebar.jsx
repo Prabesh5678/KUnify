@@ -103,6 +103,7 @@ export default function TeacherSidebar() {
     { id: 2, label: "Team Requests", icon: <Bell size={20} />, to: "/teacher/requests" },
     { id: 3, label: "Settings", icon: <Settings size={20} />, to: "/teacher/settings" },
     { id: 4, label: "Delete Requests", icon: <Trash2 size={20} />, to: "/teacher/deleterequests" },
+    { id: 5, label: "My Projects", icon: <Menu size={20} />, to: "/teacher/projectbyteacher" },
   ];
 
   if (location.pathname === '/teacher/profilesetup') return null;
@@ -120,15 +121,16 @@ export default function TeacherSidebar() {
       )}
 
       <aside
-        className={`h-screen bg-primary text-white flex flex-col justify-between transition-all duration-300 z-50
-          fixed top-0 left-0 md:static
-          w-72 ${effectiveCollapsed ? "md:w-16" : "md:w-64"}
-          ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+        className={`h-screen bg-primary text-white flex flex-col transition-all duration-300 z-50
+    fixed top-0 left-0 md:static
+    w-72 ${effectiveCollapsed ? "md:w-16" : "md:w-64"}
+    ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
-        {/* Header */}
-        <div>
+        {/* Header + Nav — scrolls internally if content is taller than the viewport */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          {/* Header */}
           <div className="flex items-center justify-between p-4">
-             
+
             <div className="flex items-center gap-3 md:hidden">
               <div className="w-9 h-9 bg-blue-600 rounded-full flex items-center justify-center font-semibold text-white">
                 {user?.name?.charAt(0) || "T"}
@@ -193,8 +195,8 @@ export default function TeacherSidebar() {
           </nav>
         </div>
 
-        {/* Footer */}
-        <div className="border-t border-gray-700 p-4 space-y-4">
+        {/* Footer — always visible, never pushed off-screen */}
+        <div className="border-t border-gray-700 p-4 space-y-4 shrink-0">
           {/* User Info - desktop only (mobile shows it in the drawer header instead) */}
           <div className={`hidden md:flex items-center gap-3 w-full ${effectiveCollapsed ? "flex-col gap-2" : "flex-row"}`}>
             <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-semibold text-white">
@@ -208,7 +210,7 @@ export default function TeacherSidebar() {
             )}
           </div>
 
-          {/* Logout Button - mobile only, pinned to the bottom of the drawer */}
+          {/* Logout Button - mobile only */}
           <button
             onClick={() => setShowLogoutModal(true)}
             className="md:hidden w-full flex items-center gap-3 px-4 py-6 rounded-lg text-white-400 hover:bg-[#1b2334] transition-colors cursor-pointer"
@@ -218,7 +220,6 @@ export default function TeacherSidebar() {
           </button>
         </div>
       </aside>
-
       {/* Logout Confirmation Modal (mobile trigger) */}
       {showLogoutModal && (
         <div
