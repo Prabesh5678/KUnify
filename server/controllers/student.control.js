@@ -3,6 +3,7 @@ import Student from "../models/student.model.js";
 import Teacher from "../models/teacher.model.js";
 import jwt from "jsonwebtoken";
 import { handleGoogleAuth } from "../utils/helperFunctions.js";
+import TeacherProject from "../models/teacherProject.model.js";
 
 // Google Sign-In Controller: /api/student/google-signin
 export const googleSignIn = async (req, res) => {

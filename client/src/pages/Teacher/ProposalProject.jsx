@@ -10,6 +10,8 @@ const TeacherProjectDashboard = ({ teacherId, teacherName = "" }) => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null); // { projectId, title } | null
+  const [deletingId, setDeletingId] = useState(null);
 
   const fetchProjects = async () => {
     try {
@@ -17,7 +19,36 @@ const TeacherProjectDashboard = ({ teacherId, teacherName = "" }) => {
       const res = await axios.get("/api/teacher/my-projects");
 
       if (res.data.success) {
-        setProjects(res.data.projects);
+        const projectsList = res.data.projects;
+        setProjects(projectsList);
+
+        // Fetch applicant counts for each project since the API
+        // doesn't return applicantCount directly.
+        const counts = await Promise.all(
+          projectsList.map(async (project) => {
+            try {
+              const applicantsRes = await axios.get(
+                `/api/teacher/my-projects/${project._id}/applicants`
+              );
+              return {
+                projectId: project._id,
+                count: applicantsRes.data?.success
+                  ? applicantsRes.data.applicants?.length || 0
+                  : 0,
+              };
+            } catch {
+              return { projectId: project._id, count: 0 };
+            }
+          })
+        );
+
+        const countMap = new Map(counts.map((c) => [c.projectId, c.count]));
+        setProjects(
+          projectsList.map((project) => ({
+            ...project,
+            applicantCount: countMap.get(project._id) ?? 0,
+          }))
+        );
       } else {
         toast.error(res.data.message);
         setProjects([]);
@@ -29,9 +60,22 @@ const TeacherProjectDashboard = ({ teacherId, teacherName = "" }) => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchProjects();
+  }, []);
+
+  // Re-fetch when the user comes back to this tab/window (e.g. after
+  // accepting/rejecting applicants on the applicants page), so the
+  // applicant counter doesn't stay stale.
+  useEffect(() => {
+    const handleFocus = () => fetchProjects();
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") fetchProjects();
+    });
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
   }, []);
 
   const handleProjectPublished = () => {
@@ -44,8 +88,32 @@ const TeacherProjectDashboard = ({ teacherId, teacherName = "" }) => {
   };
 
   const handleViewApplicants = (e, projectId) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     navigate(`/teacher/projectapplicants/${projectId}`);
+  };
+
+  const requestDeleteProject = (e, project) => {
+    e.stopPropagation();
+    setDeleteTarget({ projectId: project._id, title: project.title });
+  };
+
+  const handleDeleteProject = async () => {
+    if (!deleteTarget) return;
+    try {
+      setDeletingId(deleteTarget.projectId);
+      const res = await axios.delete(`/api/teacher/my-projects/${deleteTarget.projectId}`);
+      if (res.data?.success === false) {
+        toast.error(res.data?.message || "Failed to delete project");
+        return;
+      }
+      setProjects((prev) => prev.filter((p) => p._id !== deleteTarget.projectId));
+      toast.success("Project deleted");
+    } catch (err) {
+      toast.error("Failed to delete project");
+    } finally {
+      setDeletingId(null);
+      setDeleteTarget(null);
+    }
   };
 
   const statusBadge = (status) => (
@@ -116,12 +184,21 @@ const TeacherProjectDashboard = ({ teacherId, teacherName = "" }) => {
 
               <div className="flex items-center justify-between border-t border-gray-100 pt-3 text-xs text-gray-500">
                 <span>{project.applicantCount ?? 0} applicant{project.applicantCount === 1 ? "" : "s"}</span>
-                <button
-                  onClick={(e) => handleViewApplicants(e, project._id)}
-                  className="font-medium text-primary hover:text-primary cursor-pointer"
-                >
-                  View applicants →
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={(e) => handleViewApplicants(e, project._id)}
+                    className="font-medium text-primary hover:text-primary cursor-pointer"
+                  >
+                    View applicants →
+                  </button>
+                  <button
+                    onClick={(e) => requestDeleteProject(e, project)}
+                    disabled={deletingId === project._id}
+                    className="font-medium text-red-600 hover:text-red-700 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -144,6 +221,36 @@ const TeacherProjectDashboard = ({ teacherId, teacherName = "" }) => {
               teacherName={teacherName}
               onPublished={handleProjectPublished}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
+            <h2 className="text-base font-semibold text-gray-900">Delete project?</h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-gray-700">{deleteTarget.title}</span>? This action
+              cannot be undone.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                disabled={deletingId === deleteTarget.projectId}
+                className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteProject}
+                disabled={deletingId === deleteTarget.projectId}
+                className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {deletingId === deleteTarget.projectId ? "Deleting..." : "Yes, delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}

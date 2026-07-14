@@ -34,6 +34,8 @@ import StudentsManagement from "./pages/Admin/StudentsManagement";
 import StudentDetails from "./pages/Admin/StudentDetails";
 import RequestTeacher from "./pages/Admin/RequestTeacher";
 import TeamDetail from "./pages/Admin/TeamDetail";
+import StudentProjectsList from "./pages/Student/StudentProjectList";
+import StudentProjectDetail from "./pages/Student/StudentProjectDetail";
 
 //Teacher Pages
 import TeacherGuard from "./components/TeacherGuard";
@@ -152,6 +154,8 @@ const App = () => {
                 <Route path="/student/logsheet" element={<Logsheet />} />
                 <Route path="/student/profile" element={<MyProfile />} />
                 <Route path="/student/member/:teamId" element={<TeamMembers />} />
+                <Route path="/student/projects" element={<StudentProjectsList />} />
+                <Route path="/student/projects/:projectId" element={<StudentProjectDetail />} />
               </Route>
 
               <Route element={<AdminGuard />}>

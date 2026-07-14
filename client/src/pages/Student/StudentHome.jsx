@@ -48,6 +48,7 @@ const team= freshStudent.teamId;
       <div className="max-w-5xl mx-auto">
 
         {/* Header */}
+   {/* Header */}
         <div className="mb-8">
 
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2">
@@ -57,6 +58,13 @@ const team= freshStudent.teamId;
           <p className="text-gray-500 mt-2 text-sm sm:text-base">
             Your project workspace overview.
           </p>
+
+          <button
+            onClick={() => navigate("/student/projects")}
+            className="mt-4 bg-primary hover:opacity-90 text-white font-semibold px-6 py-2.5 rounded-xl transition cursor-pointer"
+          >
+            Explore Available Projects
+          </button>
         </div>
 
         {/* Main Card */}
@@ -91,7 +99,7 @@ const team= freshStudent.teamId;
 
               <button
                 onClick={() => navigate("/student/dashboard")}
-                className="mt-8 w-full sm:w-auto bg-primary hover:opacity-90 text-white font-semibold px-8 py-3 rounded-xl transition"
+                className="mt-8 w-full sm:w-auto bg-primary hover:opacity-90 text-white font-semibold px-8 py-3 rounded-xl transition cursor-pointer"
               >
                 Go to Dashboard
               </button>
