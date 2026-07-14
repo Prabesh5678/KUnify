@@ -126,7 +126,7 @@ const team= freshStudent.teamId;
 
               <button
                 onClick={() => navigate("/student/dashboard")}
-                className="mt-8 w-full sm:w-auto bg-primary hover:opacity-90 text-white font-semibold px-8 py-3 rounded-xl transition"
+                className="mt-8 w-full sm:w-auto bg-primary hover:opacity-90 text-white font-semibold px-8 py-3 rounded-xl transition cursor-pointer"
               >
                 Go to Dashboard
               </button>
