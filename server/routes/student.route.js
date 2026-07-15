@@ -1,6 +1,6 @@
 import express from 'express';
 import { isAuth,googleSignIn, profileCompletion, profileUpdate, getTeachers,
-    getTeacherProjects, applyToProject, getMyApplications,
+    getTeacherProjects, applyToProject, getMyApplications, revokeApplication,
  } from '../controllers/student.control.js';
 import authStudent from '../middlewares/student.middleware.js';
 import { createTeam/*, joinTeam, getTeam*/ } from '../controllers/team.control.js';
@@ -16,5 +16,6 @@ studentRouter.get("/get-teachers", authStudent, getTeachers);
 studentRouter.get('/projects', authStudent, getTeacherProjects);
 studentRouter.post('/projects/:projectId/apply', authStudent, applyToProject);
 studentRouter.get('/projects/my-applications', authStudent, getMyApplications);
+studentRouter.delete('/projects/:projectId/apply', authStudent, revokeApplication);
 
 export default studentRouter;

@@ -585,11 +585,38 @@ export const createMyProject = async (req, res) => {
 // GET /api/teacher/my-projects
 export const getMyProjects = async (req, res) => {
   try {
-    const projects = await TeacherProject.find({ teacher: req.teacherId }).sort(
-      { createdAt: -1 },
+    const projects = await TeacherProject.find({ teacher: req.teacherId }).sort({ createdAt: -1 });
+
+    // For each project, find students who applied
+    const projectsWithApplicants = await Promise.all(
+      projects.map(async (project) => {
+        const applicants = await Student.find({
+          "appliedProjects.project": project._id,
+        }).select("name email rollNumber semester department appliedProjects");
+
+        const applicantList = applicants.map((student) => {
+          const application = student.appliedProjects.find(
+            (a) => a.project.toString() === project._id.toString()
+          );
+          return {
+            studentId: student._id,
+            name: student.name,
+            email: student.email,
+            rollNumber: student.rollNumber,
+            semester: student.semester,
+            status: application.status,
+            appliedAt: application.appliedAt,
+          };
+        });
+
+        return {
+          ...project.toObject(),
+          applicants: applicantList,
+        };
+      })
     );
 
-    return res.json({ success: true, projects });
+    return res.json({ success: true, projects: projectsWithApplicants });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }

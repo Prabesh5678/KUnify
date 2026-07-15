@@ -175,13 +175,24 @@ export const getTeachers =async (_,res) => {
 // Get all open teacher projects (only for students without a team)
 export const getTeacherProjects = async (req, res) => {
   try {
-    
+    const student = await Student.findById(req.studentId);
 
     const projects = await TeacherProject.find({ status: "open" })
       .populate("teacher", "name email specialization position")
       .sort({ createdAt: -1 });
 
-    return res.json({ success: true, projects });
+    // Check if student already applied to each project
+    const projectsWithStatus = projects.map((project) => {
+      const application = student.appliedProjects.find(
+        (a) => a.project.toString() === project._id.toString()
+      );
+      return {
+        ...project.toObject(),
+        applicationStatus: application ? application.status : null,
+      };
+    });
+
+    return res.json({ success: true, projects: projectsWithStatus });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
@@ -199,10 +210,7 @@ export const applyToProject = async (req, res) => {
       return res.json({ success: false, message: "Student not found!" });
     }
 
-    // Student must not be in a team
-    if (student.teamId) {
-      return res.json({ success: false, message: "You are already in a team. You cannot apply to a project." });
-    }
+    
 
     // Check if the project exists and is open
     const project = await TeacherProject.findById(projectId);
@@ -250,4 +258,33 @@ export const getMyApplications = async (req, res) => {
     return res.json({ success: false, message: error.message });
   }
 };
+// DELETE /api/student/projects/:projectId/revoke
+export const revokeApplication = async (req, res) => {
+  try {
+    const { projectId } = req.params;
 
+    const student = await Student.findById(req.studentId);
+    if (!student) {
+      return res.json({ success: false, message: "Student not found!" });
+    }
+
+    const applicationIndex = student.appliedProjects.findIndex(
+      (a) => a.project.toString() === projectId
+    );
+
+    if (applicationIndex === -1) {
+      return res.json({ success: false, message: "You have not applied to this project!" });
+    }
+
+    if (student.appliedProjects[applicationIndex].status !== "pending") {
+      return res.json({ success: false, message: "You can only revoke a pending application!" });
+    }
+
+    student.appliedProjects.splice(applicationIndex, 1);
+    await student.save();
+
+    return res.json({ success: true, message: "Application revoked successfully!" });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
