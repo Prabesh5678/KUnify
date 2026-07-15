@@ -175,11 +175,7 @@ export const getTeachers =async (_,res) => {
 // Get all open teacher projects (only for students without a team)
 export const getTeacherProjects = async (req, res) => {
   try {
-    const student = await Student.findById(req.studentId);
-
-    if (student.teamId) {
-      return res.json({ success: false, message: "You are already in a team. You cannot view teacher projects." });
-    }
+    
 
     const projects = await TeacherProject.find({ status: "open" })
       .populate("teacher", "name email specialization position")
