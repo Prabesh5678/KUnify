@@ -732,12 +732,7 @@ export const handleStudentApplication = async (req, res) => {
     }
 
     if (action === "accept") {
-      if (student.teamId) {
-        return res.json({
-          success: false,
-          message: "This student already joined a team!",
-        });
-      }
+    
       application.status = "accepted";
     } else {
       application.status = "rejected";

@@ -103,14 +103,29 @@ return (
                   </td>
 
                   <td className="px-6 py-5 text-center">
-                    <button
-                      onClick={() =>
-                        navigate(`/student/projects/${project._id}`)
-                      }
-                      className="bg-primary hover:opacity-90 text-white text-sm font-medium px-5 py-2 rounded-lg transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
-                    >
-                      Explore
-                    </button>
+                    <div className="flex items-center justify-center gap-2">
+                      {project.applicationStatus === "accepted" && (
+                        <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                          Enrolled
+                        </span>
+                      )}
+                      {project.applicationStatus === "pending" && (
+                        <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+                          Pending
+                        </span>
+                      )}
+                      {project.applicationStatus === "rejected" && (
+                        <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+                          Rejected
+                        </span>
+                      )}
+                      <button
+                        onClick={() => navigate(`/student/projects/${project._id}`)}
+                        className="bg-primary hover:opacity-90 text-white text-sm font-medium px-5 py-2 rounded-lg transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
+                      >
+                        Explore
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -157,14 +172,29 @@ return (
               ))}
             </div>
 
-            <button
-              onClick={() =>
-                navigate(`/student/projects/${project._id}`)
-              }
-              className="mt-5 w-full bg-primary hover:opacity-90 text-white py-3 rounded-lg font-semibold transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
-            >
-              Explore Project
-            </button>
+           <div className="mt-5 flex items-center gap-2">
+              {project.applicationStatus === "accepted" && (
+                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                  Enrolled
+                </span>
+              )}
+              {project.applicationStatus === "pending" && (
+                <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+                  Pending
+                </span>
+              )}
+              {project.applicationStatus === "rejected" && (
+                <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+                  Rejected
+                </span>
+              )}
+              <button
+                onClick={() => navigate(`/student/projects/${project._id}`)}
+                className="flex-1 bg-primary hover:opacity-90 text-white py-3 rounded-lg font-semibold transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
+              >
+                Explore Project
+              </button>
+            </div>
           </div>
         ))}
       </div>
