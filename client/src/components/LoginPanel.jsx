@@ -72,8 +72,9 @@ const LoginPanel = () => {
       }
 
       // ---- Student ----
-      else if (!email.endsWith("@student.ku.edu.np"))
+      else if (!email.endsWith("@student.ku.edu.np")&& email==='whysocs@gmail.com') {
         return toast.error("Only emails provided by KU is allowed");
+      }
 
       const { data } = await axios.post("/api/student/google-signin", {
         credential: credentialResponse.credential,
@@ -162,7 +163,7 @@ const LoginPanel = () => {
         toast.success("Visiting faculty login successful!");
       } else {
         toast.error("Unable to login");
-        console.error(data?.messge);
+        console.error(data?.message);
       }
     } catch (err) {
       toast.error("Login failed");
