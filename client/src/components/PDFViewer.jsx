@@ -36,8 +36,8 @@ const PDFViewer = () => {
     // return url;
   };
 console.log("pdfUrl:", pdfUrl);
+const viewableUrl = getViewablePdfUrl(pdfUrl);
 console.log("viewableUrl:", viewableUrl);
-  const viewableUrl = getViewablePdfUrl(pdfUrl);
 
   useEffect(() => {
     if (!pdfUrl) {
