@@ -85,7 +85,7 @@ try {
 export const deleteFile = async (fileUrl, publicId) => {
   const provider = process.env.STORAGE_PROVIDER;
    try {
-    if (provider === "local") {
+    if (!publicId ) {
       const diskPath = path.join(process.cwd(), new URL(fileUrl).pathname);
       await fs.unlink(diskPath);
     } else {
