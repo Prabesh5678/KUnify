@@ -11,15 +11,18 @@ axios.defaults.withCredentials = true;
 const StudentsManagement = () => {
   const navigate = useNavigate();
 
-  const departments = ["CE", "CS"];
-  const semesters = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
+ const departments = ["CE", "CS", "BIT"];
 
-  const [students, setStudents] = useState([]);
-  const [search, setSearch] = useState("");
-  const [activeDepartment, setActiveDepartment] = useState("CE"); // CE default
-  const [activeSemester, setActiveSemester] = useState(null);
-  const [loading, setLoading] = useState(false);
+const [students, setStudents] = useState([]);
+const [search, setSearch] = useState("");
+const [activeDepartment, setActiveDepartment] = useState("CE");
+const [activeSemester, setActiveSemester] = useState(null);
+const [loading, setLoading] = useState(false);
 
+const semesters =
+  activeDepartment === "BIT"
+    ? ["1st", "2nd", "3rd", "4th"]
+    : ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
   // Fetch students from API
   const fetchStudents = async (department = "", semester = "", searchTerm = "") => {
     try {

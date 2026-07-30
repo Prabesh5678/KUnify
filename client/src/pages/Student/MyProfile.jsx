@@ -4,7 +4,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 const MyProfile = () => {
-  const { user, fetchUser  } = useAppContext();
+  const { user, fetchUser } = useAppContext();
 
   const [form, setForm] = useState({
     name: "",
@@ -58,6 +58,15 @@ const MyProfile = () => {
       };
       subject = ceMap[sem] || "";
     }
+    else if (dept === "BIT") {
+      const bitMap = {
+        "1st": "Project-1",
+        "2nd": "Project-2",
+        "3rd": "Project-3",
+        "4th": "Project-4",
+      };
+      subject = bitMap[sem] || "";
+    }
 
     setForm((prev) => ({ ...prev, subjectCode: subject }));
   };
@@ -78,9 +87,10 @@ const MyProfile = () => {
 
   // Save profile
   const handleSave = async () => {
-     if (!form.department || !form.semester || !form.subjectCode) {
-    toast.error("Department, Semester, and Subject Code cannot be empty");
-    return ;}
+    if (!form.department || !form.semester || !form.subjectCode) {
+      toast.error("Department, Semester, and Subject Code cannot be empty");
+      return;
+    }
     setLoading(true);
     try {
       const res = await axios.put(
@@ -103,7 +113,7 @@ const MyProfile = () => {
         toast.error(res.data.message || "Failed to update profile.");
       }
     } catch (err) {
-    //  console.error(err);
+      //  console.error(err);
       toast.error("Failed to update profile. Try again.");
     } finally {
       setLoading(false);
@@ -151,7 +161,7 @@ const MyProfile = () => {
             <div className="flex flex-col">
               <label className="font-semibold text-primary">Department</label>
               {editing ? (
-               <select
+                <select
                   name="department"
                   value={form.department}
                   onChange={handleChange}
@@ -159,6 +169,7 @@ const MyProfile = () => {
                 >
                   <option value="CS">CS</option>
                   <option value="CE">CE</option>
+                  <option value="BIT">BIT</option>
                 </select>
               ) : (
                 <input
@@ -180,8 +191,14 @@ const MyProfile = () => {
                   onChange={handleChange}
                   className="w-full p-3 rounded-md border border-primary bg-white"
                 >
-                  {["1st", "2nd", "3rd", "4th", "5th", "6th"].map((s) => (
-                    <option key={s} value={s}>{s}</option>
+                  {(
+                    form.department === "BIT"
+                      ? ["1st", "2nd", "3rd", "4th"]
+                      : ["1st", "2nd", "3rd", "4th", "5th", "6th"]
+                  ).map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
                   ))}
                 </select>
               ) : (
