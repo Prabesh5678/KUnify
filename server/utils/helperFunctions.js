@@ -1,8 +1,10 @@
 import { OAuth2Client } from "google-auth-library";
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 import cloudinary from "../configs/cloudinary.config.js";
-import fs from "fs/promises";
 import path from "path";
+import crypto from "crypto";
+import fs from "fs/promises";
+import { fileTypeFromFile } from "file-type";
 
 export const handleGoogleAuth = async (credential) => {
   if (!credential) {
@@ -38,46 +40,76 @@ export const handleGoogleAuth = async (credential) => {
 export const uploadFile = async (file, folder = "uploads") => {
   const provider = process.env.STORAGE_PROVIDER;
   const env = process.env.NODE_ENV;
-try {
-  if (provider === "local") {
-    // Store under /uploads/<folder>/ on the VPS
-    const uploadDir = path.join(process.cwd(), "uploads",env, folder);
-    await fs.mkdir(uploadDir, { recursive: true });
 
-    const filename = `${Date.now()}-${file.originalname}`;
-    const destPath = path.join(uploadDir, filename);
+  try {
+    // Only allow uploads folder
+    folder = "uploads";
 
-    await fs.copyFile(file.path, destPath);
+    // Only allow PDF extension
+    const ext = path.extname(file.originalname).toLowerCase();
 
-    // Clean up multer's temp file
+    if (ext !== ".pdf") {
+      throw new Error("Only PDF files are allowed");
+    }
+
+    // Verify actual file content (prevents fake .pdf files)
+    const fileType = await fileTypeFromFile(file.path);
+
+    if (!fileType || fileType.mime !== "application/pdf") {
+      throw new Error("Invalid PDF file");
+    }
+
+    // Secure random filename (prevents collision + ignores malicious names)
+    const filename = `${crypto.randomUUID()}.pdf`;
+
+    if (provider === "local") {
+      // Store under /uploads/<env>/uploads/
+      const uploadDir = path.join(process.cwd(), "uploads", env, folder);
+
+      await fs.mkdir(uploadDir, { recursive: true });
+
+      const destPath = path.join(uploadDir, filename);
+
+      await fs.copyFile(file.path, destPath);
+
+      // Clean up multer temp file
+      await fs.unlink(file.path).catch(() => {});
+
+      const baseUrl = process.env.BASE_URL;
+
+      const url = `${baseUrl}/uploads/${env}/${folder}/${filename}`;
+
+      return {
+        url,
+        publicId: null,
+      };
+    }
+
+    // Cloudinary
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: "kunify/uploads",
+      resource_type: "raw",
+      type: "upload",
+      access_mode: "public",
+      flags: "attachment",
+      public_id: crypto.randomUUID(),
+    });
+
     await fs.unlink(file.path).catch(() => {});
 
-    // Return a relative URL path (serve this via express.static or nginx)
-    const baseUrl = process.env.BASE_URL;
-    const url = `${baseUrl}/uploads/${env}/${folder}/${filename}`;
-    return { url, publicId: null };
-  }
+    let url = result.secure_url;
 
-  // Default: Cloudinary
-  const result = await cloudinary.uploader.upload(file.path, {
-    folder: `kunify/${folder}`,
-    resource_type: "raw",
-    type: "upload",
-    access_mode: "public",
-    flags: "attachment",
-  });
+    if (url.includes("/upload/")) {
+      url = url.replace("/upload/", "/upload/fl_attachment/");
+    }
 
-  // Clean up multer's temp file
-  await fs.unlink(file.path).catch(() => {});
-
-  let url = result.secure_url;
-  if (url.includes("/upload/")) {
-    url = url.replace("/upload/", "/upload/fl_attachment/");
-  }
-
-  return { url, publicId: result.public_id };
-}catch (err) {
+    return {
+      url,
+      publicId: result.public_id,
+    };
+  } catch (err) {
     await fs.unlink(file.path).catch(() => {});
+
     throw new Error(`File upload failed: ${err.message}`);
   }
 };
