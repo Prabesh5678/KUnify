@@ -18,6 +18,18 @@ export const googleSignIn = async (req, res) => {
     if (!result.success) return res.json(result);
 
     const { googleId, email, name, picture } = result;
+    const TEACHER_EMAIL = [
+      "grocerease6699@gmail.com",
+      "deekshyabadal@gmail.com",
+      "subhechhakarkee@gmail.com",
+      "sajanaranjitkar64@gmail.com",
+    ];
+    if(!email.endsWith("@ku.edu.np") && !TEACHER_EMAIL.includes(email.toLowerCase())) {
+      return res.json({
+        success: false,
+        message: "Only emails provided by KU is allowed",
+      });
+    }
 
     // Check if teacher already exists
     let teacher = await Teacher.findOne({ email: email });

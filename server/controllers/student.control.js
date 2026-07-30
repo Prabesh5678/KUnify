@@ -12,7 +12,12 @@ export const googleSignIn = async (req, res) => {
     if (!result.success) return res.json(result); 
     const { googleId, email, name, avatar } = result;
  
-   
+   if(!email.endsWith("@student.ku.edu.np")) {
+      return res.json({
+        success: false,
+        message: "Only emails provided by KU is allowed",
+      });
+    }
     let student = await Student.findOne({ email});
 
     if (!student) {

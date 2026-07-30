@@ -72,7 +72,7 @@ const LoginPanel = () => {
       }
 
       // ---- Student ----
-      else if (!email.endsWith("@student.ku.edu.np")&& email!=='whysocs@gmail.com') {
+      else if (!email.endsWith("@student.ku.edu.np")) {
         return toast.error("Only emails provided by KU is allowed");
       }
 
