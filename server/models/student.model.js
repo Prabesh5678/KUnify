@@ -26,6 +26,7 @@ const studentSchema = new mongoose.Schema(
 
     department: {
       type: String,
+      enum: ["CE", "CS", "BIT"],
       default: null,
     },
 
@@ -45,7 +46,6 @@ const studentSchema = new mongoose.Schema(
     },
 
    
-
     teamId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "team",
