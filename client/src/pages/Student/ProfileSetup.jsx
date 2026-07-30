@@ -21,6 +21,12 @@ const subjectMap = {
     "5th": "COMP311",
     "6th": "COMP313",
   },
+  BIT: {
+    "1st": "Project-1",
+    "2nd": "Project-2",
+    "3rd": "Project-3",
+    "4th": "Project-4",
+  }
 };
 
 const ProfileSetup = () => {
@@ -128,6 +134,7 @@ const ProfileSetup = () => {
                 <option value="">-- Select --</option>
                 <option value="CE">CE</option>
                 <option value="CS">CS</option>
+                <option value="BIT">BIT</option>
               </select>
             </div>
 
@@ -143,7 +150,11 @@ const ProfileSetup = () => {
                 disabled={isLoading}
               >
                 <option value="">-- Select --</option>
-                {["1st", "2nd", "3rd", "4th", "5th", "6th"].map((s) => (
+                {(
+                  form.department === "BIT"
+                    ? ["1st", "2nd", "3rd", "4th"]
+                    : ["1st", "2nd", "3rd", "4th", "5th", "6th"]
+                ).map((s) => (
                   <option key={s} value={s}>
                     {s}
                   </option>
