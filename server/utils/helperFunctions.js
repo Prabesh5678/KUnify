@@ -116,15 +116,47 @@ export const uploadFile = async (file, folder = "uploads") => {
 
 export const deleteFile = async (fileUrl, publicId) => {
   const provider = process.env.STORAGE_PROVIDER;
-   try {
-    if (!publicId ) {
-      const diskPath = path.join(process.cwd(), new URL(fileUrl).pathname);
+
+  try {
+    if (!publicId) {
+      // Local storage deletion
+
+      if (!fileUrl) {
+        throw new Error("File URL is required");
+      }
+
+      const pathname = new URL(fileUrl).pathname;
+
+      // Convert URL path to local filesystem path
+      const diskPath = path.join(process.cwd(), pathname);
+
+      // Only allow deleting files inside /uploads
+      const uploadRoot = path.join(process.cwd(), "uploads");
+
+      if (!diskPath.startsWith(uploadRoot)) {
+        throw new Error("Invalid file deletion path");
+      }
+
       await fs.unlink(diskPath);
     } else {
-      await cloudinary.uploader.destroy(publicId, { resource_type: "raw" });
+      // Cloudinary deletion
+
+      await cloudinary.uploader.destroy(publicId, {
+        resource_type: "raw",
+      });
     }
+
     console.log(`File deleted successfully from ${provider} storage.`);
+
+    return {
+      success: true,
+    };
   } catch (err) {
     console.error(`Error deleting file: ${err.message}`);
+
+    return {
+      success: false,
+      message: err.message,
+    };
   }
 };
