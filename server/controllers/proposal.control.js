@@ -135,7 +135,7 @@ export const changeProposal = async (req, res) => {
     proposal.proposalFile = { url, publicId };
     await proposal.save();
     deleteFile(oldUrl, oldPublicId);
-    return res.json({ success: true, message: "Proposal file updated successfully" });
+    return res.json({ success: true, url, message: "Proposal file updated successfully" });
   
   } catch (error) {
     console.error("changeProposal error:", error.message);

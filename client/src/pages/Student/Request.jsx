@@ -173,7 +173,7 @@ const Request = () => {
       );
 
       if (data.success) {
-        const updatedUrl = data.proposal?.proposalFile?.url || newPdfPreviewUrl;
+        const updatedUrl = data?.url || newPdfPreviewUrl;
         setPdfPreviewUrl(updatedUrl);
         setExistingProposal((prev) => ({
           ...prev,
