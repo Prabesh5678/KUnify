@@ -35,7 +35,8 @@ const PDFViewer = () => {
     // }
     // return url;
   };
-
+console.log("pdfUrl:", pdfUrl);
+console.log("viewableUrl:", viewableUrl);
   const viewableUrl = getViewablePdfUrl(pdfUrl);
 
   useEffect(() => {
